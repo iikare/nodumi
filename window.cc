@@ -227,16 +227,16 @@ void window::clearBuffer() {
  // fill(buffer, buffer + sizeof(buffer), 0);
  // fill(backBuffer, backBuffer + sizeof(backBuffer), 0);
  // fill(colbuf, colbuf + sizeof(colbuf), 0);
-  memset(buffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
-  memset(backBuffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
-  memset(colbuf, 0, WIDTH * HEIGHT * sizeof(unsigned char));
+  //memset(buffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
+  //memset(backBuffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
+  //memset(colbuf, 0, WIDTH * HEIGHT * sizeof(unsigned char));
 }
 
 void window::terminate() {
   menu.terminate();
   
-  delete []buffer;
-  delete []backBuffer;
+  delete[] buffer;
+  delete[] backBuffer;
   delete colbuf;
   
   SDL_DestroyRenderer(renderer);

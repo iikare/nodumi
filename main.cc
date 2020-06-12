@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
   //middle line
   if (true){//drawLine) { 
     for (int y = 0; y < main.getHeight(); y++) {
-      main.setPixelRGB(main.getWidth()/2, y, 255, 255, 255);
+    //  main.setPixelRGB(main.getWidth()/2, y, 255, 255, 255);
     }
   }
   
@@ -60,6 +60,7 @@ int main(int argc, char* argv[]) {
   Uint8* col[3]{reinterpret_cast<Uint8*>(0xAA), reinterpret_cast<Uint8*>(0x00), reinterpret_cast<Uint8*>(0xAA)};
   Uint8 r, g, b = 0;
   Sint32 shiftX = 0;
+  colorRGB linecol(233,0,22);
 
   bool run = false;
   bool drawLine = true;
@@ -75,7 +76,19 @@ int main(int argc, char* argv[]) {
     
     note renderNote;
 
+    if (run) {
+      main.clearBuffer();
 
+      if (drawLine) {
+        for (int y = 0; y < main.getHeight(); y++) {
+          main.setPixelRGB(main.getWidth()/2, y, linecol.r, linecol.g, linecol.b);
+        }
+        main.update();
+      }
+        
+    }
+
+    main.update();
     SDL_Event event;
 
     switch (main.eventHandler(event, shiftX)){
@@ -104,7 +117,6 @@ int main(int argc, char* argv[]) {
         break;
     }
 
-    main.update();
   }
   
   main.terminate();
