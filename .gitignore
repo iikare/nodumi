@@ -1,4 +1,4 @@
 MAM_Clone/
 old/
-.o
-.gch
+*.o
+*.gch
