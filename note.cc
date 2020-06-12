@@ -35,11 +35,11 @@ mfile::~mfile() {
   delete []notes;
 }
 
-note* mfile::getAllNotes() {
+note* mfile::getNotes() {
   return notes;
 }
 
-int mfile::getNumNotes() {
+int mfile::getNoteCount() {
   return noteCount;
 }
 

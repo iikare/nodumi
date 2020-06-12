@@ -29,8 +29,8 @@ class mfile {
     mfile();
     ~mfile();
 
-    note* getAllNotes();
-    int getNumNotes();
+    note* getNotes();
+    int getNoteCount();
 
     void shift(int shift_x);
     void update(int tempo_global);
