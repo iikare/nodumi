@@ -35,8 +35,10 @@ class window {
 
     window(string title);
     bool init();
-    unsigned char eventHandler(SDL_Event &event, Sint32 &shift_x);
+    unsigned char eventHandler(SDL_Event &event, Sint32 &shiftX);
     bool pointVisible(int x, int y);
+    int getWidth();
+    int getHeight();
      
     void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
     void setPixelHex(int x, int y, unsigned char hex);
