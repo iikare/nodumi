@@ -43,6 +43,7 @@ int main(int argc, char* argv[]) {
 
   main.clearBuffer();
   
+  cerr << "info: initializing render logic" << endl;
 
   bool state = true;
   
@@ -52,7 +53,13 @@ int main(int argc, char* argv[]) {
   Uint8* col[3]{reinterpret_cast<Uint8*>(0xAA), reinterpret_cast<Uint8*>(0x00), reinterpret_cast<Uint8*>(0xAA)};
   Uint8 r, g, b = 0;
   Sint32 shiftX = 0;
-  colorRGB linecol(233,0,22); 
+  colorRGB lineColor(233,0,22); 
+  colorRGB noteColorOn(0,100,255);
+  colorRGB noteColorOff(0,0,255);
+  colorRGB colorByNote(255,255,255);
+  bool colorByPart = true;
+  bool noteOn = false;
+  
   bool run = false;
   bool drawLine = true;
   bool applyTempoChange = false;
@@ -74,13 +81,13 @@ int main(int argc, char* argv[]) {
 
 
   while (state){
-    
-    note renderNote;
+    cerr << input.getNoteCount() << " is the note count." << endl; 
+    note& renderNote = notes[0];
     
     // now line will always render regardless of play state
     if (drawLine) {
       for (int y = 0; y < main.getHeight(); y++) {
-        main.setPixelRGB(main.getWidth()/2, y, linecol.r, linecol.g, linecol.b);
+        main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
       }
     }
     
@@ -88,10 +95,59 @@ int main(int argc, char* argv[]) {
       main.clearBuffer();
 
       // render notes
+      for (int i = 0; i < input.getNoteCount(); i++) {
+        // get current note
+        renderNote = notes[i];
 
+        // assume note is offscreen
+        renderNote.render = true;
 
+        x = main.getWidth() + round(renderNote.x/9);
+        y = -(renderNote.y - 63) * 14 + main.getHeight()/2;
+        width = main.getWidth() + round((renderNote.x + renderNote.duration)/9) - x - 1;
 
+        cerr << "log: values x, y, width: " << x << ", " << y << ", " << width << endl;
         
+        if (colorByPart) {
+         if (x <= main.getHeight()/2 && x >= main.getWidth()/2 - width) {
+            colorByNote.setRGB(255, 255, 255);
+            tempo = renderNote.tempo;
+         }
+        }
+        if (x < main.getHeight() && x > -width) {
+          renderNote.render = true; // note visible on screen
+
+          if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
+            noteOn = true;
+          }
+          else {
+            noteOn = false;
+          }
+
+          
+          for (int j = 0; j < width; j++) {
+            for (int k = 0; k < renderNote.height; k++) {
+              
+              if (colorByPart) {
+                // implement color shifting
+              }
+
+              if (noteOn) {
+                main.setPixelRGB(x + j, y + k, noteColorOn.r, noteColorOn.g, noteColorOn.b);
+              }
+              else {
+                main.setPixelRGB(x + j, y + k, noteColorOff.r, noteColorOff.g, noteColorOff.b);
+              }
+
+              main.setPixelHex(x + j, y + k, main.getPixelHex(x + j, y + k) + 1);
+            }
+          }
+        }
+      }
+    }
+
+    if (applyTempoChange) {
+      input.update(tempo);
     }
 
     SDL_Event event;
@@ -122,6 +178,7 @@ int main(int argc, char* argv[]) {
         break;
     }
     main.update();
+    main.clearBuffer();
   }
   
   main.terminate();

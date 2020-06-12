@@ -65,6 +65,8 @@ class colorRGB {
     colorRGB() : r(0), g(0), b(0) {}
     colorRGB(char red, char green, char blue) : r(red), g(green), b(blue) {}
 
+    void setRGB(char red, char green, char blue);
+
     char r;
     char g;
     char b;
