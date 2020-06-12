@@ -1,9 +1,11 @@
 #ifndef NOTE_H
 #define NOTE_H
 
+#include <string>
 #include "dpd/midifile/MidiFile.h"
 
 using namespace smf;
+using std::string;
 
 class note {
   public:
@@ -32,7 +34,7 @@ class mfile {
 
     void shift(int shift_x);
     void update(int tempo_global);
-    void load(const char* file);
+    void load(string file);
   private:
     int noteCount;
     note* notes;

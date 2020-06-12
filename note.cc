@@ -1,9 +1,14 @@
 #include <algorithm>
 #include <cmath>
+#include <iostream>
+#include <string>
 
 #include "note.h"
 
 using namespace smf;
+using std::cerr;
+using std::endl;
+using std::string;
 
 note::note() : tempo(0), col(0), duration(0), x(0), y(0), render(false) {}
 
@@ -49,27 +54,34 @@ void mfile::update(int tempo_global) {
   }
 }
 
-void mfile::load(const char* file) {
+void mfile::load(string file) {
   if (notes != nullptr) {
+    cerr << "info: resetting event structure" << endl;
     delete []notes;
-    notes = 0;
+    noteCount = 0;
   }
 
+  cerr << "info: loading MIDI - " << file << endl;
+
   MidiFile midifile;
-  midifile.read(file);
+  midifile.read(file.c_str());
 
   midifile.linkNotePairs();
-  
+ 
   int tracks = midifile.getTrackCount();
+  int cTrackCount = 0;
 
   for (int i = 0; i < tracks; i++) {
-    for (int j = 0; i < noteCount; i++) {
+    cTrackCount = midifile.getEventCount(i);
+    for (int j = 0; j < cTrackCount; j++) {
+      cerr << "uwu" << endl; 
       if (midifile[i][j].isNoteOn()) {
+  cerr << noteCount << endl;
         noteCount++;
       }
     }
   }
-
+  cerr << "this is a new owo" << endl;
   notes = new note[noteCount];
 
   int bpm = 0;
@@ -87,19 +99,20 @@ void mfile::load(const char* file) {
       }
     }
   }
+
   
   for (int i = 0; i < noteCount; i++) {
     for (int j = 0; j < noteCount; j++) {
       if(notes[j].x < notes[i].x) {
-        std::swap(notes[i], notes[j]);
+        //std::swap(notes[i], notes[j]);
       }
     }
   }
 
   idx = 0;
   
-  midifile.joinTracks();
-  midifile.sortTracks();
+  //midifile.joinTracks();
+  //midifile.sortTracks();
 
   for (int i = 0; i < midifile.getEventCount(0); i++) {
     if (midifile[0][i].isTempo()) {
