@@ -42,6 +42,71 @@ int main(int argc, char* argv[]) {
   input.load(filename);
 
   main.clearBuffer();
+  
+  //draw middle line
+ // bool drawLine = true; //TODO: add config file
+  //middle line
+  if (true){//drawLine) { 
+    for (int y = 0; y < main.getHeight(); y++) {
+      main.setPixelRGB(main.getWidth()/2, y, 255, 255, 255);
+    }
+  }
+  
+  bool state = true;
+  
+  int x, y, width = 0;
+  int tempo = 0;
 
+  Uint8* col[3]{reinterpret_cast<Uint8*>(0xAA), reinterpret_cast<Uint8*>(0x00), reinterpret_cast<Uint8*>(0xAA)};
+  Uint8 r, g, b = 0;
+  Sint32 shiftX = 0;
+
+  bool run = false;
+  bool drawLine = true;
+  bool applyTempoChange = false;
+  bool mouseDown = false;
+  
+  char noteOverlap = 1;
+
+  note* notes = input.getAllNotes();
+  tempo = notes[0].tempo;
+
+  while (state){
+    
+    note renderNote;
+
+
+    SDL_Event event;
+
+    switch (main.eventHandler(event, shiftX)){
+      case 1: // program closing
+        state = false;
+        break;
+      case 2: // play/pause (spacebar)
+        run = !run;
+        applyTempoChange = true;
+        break;
+      case 3:
+        mouseDown = true;
+        run = false;
+        break;
+      case 4:
+        mouseDown = false;
+        run = false;
+        applyTempoChange = true;
+        break;
+      case 5:
+        if (mouseDown) {
+          input.shift(static_cast<int>(shiftX));
+          run = true;
+          applyTempoChange = false;
+        }
+        break;
+    }
+
+    main.update();
+  }
+  
+  main.terminate();
   return 0;
 }

@@ -108,7 +108,7 @@ bool window::init() {
   return true;
 }
 
-unsigned char window::eventHandler(SDL_Event &event, Sint32 &shift_x) {
+unsigned char window::eventHandler(SDL_Event &event, Sint32 &shiftX) {
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
       case SDL_QUIT:
@@ -123,7 +123,7 @@ unsigned char window::eventHandler(SDL_Event &event, Sint32 &shift_x) {
       case SDL_MOUSEBUTTONUP:
         return 4;
       case SDL_MOUSEMOTION:
-        shift_x = event.motion.xrel;
+        shiftX = event.motion.xrel;
         return 5;
     }
   }
@@ -132,6 +132,14 @@ unsigned char window::eventHandler(SDL_Event &event, Sint32 &shift_x) {
 
 bool window::pointVisible(int x, int y) {
   return (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT);
+}
+
+int window::getWidth() {
+  return WIDTH;
+}
+
+int window::getHeight() {
+  return HEIGHT;
 }
 
 void window::setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b) {
