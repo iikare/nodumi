@@ -2,7 +2,10 @@
 #define SCREEN_H
 
 #include <iostream>
+#include <string>
 #include <SDL2/SDL.h>
+
+using std::string;
 
 class menubox {
   public:
@@ -30,7 +33,7 @@ class window {
      
     menubox menu;
 
-    window(const char* title);
+    window(string title);
     bool init();
     unsigned char eventHandler(SDL_Event &event, Sint32 &shift_x);
     bool pointVisible(int x, int y);
@@ -46,7 +49,7 @@ class window {
     void clearBuffer();
     void terminate();
   private:
-    const char* title;
+    string title;
     SDL_Window* windowA;
     SDL_Renderer* renderer;
     SDL_Texture* texture;

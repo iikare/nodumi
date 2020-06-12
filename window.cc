@@ -57,7 +57,7 @@ void menubox::terminate() {
   SDL_DestroyWindow(windowA);
 }
 
-window::window(const char* title) : 
+window::window(string title) : 
   windowA(nullptr), renderer(nullptr), texture(nullptr), 
   buffer(nullptr), backBuffer(nullptr), colbuf(nullptr) {
   this->title = title;
@@ -69,7 +69,7 @@ bool window::init() {
     return false;
   } 
       
-  windowA = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+  windowA = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 
   if (windowA == nullptr) {
     SDL_Quit();
