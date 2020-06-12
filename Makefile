@@ -10,10 +10,10 @@ FILES = ./build/*.o
 
 NAME = viewer
 
-all: viewer
+all: $(NAME)
 
-viewer: $(OBJS)
-	$(CC) $(CFLAGS) $(LFLAGS) -o viewer $(FILES) 
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $(LFLAGS) -o $(NAME) $(FILES) 
 
 main.o: main.cc
 	$(CC) $(CFLAGS) -c main.cc  -o build/main.o
