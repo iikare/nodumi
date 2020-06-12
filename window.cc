@@ -244,3 +244,9 @@ void window::terminate() {
   SDL_DestroyWindow(windowA);
   SDL_Quit();
 }
+
+void colorRGB::setRGB(char red, char green, char blue) {
+  r = red;
+  g = green;
+  b = blue;
+}
