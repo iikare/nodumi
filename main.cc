@@ -43,15 +43,7 @@ int main(int argc, char* argv[]) {
 
   main.clearBuffer();
   
-  //draw middle line
- // bool drawLine = true; //TODO: add config file
-  //middle line
-  if (true){//drawLine) { 
-    for (int y = 0; y < main.getHeight(); y++) {
-    //  main.setPixelRGB(main.getWidth()/2, y, 255, 255, 255);
-    }
-  }
-  
+
   bool state = true;
   
   int x, y, width = 0;
@@ -60,8 +52,7 @@ int main(int argc, char* argv[]) {
   Uint8* col[3]{reinterpret_cast<Uint8*>(0xAA), reinterpret_cast<Uint8*>(0x00), reinterpret_cast<Uint8*>(0xAA)};
   Uint8 r, g, b = 0;
   Sint32 shiftX = 0;
-  colorRGB linecol(233,0,22);
-
+  colorRGB linecol(233,0,22); 
   bool run = false;
   bool drawLine = true;
   bool applyTempoChange = false;
@@ -69,26 +60,40 @@ int main(int argc, char* argv[]) {
   
   char noteOverlap = 1;
 
-  note* notes = input.getAllNotes();
+  note* notes = input.getNotes();
   tempo = notes[0].tempo;
+  
+  /*
+   *  TODO:
+   *    add user-customizable line color
+   *    add menu bar on top
+   *    add file picker
+   *    add color picker for parts
+   *    add config file parsing
+   */
+
 
   while (state){
     
     note renderNote;
-
+    
+    // now line will always render regardless of play state
+    if (drawLine) {
+      for (int y = 0; y < main.getHeight(); y++) {
+        main.setPixelRGB(main.getWidth()/2, y, linecol.r, linecol.g, linecol.b);
+      }
+    }
+    
     if (run) {
       main.clearBuffer();
 
-      if (drawLine) {
-        for (int y = 0; y < main.getHeight(); y++) {
-          main.setPixelRGB(main.getWidth()/2, y, linecol.r, linecol.g, linecol.b);
-        }
-        main.update();
-      }
+      // render notes
+
+
+
         
     }
 
-    main.update();
     SDL_Event event;
 
     switch (main.eventHandler(event, shiftX)){
@@ -116,7 +121,7 @@ int main(int argc, char* argv[]) {
         }
         break;
     }
-
+    main.update();
   }
   
   main.terminate();
