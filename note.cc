@@ -7,6 +7,7 @@
 
 using namespace smf;
 using std::cerr;
+using std::cout;
 using std::endl;
 using std::string;
 
@@ -74,14 +75,11 @@ void mfile::load(string file) {
   for (int i = 0; i < tracks; i++) {
     cTrackCount = midifile.getEventCount(i);
     for (int j = 0; j < cTrackCount; j++) {
-      cerr << "uwu" << endl; 
       if (midifile[i][j].isNoteOn()) {
-  cerr << noteCount << endl;
         noteCount++;
       }
     }
   }
-  cerr << "this is a new owo" << endl;
   notes = new note[noteCount];
 
   int bpm = 0;
@@ -99,20 +97,19 @@ void mfile::load(string file) {
       }
     }
   }
-
   
   for (int i = 0; i < noteCount; i++) {
     for (int j = 0; j < noteCount; j++) {
       if(notes[j].x < notes[i].x) {
-        //std::swap(notes[i], notes[j]);
+        std::swap(notes[i], notes[j]);
       }
     }
   }
 
   idx = 0;
   
-  //midifile.joinTracks();
-  //midifile.sortTracks();
+  midifile.joinTracks();
+  midifile.sortTracks();
 
   for (int i = 0; i < midifile.getEventCount(0); i++) {
     if (midifile[0][i].isTempo()) {
