@@ -24,12 +24,17 @@ int main(int argc, char* argv[]) {
   ifstream filecheck;
   filecheck.open(filename);
   if (!filecheck) {
-    cerr << "Invalid File: " << filename << "!" << endl;
+    cerr << "Invalid file: " << filename << "!" << endl;
     exit(1);
   }
   filecheck.close();
 
   window main = window(static_cast<string>("mviewer ") +static_cast<string>(VERSION));
+
+  if (!main.init()) {
+    cerr << "Failed to initialize window" << endl;
+    exit(1);
+  }
 
 
   mfile input;

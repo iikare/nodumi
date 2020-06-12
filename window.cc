@@ -5,6 +5,7 @@
 using std::cerr;
 using std::endl;
 using std::swap;
+using std::fill;
 
 menubox::menubox() : title(""), windowA(nullptr), renderer(nullptr), texture(nullptr), buffer(nullptr) {}
 
@@ -215,6 +216,9 @@ void window::update() {
 }
 
 void window::clearBuffer() {
+ // fill(buffer, buffer + sizeof(buffer), 0);
+ // fill(backBuffer, backBuffer + sizeof(backBuffer), 0);
+ // fill(colbuf, colbuf + sizeof(colbuf), 0);
   memset(buffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
   memset(backBuffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
   memset(colbuf, 0, WIDTH * HEIGHT * sizeof(unsigned char));
