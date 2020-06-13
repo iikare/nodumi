@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 
   
   int x, y, width = 0;
-  int tempo = 0;
+  int shiftTime = 0;
   int shiftX = 100;
   
   colorRGB lineColor(233, 0, 22); 
@@ -83,11 +83,9 @@ int main(int argc, char* argv[]) {
   
   note* notes = input.getNotes();
 
-  input.scaleToWindow(main.getHeight());
-
   note& renderNote = notes[0];
   note& lastNote = notes[sizeof(notes)];
-  tempo = notes[0].tempo;
+  shiftTime = notes[0].tempo;
 
   SDL_Event event;
 
@@ -130,7 +128,7 @@ int main(int argc, char* argv[]) {
           renderNote = notes[i];
          
           // check visibility 
-          if(!main.noteVisible(renderNote)){
+          if(!main.noteVisible(renderNote)){      // is this relevant anymore?
             renderNote.render = false;
           }
           else {
@@ -146,7 +144,7 @@ int main(int argc, char* argv[]) {
           if (colorByPart) {
            if (x <= main.getHeight()/2 && x >= main.getWidth()/2 - width) {
               colorByNote.setRGB(255, 255, 255);
-              tempo = renderNote.tempo;
+              shiftTime = renderNote.tempo;         //does this need to be here?
            }
           }
           if (x < main.getWidth() && x > - width) {
@@ -184,7 +182,7 @@ int main(int argc, char* argv[]) {
             end = true;
           }
           else{
-            input.updateTempo(tempo);
+            input.shiftTime(shiftTime);
           }
         }
       }
@@ -198,10 +196,10 @@ int main(int argc, char* argv[]) {
         noteShift = true;
         break;
       case 3: // right arrow
-        input.shift(shiftX);
+        input.shiftX(shiftX);
         break;
       case 4: // left arrow
-        input.shift(-shiftX);
+        input.shiftX(-shiftX);
         break;
     }
     main.update();

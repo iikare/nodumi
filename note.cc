@@ -24,16 +24,12 @@ void note::init(double tempo, double time, double pitch, double duration, unsign
   this->col = color;
 }
 
-void note::shift(int shift_x) {
-  x += shift_x;
+void note::shiftX(int shiftX) {
+  x += shiftX;
 }
 
-void note::updateTempo(int tempo) {
-  x -= round(static_cast<double>(tempo)/7.5);
-}
-
-void note::scaleToWindow(int height, int range) {
-  height = round(static_cast<double>(height)/range);
+void note::shiftTime(int timeInc) {
+  x -= round(static_cast<double>(timeInc)/7.5);
 }
 
 mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), notes(nullptr) {}
@@ -50,21 +46,15 @@ int mfile::getNoteCount() {
   return noteCount;
 }
 
-void mfile::shift(int shift_x) {
+void mfile::shiftX(int shiftX) {
   for (int i = 0; i < noteCount; i++) {
-    notes[i].shift(shift_x);
+    notes[i].shiftX(shiftX);
   }
 }
 
-void mfile::updateTempo(int tempo_global) {
+void mfile::shiftTime(int timeInc) {
   for (int i = 0; i < noteCount; i++) {
-    notes[i].updateTempo(tempo_global);
-  }
-}
-
-void mfile::scaleToWindow(int height) {
-  for (int i = 0; i < noteCount; i++) {
-    notes[i].scaleToWindow(height, max(MIN_NOTE_HEIGHT, noteMax - noteMin));
+    notes[i].shiftTime(timeInc);
   }
 }
 
