@@ -98,8 +98,7 @@ int main(int argc, char* argv[]) {
 
 
   while (state){
-    //cerr << "note height is " << noteHeight << endl;
-
+    // render menu
     for (int x = 0; x <= main.getWidth(); x++) {
         for (int y = 0; y <= menuHeight; y++) {
           main.setPixelRGB(x, y, 255, 255, 255);
@@ -107,8 +106,6 @@ int main(int argc, char* argv[]) {
     }
 
     if (!end) {
-
-
 
       // now line will always render regardless of play state
       if (drawLine) {
