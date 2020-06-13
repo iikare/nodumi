@@ -8,57 +8,6 @@ using std::endl;
 using std::swap;
 using std::fill;
 
-menubox::menubox() : title(""), windowA(nullptr), renderer(nullptr), texture(nullptr), buffer(nullptr) {}
-
-bool menubox::init(int x, int y) {
-  windowA = SDL_CreateWindow(title, x, y, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
-
-  if (windowA == nullptr) {
-    SDL_Quit();
-    return false;
-  }
-
-  renderer = SDL_CreateRenderer(windowA, -1, SDL_RENDERER_PRESENTVSYNC);
-  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, WIDTH, HEIGHT);
-
-  if (renderer == nullptr) {
-    cerr << "Failed to create renderer." << endl;
-    SDL_DestroyWindow(windowA);
-    SDL_Quit();
-    return false;
-  }
-
-  if (texture == nullptr) {
-    cerr << "Failed to create texture" << endl;
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(windowA);
-    SDL_Quit();
-    return false;
-  }
-
-  buffer = new Uint32[WIDTH * HEIGHT];
-
-  return true;
-}
-
-unsigned char menubox::eventHandler(SDL_Event &event) {
-  return 0;
-}
-
-void menubox::update() {
-  SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(Uint32));
-  SDL_RenderClear(renderer);
-  SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-  SDL_RenderPresent(renderer);
-}
-
-void menubox::terminate() {
-  delete []buffer;
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyTexture(texture);
-  SDL_DestroyWindow(windowA);
-}
-
 window::window(string title) : 
   windowA(nullptr), renderer(nullptr), texture(nullptr), 
   buffer(nullptr), backBuffer(nullptr), colbuf(nullptr) {
@@ -103,8 +52,6 @@ bool window::init() {
   int x, y = 0;
 
   SDL_GetWindowPosition(windowA, &x, &y);
-
-  menu.init(x - 200, y);
 
   return true;
 }
@@ -238,7 +185,6 @@ void window::clearBuffer() {
 }
 
 void window::terminate() {
-  menu.terminate();
   
   delete[] buffer;
   delete[] backBuffer;

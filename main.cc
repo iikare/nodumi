@@ -50,8 +50,6 @@ int main(int argc, char* argv[]) {
   int x, y, width = 0;
   int tempo = 0;
 
-  Uint8* col[3]{reinterpret_cast<Uint8*>(0xAA), reinterpret_cast<Uint8*>(0x00), reinterpret_cast<Uint8*>(0xAA)};
-  Uint8 r, g, b = 0;
   Sint32 shiftX = 0;
   colorRGB lineColor(233,0,22); 
   colorRGB noteColorOn(0,100,255);
