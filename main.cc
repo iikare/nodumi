@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
   
   int x, y, width = 0;
   int tempo = 0;
-  int shiftX = 0;
+  int shiftX = 100;
   
   colorRGB lineColor(233,0,22); 
   colorRGB noteColorOn(0,100,255);
@@ -158,7 +158,6 @@ int main(int argc, char* argv[]) {
                   main.setPixelRGB(x + j, y + k, noteColorOff.r, noteColorOff.g, noteColorOff.b);
                 }
 
-                main.setPixelHex(x + j, y + k, main.getPixelHex(x + j, y + k) + 1);
               }
             }
           }
@@ -175,7 +174,7 @@ int main(int argc, char* argv[]) {
         }
       }
     }
-    switch (main.eventHandler(event, shiftX)){
+    switch (main.eventHandler(event)){
       case 1: // program closing
         state = false;
         break;
@@ -184,11 +183,10 @@ int main(int argc, char* argv[]) {
         noteShift = true;
         break;
       case 3: // right arrow
-        input.shift(-shiftX);
-        cerr << "right arrow?" << endl;
+        input.shift(shiftX);
         break;
       case 4: // left arrow
-        input.shift(shiftX);
+        input.shift(-shiftX);
         break;
     }
     main.update();
