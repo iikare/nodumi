@@ -7,6 +7,7 @@
 #include "note.h"
 
 using std::cerr;
+using std::cout;
 using std::endl;
 using std::string;
 using std::ifstream;
@@ -15,7 +16,7 @@ using std::ifstream;
 int main(int argc, char* argv[]) {
 
   if (argc !=2) {
-    cerr << "Invalid Usage: specify a input file!" << endl;
+    cerr << "error: invalid usage - specify a input file!" << endl;
     exit(1);
   }
   
@@ -24,7 +25,7 @@ int main(int argc, char* argv[]) {
   ifstream filecheck;
   filecheck.open(filename);
   if (!filecheck) {
-    cerr << "Invalid file: " << filename << "!" << endl;
+    cerr << "error: invalid file: " << filename << "!" << endl;
     exit(1);
   }
   filecheck.close();
@@ -32,7 +33,7 @@ int main(int argc, char* argv[]) {
   window main = window(static_cast<string>("mviewer ") +static_cast<string>(VERSION));
 
   if (!main.init()) {
-    cerr << "Failed to initialize window" << endl;
+    cerr << "error: failed to initialize window" << endl;
     exit(1);
   }
 
@@ -44,6 +45,12 @@ int main(int argc, char* argv[]) {
   main.clearBuffer();
   
   cerr << "info: initializing render logic" << endl;
+
+  /*
+   * * * * * * * 
+   * VARIABLES *
+   * * * * * * *
+   */ 
 
   bool state = true;
   
@@ -59,6 +66,7 @@ int main(int argc, char* argv[]) {
   bool noteOn = false;
   
   bool run = false;
+  bool end = false;
   bool drawLine = true;
   bool applyTempoChange = false;
   bool mouseDown = false;
@@ -66,8 +74,13 @@ int main(int argc, char* argv[]) {
   char noteOverlap = 1;
 
   note* notes = input.getNotes();
+
+  input.scaleToWindow(main.getHeight());
+
   note& renderNote = notes[0];
   tempo = notes[0].tempo;
+  int noteHeight = notes[0].height;
+
   SDL_Event event;
 
   /*
@@ -76,16 +89,16 @@ int main(int argc, char* argv[]) {
    *    add menu bar on top
    *    add file picker
    *    add color picker for parts
+   *    add color by parts
    *    add config file parsing
    *    scale notes by window size
    */
 
- // input.scaleToWindow(main.getHeight());
 
   while (state){
-    
+    //cerr << "note height is " << noteHeight << endl; 
 
-    if (run) {
+    if (run && !end) {
       main.clearBuffer();
     }
 
@@ -96,7 +109,7 @@ int main(int argc, char* argv[]) {
         main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
       }
     }
-    if (run) {
+    if (run && !end) {
       // render notes
       for (int i = 0; i < input.getNoteCount(); i++) {
         // get current note
@@ -112,7 +125,9 @@ int main(int argc, char* argv[]) {
 
         x = main.getWidth() + round(renderNote.x/9);
        // y = round(main.getHeight() *(static_cast<double>(renderNote.y - 0x80)/input.getNoteRange()));
-        y =  -(renderNote.y - 63) * 14 + main.getHeight()/2;
+        //y =  -(renderNote.y - 63) * 14 + main.getHeight()/2;
+        y = main.getHeight() - round(main.getHeight() * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 1)/(NOTE_RANGE + 1));
+        cout << "render note y is " << renderNote.y << " while calc y is " << y << endl;
         width = renderNote.duration/TICK_TO_SEC;
         
         if (colorByPart) {
@@ -121,7 +136,7 @@ int main(int argc, char* argv[]) {
             tempo = renderNote.tempo;
          }
         }
-        if (x < main.getHeight() && x > -width) {
+        if (x < main.getWidth() && x > -width) {
 
           if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
             noteOn = true;

@@ -11,8 +11,8 @@ using std::string;
 
 class window {
   public:
-    const static int WIDTH = 1280;
-    const static int HEIGHT = 720;
+    const static int WIDTH = WIN_WIDTH;
+    const static int HEIGHT = WIN_HEIGHT;
      
     window(string title);
     bool init();
