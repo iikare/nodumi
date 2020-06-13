@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
   
   int x, y, width = 0;
   int shiftTime = 0;
-  int shiftX = 100;
+  int shiftX = 200;
   
   colorRGB lineColor(233, 0, 22); 
   colorRGB noteColorOn(0, 100, 255);
@@ -68,6 +68,7 @@ int main(int argc, char* argv[]) {
   bool noteOn = false;
   
   bool run = false;
+  bool first = true;
   bool end = false;
   bool drawLine = true;
   bool noteShift = false;
@@ -101,7 +102,8 @@ int main(int argc, char* argv[]) {
           main.setPixelRGB(x, y, 255, 255, 255);
         }
     }
-
+    
+    main.renderFont(0, 0, "test text");
 
     if (!end) {
 
@@ -111,7 +113,9 @@ int main(int argc, char* argv[]) {
           main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
         }
       }
-      if (run) {
+      if (run || first) {
+        first = false;
+
         // render notes
         for (int i = 0; i < input.getNoteCount(); i++) {
           // get current note
@@ -125,7 +129,7 @@ int main(int argc, char* argv[]) {
             renderNote.render = true;
           }
 
-          x = main.getWidth() + round(renderNote.x/TICKS_TO_SEC);
+          x = main.getWidth()/2 + round(renderNote.x/TICKS_TO_SEC);
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           width = renderNote.duration/TICKS_TO_SEC;
           
@@ -166,8 +170,8 @@ int main(int argc, char* argv[]) {
           }
         }
         if (noteShift) {
-          //cerr << lastNote.x/TICKS_TO_SEC + main.getWidth() << " vs. " << main.getWidth()/2 - lastNote.duration << endl;
-          if(lastNote.x/TICKS_TO_SEC + main.getWidth() <= main.getWidth()/2 - lastNote.duration) {
+          //cerr << lastNote.x/TICKS_TO_SEC + main.getWidth()/2 << " vs. " << main.getWidth()/2 - lastNote.duration << endl;
+          if(lastNote.x/TICKS_TO_SEC + main.getWidth()/2 <= main.getWidth()/2 - lastNote.duration) {
             run = false;
             end = true;
           }
@@ -182,14 +186,16 @@ int main(int argc, char* argv[]) {
         state = false;
         break;
       case 2: // play/pause (spacebar)
-        run = !run;
-        noteShift = true;
+        if(!end) {
+          run = !run;
+          noteShift = true;
+        }
         break;
       case 3: // right arrow
-        input.shiftX(shiftX);
+        input.shiftX(-shiftX);
         break;
       case 4: // left arrow
-        input.shiftX(-shiftX);
+        input.shiftX(shiftX);
         break;
     }
     main.update();
