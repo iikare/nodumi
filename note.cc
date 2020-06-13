@@ -68,6 +68,15 @@ void mfile::scaleToWindow(int height) {
   }
 }
 
+int::mfile::getNoteRange() {
+  int result = noteMax - noteMin;
+  if (result <= 0) {
+    cerr << "error: MIDI file with note range 0" << endl;
+    exit(1);
+  }
+  return result;
+}
+
 void mfile::load(string file) {
   if (notes != nullptr) {
     cerr << "info: resetting event structure" << endl;

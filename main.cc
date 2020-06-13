@@ -66,8 +66,10 @@ int main(int argc, char* argv[]) {
   char noteOverlap = 1;
 
   note* notes = input.getNotes();
+  note& renderNote = notes[0];
   tempo = notes[0].tempo;
-  
+  SDL_Event event;
+
   /*
    *  TODO:
    *    add user-customizable line color
@@ -78,11 +80,11 @@ int main(int argc, char* argv[]) {
    *    scale notes by window size
    */
 
-  input.scaleToWindow(main.getHeight());
+ // input.scaleToWindow(main.getHeight());
 
   while (state){
-    note& renderNote = notes[0];
     
+
     if (run) {
       main.clearBuffer();
     }
@@ -95,14 +97,12 @@ int main(int argc, char* argv[]) {
       }
     }
     if (run) {
-
       // render notes
       for (int i = 0; i < input.getNoteCount(); i++) {
         // get current note
         renderNote = notes[i];
-
-        // assume note is offscreen
-        
+       
+        // check visibility 
         if(!main.noteVisible(renderNote)){
           renderNote.render = false;
         }
@@ -111,7 +111,8 @@ int main(int argc, char* argv[]) {
         }
 
         x = main.getWidth() + round(renderNote.x/9);
-        y = -(renderNote.y - 63) * 14 + main.getHeight()/2;
+       // y = round(main.getHeight() *(static_cast<double>(renderNote.y - 0x80)/input.getNoteRange()));
+        y =  -(renderNote.y - 63) * 14 + main.getHeight()/2;
         width = renderNote.duration/TICK_TO_SEC;
         
         if (colorByPart) {
@@ -149,13 +150,10 @@ int main(int argc, char* argv[]) {
           }
         }
       }
+      if (applyTempoChange) {
+        input.updateTempo(tempo);
+      }
     }
-
-    if (applyTempoChange) {
-      input.updateTempo(tempo);
-    }
-
-    SDL_Event event;
 
     switch (main.eventHandler(event, shiftX)){
       case 1: // program closing

@@ -31,11 +31,13 @@ class mfile {
     ~mfile();
 
     note* getNotes();
+    int getNoteRange();
     int getNoteCount();
 
     void shift(int shift_x);
     void updateTempo(int tempo_global);
     void scaleToWindow(int height);
+
     void load(string file);
   private:
     int noteCount;
