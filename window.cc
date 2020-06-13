@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <SDL2/SDL_ttf.h>
 
 #include "window.h"
 #include "note.h"
@@ -142,13 +143,26 @@ void window::terminate() {
   SDL_DestroyRenderer(renderer);
   SDL_DestroyTexture(texture);
   SDL_DestroyWindow(windowA);
+  TTF_Quit();
   SDL_Quit();
 }
 
-colorRGB::colorRGB() : r(0), g(0), b(0) {}
-colorRGB::colorRGB(char red, char green, char blue) : r(red), g(green), b(blue) {}
+void window::renderTextToLocation(TTF_Font* font, string text, colorRGB color, int x, int y, int w, int h) {
+  SDL_Color col = {color.r, color.g, color.b, 255};
+  SDL_Surface* fontSurface = TTF_RenderText_Solid(font, text.c_str(), col);
+  SDL_Texture* fontTexture = SDL_CreateTextureFromSurface(renderer, fontSurface);
+  
+  SDL_Rect fontRect = {x, y, w, h};
+  SDL_RenderCopy(renderer, fontTexture, NULL, &fontRect);
 
-void colorRGB::setRGB(char red, char green, char blue) {
+  SDL_FreeSurface(fontSurface);
+  SDL_DestroyTexture(fontTexture);
+}
+
+colorRGB::colorRGB() : r(0), g(0), b(0) {}
+colorRGB::colorRGB(unsigned char red, unsigned char green, unsigned char blue) : r(red), g(green), b(blue) {}
+
+void colorRGB::setRGB(unsigned char red, unsigned char green, unsigned char blue) {
   r = red;
   g = green;
   b = blue;
