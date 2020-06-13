@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
+#include "dpd/SDL_FontCache/SDL_FontCache.h"
 #include "misc.h"
 #include "window.h"
 #include "note.h"
@@ -55,15 +55,6 @@ int main(int argc, char* argv[]) {
 
   const int menuHeight = 20;
   const int areaTop = 20;
-
-  const int fontSize = 24;
-  TTF_Font* menuFont = TTF_OpenFont("./dpd/fonts/lazy.ttf", fontSize);
-  colorRGB menuColor(0, 255, 255);
-  
-  if (menuFont == nullptr) {
-    cerr << "warn: font initialization for font lazy.ttf failed" << endl;
-  }
-
   
   int x, y, width = 0;
   int shiftTime = 0;
@@ -111,7 +102,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    main.renderTextToLocation(menuFont, "F", menuColor, 0, 0, 100, 50);
 
     if (!end) {
 

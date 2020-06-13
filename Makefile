@@ -4,7 +4,7 @@ CFLAGS = --std=c++11 -Wall -Wextra -g
 
 LFLAGS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
-OBJS = main.o note.o window.o Binasc.o MidiEvent.o MidiEventList.o MidiFile.o MidiMessage.o Options.o
+OBJS = main.o note.o window.o SDL_FontCache.o Binasc.o MidiEvent.o MidiEventList.o MidiFile.o MidiMessage.o Options.o
 
 FILES = ./build/*.o
 
@@ -21,8 +21,11 @@ main.o: main.cc
 note.o: note.cc note.h
 	$(CC) $(CFLAGS) -c note.cc -o build/note.o
 
-window.o: window.cc window.h note.h
+window.o: window.cc window.h
 	$(CC) $(CFLAGS) -c window.cc -o build/window.o
+
+SDL_FontCache.o: ./dpd/SDL_FontCache/SDL_FontCache.c ./dpd/SDL_FontCache/SDL_FontCache.h
+	$(CC) $(CFLAGS) -c -w ./dpd/SDL_FontCache/SDL_FontCache.c -o build/SDL_FontCache.o
 
 Binasc.o: ./dpd/midifile/Binasc.cpp ./dpd/midifile/Binasc.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/Binasc.cpp -o build/Binasc.o

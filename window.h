@@ -36,7 +36,6 @@ class window {
     int getWidth();
     int getHeight();
 
-    void renderTextToLocation(TTF_Font* font, string text, colorRGB color, int x, int y, int w, int h);
      
     void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
     Uint8* getPixelRGB(int x, int y);
@@ -45,12 +44,16 @@ class window {
     void clearBuffer();
     void terminate();
   private:
+    
     string title;
     SDL_Window* windowA;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
-    
     Uint32* buffer;
+
+    TTF_Font* menuFont;
+    colorRGB menuColor;
+    int fontSize;
 };
 
 #endif
