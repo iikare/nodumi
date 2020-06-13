@@ -53,6 +53,9 @@ int main(int argc, char* argv[]) {
    */ 
 
   bool state = true;
+
+  const int menuHeight = 20;
+  const int areaTop = 20;
   
   int x, y, width = 0;
   int tempo = 0;
@@ -88,23 +91,28 @@ int main(int argc, char* argv[]) {
    *    add color picker for parts
    *    add color by parts
    *    add config file parsing
-   *    left/right arrow able to move
-   *    scale notes by window size            DONE (test with note value 0)
+   *    up/down arrow control horizontal scale
+   *    left/right arrow able to move             DONE 
+   *    scale notes by window size                DONE (test with note value 0)
    */
 
 
   while (state){
-    //cerr << "note height is " << noteHeight << endl; 
+    //cerr << "note height is " << noteHeight << endl;
+
+    for (int x = 0; x <= main.getWidth(); x++) {
+        for (int y = 0; y <= menuHeight; y++) {
+          main.setPixelRGB(x, y, 255, 255, 255);
+        }
+    }
+
     if (!end) {
 
-      if (run) {
-        main.clearBuffer();
-      }
 
 
       // now line will always render regardless of play state
       if (drawLine) {
-        for (int y = 0; y < main.getHeight(); y++) {
+        for (int y = areaTop; y < main.getHeight(); y++) {
           main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
         }
       }
@@ -123,7 +131,7 @@ int main(int argc, char* argv[]) {
           }
 
           x = main.getWidth() + round(renderNote.x/TICKS_TO_SEC);
-          y = main.getHeight() - round(main.getHeight() * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3));
+          y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           width = renderNote.duration/TICKS_TO_SEC;
           
           //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
@@ -163,7 +171,7 @@ int main(int argc, char* argv[]) {
           }
         }
         if (noteShift) {
-          //cerr << lastNote.x/TICKS_TO_SEC + main.getWidth() << " vs. " << main.getWidth()/2 + lastNote.duration << endl;
+          cerr << lastNote.x/TICKS_TO_SEC + main.getWidth() << " vs. " << main.getWidth()/2 - lastNote.duration << endl;
           if(lastNote.x/TICKS_TO_SEC + main.getWidth() <= main.getWidth()/2 - lastNote.duration) {
             run = false;
             end = true;
@@ -190,6 +198,10 @@ int main(int argc, char* argv[]) {
         break;
     }
     main.update();
+
+    if (run) {
+      main.clearBuffer();
+    }
   }
   
   main.terminate();
