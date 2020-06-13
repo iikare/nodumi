@@ -20,6 +20,10 @@ bool window::init() {
     cerr << "Failed to initialize SDL" << endl;
     return false;
   } 
+
+  if (TTF_Init < 0) {
+    cerr << "warn: TTF initialization failed" << endl;
+  }
       
   windowA = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 
