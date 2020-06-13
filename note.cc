@@ -52,7 +52,7 @@ int mfile::getNoteCount() {
 
 void mfile::shift(int shift_x) {
   for (int i = 0; i < noteCount; i++) {
-    notes->shift(shift_x);
+    notes[i].shift(shift_x);
   }
 }
 

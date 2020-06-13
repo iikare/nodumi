@@ -56,23 +56,23 @@ bool window::init() {
   return true;
 }
 
-unsigned char window::eventHandler(SDL_Event &event, Sint32 &shiftX) {
+unsigned char window::eventHandler(SDL_Event &event, int &shiftX) {
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
       case SDL_QUIT:
         return 1;
+        break;
       case SDL_KEYDOWN:
         if (event.key.keysym.sym == SDLK_SPACE) {
           return 2;
         }
+        else if (event.key.keysym.sym == SDLK_RIGHT) {
+          return 3;
+        }
+        else if(event.key.keysym.sym == SDLK_LEFT) {
+          return 4;
+        }
         break;
-      case SDL_MOUSEBUTTONDOWN: 
-        return 3;
-      case SDL_MOUSEBUTTONUP:
-        return 4;
-      case SDL_MOUSEMOTION:
-        shiftX = event.motion.xrel;
-        return 5;
     }
   }
   return 0;
@@ -176,9 +176,6 @@ void window::update() {
 }
 
 void window::clearBuffer() {
- // fill(buffer, buffer + sizeof(buffer), 0);
- // fill(backBuffer, backBuffer + sizeof(backBuffer), 0);
- // fill(colbuf, colbuf + sizeof(colbuf), 0);
   memset(buffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
   memset(backBuffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
   memset(colbuf, 0, WIDTH * HEIGHT * sizeof(unsigned char));
