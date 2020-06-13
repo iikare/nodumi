@@ -14,9 +14,8 @@ class note {
     note();
     
     void init(double itempo, double itime, double ipitch, double duration, unsigned char col);
-    void shift(int shift_x);
-    void updateTempo(int tempo);
-    void scaleToWindow(int height, int range);
+    void shiftX(int shiftX);
+    void shiftTime(int timeInc);
 
     int height = round(WIN_HEIGHT/NOTE_RANGE);
     int tempo;
@@ -36,9 +35,8 @@ class mfile {
     int getNoteRange();
     int getNoteCount();
 
-    void shift(int shift_x);
-    void updateTempo(int tempo_global);
-    void scaleToWindow(int height);
+    void shiftX(int shiftX);
+    void shiftTime(int timeInc);
 
     void load(string file);
   private:
