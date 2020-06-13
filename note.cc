@@ -25,11 +25,11 @@ void note::init(double tempo, double time, double pitch, double duration, unsign
 }
 
 void note::shift(int shift_x) {
-  this->x  += shift_x* 12;
+  x += shift_x;
 }
 
 void note::updateTempo(int tempo) {
-  this->x -= round(static_cast<double>(tempo)/7.5);
+  x -= round(static_cast<double>(tempo)/7.5);
 }
 
 void note::scaleToWindow(int height, int range) {

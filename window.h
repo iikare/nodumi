@@ -16,19 +16,15 @@ class window {
      
     window(string title);
     bool init();
-    unsigned char eventHandler(SDL_Event &event, Sint32 &shiftX);
+    unsigned char eventHandler(SDL_Event &event);
     bool pointVisible(int x, int y);
     bool noteVisible(note n);
     int getWidth();
     int getHeight();
      
     void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
-    void setPixelHex(int x, int y, unsigned char hex);
     Uint8* getPixelRGB(int x, int y);
-    unsigned char getPixelHex(int x, int y);
     
-    void blur(int intensity);
-    void swapBuffer();
     void update();
     void clearBuffer();
     void terminate();
@@ -39,8 +35,6 @@ class window {
     SDL_Texture* texture;
     
     Uint32* buffer;
-    Uint32* backBuffer;
-    unsigned char* colbuf;
 };
 
 class colorRGB {
