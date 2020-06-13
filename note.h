@@ -13,9 +13,10 @@ class note {
     
     void init(double itempo, double itime, double ipitch, double duration, unsigned char col);
     void shift(int shift_x);
-    void update(int tempo);
+    void updateTempo(int tempo);
+    void scaleToWindow(int height, int range);
 
-    const static int height = 14; // TODO: make scale on window size
+    int height = 14;
     int tempo;
     unsigned char col;
     int duration;
@@ -33,10 +34,13 @@ class mfile {
     int getNoteCount();
 
     void shift(int shift_x);
-    void update(int tempo_global);
+    void updateTempo(int tempo_global);
+    void scaleToWindow(int height);
     void load(string file);
   private:
     int noteCount;
+    int noteMin;
+    int noteMax;
     note* notes;
 };
 
