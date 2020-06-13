@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+#include "misc.h"
 #include "note.h"
 
 using namespace smf;
@@ -10,6 +11,8 @@ using std::cerr;
 using std::cout;
 using std::endl;
 using std::string;
+using std::max;
+using std::min;
 
 note::note() : tempo(0), col(0), duration(0), x(0), y(0), render(false) {}
 
@@ -25,11 +28,15 @@ void note::shift(int shift_x) {
   this->x  += shift_x* 12;
 }
 
-void note::update(int tempo) {
+void note::updateTempo(int tempo) {
   this->x -= round(static_cast<double>(tempo)/7.5);
 }
 
-mfile::mfile() : noteCount(0), notes(nullptr) {}
+void note::scaleToWindow(int height, int range) {
+  height = round(static_cast<double>(height)/range);
+}
+
+mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), notes(nullptr) {}
 
 mfile::~mfile() {
   delete []notes;
@@ -49,9 +56,15 @@ void mfile::shift(int shift_x) {
   }
 }
 
-void mfile::update(int tempo_global) {
+void mfile::updateTempo(int tempo_global) {
   for (int i = 0; i < noteCount; i++) {
-    notes[i].update(tempo_global);
+    notes[i].updateTempo(tempo_global);
+  }
+}
+
+void mfile::scaleToWindow(int height) {
+  for (int i = 0; i < noteCount; i++) {
+    notes[i].scaleToWindow(height, max(MIN_NOTE_HEIGHT, noteMax - noteMin));
   }
 }
 
@@ -119,5 +132,11 @@ void mfile::load(string file) {
       notes[idx].tempo = bpm;
       idx++;
     }
+  }
+
+  // determine scaling factor
+  for (int i = 0; i < static_cast<int>(sizeof(notes)); i++) {
+    noteMin = min(noteMin, notes[i].y);
+    noteMax = max(noteMax, notes[i].y);
   }
 }

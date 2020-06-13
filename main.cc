@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 
+#include "misc.h"
 #include "window.h"
 #include "note.h"
 
@@ -10,7 +11,6 @@ using std::endl;
 using std::string;
 using std::ifstream;
 
-#define VERSION "0.01a"
 
 int main(int argc, char* argv[]) {
 
@@ -75,8 +75,10 @@ int main(int argc, char* argv[]) {
    *    add file picker
    *    add color picker for parts
    *    add config file parsing
+   *    scale notes by window size
    */
 
+  input.scaleToWindow(main.getHeight());
 
   while (state){
     note& renderNote = notes[0];
@@ -110,8 +112,7 @@ int main(int argc, char* argv[]) {
 
         x = main.getWidth() + round(renderNote.x/9);
         y = -(renderNote.y - 63) * 14 + main.getHeight()/2;
-        width = renderNote.duration/9; //main.getWidth() + round((renderNote.x + renderNote.duration)/9) - x - 1;
-
+        width = renderNote.duration/TICK_TO_SEC;
         
         if (colorByPart) {
          if (x <= main.getHeight()/2 && x >= main.getWidth()/2 - width) {
@@ -151,7 +152,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (applyTempoChange) {
-      input.update(tempo);
+      input.updateTempo(tempo);
     }
 
     SDL_Event event;
