@@ -81,15 +81,18 @@ int main(int argc, char* argv[]) {
   while (state){
     note& renderNote = notes[0];
     
+    if (run) {
+      main.clearBuffer();
+    }
+
+
     // now line will always render regardless of play state
     if (drawLine) {
       for (int y = 0; y < main.getHeight(); y++) {
         main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
       }
     }
-    cerr << "is running: " << run << endl; 
     if (run) {
-      main.clearBuffer();
 
       // render notes
       for (int i = 0; i < input.getNoteCount(); i++) {
@@ -107,8 +110,7 @@ int main(int argc, char* argv[]) {
 
         x = main.getWidth() + round(renderNote.x/9);
         y = -(renderNote.y - 63) * 14 + main.getHeight()/2;
-        width = renderNote.duration; //main.getWidth() + round((renderNote.x + renderNote.duration)/9) - x - 1;
-        cerr << "width in pixels is: " << width << endl;
+        width = renderNote.duration/9; //main.getWidth() + round((renderNote.x + renderNote.duration)/9) - x - 1;
 
         
         if (colorByPart) {
@@ -180,7 +182,6 @@ int main(int argc, char* argv[]) {
         break;
     }
     main.update();
-    main.clearBuffer();
   }
   
   main.terminate();
