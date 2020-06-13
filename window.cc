@@ -145,6 +145,9 @@ void window::terminate() {
   SDL_Quit();
 }
 
+colorRGB::colorRGB() : r(0), g(0), b(0) {}
+colorRGB::colorRGB(char red, char green, char blue) : r(red), g(green), b(blue) {}
+
 void colorRGB::setRGB(char red, char green, char blue) {
   r = red;
   g = green;

@@ -39,8 +39,8 @@ class window {
 
 class colorRGB {
   public:
-    colorRGB() : r(0), g(0), b(0) {}
-    colorRGB(char red, char green, char blue) : r(red), g(green), b(blue) {}
+    colorRGB();
+    colorRGB(char red, char green, char blue);
 
     void setRGB(char red, char green, char blue);
 
