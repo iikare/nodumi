@@ -36,10 +36,6 @@ int main(int argc, char* argv[]) {
     cerr << "error: failed to initialize window" << endl;
     exit(1);
   }
-  if (TTF_Init() < 0) {
-    cerr << "warn: TTF initialization failed" << endl;
-  }
-
 
   mfile input;
   
