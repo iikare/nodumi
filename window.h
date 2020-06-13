@@ -4,10 +4,24 @@
 #include <iostream>
 #include <string>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "note.h"
+#include "window.h"
 
 using std::string;
+
+class colorRGB {
+  public:
+    colorRGB();
+    colorRGB(unsigned char red, unsigned char green, unsigned char blue);
+
+    void setRGB(unsigned char red, unsigned char green, unsigned char blue);
+
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+};
 
 class window {
   public:
@@ -21,6 +35,8 @@ class window {
     bool noteVisible(note n);
     int getWidth();
     int getHeight();
+
+    void renderTextToLocation(TTF_Font* font, string text, colorRGB color, int x, int y, int w, int h);
      
     void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
     Uint8* getPixelRGB(int x, int y);
@@ -36,18 +52,5 @@ class window {
     
     Uint32* buffer;
 };
-
-class colorRGB {
-  public:
-    colorRGB();
-    colorRGB(char red, char green, char blue);
-
-    void setRGB(char red, char green, char blue);
-
-    char r;
-    char g;
-    char b;
-};
-
 
 #endif

@@ -36,6 +36,9 @@ int main(int argc, char* argv[]) {
     cerr << "error: failed to initialize window" << endl;
     exit(1);
   }
+  if (TTF_Init() < 0) {
+    cerr << "warn: TTF initialization failed" << endl;
+  }
 
 
   mfile input;
@@ -56,15 +59,24 @@ int main(int argc, char* argv[]) {
 
   const int menuHeight = 20;
   const int areaTop = 20;
+
+  const int fontSize = 24;
+  TTF_Font* menuFont = TTF_OpenFont("./dpd/fonts/lazy.ttf", fontSize);
+  colorRGB menuColor(0, 255, 255);
+  
+  if (menuFont == nullptr) {
+    cerr << "warn: font initialization for font lazy.ttf failed" << endl;
+  }
+
   
   int x, y, width = 0;
   int tempo = 0;
   int shiftX = 100;
   
-  colorRGB lineColor(233,0,22); 
-  colorRGB noteColorOn(0,100,255);
-  colorRGB noteColorOff(0,0,255);
-  colorRGB colorByNote(255,255,255);
+  colorRGB lineColor(233, 0, 22); 
+  colorRGB noteColorOn(0, 100, 255);
+  colorRGB noteColorOff(0, 0, 255);
+  colorRGB colorByNote(255, 255, 255);
   bool colorByPart = true;
   bool noteOn = false;
   
@@ -104,6 +116,8 @@ int main(int argc, char* argv[]) {
           main.setPixelRGB(x, y, 255, 255, 255);
         }
     }
+
+    main.renderTextToLocation(menuFont, "F", menuColor, 0, 0, 100, 50);
 
     if (!end) {
 
@@ -168,7 +182,7 @@ int main(int argc, char* argv[]) {
           }
         }
         if (noteShift) {
-          cerr << lastNote.x/TICKS_TO_SEC + main.getWidth() << " vs. " << main.getWidth()/2 - lastNote.duration << endl;
+          //cerr << lastNote.x/TICKS_TO_SEC + main.getWidth() << " vs. " << main.getWidth()/2 - lastNote.duration << endl;
           if(lastNote.x/TICKS_TO_SEC + main.getWidth() <= main.getWidth()/2 - lastNote.duration) {
             run = false;
             end = true;
