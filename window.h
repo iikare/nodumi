@@ -9,32 +9,11 @@
 
 using std::string;
 
-class menubox {
-  public:
-    const static int WIDTH = 300;
-    const static int HEIGHT = 500;
-
-    menubox();
-
-    bool init(int x, int y);
-    unsigned char eventHandler(SDL_Event &event);
-    void update();
-    void terminate();
-  private:
-    const char* title;
-    SDL_Window* windowA;
-    SDL_Renderer* renderer;
-    SDL_Texture* texture;
-    Uint32* buffer;
-};
-
 class window {
   public:
     const static int WIDTH = 1280;
     const static int HEIGHT = 720;
      
-    menubox menu;
-
     window(string title);
     bool init();
     unsigned char eventHandler(SDL_Event &event, Sint32 &shiftX);
@@ -58,6 +37,7 @@ class window {
     SDL_Window* windowA;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
+    
     Uint32* buffer;
     Uint32* backBuffer;
     unsigned char* colbuf;
