@@ -5,6 +5,8 @@
 #include <string>
 #include <SDL2/SDL.h>
 
+#include "note.h"
+
 using std::string;
 
 class menubox {
@@ -37,6 +39,7 @@ class window {
     bool init();
     unsigned char eventHandler(SDL_Event &event, Sint32 &shiftX);
     bool pointVisible(int x, int y);
+    bool noteVisible(note n);
     int getWidth();
     int getHeight();
      
