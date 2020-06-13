@@ -21,7 +21,7 @@ bool window::init() {
     return false;
   } 
 
-  if (TTF_Init < 0) {
+  if (TTF_Init() < 0) {
     cerr << "warn: TTF initialization failed" << endl;
   }
       
