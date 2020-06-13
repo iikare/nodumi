@@ -81,7 +81,6 @@ int main(int argc, char* argv[]) {
 
 
   while (state){
-    cerr << input.getNoteCount() << " is the note count." << endl; 
     note& renderNote = notes[0];
     
     // now line will always render regardless of play state
@@ -90,7 +89,7 @@ int main(int argc, char* argv[]) {
         main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
       }
     }
-    
+    cerr << "is running: " << run << endl; 
     if (run) {
       main.clearBuffer();
 
@@ -100,13 +99,19 @@ int main(int argc, char* argv[]) {
         renderNote = notes[i];
 
         // assume note is offscreen
-        renderNote.render = true;
+        
+        if(!main.noteVisible(renderNote)){
+          renderNote.render = false;
+        }
+        else {
+          renderNote.render = true;
+        }
 
         x = main.getWidth() + round(renderNote.x/9);
         y = -(renderNote.y - 63) * 14 + main.getHeight()/2;
-        width = main.getWidth() + round((renderNote.x + renderNote.duration)/9) - x - 1;
+        width = renderNote.duration; //main.getWidth() + round((renderNote.x + renderNote.duration)/9) - x - 1;
+        cerr << "width in pixels is: " << width << endl;
 
-        cerr << "log: values x, y, width: " << x << ", " << y << ", " << width << endl;
         
         if (colorByPart) {
          if (x <= main.getHeight()/2 && x >= main.getWidth()/2 - width) {
@@ -115,7 +120,6 @@ int main(int argc, char* argv[]) {
          }
         }
         if (x < main.getHeight() && x > -width) {
-          renderNote.render = true; // note visible on screen
 
           if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
             noteOn = true;

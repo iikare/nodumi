@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include "window.h"
+#include "note.h"
 
 using std::cerr;
 using std::endl;
@@ -132,6 +133,10 @@ unsigned char window::eventHandler(SDL_Event &event, Sint32 &shiftX) {
 
 bool window::pointVisible(int x, int y) {
   return (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT);
+}
+
+bool window::noteVisible(note n) {
+  return pointVisible(n.x, n.y);
 }
 
 int window::getWidth() {

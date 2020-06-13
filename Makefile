@@ -21,7 +21,7 @@ main.o: main.cc
 note.o: note.cc note.h
 	$(CC) $(CFLAGS) -c note.cc -o build/note.o
 
-window.o: window.cc window.h
+window.o: window.cc window.h note.h
 	$(CC) $(CFLAGS) -c window.cc -o build/window.o
 
 Binasc.o: ./dpd/midifile/Binasc.cpp ./dpd/midifile/Binasc.h
@@ -43,4 +43,4 @@ MidiMessage.o: ./dpd/midifile/MidiMessage.o ./dpd/midifile/MidiMessage.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/MidiMessage.cpp -o build/MidiMessage.o
 
 clean: 
-	rm -f viewer *.o *.gch build/*
+	rm -f $(NAME) *.o *.gch build/*
