@@ -53,19 +53,20 @@ bool window::init() {
   buffer = new Uint32[WIDTH * HEIGHT];
   
   fontSize = 24;
-  menuFont = TTF_OpenFont("dpd/fonts/lazy.ttf", fontSize);
-
-  if (menuFont == nullptr) {
-    cerr << "warn: font initialization for lazy.ttf failed" << endl;
-  }
-
-  menuColor.setRGB(0, 255, 255);
+  menuColor.setRGB(0, 244, 244);
+  
+  FC_Font* menuFont = FC_CreateFont();
+  FC_LoadFont(menuFont, renderer, "dpd/fonts/lazy.ttf", fontSize, FC_MakeColor(menuColor.r, menuColor.g, menuColor.b, 255), TTF_STYLE_NORMAL);
 
   int x, y = 0;
 
   SDL_GetWindowPosition(windowA, &x, &y);
 
   return true;
+}
+
+void window::renderFont(int x, int y, string text) {
+  FC_Draw(menuFont, renderer, x, y, text.c_str(), text.c_str());
 }
 
 unsigned char window::eventHandler(SDL_Event &event) {
@@ -153,12 +154,11 @@ void window::terminate() {
   
   delete[] buffer;
 
-  TTF_CloseFont (menuFont);
+  FC_FreeFont(menuFont);
   
   SDL_DestroyRenderer(renderer);
   SDL_DestroyTexture(texture);
   SDL_DestroyWindow(windowA);
-  TTF_Quit();
   SDL_Quit();
 }
 
