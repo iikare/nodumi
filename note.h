@@ -2,7 +2,9 @@
 #define NOTE_H
 
 #include <string>
+#include <algorithm>
 #include "dpd/midifile/MidiFile.h"
+#include "misc.h"
 
 using namespace smf;
 using std::string;
@@ -16,7 +18,7 @@ class note {
     void updateTempo(int tempo);
     void scaleToWindow(int height, int range);
 
-    int height = 14;
+    int height = round(WIN_HEIGHT/NOTE_RANGE);
     int tempo;
     unsigned char col;
     int duration;

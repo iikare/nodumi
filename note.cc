@@ -145,6 +145,10 @@ void mfile::load(string file) {
 
   // determine scaling factor
   for (int i = 0; i < static_cast<int>(sizeof(notes)); i++) {
+    if(notes[i].y < MIN_NOTE_IDX || notes[i].y > MAX_NOTE_IDX) {
+      cerr << "warn: note " << i << " is out of bounds with index " << notes[i].y << endl;
+    }
+
     noteMin = min(noteMin, notes[i].y);
     noteMax = max(noteMax, notes[i].y);
   }
