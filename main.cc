@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "dpd/SDL_FontCache/SDL_FontCache.h"
 #include "misc.h"
 #include "window.h"
 #include "note.h"
@@ -77,8 +76,9 @@ int main(int argc, char* argv[]) {
   note* notes = input.getNotes();
 
   note& renderNote = notes[0];
+  note& firstNote = notes[0];
   note& lastNote = notes[sizeof(notes)];
-  shiftTime = notes[0].tempo;
+  shiftTime = firstNote.tempo;
 
   SDL_Event event;
 
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
         }
     }
     
-    main.renderFont(0, 0, "test text");
+    main.renderTextToTexture(299, 299, "hello slurpy stephanie");
 
     if (!end) {
 
@@ -172,11 +172,11 @@ int main(int argc, char* argv[]) {
         }
         if (noteShift) {
           //cerr << lastNote.x/TICKS_TO_SEC + main.getWidth()/2 << " vs. " << main.getWidth()/2 - lastNote.duration << endl;
-          if(lastNote.x/TICKS_TO_SEC + main.getWidth()/2 <= main.getWidth()/2 - lastNote.duration) {
+          if(lastNote.x/widthModifier + main.getWidth()/2 <= main.getWidth()/2 - lastNote.duration) {
             run = false;
             end = true;
           }
-          else{
+          else {
             input.shiftTime(shiftTime);
           }
         }
@@ -192,11 +192,13 @@ int main(int argc, char* argv[]) {
           noteShift = true;
         }
         break;
-      case 3: // right arrow
-        input.shiftX(shiftX);
+      case 3: // left arrow 
+        if (firstNote.x - shiftX >= main.getWidth()/2){
+          input.shiftX(shiftX);
+        }
         break;
-      case 4: // left arrow
-        input.shiftX(-shiftX);
+      case 4: // right arrow
+          input.shiftX(-shiftX);
         break;
       case 5: // up arrow
         widthModifier *= 0.8;

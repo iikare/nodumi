@@ -10,9 +10,11 @@ using std::swap;
 using std::fill;
 
 window::window(string title) : 
-  windowA(nullptr), renderer(nullptr), texture(nullptr), 
-  buffer(nullptr), menuFont(nullptr), menuColor(0, 0, 0), fontSize(0) {
+  windowA(nullptr), renderer(nullptr), texture(nullptr), tTexture(nullptr),
+  tSurface(nullptr), clipX(0), clipY(0), buffer(nullptr),
+  menuFont(nullptr), menuColor(0, 0, 0), fontSize(0) {
   this->title = title;
+  clip = {0, 0, 0, 0};
 }
 
 bool window::init() {
@@ -24,7 +26,7 @@ bool window::init() {
   if (TTF_Init() < 0) {
     cerr << "warn: TTF initialization failed" << endl;
   }
-      
+     
   windowA = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 
   if (windowA == nullptr) {
@@ -54,10 +56,13 @@ bool window::init() {
   
   fontSize = 24;
   menuColor.setRGB(0, 244, 244);
+ 
+  if (TTF_Init() < 0) {
+    cerr << "warn: font initialization failed" << endl;
+  }
   
-  FC_Font* menuFont = FC_CreateFont();
-  FC_LoadFont(menuFont, renderer, "dpd/fonts/lazy.ttf", fontSize, FC_MakeColor(menuColor.r, menuColor.g, menuColor.b, 255), TTF_STYLE_NORMAL);
-
+  menuFont = TTF_OpenFont("dpd/fonts/lazy.ttf", fontSize);
+  
   int x, y = 0;
 
   SDL_GetWindowPosition(windowA, &x, &y);
@@ -65,8 +70,13 @@ bool window::init() {
   return true;
 }
 
-void window::renderFont(int x, int y, string text) {
-  FC_Draw(menuFont, renderer, x, y, text.c_str(), text.c_str());
+void window::renderTextToTexture(int x, int y, string text) {
+  SDL_Color col = {menuColor.r, menuColor.g, menuColor.b, 255};
+  tSurface = TTF_RenderText_Solid(menuFont, text.c_str(), col);
+  tTexture = SDL_CreateTextureFromSurface(renderer, tSurface);
+
+  SDL_QueryTexture(tTexture, nullptr, nullptr, &clipX, &clipY);
+  clip = {x, y, clipX, clipY};
 }
 
 unsigned char window::eventHandler(SDL_Event &event) {
@@ -148,7 +158,8 @@ Uint8* window::getPixelRGB(int x, int y) {
 void window::update() {
   SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(Uint32));
   SDL_RenderClear(renderer);
-  SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+  //SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+  SDL_RenderCopy(renderer, tTexture, nullptr, &clip);
   SDL_RenderPresent(renderer);
 }
 
@@ -159,12 +170,14 @@ void window::clearBuffer() {
 void window::terminate() {
   
   delete[] buffer;
+  TTF_CloseFont(menuFont);
 
-  FC_FreeFont(menuFont);
-  
   SDL_DestroyRenderer(renderer);
   SDL_DestroyTexture(texture);
+  SDL_DestroyTexture(tTexture);
+  SDL_FreeSurface(tSurface);
   SDL_DestroyWindow(windowA);
+  TTF_Quit();
   SDL_Quit();
 }
 
