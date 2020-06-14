@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <SDL2/SDL.h>
-#include "dpd/SDL_FontCache/SDL_FontCache.h"
+#include <SDL2/SDL_ttf.h>
 #include "note.h"
 #include "window.h"
 
@@ -35,7 +35,7 @@ class window {
     int getWidth();
     int getHeight();
 
-    void renderFont(int x, int y, string text);
+    void renderTextToTexture(int x, int y, string text);
      
     void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
     Uint8* getPixelRGB(int x, int y);
@@ -49,9 +49,16 @@ class window {
     SDL_Window* windowA;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
+
+    SDL_Texture* tTexture;
+    SDL_Surface* tSurface;
+    SDL_Rect clip;
+    int clipX;
+    int clipY;
+
     Uint32* buffer;
     
-    FC_Font* menuFont;
+    TTF_Font* menuFont;
     colorRGB menuColor;
     int fontSize;
 };
