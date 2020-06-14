@@ -13,15 +13,15 @@ class note {
   public:
     note();
     
-    void init(double itempo, double itime, double ipitch, double duration, unsigned char col);
+    void init(int track, double tempo, double x, int y, double duration);
     void shiftX(int shiftX);
     void shiftTime(int timeInc);
 
     int height = round(WIN_HEIGHT/NOTE_RANGE);
-    int tempo;
-    unsigned char col;
-    int duration;
-    int x;
+    int track;
+    double tempo;
+    double duration;
+    double x;
     int y;
 };
 

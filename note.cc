@@ -13,15 +13,16 @@ using std::endl;
 using std::string;
 using std::max;
 using std::min;
+using std::swap;
 
-note::note() : tempo(0), col(0), duration(0), x(0), y(0) {}
+note::note() : track(0), tempo(0),  duration(0), x(0), y(0) {}
 
-void note::init(double tempo, double time, double pitch, double duration, unsigned char color) {
+void note::init(int track, double tempo, double x, int y, double duration) {
+  this->track = track;
   this->tempo = tempo;
-  this->x = time;
-  this->y = pitch;
+  this->x = x;
+  this->y = y;
   this->duration = duration;
-  this->col = color;
 }
 
 void note::shiftX(int shiftX) {
@@ -58,7 +59,7 @@ void mfile::shiftTime(int timeInc) {
   }
 }
 
-int::mfile::getNoteRange() {
+int mfile::getNoteRange() {
   int result = noteMax - noteMin;
   if (result <= 0) {
     cerr << "error: MIDI file with note range 0" << endl;
@@ -100,7 +101,7 @@ void mfile::load(string file) {
   for (int i = 0; i < tracks; i++) {
     for (int j = 0; j < midifile.getEventCount(i); j++) {
       if (midifile[i][j].isNoteOn()) {
-       notes[idx].col = i;
+       notes[idx].track = i;
        notes[idx].duration = midifile[i][j].getTickDuration();
        notes[idx].x  = midifile[i][j].tick;
        notes[idx].y = midifile[i][j].getKeyNumber();

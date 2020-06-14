@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
   const int areaTop = 20;
   
   int x, y, width = 0;
-  double widthModifier = 8;
+  double widthModifier = 1;
   int shiftTime = 0;
   int shiftX = 200 * widthModifier;
   
@@ -77,11 +77,8 @@ int main(int argc, char* argv[]) {
 
   note& renderNote = notes[0];
   note& firstNote = notes[0];
-  note& lastNote = notes[sizeof(notes)-7];
+  note& lastNote = notes[sizeof(notes)];
   shiftTime = firstNote.tempo;
-
-  int firstNoteRenderedX = main.getWidth()/2 + round(firstNote.x/widthModifier);
-  int lastNoteRenderedX = main.getWidth()/2 - round(lastNote.x/widthModifier);
 
   SDL_Event event;
 
@@ -109,7 +106,7 @@ int main(int argc, char* argv[]) {
           main.setPixelRGB(x, y, 255, 255, 255);
         }
     }
-    cout << "note count is " << input.getNoteCount() << endl; 
+  
     main.renderTextToTexture(4, 4, "file", 24);
 
     if (fileClicked) {
@@ -119,9 +116,6 @@ int main(int argc, char* argv[]) {
         }
       }
     }
-
-    firstNoteRenderedX = main.getWidth()/2 + round(firstNote.x/widthModifier);
-    lastNoteRenderedX = main.getWidth()/2 + round(lastNote.x/widthModifier) + lastNote.duration/widthModifier;
 
     if (!end) {
 
@@ -185,8 +179,6 @@ int main(int argc, char* argv[]) {
         }
       }
     }
-        cerr << "last" << round(lastNoteRenderedX - main.getWidth()/2) << " vs. 0"  << endl;
-        cerr << "first" << round(firstNoteRenderedX - main.getWidth()/2) << " vs. 0"  << endl;
 
     switch (main.eventHandler(event)){
       case 1: // program closing
@@ -200,7 +192,6 @@ int main(int argc, char* argv[]) {
         break;
       case 3: // left arrow 
         oneTimeFlag = true;
-        cerr << main.getWidth()/2 + round(lastNote.x/widthModifier) + lastNote.duration/widthModifier << " vs. 0"  << endl;
         if (firstNote.x < 0 && firstNote.x + shiftX < 0) {
           input.shiftX(shiftX);
         }
@@ -210,7 +201,6 @@ int main(int argc, char* argv[]) {
         break;
       case 4: // right arrow
         oneTimeFlag = true;
-        cerr << main.getWidth()/2 + round(lastNote.x/widthModifier) + lastNote.duration/widthModifier << " vs. 0"  << endl;
         input.shiftX(-shiftX);
         break;
       case 5: // up arrow or scroll up
