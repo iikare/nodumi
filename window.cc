@@ -108,6 +108,14 @@ unsigned char window::eventHandler(SDL_Event &event) {
             break;
         }
         break;
+      case SDL_MOUSEWHEEL:
+        if (event.wheel.y > 0) {
+          return 5;
+        }
+        else if (event.wheel.y < 0) {
+          return 6;
+        }
+        break;
     }
   }
   return 0;
