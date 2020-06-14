@@ -86,6 +86,12 @@ unsigned char window::eventHandler(SDL_Event &event) {
           case SDLK_RIGHT:
             return 4;
             break;
+          case SDLK_UP:
+            return 5;
+            break;
+          case SDLK_DOWN:
+            return 6;
+            break;
         }
         break;
     }

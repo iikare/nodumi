@@ -57,8 +57,9 @@ int main(int argc, char* argv[]) {
   const int areaTop = 20;
   
   int x, y, width = 0;
+  double widthModifier = 8;
   int shiftTime = 0;
-  int shiftX = 200;
+  int shiftX = 200 * widthModifier;
   
   colorRGB lineColor(233, 0, 22); 
   colorRGB noteColorOn(0, 100, 255);
@@ -89,7 +90,7 @@ int main(int argc, char* argv[]) {
    *    add color picker for parts
    *    add color by parts
    *    add config file parsing
-   *    up/down arrow control horizontal scale
+   *    up/down arrow control horizontal scale    DONE (add upper zoom limit)
    *    left/right arrow able to move             DONE 
    *    scale notes by window size                DONE (test with note value 0)
    */
@@ -129,9 +130,9 @@ int main(int argc, char* argv[]) {
             renderNote.render = true;
           }
 
-          x = main.getWidth()/2 + round(renderNote.x/TICKS_TO_SEC);
+          x = main.getWidth()/2 + round(renderNote.x/(widthModifier));
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
-          width = renderNote.duration/TICKS_TO_SEC;
+          width = renderNote.duration/(widthModifier);
           
           //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
           
@@ -192,10 +193,16 @@ int main(int argc, char* argv[]) {
         }
         break;
       case 3: // right arrow
-        input.shiftX(-shiftX);
+        input.shiftX(shiftX);
         break;
       case 4: // left arrow
-        input.shiftX(shiftX);
+        input.shiftX(-shiftX);
+        break;
+      case 5: // up arrow
+        widthModifier *= 0.8;
+        break;
+      case 6: //down arrow
+        widthModifier *= 1.2;
         break;
     }
     main.update();
