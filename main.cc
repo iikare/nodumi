@@ -77,8 +77,11 @@ int main(int argc, char* argv[]) {
 
   note& renderNote = notes[0];
   note& firstNote = notes[0];
-  note& lastNote = notes[sizeof(notes)];
+  note& lastNote = notes[sizeof(notes)-7];
   shiftTime = firstNote.tempo;
+
+  int firstNoteRenderedX = main.getWidth()/2 + round(firstNote.x/widthModifier);
+  int lastNoteRenderedX = main.getWidth()/2 - round(lastNote.x/widthModifier);
 
   SDL_Event event;
 
@@ -91,7 +94,7 @@ int main(int argc, char* argv[]) {
    *    add color by parts
    *    add config file parsing
    *    up/down arrow control horizontal scale    DONE (add upper zoom limit)
-   *    left/right arrow able to move             DONE 
+   *    left/right arrow able to move             DONE (add right bound restriction) 
    *    scale notes by window size                DONE (test with note value 0)
    */
   
@@ -106,7 +109,7 @@ int main(int argc, char* argv[]) {
           main.setPixelRGB(x, y, 255, 255, 255);
         }
     }
-    
+    cout << "note count is " << input.getNoteCount() << endl; 
     main.renderTextToTexture(4, 4, "file", 24);
 
     if (fileClicked) {
@@ -117,6 +120,8 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    firstNoteRenderedX = main.getWidth()/2 + round(firstNote.x/widthModifier);
+    lastNoteRenderedX = main.getWidth()/2 + round(lastNote.x/widthModifier) + lastNote.duration/widthModifier;
 
     if (!end) {
 
@@ -134,26 +139,12 @@ int main(int argc, char* argv[]) {
           // get current note
           renderNote = notes[i];
          
-          // check visibility 
-          if(!main.noteVisible(renderNote)){      // is this relevant anymore?
-            renderNote.render = false;
-          }
-          else {
-            renderNote.render = true;
-          }
-
           x = main.getWidth()/2 + round(renderNote.x/(widthModifier));
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           width = renderNote.duration/(widthModifier);
           
           //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
           
-          if (colorByPart) {
-           if (x <= main.getHeight()/2 && x >= main.getWidth()/2 - width) {
-              colorByNote.setRGB(255, 255, 255);
-              shiftTime = renderNote.tempo;         //does this need to be here?
-           }
-          }
           if (x < main.getWidth() && x > - width) {
 
             if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
@@ -163,7 +154,7 @@ int main(int argc, char* argv[]) {
               noteOn = false;
             }
 
-            
+            // rendering of the note itself 
             for (int j = 0; j < width; j++) {
               for (int k = 0; k < renderNote.height; k++) {
                 
@@ -184,7 +175,7 @@ int main(int argc, char* argv[]) {
         }
         if (noteShift) {
           //cerr << lastNote.x/TICKS_TO_SEC + main.getWidth()/2 << " vs. " << main.getWidth()/2 - lastNote.duration << endl;
-          if(lastNote.x/widthModifier + main.getWidth()/2 <= main.getWidth()/2 - lastNote.duration) {
+          if(round(lastNote.x) + lastNote.duration <= 0) {
             run = false;
             end = true;
           }
@@ -194,6 +185,9 @@ int main(int argc, char* argv[]) {
         }
       }
     }
+        cerr << "last" << round(lastNoteRenderedX - main.getWidth()/2) << " vs. 0"  << endl;
+        cerr << "first" << round(firstNoteRenderedX - main.getWidth()/2) << " vs. 0"  << endl;
+
     switch (main.eventHandler(event)){
       case 1: // program closing
         state = false;
@@ -206,8 +200,7 @@ int main(int argc, char* argv[]) {
         break;
       case 3: // left arrow 
         oneTimeFlag = true;
-<<<<<<< HEAD
-        cerr << firstNote.x << " vs. 0" << endl;
+        cerr << main.getWidth()/2 + round(lastNote.x/widthModifier) + lastNote.duration/widthModifier << " vs. 0"  << endl;
         if (firstNote.x < 0 && firstNote.x + shiftX < 0) {
           input.shiftX(shiftX);
         }
@@ -217,22 +210,18 @@ int main(int argc, char* argv[]) {
         break;
       case 4: // right arrow
         oneTimeFlag = true;
-        cerr << firstNote.x << " vs. 0" << endl;
-=======
-        input.shiftX(shiftX);
-        break;
-      case 4: // right arrow
-        oneTimeFlag = true;
->>>>>>> 0f6a16e107106d40920f6566ffb7ded44b9fb7a8
+        cerr << main.getWidth()/2 + round(lastNote.x/widthModifier) + lastNote.duration/widthModifier << " vs. 0"  << endl;
         input.shiftX(-shiftX);
         break;
       case 5: // up arrow or scroll up
         oneTimeFlag = true;
-        widthModifier *= 0.8;
+        if (widthModifier > 0.25) { 
+          widthModifier -= 0.25;
+        }
         break;
       case 6: //down arrow or scroll down
         oneTimeFlag = true;
-        widthModifier *= 1.2;
+        widthModifier += 0.25;
         break;
     }
     main.update();

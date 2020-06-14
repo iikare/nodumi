@@ -14,7 +14,7 @@ using std::string;
 using std::max;
 using std::min;
 
-note::note() : tempo(0), col(0), duration(0), x(0), y(0), render(false) {}
+note::note() : tempo(0), col(0), duration(0), x(0), y(0) {}
 
 void note::init(double tempo, double time, double pitch, double duration, unsigned char color) {
   this->tempo = tempo;
@@ -29,13 +29,13 @@ void note::shiftX(int shiftX) {
 }
 
 void note::shiftTime(int timeInc) {
-  x -= round(static_cast<double>(timeInc)/TICKS_TO_SEC);
+  x -= floor(static_cast<double>(timeInc)/8);
 }
 
 mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), notes(nullptr) {}
 
 mfile::~mfile() {
-  delete []notes;
+  delete[] notes;
 }
 
 note* mfile::getNotes() {
@@ -131,7 +131,7 @@ void mfile::load(string file) {
       notes[idx].tempo = bpm;
       idx++;
     }
-  }
+  } 
 
   // determine scaling factor
   for (int i = 0; i < static_cast<int>(sizeof(notes)); i++) {

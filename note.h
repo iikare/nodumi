@@ -23,7 +23,6 @@ class note {
     int duration;
     int x;
     int y;
-    bool render;
 };
 
 class mfile {
