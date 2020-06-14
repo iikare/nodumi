@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
   bool noteOn = false;
   
   bool run = false;
-  bool first = true;
+  bool oneTimeFlag = true;
   bool end = false;
   bool drawLine = true;
   bool noteShift = false;
@@ -126,8 +126,8 @@ int main(int argc, char* argv[]) {
           main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
         }
       }
-      if (run || first) {
-        first = false;
+      if (run || oneTimeFlag) {
+        oneTimeFlag = false;
 
         // render notes
         for (int i = 0; i < input.getNoteCount(); i++) {
@@ -205,21 +205,25 @@ int main(int argc, char* argv[]) {
         }
         break;
       case 3: // left arrow 
+        oneTimeFlag = true;
         input.shiftX(shiftX);
         break;
       case 4: // right arrow
-          input.shiftX(-shiftX);
+        oneTimeFlag = true;
+        input.shiftX(-shiftX);
         break;
-      case 5: // up arrow
+      case 5: // up arrow or scroll up
+        oneTimeFlag = true;
         widthModifier *= 0.8;
         break;
-      case 6: //down arrow
+      case 6: //down arrow or scroll down
+        oneTimeFlag = true;
         widthModifier *= 1.2;
         break;
     }
     main.update();
 
-    if (run) {
+    if (run || oneTimeFlag) {
       main.clearBuffer();
     }
   }
