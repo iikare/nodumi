@@ -206,10 +206,17 @@ int main(int argc, char* argv[]) {
         break;
       case 3: // left arrow 
         oneTimeFlag = true;
-        input.shiftX(shiftX);
+        cerr << firstNote.x << " vs. 0" << endl;
+        if (firstNote.x < 0 && firstNote.x + shiftX < 0) {
+          input.shiftX(shiftX);
+        }
+        else if (firstNote.x < 0 && firstNote.x + shiftX >= 0){ 
+          input.shiftX(-firstNote.x);
+        }
         break;
       case 4: // right arrow
         oneTimeFlag = true;
+        cerr << firstNote.x << " vs. 0" << endl;
         input.shiftX(-shiftX);
         break;
       case 5: // up arrow or scroll up
