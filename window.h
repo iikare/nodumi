@@ -35,7 +35,7 @@ class window {
     int getWidth();
     int getHeight();
 
-    void renderTextToTexture(int x, int y, string text);
+    void renderTextToTexture(int x, int y, string text, int fSize);
      
     void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
     Uint8* getPixelRGB(int x, int y);

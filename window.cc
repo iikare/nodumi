@@ -54,15 +54,18 @@ bool window::init() {
   
   buffer = new Uint32[WIDTH * HEIGHT];
   
-  fontSize = 24;
-  menuColor.setRGB(0, 244, 244);
+  fontSize = 14;
+  menuColor.setRGB(0, 0, 0);
  
   if (TTF_Init() < 0) {
-    cerr << "warn: font initialization failed" << endl;
+    cerr << "warn: font engine initialization failed" << endl;
   }
   
-  menuFont = TTF_OpenFont("dpd/fonts/lazy.ttf", fontSize);
+  menuFont = TTF_OpenFont("dpd/fonts/yklight.ttf", fontSize);
   
+  if(menuFont == nullptr) {
+    cerr << "warn: font initialization failed" << endl;
+  } 
   int x, y = 0;
 
   SDL_GetWindowPosition(windowA, &x, &y);
@@ -70,10 +73,11 @@ bool window::init() {
   return true;
 }
 
-void window::renderTextToTexture(int x, int y, string text) {
+void window::renderTextToTexture(int x, int y, string text, int fSize) {
   SDL_Color col = {menuColor.r, menuColor.g, menuColor.b, 255};
-  tSurface = TTF_RenderText_Solid(menuFont, text.c_str(), col);
+  tSurface = TTF_RenderText_Blended(menuFont, text.c_str(), col);
   tTexture = SDL_CreateTextureFromSurface(renderer, tSurface);
+
 
   SDL_QueryTexture(tTexture, nullptr, nullptr, &clipX, &clipY);
   clip = {x, y, clipX, clipY};
@@ -158,7 +162,7 @@ Uint8* window::getPixelRGB(int x, int y) {
 void window::update() {
   SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(Uint32));
   SDL_RenderClear(renderer);
-  //SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+  SDL_RenderCopy(renderer, texture, nullptr, nullptr);
   SDL_RenderCopy(renderer, tTexture, nullptr, &clip);
   SDL_RenderPresent(renderer);
 }

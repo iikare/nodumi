@@ -94,7 +94,10 @@ int main(int argc, char* argv[]) {
    *    left/right arrow able to move             DONE 
    *    scale notes by window size                DONE (test with note value 0)
    */
-
+  
+  bool fileClicked = true;
+  int fileSubMenuWidth = 100;
+  int fileSubMenuHeight = 200;
 
   while (state){
     // render menu
@@ -104,7 +107,16 @@ int main(int argc, char* argv[]) {
         }
     }
     
-    main.renderTextToTexture(299, 299, "hello slurpy stephanie");
+    main.renderTextToTexture(4, 4, "file", 24);
+
+    if (fileClicked) {
+      for (int x = 0; x < fileSubMenuWidth; x++) {
+        for (int y = menuHeight; y < fileSubMenuHeight; y++) {
+          main.setPixelRGB(x, y, 255, 255, 255);
+        }
+      }
+    }
+
 
     if (!end) {
 
@@ -193,9 +205,7 @@ int main(int argc, char* argv[]) {
         }
         break;
       case 3: // left arrow 
-        if (firstNote.x - shiftX >= main.getWidth()/2){
-          input.shiftX(shiftX);
-        }
+        input.shiftX(shiftX);
         break;
       case 4: // right arrow
           input.shiftX(-shiftX);
