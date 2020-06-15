@@ -48,12 +48,14 @@ int mfile::getNoteCount() {
 }
 
 void mfile::shiftX(int shiftX) {
+  cerr << "call to mfile::shiftX with value " << shiftX << endl;
   for (int i = 0; i < noteCount; i++) {
     notes[i].shiftX(shiftX);
   }
 }
 
 void mfile::shiftTime(int timeInc) {
+  cerr << "call to mfile::shiftTime with value " << timeInc << endl;
   for (int i = 0; i < noteCount; i++) {
     notes[i].shiftTime(timeInc);
   }

@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
   int x, y, width = 0;
   double widthModifier = 1;
   int shiftTime = 0;
-  int shiftX = 200 * widthModifier;
+  int shiftX = 200 + 0*widthModifier;
   
   colorRGB lineColor(233, 0, 22); 
   colorRGB noteColorOn(0, 100, 255);
@@ -106,6 +106,7 @@ int main(int argc, char* argv[]) {
     } 
   }
   while (state){
+
     // render menu
     for (int x = 0; x <= main.getWidth(); x++) {
         for (int y = 0; y <= menuHeight; y++) {
@@ -122,13 +123,12 @@ int main(int argc, char* argv[]) {
         }
       }
     }
-
+    
     if (end && lastNote.x + lastNote.duration > 0) {
       end = false;
     }
-
+    
     if (!end) {
-
       // now line will always render regardless of play state
       if (drawLine) {
         for (int y = areaTop; y < main.getHeight(); y++) {
@@ -137,7 +137,9 @@ int main(int argc, char* argv[]) {
       }
 
       if (run || oneTimeFlag) {
-        oneTimeFlag = false;
+        cerr << "--------------------------------" << endl; 
+       
+         oneTimeFlag = false;
 
         // render notes
         for (int i = 0; i < input.getNoteCount(); i++) {
@@ -180,9 +182,8 @@ int main(int argc, char* argv[]) {
             }
           }
         }
-        //cerr << lastNote.x + lastNote.duration << "is last note x" << endl;
-        cerr << notes[0].x << "is first note x" << endl;
-        if (noteShift) {
+        // only update position if running (oneTimeFlag redraws buffer)
+        if (run) {
           if(lastNote.x + lastNote.duration<= 0) {
             run = false;
             end = true;
@@ -207,12 +208,20 @@ int main(int argc, char* argv[]) {
       case 2: // play/pause (spacebar)
         if(!end) {
           run = !run;
-          noteShift = true;
+          noteShift = run;
         }
         break;
       case 3: // left arrow 
-        cerr << "run " << run  << " end " << end << endl;
+        //cerr << "run " << run  << " end " << end << endl;
+        //cerr << "firstNote.x " << firstNote.x << endl;
+        if (firstNote.x >= 0) {
+          break;
+        }
+        
         oneTimeFlag = true;
+        if (end) {
+          end = false;
+        }
         // case1: can shift entire specified width
         if (firstNote.x < 0 && firstNote.x + shiftX < 0) {
           input.shiftX(shiftX);
@@ -223,13 +232,14 @@ int main(int argc, char* argv[]) {
         }
         break;
       case 4: // right arrow
-        cerr << "run " << run  << " end " << end << endl;
-        oneTimeFlag = true;
-        
+        //cerr << "run " << run  << " end " << end << endl;
+        //cerr << "firstNote.x " << firstNote.x << endl;
         if (end || lastNote.x + lastNote.duration <= 0) {
           break;
         }
 
+        oneTimeFlag = true;
+        
         // case1: can shift entire specified width
         if (lastNote.x > 0 && lastNote.x - shiftX > 0) {
           input.shiftX(-shiftX);
@@ -254,6 +264,10 @@ int main(int argc, char* argv[]) {
 
     if (run || oneTimeFlag) {
       main.clearBuffer();
+      //cerr << "--------------------------------" << endl; 
+    }
+    else if (!end || lastNote.x + lastNote.duration == 0) {
+      end = true;
     }
   }
   
