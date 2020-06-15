@@ -56,14 +56,19 @@ int main(int argc, char* argv[]) {
   const static int areaTop = 20;
   
   int x, y, width = 0;
-  double widthModifier = 1;
+  double widthModifier = 2;
   int shiftTime = 0;
-  int shiftX = 200 + 0*widthModifier;
+  int shiftX = 200;
   
   colorRGB lineColor(233, 0, 22); 
-  colorRGB noteColorOn(0, 100, 255);
-  colorRGB noteColorOff(0, 0, 255);
-  colorRGB colorByNote(255, 255, 255);
+  colorRGB noteColorOn1(0, 100, 255);
+  colorRGB noteColorOff1(0, 0, 255);
+  colorRGB noteColorOn2(233, 50, 50);
+  colorRGB noteColorOff2(120, 20, 20);
+  colorRGB noteColorOn = noteColorOn1;
+  colorRGB noteColorOff = noteColorOff1;
+
+
   bool colorByPart = true;
   bool noteOn = false;
   
@@ -71,7 +76,6 @@ int main(int argc, char* argv[]) {
   bool oneTimeFlag = true;
   bool end = false;
   bool drawLine = true;
-  bool noteShift = false;
   
   note* notes = input.getNotes();
 
@@ -88,11 +92,12 @@ int main(int argc, char* argv[]) {
    *    add menu bar on top
    *    add file picker
    *    add color picker for parts
-   *    add color by parts
+   *    add color by parts                        DONE
+   *    add color by tonic
    *    add config file parsing
-   *    up/down arrow control horizontal scale    DONE (add upper zoom limit)
-   *    left/right arrow able to move             DONE (add right bound restriction) 
-   *    scale notes by window size                DONE (test with note value 0)
+   *    up/down arrow control horizontal scale    
+   *    left/right arrow able to move             DONE  
+   *    scale notes to window size                DONE (test with note value 0)
    */
   
   bool fileClicked = true;
@@ -100,10 +105,7 @@ int main(int argc, char* argv[]) {
   int fileSubMenuHeight = 200;
   
   for (int i = 0; i < input.getNoteCount(); i++) {
-    cerr << "note: " << i << "vs. note tick: " << notes[i].x << endl;
-    if (i > 0 && notes[i].x < notes[i-1].x) {
-      cerr << "warn: misordered note at position " << i << ": this note at tick " << notes[i].x << " is less than last note at tick " << notes[i-1].x << endl;
-    } 
+    cerr << "note: " << i << "on track: " << notes[i].track << endl;
   }
   while (state){
 
@@ -168,16 +170,26 @@ int main(int argc, char* argv[]) {
               for (int k = 0; k < renderNote.height; k++) {
                 
                 if (colorByPart) {
-                  // implement color shifting
-                }
-
-                if (noteOn) {
-                  main.setPixelRGB(x + j, y + k, noteColorOn.r, noteColorOn.g, noteColorOn.b);
+                  switch (renderNote.track) {
+                    case 0:
+                      noteColorOn = noteColorOn1;
+                      noteColorOff = noteColorOff1;
+                      break;
+                    case 1:
+                      noteColorOn = noteColorOn2;
+                      noteColorOff = noteColorOff2;
+                      break;
+                  }
+                  if (noteOn) {
+                    main.setPixelRGB(x + j, y + k, noteColorOn.r, noteColorOn.g, noteColorOn.b);
+                  }
+                  else {
+                    main.setPixelRGB(x + j, y + k, noteColorOff.r, noteColorOff.g, noteColorOff.b);
+                  }
                 }
                 else {
-                  main.setPixelRGB(x + j, y + k, noteColorOff.r, noteColorOff.g, noteColorOff.b);
+                  // implement color by tonic
                 }
-
               }
             }
           }
@@ -208,7 +220,6 @@ int main(int argc, char* argv[]) {
       case 2: // play/pause (spacebar)
         if(!end) {
           run = !run;
-          noteShift = run;
         }
         break;
       case 3: // left arrow 
@@ -251,13 +262,11 @@ int main(int argc, char* argv[]) {
         break;
       case 5: // up arrow or scroll up
         oneTimeFlag = true;
-        if (widthModifier > 0.25) { 
-          widthModifier -= 0.25;
-        }
+        input.scaleTime(widthModifier);
         break;
       case 6: //down arrow or scroll down
         oneTimeFlag = true;
-        widthModifier += 0.25;
+        input.scaleTime(1/widthModifier);
         break;
     }
     main.update();

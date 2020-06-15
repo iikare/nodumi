@@ -29,11 +29,16 @@ void note::shiftX(int shiftX) {
   x += shiftX;
 }
 
-void note::shiftTime(int timeInc) {
-  x -= timeInc/TIME_MODIFIER;
+void note::shiftTime(int timeInc, double timeScale) {
+  x -= static_cast<double>(timeInc)/(TIME_MODIFIER);
 }
 
-mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), notes(nullptr) {}
+void note::scaleTime(double timeScale) {
+  x *= timeScale;
+  duration *= timeScale;
+}
+
+mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), timeScale(0), notes(nullptr) {}
 
 mfile::~mfile() {
   delete[] notes;
@@ -48,16 +53,21 @@ int mfile::getNoteCount() {
 }
 
 void mfile::shiftX(int shiftX) {
-  cerr << "call to mfile::shiftX with value " << shiftX << endl;
   for (int i = 0; i < noteCount; i++) {
     notes[i].shiftX(shiftX);
   }
 }
 
 void mfile::shiftTime(int timeInc) {
-  cerr << "call to mfile::shiftTime with value " << timeInc << endl;
   for (int i = 0; i < noteCount; i++) {
-    notes[i].shiftTime(timeInc);
+    notes[i].shiftTime(timeInc, timeScale);
+  }
+}
+
+void mfile::scaleTime(double timeScale) {
+  this->timeScale *= timeScale;
+  for (int i = 0; i < noteCount; i++) {
+    notes[i].scaleTime(timeScale);
   }
 }
 
@@ -68,6 +78,10 @@ int mfile::getNoteRange() {
     exit(1);
   }
   return result;
+}
+
+int mfile::getTimeScale() {
+  return timeScale;
 }
 
 void mfile::load(string file) {
