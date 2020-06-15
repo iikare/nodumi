@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
   int x, y, width = 0;
   double widthModifier = 2;
   int shiftTime = 0;
-  int shiftX = 200;
+  double shiftX = 200;
   
   colorRGB lineColor(233, 0, 22); 
   colorRGB noteColorOn1(0, 100, 255);
@@ -234,11 +234,13 @@ int main(int argc, char* argv[]) {
           end = false;
         }
         // case1: can shift entire specified width
-        if (firstNote.x < 0 && firstNote.x + shiftX < 0) {
-          input.shiftX(shiftX);
+        if (firstNote.x < 0 && firstNote.x + static_cast<double>(shiftX) * input.getTimeScale() < 0) {
+          input.shiftX(static_cast<double>(shiftX) * input.getTimeScale());
         }
         // case2: can only shift to start
-        else if (firstNote.x < 0 && firstNote.x + shiftX >= 0){ 
+        else if (firstNote.x < 0 && firstNote.x + static_cast<double>(shiftX) * input.getTimeScale() >= 0){
+          cerr << " nonstandard shiftX: " << -firstNote.x * input.getTimeScale() << endl; 
+          cerr << -firstNote.x << endl;
           input.shiftX(-firstNote.x);
         }
         break;
@@ -252,21 +254,26 @@ int main(int argc, char* argv[]) {
         oneTimeFlag = true;
         
         // case1: can shift entire specified width
-        if (lastNote.x > 0 && lastNote.x - shiftX > 0) {
-          input.shiftX(-shiftX);
+        if (lastNote.x > 0 && lastNote.x - static_cast<double>(shiftX) * input.getTimeScale() > 0) {
+          input.shiftX(static_cast<double>(-shiftX) * input.getTimeScale());
         }
         // case2: can only shift to end
-        else if (lastNote.x > 0 && lastNote.x - shiftX <= 0) {
-          input.shiftX(-lastNote.x - lastNote.duration);
+        else if (lastNote.x > 0 && lastNote.x - static_cast<double>(shiftX) * input.getTimeScale() <= 0) {
+          cerr << " nonstandard shiftX: " << -(lastNote.x + lastNote.duration) * input.getTimeScale() << endl; 
+          input.shiftX(-(lastNote.x + lastNote.duration));
         }
         break;
       case 5: // up arrow or scroll up
         oneTimeFlag = true;
-        input.scaleTime(widthModifier);
+        if (input.getTimeScale() < 64) {
+          input.scaleTime(widthModifier);
+        }
         break;
       case 6: //down arrow or scroll down
         oneTimeFlag = true;
-        input.scaleTime(1/widthModifier);
+        if (input.getTimeScale() > static_cast<double>(1)/4096) {
+          input.scaleTime(1/widthModifier);
+        }
         break;
     }
     main.update();

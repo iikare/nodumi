@@ -14,8 +14,8 @@ class note {
     note();
     
     void init(int track, double tempo, double x, int y, double duration);
-    void shiftX(int shiftX);
-    void shiftTime(int timeInc, double timeScale);
+    void shiftX(double shiftX, double timeScale);
+    void shiftTime(double timeInc, double timeScale);
     void scaleTime(double timeScale);
 
     int height = round(WIN_HEIGHT/NOTE_RANGE);
@@ -34,10 +34,10 @@ class mfile {
     note* getNotes();
     int getNoteRange();
     int getNoteCount();
-    int getTimeScale();
+    double getTimeScale();
 
-    void shiftX(int shiftX);
-    void shiftTime(int timeInc);
+    void shiftX(double shiftX);
+    void shiftTime(double timeInc);
     void scaleTime(double timeScale);
 
     void load(string file);

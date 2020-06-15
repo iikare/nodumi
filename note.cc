@@ -25,12 +25,12 @@ void note::init(int track, double tempo, double x, int y, double duration) {
   this->duration = duration;
 }
 
-void note::shiftX(int shiftX) {
-  x += shiftX;
+void note::shiftX(double shiftX, double timeScale) {
+  x += shiftX;// * timeScale;
 }
 
-void note::shiftTime(int timeInc, double timeScale) {
-  x -= static_cast<double>(timeInc)/(TIME_MODIFIER);
+void note::shiftTime(double timeInc, double timeScale) {
+  x -= timeScale * timeInc/TIME_MODIFIER;
 }
 
 void note::scaleTime(double timeScale) {
@@ -38,7 +38,7 @@ void note::scaleTime(double timeScale) {
   duration *= timeScale;
 }
 
-mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), timeScale(0), notes(nullptr) {}
+mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), timeScale(1), notes(nullptr) {}
 
 mfile::~mfile() {
   delete[] notes;
@@ -52,13 +52,16 @@ int mfile::getNoteCount() {
   return noteCount;
 }
 
-void mfile::shiftX(int shiftX) {
+void mfile::shiftX(double shiftX) {
+  cerr << "timeScale is " << timeScale << " from mfile::shiftX" << endl;
+  cerr << "shiftX is " << shiftX << " from mfile::shiftX" << endl;
   for (int i = 0; i < noteCount; i++) {
-    notes[i].shiftX(shiftX);
+    notes[i].shiftX(shiftX, timeScale);
   }
 }
 
-void mfile::shiftTime(int timeInc) {
+void mfile::shiftTime(double timeInc) {
+  cerr << "call to mfile::shiftTime: " << timeInc <<  endl;
   for (int i = 0; i < noteCount; i++) {
     notes[i].shiftTime(timeInc, timeScale);
   }
@@ -66,6 +69,8 @@ void mfile::shiftTime(int timeInc) {
 
 void mfile::scaleTime(double timeScale) {
   this->timeScale *= timeScale;
+  cerr << "this timeScale is " << timeScale << endl;
+  cerr << "vs.  " << this->timeScale << endl;
   for (int i = 0; i < noteCount; i++) {
     notes[i].scaleTime(timeScale);
   }
@@ -80,7 +85,7 @@ int mfile::getNoteRange() {
   return result;
 }
 
-int mfile::getTimeScale() {
+double mfile::getTimeScale() {
   return timeScale;
 }
 
