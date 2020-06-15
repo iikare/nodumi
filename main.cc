@@ -10,7 +10,7 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::ifstream;
-
+using std::min;
 
 int main(int argc, char* argv[]) {
 
@@ -57,7 +57,6 @@ int main(int argc, char* argv[]) {
   
   int x, y, width = 0;
   double widthModifier = 1;
-  const static double timeModifier = 8;
   int shiftTime = 0;
   int shiftX = 200 * widthModifier;
   
@@ -176,7 +175,7 @@ int main(int argc, char* argv[]) {
             }
           }
         }
-        cerr << lastNote.x + lastNote.duration << "is last note x" << endl;
+        //cerr << lastNote.x + lastNote.duration << "is last note x" << endl;
         cerr << notes[0].x << "is first note x" << endl;
         if (noteShift) {
           if(lastNote.x + lastNote.duration<= 0) {
@@ -184,11 +183,12 @@ int main(int argc, char* argv[]) {
             end = true;
           }
           else {
-            if (lastNote.x + lastNote.duration > 0 && lastNote.x + lastNote.duration > shiftTime) {
+            cerr << "shiftTime is " << shiftTime << endl;
+            if (lastNote.x + lastNote.duration > 0 && shiftTime/TIME_MODIFIER < lastNote.x + lastNote.duration) {
               input.shiftTime(shiftTime);
             }
-            else if (lastNote.x + lastNote.duration > 0 && lastNote.x + lastNote.duration < shiftTime) {
-              input.shiftTime(lastNote.x + lastNote.duration);
+            else if (lastNote.x + lastNote.duration > 0) {
+              input.shiftTime((lastNote.x + lastNote.duration) * TIME_MODIFIER);
             }
           }
         }
