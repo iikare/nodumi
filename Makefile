@@ -6,40 +6,40 @@ LFLAGS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
 OBJS = main.o note.o window.o Binasc.o MidiEvent.o MidiEventList.o MidiFile.o MidiMessage.o Options.o
 
-FILES = ./build/*.o
+DIR = build
 
 NAME = viewer
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(LFLAGS) -o $(NAME) $(FILES) 
+$(NAME): $(addprefix $(DIR)/, $(OBJS))
+	$(CC) $(CFLAGS) $(LFLAGS) -o $(NAME) $(addprefix $(DIR)/, $(OBJS)) 
 
-main.o: main.cc
+$(DIR)/main.o: main.cc
 	$(CC) $(CFLAGS) -c main.cc  -o build/main.o
 
-note.o: note.cc note.h
+$(DIR)/note.o: note.cc note.h
 	$(CC) $(CFLAGS) -c note.cc -o build/note.o
 
-window.o: window.cc window.h
+$(DIR)/window.o: window.cc window.h
 	$(CC) $(CFLAGS) -c window.cc -o build/window.o
 
-Binasc.o: ./dpd/midifile/Binasc.cpp ./dpd/midifile/Binasc.h
+$(DIR)/Binasc.o: ./dpd/midifile/Binasc.cpp ./dpd/midifile/Binasc.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/Binasc.cpp -o build/Binasc.o
 
-Options.o: ./dpd/midifile/Options.cpp ./dpd/midifile/Options.h
+$(DIR)/Options.o: ./dpd/midifile/Options.cpp ./dpd/midifile/Options.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/Options.cpp -o build/Options.o
 
-MidiEvent.o: ./dpd/midifile/MidiEvent.cpp ./dpd/midifile/MidiEvent.h
+$(DIR)/MidiEvent.o: ./dpd/midifile/MidiEvent.cpp ./dpd/midifile/MidiEvent.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/MidiEvent.cpp -o build/MidiEvent.o
 
-MidiEventList.o: ./dpd/midifile/MidiEventList.cpp ./dpd/midifile/MidiEventList.h
+$(DIR)/MidiEventList.o: ./dpd/midifile/MidiEventList.cpp ./dpd/midifile/MidiEventList.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/MidiEventList.cpp -o build/MidiEventList.o
 
-MidiFile.o: ./dpd/midifile/MidiFile.cpp ./dpd/midifile/MidiFile.h
+$(DIR)/MidiFile.o: ./dpd/midifile/MidiFile.cpp ./dpd/midifile/MidiFile.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/MidiFile.cpp -o build/MidiFile.o
 
-MidiMessage.o: ./dpd/midifile/MidiMessage.cpp ./dpd/midifile/MidiMessage.h
+$(DIR)/MidiMessage.o: ./dpd/midifile/MidiMessage.cpp ./dpd/midifile/MidiMessage.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/MidiMessage.cpp -o build/MidiMessage.o
 
 clean: 

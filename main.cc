@@ -123,6 +123,10 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    if (end && lastNote.x + lastNote.duration > 0) {
+      end = false;
+    }
+
     if (!end) {
 
       // now line will always render regardless of play state
@@ -131,6 +135,7 @@ int main(int argc, char* argv[]) {
           main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
         }
       }
+
       if (run || oneTimeFlag) {
         oneTimeFlag = false;
 
@@ -206,6 +211,7 @@ int main(int argc, char* argv[]) {
         }
         break;
       case 3: // left arrow 
+        cerr << "run " << run  << " end " << end << endl;
         oneTimeFlag = true;
         // case1: can shift entire specified width
         if (firstNote.x < 0 && firstNote.x + shiftX < 0) {
@@ -217,7 +223,13 @@ int main(int argc, char* argv[]) {
         }
         break;
       case 4: // right arrow
+        cerr << "run " << run  << " end " << end << endl;
         oneTimeFlag = true;
+        
+        if (end || lastNote.x + lastNote.duration <= 0) {
+          break;
+        }
+
         // case1: can shift entire specified width
         if (lastNote.x > 0 && lastNote.x - shiftX > 0) {
           input.shiftX(-shiftX);
