@@ -129,8 +129,8 @@ int main(int argc, char* argv[]) {
     if (end && lastNote.x + lastNote.duration > 0) {
       end = false;
     }
-    
-    if (!end) {
+    cerr << end << " is end " << endl; 
+    if (!end || oneTimeFlag) {
       // now line will always render regardless of play state
       if (drawLine) {
         for (int y = areaTop; y < main.getHeight(); y++) {
