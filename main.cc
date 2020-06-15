@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
   
   note* notes = input.getNotes();
 
-  note& renderNote = notes[0];
+  note renderNote = notes[0];
   note& firstNote = notes[0];
   note& lastNote = notes[input.getNoteCount()-1];
   shiftTime = firstNote.tempo;
@@ -145,8 +145,10 @@ int main(int argc, char* argv[]) {
           
           //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
           
+          // only render note if it's visible 
           if (x < main.getWidth() && x > - width) {
-
+            
+            // check if note is currently playing
             if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
               noteOn = true;
             }
@@ -173,8 +175,8 @@ int main(int argc, char* argv[]) {
             }
           }
         }
-        cout << lastNote.x + lastNote.duration << "is last note x" << endl;
-        cout << input.getNoteCount() << endl;
+        cerr << lastNote.x + lastNote.duration << "is last note x" << endl;
+        cerr << notes[0].x << "is first note x" << endl;
         if (noteShift) {
           //cerr << lastNote.x/TICKS_TO_SEC + main.getWidth()/2 << " vs. " << main.getWidth()/2 - lastNote.duration << endl;
           if(lastNote.x + lastNote.duration<= 0) {
@@ -200,9 +202,13 @@ int main(int argc, char* argv[]) {
         break;
       case 3: // left arrow 
         oneTimeFlag = true;
+        cerr << "firstNote.x is " << firstNote.x << endl;
+
+        // case1: can shift entire specified width
         if (firstNote.x < 0 && firstNote.x + shiftX < 0) {
           input.shiftX(shiftX);
         }
+        // case2: can only shift to start
         else if (firstNote.x < 0 && firstNote.x + shiftX >= 0){ 
           input.shiftX(-firstNote.x);
         }
