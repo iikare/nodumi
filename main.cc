@@ -98,7 +98,13 @@ int main(int argc, char* argv[]) {
   bool fileClicked = true;
   int fileSubMenuWidth = 100;
   int fileSubMenuHeight = 200;
-
+  
+  for (int i = 0; i < input.getNoteCount(); i++) {
+    //cerr << "note: " << i << "vs. note tick: " << notes[i].x << endl;
+    if (i > 0 && notes[i].x > notes[i-1].x) {
+      cerr << "warn: misordered note at position " << i << ": this note at tick " << notes[i].x << " is more than last note at tick " << notes[i-1].x << endl;
+    }
+  }
   while (state){
     // render menu
     for (int x = 0; x <= main.getWidth(); x++) {
