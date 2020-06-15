@@ -215,7 +215,12 @@ int main(int argc, char* argv[]) {
         break;
       case 4: // right arrow
         oneTimeFlag = true;
-        input.shiftX(-shiftX);
+        if (lastNote.x > 0 && lastNote.x - shiftX > 0) {
+          input.shiftX(-shiftX);
+        }
+        else if (lastNote.x > 0 && lastNote.x - shiftX <= 0) {
+          input.shiftX(-lastNote.x - lastNote.duration);
+        }
         break;
       case 5: // up arrow or scroll up
         oneTimeFlag = true;
