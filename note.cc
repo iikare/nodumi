@@ -30,7 +30,7 @@ void note::shiftX(int shiftX) {
 }
 
 void note::shiftTime(int timeInc) {
-  x -= floor(static_cast<double>(timeInc)/8);
+  x -= timeInc/8;
 }
 
 mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), notes(nullptr) {}

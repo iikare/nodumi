@@ -52,11 +52,12 @@ int main(int argc, char* argv[]) {
 
   bool state = true;
 
-  const int menuHeight = 20;
-  const int areaTop = 20;
+  const static int menuHeight = 20;
+  const static int areaTop = 20;
   
   int x, y, width = 0;
   double widthModifier = 1;
+  const static double timeModifier = 8;
   int shiftTime = 0;
   int shiftX = 200 * widthModifier;
   
@@ -178,13 +179,17 @@ int main(int argc, char* argv[]) {
         cerr << lastNote.x + lastNote.duration << "is last note x" << endl;
         cerr << notes[0].x << "is first note x" << endl;
         if (noteShift) {
-          //cerr << lastNote.x/TICKS_TO_SEC + main.getWidth()/2 << " vs. " << main.getWidth()/2 - lastNote.duration << endl;
           if(lastNote.x + lastNote.duration<= 0) {
             run = false;
             end = true;
           }
           else {
-            input.shiftTime(shiftTime);
+            if (lastNote.x + lastNote.duration > 0 && lastNote.x + lastNote.duration > shiftTime) {
+              input.shiftTime(shiftTime);
+            }
+            else if (lastNote.x + lastNote.duration > 0 && lastNote.x + lastNote.duration < shiftTime) {
+              input.shiftTime(lastNote.x + lastNote.duration);
+            }
           }
         }
       }
@@ -202,8 +207,6 @@ int main(int argc, char* argv[]) {
         break;
       case 3: // left arrow 
         oneTimeFlag = true;
-        cerr << "firstNote.x is " << firstNote.x << endl;
-
         // case1: can shift entire specified width
         if (firstNote.x < 0 && firstNote.x + shiftX < 0) {
           input.shiftX(shiftX);
@@ -215,9 +218,11 @@ int main(int argc, char* argv[]) {
         break;
       case 4: // right arrow
         oneTimeFlag = true;
+        // case1: can shift entire specified width
         if (lastNote.x > 0 && lastNote.x - shiftX > 0) {
           input.shiftX(-shiftX);
         }
+        // case2: can only shift to end
         else if (lastNote.x > 0 && lastNote.x - shiftX <= 0) {
           input.shiftX(-lastNote.x - lastNote.duration);
         }
