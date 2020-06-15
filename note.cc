@@ -113,7 +113,7 @@ void mfile::load(string file) {
   
   for (int i = 0; i < noteCount; i++) {
     for (int j = 0; j < noteCount; j++) {
-      if(notes[j].x < notes[i].x) {
+      if(notes[j].x > notes[i].x) {
         std::swap(notes[i], notes[j]);
       }
     }
@@ -143,4 +143,14 @@ void mfile::load(string file) {
     noteMin = min(noteMin, notes[i].y);
     noteMax = max(noteMax, notes[i].y);
   }
+  
+  // get first and last note 
+  int firstTick = notes[0].x;
+
+  for (int i = 0; i < noteCount; i++) {
+    // first zero out the starting tick
+    notes[i].x -= firstTick;
+  }
+
+  // this way, the starting tick is by definition 0 , and the ending tick is the old first tick
 }

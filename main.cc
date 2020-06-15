@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
 
   note& renderNote = notes[0];
   note& firstNote = notes[0];
-  note& lastNote = notes[sizeof(notes)];
+  note& lastNote = notes[input.getNoteCount()-1];
   shiftTime = firstNote.tempo;
 
   SDL_Event event;
@@ -100,10 +100,10 @@ int main(int argc, char* argv[]) {
   int fileSubMenuHeight = 200;
   
   for (int i = 0; i < input.getNoteCount(); i++) {
-    //cerr << "note: " << i << "vs. note tick: " << notes[i].x << endl;
-    if (i > 0 && notes[i].x > notes[i-1].x) {
-      cerr << "warn: misordered note at position " << i << ": this note at tick " << notes[i].x << " is more than last note at tick " << notes[i-1].x << endl;
-    }
+    cerr << "note: " << i << "vs. note tick: " << notes[i].x << endl;
+    if (i > 0 && notes[i].x < notes[i-1].x) {
+      cerr << "warn: misordered note at position " << i << ": this note at tick " << notes[i].x << " is less than last note at tick " << notes[i-1].x << endl;
+    } 
   }
   while (state){
     // render menu
@@ -139,9 +139,9 @@ int main(int argc, char* argv[]) {
           // get current note
           renderNote = notes[i];
          
-          x = main.getWidth()/2 + round(renderNote.x/(widthModifier));
+          x = main.getWidth()/2 + renderNote.x;
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
-          width = renderNote.duration/(widthModifier);
+          width = renderNote.duration;
           
           //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
           
@@ -173,9 +173,11 @@ int main(int argc, char* argv[]) {
             }
           }
         }
+        cout << lastNote.x + lastNote.duration << "is last note x" << endl;
+        cout << input.getNoteCount() << endl;
         if (noteShift) {
           //cerr << lastNote.x/TICKS_TO_SEC + main.getWidth()/2 << " vs. " << main.getWidth()/2 - lastNote.duration << endl;
-          if(round(lastNote.x) + lastNote.duration <= 0) {
+          if(lastNote.x + lastNote.duration<= 0) {
             run = false;
             end = true;
           }
