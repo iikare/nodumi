@@ -25,12 +25,12 @@ void note::init(int track, double tempo, double x, int y, double duration) {
   this->duration = duration;
 }
 
-void note::shiftX(double shiftX, double timeScale) {
-  x += shiftX;// * timeScale;
+void note::shiftX(double shiftX) {
+  x += shiftX;
 }
 
 void note::shiftTime(double timeInc, double timeScale) {
-  x -= timeScale * timeInc/TIME_MODIFIER;
+  x -= timeInc/TIME_MODIFIER;
 }
 
 void note::scaleTime(double timeScale) {
@@ -56,7 +56,7 @@ void mfile::shiftX(double shiftX) {
   cerr << "timeScale is " << timeScale << " from mfile::shiftX" << endl;
   cerr << "shiftX is " << shiftX << " from mfile::shiftX" << endl;
   for (int i = 0; i < noteCount; i++) {
-    notes[i].shiftX(shiftX, timeScale);
+    notes[i].shiftX(shiftX);
   }
 }
 

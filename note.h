@@ -14,7 +14,7 @@ class note {
     note();
     
     void init(int track, double tempo, double x, int y, double duration);
-    void shiftX(double shiftX, double timeScale);
+    void shiftX(double shiftX);
     void shiftTime(double timeInc, double timeScale);
     void scaleTime(double timeScale);
 

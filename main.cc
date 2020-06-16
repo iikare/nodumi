@@ -95,7 +95,9 @@ int main(int argc, char* argv[]) {
    *    add color by parts                        DONE
    *    add color by tonic
    *    add config file parsing
-   *    up/down arrow control horizontal scale    
+   *    add ctrl left/right to scale faster
+   *    add home/end functionality                DONE
+   *    up/down arrow control horizontal scale    DONE 
    *    left/right arrow able to move             DONE  
    *    scale notes to window size                DONE (test with note value 0)
    */
@@ -129,7 +131,7 @@ int main(int argc, char* argv[]) {
     if (end && lastNote.x + lastNote.duration > 0) {
       end = false;
     }
-    cerr << end << " is end " << endl; 
+
     if (!end || oneTimeFlag) {
       // now line will always render regardless of play state
       if (drawLine) {
@@ -202,8 +204,8 @@ int main(int argc, char* argv[]) {
           }
           else {
             cerr << "shiftTime is " << shiftTime << endl;
-            if (lastNote.x + lastNote.duration > 0 && shiftTime/TIME_MODIFIER < lastNote.x + lastNote.duration) {
-              input.shiftTime(shiftTime);
+            if (lastNote.x + lastNote.duration > 0 && (shiftTime * input.getTimeScale())/TIME_MODIFIER < lastNote.x + lastNote.duration) {
+              input.shiftTime(shiftTime * input.getTimeScale());
             }
             else if (lastNote.x + lastNote.duration > 0) {
               input.shiftTime((lastNote.x + lastNote.duration) * TIME_MODIFIER);
@@ -274,6 +276,18 @@ int main(int argc, char* argv[]) {
         if (input.getTimeScale() > static_cast<double>(1)/4096) {
           input.scaleTime(1/widthModifier);
         }
+        break;
+      case 7: // home
+        oneTimeFlag = true;
+        run = false;
+        end = false;
+        input.shiftX(-firstNote.x);
+        break;
+      case 8: //end
+        oneTimeFlag = true;
+        run = false;
+        end = true;
+        input.shiftX(-(lastNote.x + lastNote.duration));
         break;
     }
     main.update();

@@ -106,6 +106,12 @@ unsigned char window::eventHandler(SDL_Event &event) {
           case SDLK_DOWN:
             return 6;
             break;
+          case SDLK_HOME:
+            return 7;
+            break;
+          case SDLK_END:
+            return 8;
+            break;
         }
         break;
       case SDL_MOUSEWHEEL:
