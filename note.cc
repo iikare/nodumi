@@ -135,7 +135,7 @@ void mfile::load(string file) {
   for (int i = 0; i < noteCount; i++) {
     for (int j = 0; j < noteCount; j++) {
       if(notes[j].x > notes[i].x) {
-        std::swap(notes[i], notes[j]);
+        swap(notes[i], notes[j]);
       }
     }
   }

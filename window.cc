@@ -10,8 +10,9 @@ using std::swap;
 using std::fill;
 
 window::window(string title) : 
-  windowA(nullptr), renderer(nullptr), texture(nullptr), windowX(0), windowY(0), tTexture(nullptr),
-  tSurface(nullptr), clipX(0), clipY(0), buffer(nullptr),
+  windowA(nullptr), renderer(nullptr), texture(nullptr), windowX(0), windowY(0),
+  tTexture(nullptr), tSurface(nullptr),
+  clipX(0), clipY(0), buffer(nullptr),
   menuFont(nullptr), menuColor(0, 0, 0), fontSize(0), mouseX(0), mouseY(0) {
   this->title = title;
   clip = {0, 0, 0, 0};
@@ -73,11 +74,16 @@ bool window::init() {
   return true;
 }
 
-void window::renderTextToTexture(int x, int y, string text, int fSize) {
+void window::renderText(int x, int y, string text) {
+  messageX.push_back(x);
+  messageY.push_back(y);
+  messageText.push_back(text);
+}
+
+void window::renderTextToTexture(int x, int y, string text) {
   SDL_Color col = {menuColor.r, menuColor.g, menuColor.b, 255};
   tSurface = TTF_RenderText_Blended(menuFont, text.c_str(), col);
   tTexture = SDL_CreateTextureFromSurface(renderer, tSurface);
-
 
   SDL_QueryTexture(tTexture, nullptr, nullptr, &clipX, &clipY);
   clip = {x + TEXT_OFFSET, y + TEXT_OFFSET, clipX, clipY};
@@ -214,8 +220,18 @@ void window::update() {
   SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(Uint32));
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-  SDL_RenderCopy(renderer, tTexture, nullptr, &clip);
+
+  int messageCount = messageX.size();
+  for (int i = 0; i < messageCount; i++){
+    renderTextToTexture(messageX.back(), messageY.back(), messageText.back());
+    SDL_RenderCopy(renderer, tTexture, nullptr, &clip);
+    messageX.pop_back();
+    messageY.pop_back();
+    messageText.pop_back();
+  }
+
   SDL_RenderPresent(renderer);
+
 }
 
 void window::clearBuffer() {
@@ -225,6 +241,7 @@ void window::clearBuffer() {
 void window::terminate() {
   
   delete[] buffer;
+
   TTF_CloseFont(menuFont);
 
   SDL_DestroyRenderer(renderer);

@@ -3,12 +3,15 @@
 
 #include <iostream>
 #include <string>
+#include <deque>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include "note.h"
 #include "window.h"
 
+
 using std::string;
+using std::deque;
 
 class colorRGB {
   public:
@@ -39,7 +42,7 @@ class window {
     int getMouseX();
     int getMouseY();
 
-    void renderTextToTexture(int x, int y, string text, int fSize);
+    void renderText(int x, int y, string text);
      
     void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
     void setPixelRGB(int x, int y, colorRGB col);
@@ -49,6 +52,7 @@ class window {
     void clearBuffer();
     void terminate();
   private:
+    void renderTextToTexture(int x, int y, string text);
     
     string title;
     SDL_Window* windowA;
@@ -56,6 +60,10 @@ class window {
     SDL_Texture* texture;
     int windowX;
     int windowY;
+    
+    deque<int> messageX;
+    deque<int> messageY;
+    deque<string> messageText;
 
     SDL_Texture* tTexture;
     SDL_Surface* tSurface;

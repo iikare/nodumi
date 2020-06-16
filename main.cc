@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
   bool fileClicked = true;
   int fileSubMenuWidth = 100;
   int fileSubMenuHeight = 200;
-
+  
   /*
    *  TODO:
    *    add user-customizable line color
@@ -275,7 +275,7 @@ int main(int argc, char* argv[]) {
       }
       
       // for menu : in progress  
-      main.renderTextToTexture(0, 0, "file", 24);
+      main.renderText(0, 0, "file");
 
       if (fileClicked) {
         for (int x = 0; x < fileSubMenuWidth; x++) {
@@ -297,7 +297,7 @@ int main(int argc, char* argv[]) {
            }
          }
          for (int i = 0; i < rightMenu.getSize(); i++) {
-           main.renderTextToTexture(rightMenu.getItemX(i), rightMenu.getItemY(i), rightMenu.getContent(i), 24);
+           main.renderText(rightMenu.getItemX(i), rightMenu.getItemY(i), rightMenu.getContent(i));
          }
        } 
     }
