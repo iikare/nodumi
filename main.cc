@@ -72,6 +72,7 @@ int main(int argc, char* argv[]) {
   // color and cursor/note collision  
   colorRGB lineColor(233, 0, 22); 
   colorRGB menuColor(222, 222, 222); 
+  colorRGB menuColorClick(155, 155, 155); 
   colorRGB menuLineColor(22, 22, 22); 
   colorRGB noteColorOn1(0, 100, 255);
   colorRGB noteColorOff1(0, 0, 255);
@@ -279,7 +280,13 @@ int main(int argc, char* argv[]) {
       if (fileMenu.render) {
         for (int x = 0; x < fileMenu.getWidth() ; x++) {
           for (int y = menuHeight; y < fileMenu.getHeight(); y++) {
-            main.setPixelRGB(x, y, menuColor);
+            if (!hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
+                  fileMenu.getItemX(1), fileMenu.getItemY(1) + fileMenu.getWidth())) {
+              main.setPixelRGB(x, y, noteColorOn2);
+            }
+            else {
+              main.setPixelRGB(x, y, menuColor);
+            }
           }
         }
         for (int i = 0; i < fileMenu.getSize(); i++) {
