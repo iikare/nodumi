@@ -10,9 +10,9 @@ using std::swap;
 using std::fill;
 
 window::window(string title) : 
-  windowA(nullptr), renderer(nullptr), texture(nullptr), tTexture(nullptr),
+  windowA(nullptr), renderer(nullptr), texture(nullptr), windowX(0), windowY(0), tTexture(nullptr),
   tSurface(nullptr), clipX(0), clipY(0), buffer(nullptr),
-  menuFont(nullptr), menuColor(0, 0, 0), fontSize(0) {
+  menuFont(nullptr), menuColor(0, 0, 0), fontSize(0), mouseX(0), mouseY(0) {
   this->title = title;
   clip = {0, 0, 0, 0};
 }
@@ -130,6 +130,9 @@ unsigned char window::eventHandler(SDL_Event &event) {
           return 6;
         }
         break;
+      //case SDL_MOUSEMOTION:
+        //return 11;
+        //break;
     }
   }
   return 0;
@@ -143,12 +146,29 @@ bool window::noteVisible(note n) {
   return pointVisible(n.x, n.y);
 }
 
+bool window::mouseVisible() {
+  SDL_GetGlobalMouseState(&mouseX, &mouseY);
+  SDL_GetWindowPosition(windowA, &windowX, &windowY);
+  mouseX = mouseX - windowX;
+  mouseY = mouseY - windowY;
+
+  return mouseX < WIDTH && mouseX > 0 && mouseY < HEIGHT && mouseY > 0;
+}
+
 int window::getWidth() {
   return WIDTH;
 }
 
 int window::getHeight() {
   return HEIGHT;
+}
+
+int window::getMouseX() {
+  return mouseX;
+}
+
+int window::getMouseY() {
+  return mouseY;
 }
 
 void window::setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b) {

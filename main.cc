@@ -74,7 +74,11 @@ int main(int argc, char* argv[]) {
 
   bool colorByPart = true;
   bool noteOn = false;
-  
+  bool mouseVisible = false;
+  bool mouseOnNote = true;
+  int lastMouseX = 0;
+  int lastMouseY = 0;
+
   bool run = false;
   bool oneTimeFlag = true;
   bool end = false;
@@ -89,8 +93,13 @@ int main(int argc, char* argv[]) {
 
   SDL_Event event;
 
-        osdialog_color color = {255, 0, 255, 255};
-        int res = 0;
+  osdialog_color color = {255, 0, 255, 255};
+  int res = 0;
+
+  bool fileClicked = true;
+  int fileSubMenuWidth = 100;
+  int fileSubMenuHeight = 200;
+
   /*
    *  TODO:
    *    add user-customizable line color
@@ -100,6 +109,8 @@ int main(int argc, char* argv[]) {
    *    add color by parts                        DONE
    *    add color by tonic
    *    add config file parsing
+   *    add note mouse detection
+   *    add note outlines
    *    add ctrl left/right to scale faster       DONE
    *    add home/end functionality                DONE
    *    up/down arrow control horizontal scale    DONE 
@@ -107,14 +118,12 @@ int main(int argc, char* argv[]) {
    *    scale notes to window size                DONE (test with note value 0)
    */
   
-  bool fileClicked = true;
-  int fileSubMenuWidth = 100;
-  int fileSubMenuHeight = 200;
-  
   for (int i = 0; i < input.getNoteCount(); i++) {
     cerr << "note: " << i << "on track: " << notes[i].track << endl;
   }
+
   while (state){
+
 
     // render menu
     for (int x = 0; x <= main.getWidth(); x++) {
@@ -138,12 +147,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!end || oneTimeFlag) {
-      // now line will always render regardless of play state
-      if (drawLine) {
-        for (int y = areaTop; y < main.getHeight(); y++) {
-          main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
-        }
-      }
+
 
       if (run || oneTimeFlag) {
         cerr << "--------------------------------" << endl; 
@@ -154,13 +158,19 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i < input.getNoteCount(); i++) {
           // get current note
           renderNote = notes[i];
+          mouseOnNote = false;
          
           x = main.getWidth()/2 + renderNote.x;
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           width = renderNote.duration;
-          
+
+          if (mouseVisible && hoverOnNote(main.getMouseX(), main.getMouseY(), x, y, width, renderNote.height)) {
+           cout << "note " << i << " overlaps" << endl;
+           cout << "x min, x max, x actual" << x << ", " << x + width<< ", " << main.getMouseX() << endl;
+           cout << "y min, y max, y actual" << y << ", " << y + renderNote.height<< ", " << main.getMouseY() << endl;
+           mouseOnNote = true;
+          } 
           //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
-          
           // only render note if it's visible 
           if (x < main.getWidth() && x > - width) {
             
@@ -187,7 +197,10 @@ int main(int argc, char* argv[]) {
                       noteColorOff = noteColorOff2;
                       break;
                   }
-                  if (noteOn) {
+                  if (mouseOnNote) {
+                    main.setPixelRGB(x + j, y + k, noteColorOn2.r, noteColorOn2.g, noteColorOn2.b);
+                  }
+                  else if (noteOn) {
                     main.setPixelRGB(x + j, y + k, noteColorOn.r, noteColorOn.g, noteColorOn.b);
                   }
                   else {
@@ -218,8 +231,14 @@ int main(int argc, char* argv[]) {
           }
         }
       }
+      // now line will always render regardless of play state
+      if (drawLine) {
+        for (int y = areaTop; y < main.getHeight(); y++) {
+          main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
+        }
+      }
     }
-
+ 
     switch (main.eventHandler(event)){
       case 1: // program closing
         state = false;
@@ -230,8 +249,8 @@ int main(int argc, char* argv[]) {
         }
         break;
       case 3: // left arrow
-        res = osdialog_color_picker(&color, 0);
-        cerr << "test: {" << static_cast<int>(color.r) << ", " << static_cast<int>(color.g) << ", " << static_cast<int>(color.b) << "}"<< endl;
+        //res = osdialog_color_picker(&color, 0);
+        //cerr << "test: {" << static_cast<int>(color.r) << ", " << static_cast<int>(color.g) << ", " << static_cast<int>(color.b) << "}"<< endl;
 
         //cerr << "run " << run  << " end " << end << endl;
         //cerr << "firstNote.x " << firstNote.x << endl;
@@ -329,9 +348,24 @@ int main(int argc, char* argv[]) {
           input.shiftX(-(lastNote.x + lastNote.duration));
         }
         break;
+      case 11: // mouse motion
+        break;
+        oneTimeFlag = true;
+        break;
     }
-    main.update();
+    
+    // update mouse position and check for changes
+    lastMouseX = main.getMouseX();
+    lastMouseY = main.getMouseY();
+    mouseVisible = main.mouseVisible();
+    if (lastMouseX != main.getMouseX() || lastMouseY != main.getMouseY()) {
+      // redraw buffer if mouse has moved
+      oneTimeFlag = true;
+    }
 
+
+    main.update();
+    
     if (run || oneTimeFlag) {
       main.clearBuffer();
       //cerr << "--------------------------------" << endl; 

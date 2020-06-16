@@ -32,8 +32,12 @@ class window {
     unsigned char eventHandler(SDL_Event &event);
     bool pointVisible(int x, int y);
     bool noteVisible(note n);
+    bool mouseVisible();
+
     int getWidth();
     int getHeight();
+    int getMouseX();
+    int getMouseY();
 
     void renderTextToTexture(int x, int y, string text, int fSize);
      
@@ -49,6 +53,8 @@ class window {
     SDL_Window* windowA;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
+    int windowX;
+    int windowY;
 
     SDL_Texture* tTexture;
     SDL_Surface* tSurface;
@@ -61,6 +67,9 @@ class window {
     TTF_Font* menuFont;
     colorRGB menuColor;
     int fontSize;
+
+    int mouseX;
+    int mouseY;
 };
 
 #endif

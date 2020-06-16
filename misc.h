@@ -11,4 +11,6 @@
 #define TIME_MODIFIER 8
 #define CTRL_MODIFIER 10
 
+bool hoverOnNote(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int noteHeight);
+
 #endif

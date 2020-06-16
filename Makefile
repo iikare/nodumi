@@ -5,7 +5,7 @@ CFLAGSOD = --std=c99 -w -fpermissive -g $(shell pkg-config --cflags gtk+-3.0)
 
 LFLAGS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf $(shell pkg-config --libs gtk+-3.0)
 
-OBJS = main.o note.o window.o Binasc.o MidiEvent.o MidiEventList.o MidiFile.o MidiMessage.o osdialog.o osdialog_gtk3.o
+OBJS = main.o note.o window.o misc.o Binasc.o MidiEvent.o MidiEventList.o MidiFile.o MidiMessage.o osdialog.o osdialog_gtk3.o
 
 DIR = build
 
@@ -24,6 +24,9 @@ $(DIR)/note.o: note.cc note.h
 
 $(DIR)/window.o: window.cc window.h
 	$(CC) $(CFLAGS) -c window.cc -o build/window.o
+
+$(DIR)/misc.o: misc.cc misc.h
+	$(CC) $(CFLAGS) -c misc.cc -o build/misc.o
 
 $(DIR)/osdialog.o: ./dpd/osdialog/osdialog.c ./dpd/osdialog/osdialog.h
 	$(CC)  $(CFLAGSOD) -c ./dpd/osdialog/osdialog.c -o build/osdialog.o
