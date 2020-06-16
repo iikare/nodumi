@@ -14,6 +14,7 @@ using std::cerr;
 using std::cout;
 using std::endl;
 using std::string;
+using std::vector;
 using std::ifstream;
 using std::min;
 
@@ -97,8 +98,8 @@ int main(int argc, char* argv[]) {
   int rightClickX = 0;
   int rightClickY = 0;
 
-  std::vector<string> rightClickContents = {"item 1", "item2", "item3"};
-  menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents);
+  vector<string> rightClickContents = {"item 1", "item2", "item3"};
+  menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false);
   
   // play state controls
   bool run = false;
@@ -121,10 +122,10 @@ int main(int argc, char* argv[]) {
   osdialog_color color = {255, 0, 255, 255};
   int res = 0;
   
-  // menu control
+  // mainmenu control
   bool fileClicked = true;
-  int fileSubMenuWidth = 100;
-  int fileSubMenuHeight = 200;
+  vector<string> fileMenuContents = {"File", "Open File", "Save", "Save As", "Exit"};
+  menu fileMenu(main.getWidth(), main.getHeight(), fileMenuContents, true);
   
   /*
    *  TODO:
@@ -275,14 +276,20 @@ int main(int argc, char* argv[]) {
       }
       
       // for menu : in progress  
-      main.renderText(0, 0, "file");
+      //main.renderText(0, 0, "file");
 
-      if (fileClicked) {
-        for (int x = 0; x < fileSubMenuWidth; x++) {
-          for (int y = menuHeight; y < fileSubMenuHeight; y++) {
+      if (fileMenu.render) {
+        for (int x = 0; x < fileMenu.getWidth() ; x++) {
+          for (int y = menuHeight; y < fileMenu.getHeight(); y++) {
             main.setPixelRGB(x, y, menuColor);
           }
         }
+        for (int i = 0; i < fileMenu.getSize(); i++) {
+          main.renderText(fileMenu.getItemX(i), fileMenu.getItemY(i), fileMenu.getContent(i));
+        }
+      }
+      else {
+        main.renderText(fileMenu.getItemX(0), fileMenu.getItemY(0), fileMenu.getContent(0));
       }
       // draw the note right click menu
        if (rightMenu.render) {
@@ -414,6 +421,10 @@ int main(int argc, char* argv[]) {
       case 11: // left click
         // note rightclick menu should only be active until left click
         rightMenu.render = false;
+        fileMenu.render = false;
+        if (main.getMouseX() < 40 && main.getMouseY() < 20) {
+          fileMenu.render = true;
+        }
         oneTimeFlag = true;
         break;
       case 12: // right click

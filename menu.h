@@ -35,7 +35,7 @@ class menuItem {
 class menu {
   public:
     menu();
-    menu(int winX, int winY, vector<string> itemNames);
+    menu(int winX, int winY, vector<string> itemNames, bool mainMenu);
     ~menu();
 
     int getX() { return x; }
@@ -53,6 +53,7 @@ class menu {
     bool render;
 
   private:
+    bool isMainMenu;
     int x;
     int y;
     int width;

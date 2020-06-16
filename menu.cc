@@ -59,8 +59,8 @@ menu::menu() {
   exit(1);
 }
 
-menu::menu(int winX, int winY, vector<string> itemNames) :
-           render(false), x(0), y(0), width(0), height(0), itemCount(itemNames.size()),
+menu::menu(int winX, int winY, vector<string> itemNames, bool mainMenu) :
+           render(false), isMainMenu(mainMenu), x(0), y(0), width(0), height(0), itemCount(itemNames.size()),
            mainX(winX), mainY(winY), items(nullptr) {
 
   height = ITEM_HEIGHT * itemCount;
