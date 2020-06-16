@@ -1,10 +1,11 @@
 CC = g++
 
 CFLAGS = --std=c++11 -Wall -Wextra -g
+CFLAGSOD = --std=c99 -Wall -fpermissive -Wextra -pedantic  -g $(shell pkg-config --cflags gtk+-3.0)
 
-LFLAGS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
+LFLAGS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf $(shell pkg-config --libs gtk+-3.0)
 
-OBJS = main.o note.o window.o Binasc.o MidiEvent.o MidiEventList.o MidiFile.o MidiMessage.o Options.o
+OBJS = main.o note.o window.o Binasc.o MidiEvent.o MidiEventList.o MidiFile.o MidiMessage.o osdialog.o osdialog_gtk3.o
 
 DIR = build
 
@@ -24,11 +25,14 @@ $(DIR)/note.o: note.cc note.h
 $(DIR)/window.o: window.cc window.h
 	$(CC) $(CFLAGS) -c window.cc -o build/window.o
 
+$(DIR)/osdialog.o: ./dpd/osdialog/osdialog.c ./dpd/osdialog/osdialog.h
+	$(CC) $(CFLAGSOD) -c -w ./dpd/osdialog/osdialog.c -o build/osdialog.o
+
+$(DIR)/osdialog_gtk3.o: ./dpd/osdialog/osdialog_gtk3.c
+	$(CC) $(CFLAGSOD) -c -w ./dpd/osdialog/osdialog_gtk3.c -o build/osdialog_gtk3.o
+
 $(DIR)/Binasc.o: ./dpd/midifile/Binasc.cpp ./dpd/midifile/Binasc.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/Binasc.cpp -o build/Binasc.o
-
-$(DIR)/Options.o: ./dpd/midifile/Options.cpp ./dpd/midifile/Options.h
-	$(CC) $(CFLAGS) -c ./dpd/midifile/Options.cpp -o build/Options.o
 
 $(DIR)/MidiEvent.o: ./dpd/midifile/MidiEvent.cpp ./dpd/midifile/MidiEvent.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/MidiEvent.cpp -o build/MidiEvent.o

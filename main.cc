@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
    *    add color by parts                        DONE
    *    add color by tonic
    *    add config file parsing
-   *    add ctrl left/right to scale faster
+   *    add ctrl left/right to scale faster       DONE
    *    add home/end functionality                DONE
    *    up/down arrow control horizontal scale    DONE 
    *    left/right arrow able to move             DONE  
