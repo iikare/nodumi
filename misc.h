@@ -16,7 +16,7 @@
 #define ITEM_WIDTH 100
 #define TEXT_OFFSET 4
 
-bool hoverOnNote(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int noteHeight);
+bool hoverOnBox(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int noteHeight);
 void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
                      int& rcX, int& rcY, const int rcW, const int rcH);
 

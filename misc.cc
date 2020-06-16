@@ -1,7 +1,7 @@
 #include "misc.h"
 
 
-bool hoverOnNote(int mouseX, int mouseY, int noteX, 
+bool hoverOnBox(int mouseX, int mouseY, int noteX, 
                  int noteY, int noteWidth, int noteHeight) {
   if (mouseX >= noteX && mouseX <= noteX + noteWidth &&
       mouseY >= noteY && mouseY <= noteY + noteHeight) {

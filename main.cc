@@ -123,7 +123,6 @@ int main(int argc, char* argv[]) {
   int res = 0;
   
   // mainmenu control
-  bool fileClicked = true;
   vector<string> fileMenuContents = {"File", "Open File", "Save", "Save As", "Exit"};
   menu fileMenu(main.getWidth(), main.getHeight(), fileMenuContents, true);
   
@@ -180,7 +179,7 @@ int main(int argc, char* argv[]) {
           
 
           // perform note / cursor collision detection
-          if (mouseVisible && hoverOnNote(main.getMouseX(), main.getMouseY(), x, y, width, renderNote.height)) {
+          if (mouseVisible && hoverOnBox(main.getMouseX(), main.getMouseY(), x, y, width, renderNote.height)) {
            //cout << "note " << i << " overlaps" << endl;
            //cout << "x min, x max, x actual" << x << ", " << x + width<< ", " << main.getMouseX() << endl;
            //cout << "y min, y max, y actual" << y << ", " << y + renderNote.height<< ", " << main.getMouseY() << endl;
@@ -276,7 +275,6 @@ int main(int argc, char* argv[]) {
       }
       
       // for menu : in progress  
-      //main.renderText(0, 0, "file");
 
       if (fileMenu.render) {
         for (int x = 0; x < fileMenu.getWidth() ; x++) {
@@ -289,6 +287,7 @@ int main(int argc, char* argv[]) {
         }
       }
       else {
+        // only render the "File"
         main.renderText(fileMenu.getItemX(0), fileMenu.getItemY(0), fileMenu.getContent(0));
       }
       // draw the note right click menu
@@ -421,14 +420,21 @@ int main(int argc, char* argv[]) {
       case 11: // left click
         // note rightclick menu should only be active until left click
         rightMenu.render = false;
+
         fileMenu.render = false;
         if (main.getMouseX() < 40 && main.getMouseY() < 20) {
           fileMenu.render = true;
         }
+        else if (hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
+                 fileMenu.getX() + fileMenu.getWidth(), fileMenu.getY() + fileMenu.getHeight())) { 
+          fileMenu.render = true;
+        }
+
+
         oneTimeFlag = true;
         break;
       case 12: // right click
-        if (hoverOnNote(main.getMouseX(), main.getMouseY(), clickNoteX, clickNoteY, clickNoteWidth, clickNoteHeight)) {
+        if (hoverOnBox(main.getMouseX(), main.getMouseY(), clickNoteX, clickNoteY, clickNoteWidth, clickNoteHeight)) {
           cerr  << "right clicked on note!" << endl;
 
           // find coordinate to draw right click menu
