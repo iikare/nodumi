@@ -77,11 +77,23 @@ int main(int argc, char* argv[]) {
 
   bool colorByPart = true;
   bool noteOn = false;
+
   bool mouseVisible = false;
   bool mouseOnNote = true;
   int lastMouseX = 0;
   int lastMouseY = 0;
+  
+  // determine where to draw rightclick menu
+  int clickNoteX = 0; 
+  int clickNoteY = 0;
+  int clickNoteWidth = 0;
+  int clickNoteHeight = 0;
 
+  int rightClickMenuX = 0;
+  int rightClickMenuY = 0;
+  int rightClickMenuWidth = 0;
+  int rightClickMenuHeight = 0;
+  
   // play state controls
   bool run = false;
   bool oneTimeFlag = true;
@@ -178,10 +190,16 @@ int main(int argc, char* argv[]) {
 
           // perform note / cursor collision detection
           if (mouseVisible && hoverOnNote(main.getMouseX(), main.getMouseY(), x, y, width, renderNote.height)) {
-           cout << "note " << i << " overlaps" << endl;
-           cout << "x min, x max, x actual" << x << ", " << x + width<< ", " << main.getMouseX() << endl;
-           cout << "y min, y max, y actual" << y << ", " << y + renderNote.height<< ", " << main.getMouseY() << endl;
+           //cout << "note " << i << " overlaps" << endl;
+           //cout << "x min, x max, x actual" << x << ", " << x + width<< ", " << main.getMouseX() << endl;
+           //cout << "y min, y max, y actual" << y << ", " << y + renderNote.height<< ", " << main.getMouseY() << endl;
            mouseOnNote = true;
+
+           // set the note location variables to be used on right click
+           clickNoteX = x;
+           clickNoteY = y;
+           clickNoteWidth = width;
+           clickNoteHeight = renderNote.height;
           } 
           //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
           
@@ -365,6 +383,12 @@ int main(int argc, char* argv[]) {
           cerr << " nonstandard shiftX: " << -(lastNote.x + lastNote.duration) * input.getTimeScale() << endl; 
           input.shiftX(-(lastNote.x + lastNote.duration));
         }
+        break;
+      case 11: // right click
+        if (hoverOnNote(main.getMouseX(), main.getMouseY(), clickNoteX, clickNoteY, clickNoteWidth, clickNoteHeight)) {
+            cerr  << "right clicked on note!" << endl;
+        }
+
         break;
     }
     
