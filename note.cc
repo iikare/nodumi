@@ -61,7 +61,6 @@ void mfile::shiftX(double shiftX) {
 }
 
 void mfile::shiftTime(double timeInc) {
-  cerr << "call to mfile::shiftTime: " << timeInc <<  endl;
   for (int i = 0; i < noteCount; i++) {
     notes[i].shiftTime(timeInc, timeScale);
   }

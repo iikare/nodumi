@@ -151,10 +151,6 @@ int main(int argc, char* argv[]) {
   }
 
   while (state){
-    
-    cerr << "test menu item: " << rightMenu.getContent(1) << endl;
-    cerr << "test menu XY: " << rightMenu.getX() << ", " << rightMenu.getY() << endl;
-
     // clear false end flags
     if (end && lastNote.x + lastNote.duration > 0) {
       end = false;
