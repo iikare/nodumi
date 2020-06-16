@@ -80,7 +80,7 @@ void window::renderTextToTexture(int x, int y, string text, int fSize) {
 
 
   SDL_QueryTexture(tTexture, nullptr, nullptr, &clipX, &clipY);
-  clip = {x, y, clipX, clipY};
+  clip = {x + TEXT_OFFSET, y + TEXT_OFFSET, clipX, clipY};
 }
 
 unsigned char window::eventHandler(SDL_Event &event) {

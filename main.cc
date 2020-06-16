@@ -1,11 +1,13 @@
 #include <iostream>
 #include <stdlib.h>
+#include <vector>
 #include <stdio.h>
 #include <fstream>
 #include <string>
 #include "misc.h"
 #include "window.h"
 #include "note.h"
+#include "menu.h"
 #include "dpd/osdialog/osdialog.h"
 
 using std::cerr;
@@ -69,6 +71,7 @@ int main(int argc, char* argv[]) {
   // color and cursor/note collision  
   colorRGB lineColor(233, 0, 22); 
   colorRGB menuColor(222, 222, 222); 
+  colorRGB menuLineColor(22, 22, 22); 
   colorRGB noteColorOn1(0, 100, 255);
   colorRGB noteColorOff1(0, 0, 255);
   colorRGB noteColorOn2(233, 50, 50);
@@ -84,6 +87,7 @@ int main(int argc, char* argv[]) {
   int lastMouseX = 0;
   int lastMouseY = 0;
   
+  // right click menu constants
   // determine where to draw rightclick menu
   int clickNoteX = 0; 
   int clickNoteY = 0;
@@ -92,10 +96,9 @@ int main(int argc, char* argv[]) {
 
   int rightClickX = 0;
   int rightClickY = 0;
-  const static int rightClickWidth = 100;
-  const static int rightClickHeight = 40;
 
-  bool renderRightMenu = false;
+  std::vector<string> rightClickContents = {"item 1", "item2", "item3"};
+  menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents);
   
   // play state controls
   bool run = false;
@@ -147,9 +150,9 @@ int main(int argc, char* argv[]) {
   }
 
   while (state){
-
-
-   
+    
+    cerr << "test menu item: " << rightMenu.getContent(1) << endl;
+    cerr << "test menu XY: " << rightMenu.getX() << ", " << rightMenu.getY() << endl;
 
     // clear false end flags
     if (end && lastNote.x + lastNote.duration > 0) {
@@ -272,7 +275,7 @@ int main(int argc, char* argv[]) {
       }
       
       // for menu : in progress  
-      main.renderTextToTexture(4, 4, "file", 24);
+      main.renderTextToTexture(0, 0, "file", 24);
 
       if (fileClicked) {
         for (int x = 0; x < fileSubMenuWidth; x++) {
@@ -282,11 +285,19 @@ int main(int argc, char* argv[]) {
         }
       }
       // draw the note right click menu
-       if (renderRightMenu) {
-         for (int x = rightClickX; x < rightClickX + rightClickWidth; x++) {
-           for (int y = rightClickY; y < rightClickY + rightClickHeight; y++) {
-             main.setPixelRGB(x, y, menuColor);
+       if (rightMenu.render) {
+         for (int x = rightMenu.getX(); x < rightMenu.getX() + rightMenu.getWidth(); x++) {
+           for (int y = rightMenu.getY(); y < rightMenu.getY() + rightMenu.getHeight(); y++) {
+             if((y - rightMenu.getY()) % ITEM_HEIGHT != 0 || y == rightMenu.getY()) { 
+               main.setPixelRGB(x, y, menuColor);
+             }
+             else {
+               main.setPixelRGB(x, y, menuLineColor);
+             }
            }
+         }
+         for (int i = 0; i < rightMenu.getSize(); i++) {
+           main.renderTextToTexture(rightMenu.getItemX(i), rightMenu.getItemY(i), rightMenu.getContent(i), 24);
          }
        } 
     }
@@ -402,7 +413,7 @@ int main(int argc, char* argv[]) {
         break;
       case 11: // left click
         // note rightclick menu should only be active until left click
-        renderRightMenu = false;
+        rightMenu.render = false;
         oneTimeFlag = true;
         break;
       case 12: // right click
@@ -411,11 +422,17 @@ int main(int argc, char* argv[]) {
 
           // find coordinate to draw right click menu
           getMenuLocation(main.getWidth(), main.getHeight(), main.getMouseX(), main.getMouseY(),
-                          rightClickX, rightClickY, rightClickWidth, rightClickHeight);
-          cerr << "the menu for this note will take the space {" << rightClickX << ", " << rightClickY << "} to {"
-               << rightClickX + rightClickWidth << ", " << rightClickY + rightClickHeight << "}" << endl;
+                          rightClickX, rightClickY, rightMenu.getWidth(), rightMenu.getWidth());
+          
+          // pass that coordinate to the menu class
+          rightMenu.setXY(rightClickX, rightClickY);
 
-          renderRightMenu = true;
+          cerr << "the menu for this note will take the space {" 
+               << rightMenu.getX() << ", " << rightMenu.getY() << "} to {"
+               << rightMenu.getX() + rightMenu.getWidth() << ", " 
+               << rightMenu.getY() + rightMenu.getHeight() << "}" << endl;
+
+          rightMenu.render = true;
           oneTimeFlag = true;
         }
         break;
