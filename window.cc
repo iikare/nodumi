@@ -130,9 +130,6 @@ unsigned char window::eventHandler(SDL_Event &event) {
           return 6;
         }
         break;
-      //case SDL_MOUSEMOTION:
-        //return 11;
-        //break;
     }
   }
   return 0;

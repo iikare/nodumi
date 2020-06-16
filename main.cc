@@ -52,17 +52,21 @@ int main(int argc, char* argv[]) {
    * VARIABLES *
    * * * * * * *
    */ 
-
+  
+  // program exit control
   bool state = true;
 
+  // menu constants
   const static int menuHeight = 20;
   const static int areaTop = 20;
   
+  // note shift controls
   int x, y, width = 0;
   double widthModifier = 2;
   int shiftTime = 0;
   double shiftX = 200;
-  
+
+  // color and cursor/note collision  
   colorRGB lineColor(233, 0, 22); 
   colorRGB noteColorOn1(0, 100, 255);
   colorRGB noteColorOff1(0, 0, 255);
@@ -71,7 +75,6 @@ int main(int argc, char* argv[]) {
   colorRGB noteColorOn = noteColorOn1;
   colorRGB noteColorOff = noteColorOff1;
 
-
   bool colorByPart = true;
   bool noteOn = false;
   bool mouseVisible = false;
@@ -79,11 +82,13 @@ int main(int argc, char* argv[]) {
   int lastMouseX = 0;
   int lastMouseY = 0;
 
+  // play state controls
   bool run = false;
   bool oneTimeFlag = true;
   bool end = false;
   bool drawLine = true;
   
+  // note info
   note* notes = input.getNotes();
 
   note renderNote = notes[0];
@@ -91,11 +96,14 @@ int main(int argc, char* argv[]) {
   note& lastNote = notes[input.getNoteCount()-1];
   shiftTime = firstNote.tempo;
 
+  // event controller
   SDL_Event event;
 
+  // color picker
   osdialog_color color = {255, 0, 255, 255};
   int res = 0;
-
+  
+  // menu control
   bool fileClicked = true;
   int fileSubMenuWidth = 100;
   int fileSubMenuHeight = 200;
@@ -118,12 +126,12 @@ int main(int argc, char* argv[]) {
    *    scale notes to window size                DONE (test with note value 0)
    */
   
+  // debug track info 
   for (int i = 0; i < input.getNoteCount(); i++) {
     cerr << "note: " << i << "on track: " << notes[i].track << endl;
   }
 
   while (state){
-
 
     // render menu
     for (int x = 0; x <= main.getWidth(); x++) {
@@ -131,7 +139,8 @@ int main(int argc, char* argv[]) {
           main.setPixelRGB(x, y, 255, 255, 255);
         }
     }
-  
+    
+    // for menu : in progress  
     main.renderTextToTexture(4, 4, "file", 24);
 
     if (fileClicked) {
@@ -141,29 +150,33 @@ int main(int argc, char* argv[]) {
         }
       }
     }
-    
+   
+
+    // clear false end flags
     if (end && lastNote.x + lastNote.duration > 0) {
       end = false;
     }
 
     if (!end || oneTimeFlag) {
-
-
       if (run || oneTimeFlag) {
         cerr << "--------------------------------" << endl; 
        
-         oneTimeFlag = false;
+        // ensure rerender flag is unset
+        oneTimeFlag = false;
 
         // render notes
         for (int i = 0; i < input.getNoteCount(); i++) {
           // get current note
           renderNote = notes[i];
           mouseOnNote = false;
-         
+          
+          // calculate note coordinates 
           x = main.getWidth()/2 + renderNote.x;
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           width = renderNote.duration;
+          
 
+          // perform note / cursor collision detection
           if (mouseVisible && hoverOnNote(main.getMouseX(), main.getMouseY(), x, y, width, renderNote.height)) {
            cout << "note " << i << " overlaps" << endl;
            cout << "x min, x max, x actual" << x << ", " << x + width<< ", " << main.getMouseX() << endl;
@@ -171,6 +184,7 @@ int main(int argc, char* argv[]) {
            mouseOnNote = true;
           } 
           //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
+          
           // only render note if it's visible 
           if (x < main.getWidth() && x > - width) {
             
@@ -186,6 +200,7 @@ int main(int argc, char* argv[]) {
             for (int j = 0; j < width; j++) {
               for (int k = 0; k < renderNote.height; k++) {
                 
+                // set color based on note track 
                 if (colorByPart) {
                   switch (renderNote.track) {
                     case 0:
@@ -197,6 +212,8 @@ int main(int argc, char* argv[]) {
                       noteColorOff = noteColorOff2;
                       break;
                   }
+
+                  // render note specially if cursor is on it
                   if (mouseOnNote) {
                     main.setPixelRGB(x + j, y + k, noteColorOn2.r, noteColorOn2.g, noteColorOn2.b);
                   }
@@ -216,12 +233,13 @@ int main(int argc, char* argv[]) {
         }
         // only update position if running (oneTimeFlag redraws buffer)
         if (run) {
+          // end of file was reached
           if(lastNote.x + lastNote.duration<= 0) {
             run = false;
             end = true;
           }
           else {
-            cerr << "shiftTime is " << shiftTime << endl;
+            // shift normally as per tempo, or until end, whichever comes first
             if (lastNote.x + lastNote.duration > 0 && (shiftTime * input.getTimeScale())/TIME_MODIFIER < lastNote.x + lastNote.duration) {
               input.shiftTime(shiftTime * input.getTimeScale());
             }
@@ -347,10 +365,6 @@ int main(int argc, char* argv[]) {
           cerr << " nonstandard shiftX: " << -(lastNote.x + lastNote.duration) * input.getTimeScale() << endl; 
           input.shiftX(-(lastNote.x + lastNote.duration));
         }
-        break;
-      case 11: // mouse motion
-        break;
-        oneTimeFlag = true;
         break;
     }
     
