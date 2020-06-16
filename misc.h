@@ -10,7 +10,12 @@
 #define WIN_WIDTH 1280
 #define TIME_MODIFIER 8
 #define CTRL_MODIFIER 10
+#define MENU_MARGIN 10
+#define MAINMENU_HEIGHT 20
 
 bool hoverOnNote(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int noteHeight);
+void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
+                     int& rcX, int& rcY, const int rcW, const int rcH);
+
 
 #endif

@@ -131,8 +131,11 @@ unsigned char window::eventHandler(SDL_Event &event) {
         }
         break;
       case SDL_MOUSEBUTTONDOWN:
-        if (event.button.button == SDL_BUTTON_RIGHT) {
+        if (event.button.button == SDL_BUTTON_LEFT) {
           return 11;
+        }
+        else if (event.button.button == SDL_BUTTON_RIGHT) {
+          return 12;
         }
         break;
     }
@@ -171,6 +174,10 @@ int window::getMouseX() {
 
 int window::getMouseY() {
   return mouseY;
+}
+
+void window::setPixelRGB(int x, int y, colorRGB col) {
+  setPixelRGB(x, y, col.r, col.g, col.b);
 }
 
 void window::setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b) {
