@@ -9,5 +9,6 @@
 #define WIN_HEIGHT 720
 #define WIN_WIDTH 1280
 #define TIME_MODIFIER 8
+#define CTRL_MODIFIER 10
 
 #endif

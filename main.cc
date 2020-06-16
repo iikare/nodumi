@@ -236,13 +236,11 @@ int main(int argc, char* argv[]) {
           end = false;
         }
         // case1: can shift entire specified width
-        if (firstNote.x < 0 && firstNote.x + static_cast<double>(shiftX) * input.getTimeScale() < 0) {
-          input.shiftX(static_cast<double>(shiftX) * input.getTimeScale());
+        if (firstNote.x < 0 && firstNote.x + shiftX * input.getTimeScale() < 0) {
+          input.shiftX(shiftX * input.getTimeScale());
         }
         // case2: can only shift to start
-        else if (firstNote.x < 0 && firstNote.x + static_cast<double>(shiftX) * input.getTimeScale() >= 0){
-          cerr << " nonstandard shiftX: " << -firstNote.x * input.getTimeScale() << endl; 
-          cerr << -firstNote.x << endl;
+        else if (firstNote.x < 0 && firstNote.x + shiftX * input.getTimeScale() >= 0){
           input.shiftX(-firstNote.x);
         }
         break;
@@ -256,12 +254,11 @@ int main(int argc, char* argv[]) {
         oneTimeFlag = true;
         
         // case1: can shift entire specified width
-        if (lastNote.x > 0 && lastNote.x - static_cast<double>(shiftX) * input.getTimeScale() > 0) {
-          input.shiftX(static_cast<double>(-shiftX) * input.getTimeScale());
+        if (lastNote.x > 0 && lastNote.x - shiftX * input.getTimeScale() > 0) {
+          input.shiftX(-shiftX * input.getTimeScale());
         }
         // case2: can only shift to end
-        else if (lastNote.x > 0 && lastNote.x - static_cast<double>(shiftX) * input.getTimeScale() <= 0) {
-          cerr << " nonstandard shiftX: " << -(lastNote.x + lastNote.duration) * input.getTimeScale() << endl; 
+        else if (lastNote.x > 0 && lastNote.x - shiftX * input.getTimeScale() <= 0) {
           input.shiftX(-(lastNote.x + lastNote.duration));
         }
         break;
@@ -288,6 +285,41 @@ int main(int argc, char* argv[]) {
         run = false;
         end = true;
         input.shiftX(-(lastNote.x + lastNote.duration));
+        break;
+      case 9: // ctrl + left
+        if (firstNote.x >= 0) {
+          break;
+        }
+        
+        oneTimeFlag = true;
+        if (end) {
+          end = false;
+        }
+        // case1: can shift entire specified width
+        if (firstNote.x < 0 && firstNote.x + shiftX * CTRL_MODIFIER * input.getTimeScale() < 0) {
+          input.shiftX(shiftX * CTRL_MODIFIER * input.getTimeScale());
+        }
+        // case2: can only shift to start
+        else if (firstNote.x < 0 && firstNote.x + shiftX * CTRL_MODIFIER * input.getTimeScale() >= 0){
+          input.shiftX(-firstNote.x);
+        }
+        break;
+      case 10: // ctrl + right
+        if (end || lastNote.x + lastNote.duration <= 0) {
+          break;
+        }
+
+        oneTimeFlag = true;
+        
+        // case1: can shift entire specified width
+        if (lastNote.x > 0 && lastNote.x - shiftX * CTRL_MODIFIER * input.getTimeScale() > 0) {
+          input.shiftX(-shiftX * CTRL_MODIFIER * input.getTimeScale());
+        }
+        // case2: can only shift to end
+        else if (lastNote.x > 0 && lastNote.x - shiftX * CTRL_MODIFIER * input.getTimeScale() <= 0) {
+          cerr << " nonstandard shiftX: " << -(lastNote.x + lastNote.duration) * input.getTimeScale() << endl; 
+          input.shiftX(-(lastNote.x + lastNote.duration));
+        }
         break;
     }
     main.update();

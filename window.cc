@@ -95,9 +95,17 @@ unsigned char window::eventHandler(SDL_Event &event) {
             return 2;
             break;
           case SDLK_LEFT:
+            if (event.key.keysym.mod == KMOD_LCTRL || event.key.keysym.mod == KMOD_RCTRL){
+              return 9;
+              break;
+            }
             return 3;
             break;
           case SDLK_RIGHT:
+            if (event.key.keysym.mod == KMOD_LCTRL || event.key.keysym.mod == KMOD_RCTRL){
+              return 10;
+              break;
+            }
             return 4;
             break;
           case SDLK_UP:
