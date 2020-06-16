@@ -12,6 +12,9 @@
 #define CTRL_MODIFIER 10
 #define MENU_MARGIN 10
 #define MAINMENU_HEIGHT 20
+#define ITEM_HEIGHT 20
+#define ITEM_WIDTH 100
+
 
 bool hoverOnNote(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int noteHeight);
 void getMenuLocation(int mainW, int mainH, int cnX, int cnY,

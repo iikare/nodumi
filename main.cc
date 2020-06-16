@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
 
     if (!end || oneTimeFlag) {
       if (run || oneTimeFlag) {
-        cerr << "--------------------------------" << endl; 
+        //cerr << "--------------------------------" << endl; 
        
         // ensure rerender flag is unset
         oneTimeFlag = false;
