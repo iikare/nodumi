@@ -1,7 +1,7 @@
 CC = g++
 
 CFLAGS = --std=c++11 -Wall -Wextra -g
-CFLAGSOD = --std=c99 -Wall -fpermissive -Wextra -pedantic  -g $(shell pkg-config --cflags gtk+-3.0)
+CFLAGSOD = --std=c99 -w -fpermissive -g $(shell pkg-config --cflags gtk+-3.0)
 
 LFLAGS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf $(shell pkg-config --libs gtk+-3.0)
 
@@ -26,10 +26,10 @@ $(DIR)/window.o: window.cc window.h
 	$(CC) $(CFLAGS) -c window.cc -o build/window.o
 
 $(DIR)/osdialog.o: ./dpd/osdialog/osdialog.c ./dpd/osdialog/osdialog.h
-	$(CC) $(CFLAGSOD) -c -w ./dpd/osdialog/osdialog.c -o build/osdialog.o
+	$(CC)  $(CFLAGSOD) -c ./dpd/osdialog/osdialog.c -o build/osdialog.o
 
 $(DIR)/osdialog_gtk3.o: ./dpd/osdialog/osdialog_gtk3.c
-	$(CC) $(CFLAGSOD) -c -w ./dpd/osdialog/osdialog_gtk3.c -o build/osdialog_gtk3.o
+	$(CC) $(CFLAGSOD) -c ./dpd/osdialog/osdialog_gtk3.c -o build/osdialog_gtk3.o
 
 $(DIR)/Binasc.o: ./dpd/midifile/Binasc.cpp ./dpd/midifile/Binasc.h
 	$(CC) $(CFLAGS) -c ./dpd/midifile/Binasc.cpp -o build/Binasc.o

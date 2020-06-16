@@ -1,9 +1,12 @@
 #include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
 #include <fstream>
 #include <string>
 #include "misc.h"
 #include "window.h"
 #include "note.h"
+#include "dpd/osdialog/osdialog.h"
 
 using std::cerr;
 using std::cout;
@@ -86,6 +89,8 @@ int main(int argc, char* argv[]) {
 
   SDL_Event event;
 
+        osdialog_color color = {255, 0, 255, 255};
+        int res = 0;
   /*
    *  TODO:
    *    add user-customizable line color
@@ -224,7 +229,10 @@ int main(int argc, char* argv[]) {
           run = !run;
         }
         break;
-      case 3: // left arrow 
+      case 3: // left arrow
+        res = osdialog_color_picker(&color, 0);
+        cerr << "test: {" << static_cast<int>(color.r) << ", " << static_cast<int>(color.g) << ", " << static_cast<int>(color.b) << "}"<< endl;
+
         //cerr << "run " << run  << " end " << end << endl;
         //cerr << "firstNote.x " << firstNote.x << endl;
         if (firstNote.x >= 0) {
