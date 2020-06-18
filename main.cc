@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
   vector<string> editMenuContents = {"Edit", "A", "B", "C", "D"};
   menu editMenu(main.getWidth(), main.getHeight(), editMenuContents, true, EDIT_X, 0);
   
-  vector<string> viewMenuContents = {"View", "Display Now Line", "Set Tonic"};
+  vector<string> viewMenuContents = {"View", "Hide Now Line", "Set Tonic"};
   menu viewMenu(main.getWidth(), main.getHeight(), viewMenuContents, true, VIEW_X, 0);
   
   /*
@@ -286,7 +286,6 @@ int main(int argc, char* argv[]) {
     if (fileMenu.render) {
       for (int x = 0; x < fileMenu.getWidth() ; x++) {
         for (int y = 0; y < fileMenu.getHeight(); y++) {
-          cout << fileMenu.getItemY(1) << endl;
           if (!hoverOnBox(x, y, fileMenu.getX(), fileMenu.getY(),
               fileMenu.getWidth(), fileMenu.getItemY(1))) {
             if((y - fileMenu.getY()) % ITEM_HEIGHT != 0) { 
@@ -314,9 +313,8 @@ int main(int argc, char* argv[]) {
 
     // render edit menu
     if (editMenu.render) {
-      for (int x = EDIT_X; x < editMenu.getWidth() ; x++) {
+      for (int x = EDIT_X; x < EDIT_X + editMenu.getWidth() ; x++) {
         for (int y = 0; y < editMenu.getHeight(); y++) {
-          cout << editMenu.getItemY(1) << endl;
           if (!hoverOnBox(x, y, editMenu.getX(), editMenu.getY(),
               editMenu.getWidth(), editMenu.getItemY(1))) {
             if((y - editMenu.getY()) % ITEM_HEIGHT != 0) { 
@@ -338,11 +336,38 @@ int main(int argc, char* argv[]) {
       }
     }
     else {
-      // only render the "File"
+      // only render the "Edit"
       main.renderText(editMenu.getItemX(0), editMenu.getItemY(0), editMenu.getContent(0));
     }
 
-
+    // render view menu
+    if (viewMenu.render) {
+      for (int x = VIEW_X; x < VIEW_X + viewMenu.getWidth() ; x++) {
+        for (int y = 0; y < viewMenu.getHeight(); y++) {
+          if (!hoverOnBox(x, y, viewMenu.getX(), viewMenu.getY(),
+              viewMenu.getWidth(), viewMenu.getItemY(1))) {
+            if((y - viewMenu.getY()) % ITEM_HEIGHT != 0) { 
+              main.setPixelRGB(x, y, menuColorSub);
+            }
+            else {
+              main.setPixelRGB(x, y, menuLineColor);
+            }
+          }
+          else {
+            if (x < EDIT_X + EDIT_MENU_WIDTH) { 
+              main.setPixelRGB(x, y, menuColorClick);
+            }
+          }
+        }
+      }
+      for (int i = 0; i < viewMenu.getSize(); i++) {
+        main.renderText(viewMenu.getItemX(i), viewMenu.getItemY(i), viewMenu.getContent(i));
+      }
+    }
+    else {
+      // only render the "View"
+      main.renderText(viewMenu.getItemX(0), viewMenu.getItemY(0), viewMenu.getContent(0));
+    }
 
     // draw the note right click menu
     if (rightMenu.render) {
@@ -483,76 +508,90 @@ int main(int argc, char* argv[]) {
         cerr << "vmenu element: " << viewMenu.getActiveElement() << endl;
         
         //handle file menu actions
-        switch(fileMenu.getActiveElement()) {
-          case 0: // click on file menu again
-            if (hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
-                           FILE_MENU_WIDTH, ITEM_HEIGHT)){
-            editMenu.render = false;
-            viewMenu.render = false;
-            fileMenu.render = !fileMenu.render;
-            }
-            break;
-          case 1: // open file
-            cerr << "info: function not implemented" << endl;
-            break;
-          case 2: // save
-            cerr << "info: function not implemented" << endl;
-            break;
-          case 3: // save as
-            cerr << "info: function not implemented" << endl;
-            break;
-          case 4: // exit
-            state = false;
-            break;
+        if (fileMenu.render || !fileMenu.getActiveElement()) {
+          switch (fileMenu.getActiveElement()) {
+            case 0: // click on file menu again
+              if (hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
+                             FILE_MENU_WIDTH, ITEM_HEIGHT)){
+              editMenu.render = false;
+              viewMenu.render = false;
+              fileMenu.render = !fileMenu.render;
+              }
+              break;
+            case 1: // open file
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 2: // save
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 3: // save as
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 4: // exit
+              if (fileMenu.render){
+                state = false;
+              }
+              break;
+          }
         }
-
         //handle edit menu actions
-        switch(editMenu.getActiveElement()) {
-          case 0: // click on file menu again
-            if (hoverOnBox(main.getMouseX(), main.getMouseY(), editMenu.getX(), editMenu.getY(),
-                           EDIT_MENU_WIDTH, ITEM_HEIGHT)){
-            fileMenu.render = false;
-            viewMenu.render = false;
-            editMenu.render = !editMenu.render;
-            }
-            break;
-          case 1: // 
-            cerr << "info: function not implemented" << endl;
-            break;
-          case 2: // 
-            cerr << "info: function not implemented" << endl;
-            break;
-          case 3: //
-            cerr << "info: function not implemented" << endl;
-            break;
-          case 4: // 
-            cerr << "info: function not implemented" << endl;
-            break;
+        if (editMenu.render || !editMenu.getActiveElement()) {
+          switch (editMenu.getActiveElement()) {
+            case 0: // click on edit menu again
+              if (hoverOnBox(main.getMouseX(), main.getMouseY(), editMenu.getX(), editMenu.getY(),
+                             EDIT_MENU_WIDTH, ITEM_HEIGHT)){
+              fileMenu.render = false;
+              viewMenu.render = false;
+              editMenu.render = !editMenu.render;
+              }
+              break;
+            case 1: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 2: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 3: //
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 4: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+          }
         }
 
         //handle view menu actions
-        switch(viewMenu.getActiveElement()) {
-          case 0: // click on file menu again
-            if (hoverOnBox(main.getMouseX(), main.getMouseY(), viewMenu.getX(), viewMenu.getY(),
-                           VIEW_MENU_WIDTH, ITEM_HEIGHT)){
-            fileMenu.render = false;
-            editMenu.render = false;
-            viewMenu.render = !viewMenu.render;
-            }
-            break;
-          case 1: // 
-            cerr << "info: function not implemented" << endl;
-            break;
-          case 2: // 
-            cerr << "info: function not implemented" << endl;
-            break;
-          case 3: //
-            cerr << "info: function not implemented" << endl;
-            break;
-          case 4: // 
-            cerr << "info: function not implemented" << endl;
-            break;
+        if (viewMenu.render || !viewMenu.getActiveElement()) {
+          switch(viewMenu.getActiveElement()) {
+            case 0: // click on view menu again
+              if (hoverOnBox(main.getMouseX(), main.getMouseY(), viewMenu.getX(), viewMenu.getY(),
+                             VIEW_MENU_WIDTH, ITEM_HEIGHT)){
+              fileMenu.render = false;
+              editMenu.render = false;
+              viewMenu.render = !viewMenu.render;
+              }
+              break;
+            case 1: // now line
+              drawLine = !drawLine;
+              if(!drawLine){
+                viewMenu.setContent("Display Now Line", 1);
+              }
+              else {
+                viewMenu.setContent("Hide Now Line", 1);
+              }
+              break;
+            case 2: // set tonic 
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 3: //
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 4: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+          }
         }
+
 
         if (!hoverOnBox(main.getMouseX(), main.getMouseY(),fileMenu.getX(),fileMenu.getY(),
                        fileMenu.getWidth(), fileMenu.getHeight())) {
