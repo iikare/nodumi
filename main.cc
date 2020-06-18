@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
   int rightClickY = 0;
 
   vector<string> rightClickContents = {"Change Part Color", "Set Tonic"};
-  menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false);
+  menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false, -100, -100);
   
   // play state controls
   bool run = false;
