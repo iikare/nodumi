@@ -84,7 +84,6 @@ int main(int argc, char* argv[]) {
   bool colorByPart = true;
   bool noteOn = false;
 
-  bool mouseVisible = false;
   bool mouseOnNote = true;
   int lastMouseX = 0;
   int lastMouseY = 0;
@@ -156,6 +155,11 @@ int main(int argc, char* argv[]) {
       end = false;
     }
 
+    // force rerender if menu is on
+    if (rightMenu.render || fileMenu.render) {
+      oneTimeFlag = true;
+    }
+    
     if (!end || oneTimeFlag) {
       if (run || oneTimeFlag) {
         //cerr << "--------------------------------" << endl; 
@@ -176,7 +180,7 @@ int main(int argc, char* argv[]) {
           
 
           // perform note / cursor collision detection
-          if (mouseVisible && hoverOnBox(main.getMouseX(), main.getMouseY(), x, y, width, renderNote.height)) {
+          if (main.cursorVisible && hoverOnBox(main.getMouseX(), main.getMouseY(), x, y, width, renderNote.height)) {
            //cout << "note " << i << " overlaps" << endl;
            //cout << "x min, x max, x actual" << x << ", " << x + width<< ", " << main.getMouseX() << endl;
            //cout << "y min, y max, y actual" << y << ", " << y + renderNote.height<< ", " << main.getMouseY() << endl;
@@ -254,62 +258,62 @@ int main(int argc, char* argv[]) {
           }
         }
       }
+    }
+    
+    // everything after this point will render on top of notes
 
-      // everything after this point will render on top of notes
-
-      // now line will always render regardless of play state
-      if (drawLine) {
-        for (int y = areaTop; y < main.getHeight(); y++) {
-          main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
-        }
+    // now line will always render regardless of play state
+    if (drawLine) {
+      for (int y = areaTop; y < main.getHeight(); y++) {
+        main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
       }
-      
-      // render menu
-      for (int x = 0; x <= main.getWidth(); x++) {
-          for (int y = 0; y <= menuHeight; y++) {
+    }
+    
+    // render menu
+    for (int x = 0; x <= main.getWidth(); x++) {
+        for (int y = 0; y <= menuHeight; y++) {
+          main.setPixelRGB(x, y, menuColor);
+        }
+    }
+    
+    // for menu : in progress  
+
+    if (fileMenu.render) {
+      for (int x = 0; x < fileMenu.getWidth() ; x++) {
+        for (int y = menuHeight; y < fileMenu.getHeight(); y++) {
+          if (!hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
+              fileMenu.getItemX(1), fileMenu.getItemY(1) + fileMenu.getWidth())) {
+            main.setPixelRGB(x, y, noteColorOn2);
+          }
+          else {
             main.setPixelRGB(x, y, menuColor);
           }
+        }
       }
-      
-      // for menu : in progress  
-
-      if (fileMenu.render) {
-        for (int x = 0; x < fileMenu.getWidth() ; x++) {
-          for (int y = menuHeight; y < fileMenu.getHeight(); y++) {
-            if (!hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
-                  fileMenu.getItemX(1), fileMenu.getItemY(1) + fileMenu.getWidth())) {
-              main.setPixelRGB(x, y, noteColorOn2);
-            }
-            else {
-              main.setPixelRGB(x, y, menuColor);
-            }
+      for (int i = 0; i < fileMenu.getSize(); i++) {
+        main.renderText(fileMenu.getItemX(i), fileMenu.getItemY(i), fileMenu.getContent(i));
+      }
+    }
+    else {
+      // only render the "File"
+      main.renderText(fileMenu.getItemX(0), fileMenu.getItemY(0), fileMenu.getContent(0));
+    }
+    // draw the note right click menu
+    if (rightMenu.render) {
+      for (int x = rightMenu.getX(); x < rightMenu.getX() + rightMenu.getWidth(); x++) {
+        for (int y = rightMenu.getY(); y < rightMenu.getY() + rightMenu.getHeight(); y++) {
+          if((y - rightMenu.getY()) % ITEM_HEIGHT != 0 || y == rightMenu.getY()) { 
+            main.setPixelRGB(x, y, menuColor);
+          }
+          else {
+            main.setPixelRGB(x, y, menuLineColor);
           }
         }
-        for (int i = 0; i < fileMenu.getSize(); i++) {
-          main.renderText(fileMenu.getItemX(i), fileMenu.getItemY(i), fileMenu.getContent(i));
-        }
       }
-      else {
-        // only render the "File"
-        main.renderText(fileMenu.getItemX(0), fileMenu.getItemY(0), fileMenu.getContent(0));
+      for (int i = 0; i < rightMenu.getSize(); i++) {
+        main.renderText(rightMenu.getItemX(i), rightMenu.getItemY(i), rightMenu.getContent(i));
       }
-      // draw the note right click menu
-       if (rightMenu.render) {
-         for (int x = rightMenu.getX(); x < rightMenu.getX() + rightMenu.getWidth(); x++) {
-           for (int y = rightMenu.getY(); y < rightMenu.getY() + rightMenu.getHeight(); y++) {
-             if((y - rightMenu.getY()) % ITEM_HEIGHT != 0 || y == rightMenu.getY()) { 
-               main.setPixelRGB(x, y, menuColor);
-             }
-             else {
-               main.setPixelRGB(x, y, menuLineColor);
-             }
-           }
-         }
-         for (int i = 0; i < rightMenu.getSize(); i++) {
-           main.renderText(rightMenu.getItemX(i), rightMenu.getItemY(i), rightMenu.getContent(i));
-         }
-       } 
-    }
+    } 
  
     switch (main.eventHandler(event)){
       case 1: // program closing
@@ -319,6 +323,7 @@ int main(int argc, char* argv[]) {
         if(!end) {
           run = !run;
         }
+        oneTimeFlag = true;
         break;
       case 3: // left arrow
         //res = osdialog_color_picker(&color, 0);
@@ -331,9 +336,7 @@ int main(int argc, char* argv[]) {
         }
         
         oneTimeFlag = true;
-        if (end) {
-          end = false;
-        }
+        end = false;
         // case1: can shift entire specified width
         if (firstNote.x < 0 && firstNote.x + shiftX * input.getTimeScale() < 0) {
           input.shiftX(shiftX * input.getTimeScale());
@@ -416,15 +419,15 @@ int main(int argc, char* argv[]) {
         }
         // case2: can only shift to end
         else if (lastNote.x > 0 && lastNote.x - shiftX * CTRL_MODIFIER * input.getTimeScale() <= 0) {
-          cerr << " nonstandard shiftX: " << -(lastNote.x + lastNote.duration) * input.getTimeScale() << endl; 
           input.shiftX(-(lastNote.x + lastNote.duration));
         }
         break;
       case 11: // left click
         // note rightclick menu should only be active until left click
         rightMenu.render = false;
-
+        
         fileMenu.render = false;
+        //fileMenu.render = false;
         if (main.getMouseX() < 40 && main.getMouseY() < 20) {
           fileMenu.render = true;
         }
@@ -432,17 +435,19 @@ int main(int argc, char* argv[]) {
                  fileMenu.getX() + fileMenu.getWidth(), fileMenu.getY() + fileMenu.getHeight())) { 
           fileMenu.render = true;
         }
+        cout << "filemenu after left click" << fileMenu.render << endl;
 
 
         oneTimeFlag = true;
         break;
       case 12: // right click
-        if (hoverOnBox(main.getMouseX(), main.getMouseY(), clickNoteX, clickNoteY, clickNoteWidth, clickNoteHeight)) {
+        if (hoverOnBox(main.getMouseX(), main.getMouseY(), clickNoteX, clickNoteY, 
+                       clickNoteWidth, clickNoteHeight)) {
           cerr  << "right clicked on note!" << endl;
 
           // find coordinate to draw right click menu
           getMenuLocation(main.getWidth(), main.getHeight(), main.getMouseX(), main.getMouseY(),
-                          rightClickX, rightClickY, rightMenu.getWidth(), rightMenu.getWidth());
+                          rightClickX, rightClickY, rightMenu.getWidth(), rightMenu.getHeight());
           
           // pass that coordinate to the menu class
           rightMenu.setXY(rightClickX, rightClickY);
@@ -461,12 +466,11 @@ int main(int argc, char* argv[]) {
     // update mouse position and check for changes
     lastMouseX = main.getMouseX();
     lastMouseY = main.getMouseY();
-    mouseVisible = main.mouseVisible();
-    if (mouseVisible && (lastMouseX != main.getMouseX() || lastMouseY != main.getMouseY())) {
+    main.updateCursor();
+    if (main.cursorVisible && (lastMouseX != main.getMouseX() || lastMouseY != main.getMouseY())) {
       // redraw buffer if mouse has moved
       oneTimeFlag = true;
     }
-
 
     main.update();
     

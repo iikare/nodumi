@@ -157,13 +157,13 @@ bool window::noteVisible(note n) {
   return pointVisible(n.x, n.y);
 }
 
-bool window::mouseVisible() {
+void window::updateCursor() {
   SDL_GetGlobalMouseState(&mouseX, &mouseY);
   SDL_GetWindowPosition(windowA, &windowX, &windowY);
   mouseX = mouseX - windowX;
   mouseY = mouseY - windowY;
 
-  return mouseX < WIDTH && mouseX > 0 && mouseY < HEIGHT && mouseY > 0;
+  cursorVisible =  mouseX < WIDTH && mouseX > 0 && mouseY < HEIGHT && mouseY > 0;
 }
 
 int window::getWidth() {

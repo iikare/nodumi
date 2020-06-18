@@ -29,13 +29,14 @@ class window {
   public:
     const static int WIDTH = WIN_WIDTH;
     const static int HEIGHT = WIN_HEIGHT;
+    bool cursorVisible;
      
     window(string title);
     bool init();
     unsigned char eventHandler(SDL_Event &event);
     bool pointVisible(int x, int y);
     bool noteVisible(note n);
-    bool mouseVisible();
+    void updateCursor();
 
     int getWidth();
     int getHeight();

@@ -1,4 +1,8 @@
+#include <iostream>
 #include "misc.h"
+
+using std::cerr;
+using std::endl;
 
 
 bool hoverOnBox(int mouseX, int mouseY, int noteX, 

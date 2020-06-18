@@ -29,7 +29,7 @@ void note::shiftX(double shiftX) {
   x += shiftX;
 }
 
-void note::shiftTime(double timeInc, double timeScale) {
+void note::shiftTime(double timeInc) {
   x -= timeInc/TIME_MODIFIER;
 }
 
@@ -62,7 +62,7 @@ void mfile::shiftX(double shiftX) {
 
 void mfile::shiftTime(double timeInc) {
   for (int i = 0; i < noteCount; i++) {
-    notes[i].shiftTime(timeInc, timeScale);
+    notes[i].shiftTime(timeInc);
   }
 }
 
