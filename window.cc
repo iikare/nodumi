@@ -24,10 +24,6 @@ bool window::init() {
     return false;
   } 
 
-  if (TTF_Init() < 0) {
-    cerr << "warn: TTF initialization failed" << endl;
-  }
-     
   windowA = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 
   if (windowA == nullptr) {
@@ -65,7 +61,8 @@ bool window::init() {
   menuFont = TTF_OpenFont("dpd/fonts/yklight.ttf", fontSize);
   
   if(menuFont == nullptr) {
-    cerr << "warn: font initialization failed" << endl;
+    cerr << "error: font initialization failed" << endl;
+    exit(1);
   } 
   int x, y = 0;
 

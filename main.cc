@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
   // color and cursor/note collision  
   colorRGB lineColor(233, 0, 22); 
   colorRGB menuColor(222, 222, 222);
-  colorRGB noteColorSub(233, 50, 50);
+  colorRGB menuColorSub(233, 50, 50);
   colorRGB menuColorClick(155, 155, 155); 
   colorRGB menuLineColor(22, 22, 22); 
   colorRGB noteColorOn1(0, 100, 255);
@@ -283,7 +283,12 @@ int main(int argc, char* argv[]) {
         for (int y = 0; y < fileMenu.getHeight(); y++) {
           if (!hoverOnBox(x, y, fileMenu.getX(), fileMenu.getY(),
               fileMenu.getWidth(), fileMenu.getItemY(1))) {
-            main.setPixelRGB(x, y, noteColorSub);
+            if((y - rightMenu.getY()) % ITEM_HEIGHT != 0 || y == rightMenu.getY()) { 
+              main.setPixelRGB(x, y, menuColorSub);
+            }
+            else {
+              main.setPixelRGB(x, y, menuLineColor);
+            }
           }
           else {
             if (x < FILE_MENU_WIDTH) {
@@ -300,6 +305,7 @@ int main(int argc, char* argv[]) {
       // only render the "File"
       main.renderText(fileMenu.getItemX(0), fileMenu.getItemY(0), fileMenu.getContent(0));
     }
+
     // draw the note right click menu
     if (rightMenu.render) {
       for (int x = rightMenu.getX(); x < rightMenu.getX() + rightMenu.getWidth(); x++) {
