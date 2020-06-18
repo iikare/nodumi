@@ -59,8 +59,8 @@ menu::menu() {
   exit(1);
 }
 
-menu::menu(int winX, int winY, vector<string> itemNames, bool mainMenu) :
-           render(false), isMainMenu(mainMenu), x(0), y(0), width(0), height(0),
+menu::menu(int winX, int winY, vector<string> itemNames, bool mainMenu, int menuX, int menuY) :
+           render(false), isMainMenu(mainMenu), x(menuX), y(menuY), width(0), height(0),
            itemCount(itemNames.size()), mainX(winX), mainY(winY), activeElement(-1),
            items(nullptr) {
 

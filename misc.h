@@ -11,11 +11,15 @@
 #define TIME_MODIFIER 8
 #define CTRL_MODIFIER 10
 #define MENU_MARGIN 10
-#define MAINMENU_HEIGHT 20
-#define ITEM_HEIGHT 20
+#define MAIN_MENU_HEIGHT 19
+#define ITEM_HEIGHT 19
 #define ITEM_WIDTH 100
 #define TEXT_OFFSET 4
 #define FILE_MENU_WIDTH 22
+#define EDIT_X FILE_MENU_WIDTH
+#define EDIT_MENU_WIDTH 25
+#define VIEW_X EDIT_X + EDIT_MENU_WIDTH
+#define VIEW_MENU_WIDTH 24
 
 bool hoverOnBox(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int noteHeight);
 void getMenuLocation(int mainW, int mainH, int cnX, int cnY,

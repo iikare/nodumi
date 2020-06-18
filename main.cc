@@ -60,8 +60,7 @@ int main(int argc, char* argv[]) {
   bool state = true;
 
   // menu constants
-  const static int menuHeight = 20;
-  const static int areaTop = 20;
+  const static int areaTop = MAIN_MENU_HEIGHT;
   
   // note shift controls
   int x, y, width = 0;
@@ -99,7 +98,7 @@ int main(int argc, char* argv[]) {
   int rightClickX = 0;
   int rightClickY = 0;
 
-  vector<string> rightClickContents = {"item 1", "item2", "item3"};
+  vector<string> rightClickContents = {"Change Part Color", "Set Tonic"};
   menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false);
   
   // play state controls
@@ -123,9 +122,15 @@ int main(int argc, char* argv[]) {
   osdialog_color color = {255, 0, 255, 255};
   int res = 0;
   
-  // mainmenu control
+  // mainmenu controls
   vector<string> fileMenuContents = {"File", "Open File", "Save", "Save As", "Exit"};
-  menu fileMenu(main.getWidth(), main.getHeight(), fileMenuContents, true);
+  menu fileMenu(main.getWidth(), main.getHeight(), fileMenuContents, true, 0, 0);
+  
+  vector<string> editMenuContents = {"Edit", "A", "B", "C", "D"};
+  menu editMenu(main.getWidth(), main.getHeight(), editMenuContents, true, EDIT_X, 0);
+  
+  vector<string> viewMenuContents = {"View", "Display Now Line", "Set Tonic"};
+  menu viewMenu(main.getWidth(), main.getHeight(), viewMenuContents, true, VIEW_X, 0);
   
   /*
    *  TODO:
@@ -272,7 +277,7 @@ int main(int argc, char* argv[]) {
     
     // render main menu bar
     for (int x = 0; x <= main.getWidth(); x++) {
-        for (int y = 0; y <= menuHeight; y++) {
+        for (int y = 0; y <= MAIN_MENU_HEIGHT; y++) {
           main.setPixelRGB(x, y, menuColor);
         }
     }
@@ -281,9 +286,10 @@ int main(int argc, char* argv[]) {
     if (fileMenu.render) {
       for (int x = 0; x < fileMenu.getWidth() ; x++) {
         for (int y = 0; y < fileMenu.getHeight(); y++) {
+          cout << fileMenu.getItemY(1) << endl;
           if (!hoverOnBox(x, y, fileMenu.getX(), fileMenu.getY(),
               fileMenu.getWidth(), fileMenu.getItemY(1))) {
-            if((y - rightMenu.getY()) % ITEM_HEIGHT != 0 || y == rightMenu.getY()) { 
+            if((y - fileMenu.getY()) % ITEM_HEIGHT != 0) { 
               main.setPixelRGB(x, y, menuColorSub);
             }
             else {
@@ -291,7 +297,7 @@ int main(int argc, char* argv[]) {
             }
           }
           else {
-            if (x < FILE_MENU_WIDTH) {
+            if (x < FILE_MENU_WIDTH) { 
               main.setPixelRGB(x, y, menuColorClick);
             }
           }
@@ -305,6 +311,38 @@ int main(int argc, char* argv[]) {
       // only render the "File"
       main.renderText(fileMenu.getItemX(0), fileMenu.getItemY(0), fileMenu.getContent(0));
     }
+
+    // render edit menu
+    if (editMenu.render) {
+      for (int x = EDIT_X; x < editMenu.getWidth() ; x++) {
+        for (int y = 0; y < editMenu.getHeight(); y++) {
+          cout << editMenu.getItemY(1) << endl;
+          if (!hoverOnBox(x, y, editMenu.getX(), editMenu.getY(),
+              editMenu.getWidth(), editMenu.getItemY(1))) {
+            if((y - editMenu.getY()) % ITEM_HEIGHT != 0) { 
+              main.setPixelRGB(x, y, menuColorSub);
+            }
+            else {
+              main.setPixelRGB(x, y, menuLineColor);
+            }
+          }
+          else {
+            if (x < EDIT_X + EDIT_MENU_WIDTH) { 
+              main.setPixelRGB(x, y, menuColorClick);
+            }
+          }
+        }
+      }
+      for (int i = 0; i < editMenu.getSize(); i++) {
+        main.renderText(editMenu.getItemX(i), editMenu.getItemY(i), editMenu.getContent(i));
+      }
+    }
+    else {
+      // only render the "File"
+      main.renderText(editMenu.getItemX(0), editMenu.getItemY(0), editMenu.getContent(0));
+    }
+
+
 
     // draw the note right click menu
     if (rightMenu.render) {
@@ -436,18 +474,83 @@ int main(int argc, char* argv[]) {
         
         rightMenu.findActiveElement(main.getMouseX(), main.getMouseY());
         fileMenu.findActiveElement(main.getMouseX(), main.getMouseY());
+        editMenu.findActiveElement(main.getMouseX(), main.getMouseY());
+        viewMenu.findActiveElement(main.getMouseX(), main.getMouseY());
 
-        cout << "rmenu element: " << rightMenu.getActiveElement() << endl;
-        cout << "fmenu element: " << fileMenu.getActiveElement() << endl;
+        cerr << "rmenu element: " << rightMenu.getActiveElement() << endl;
+        cerr << "fmenu element: " << fileMenu.getActiveElement() << endl;
+        cerr << "emenu element: " << editMenu.getActiveElement() << endl;
+        cerr << "vmenu element: " << viewMenu.getActiveElement() << endl;
         
         //handle file menu actions
         switch(fileMenu.getActiveElement()) {
           case 0: // click on file menu again
-              fileMenu.render = !fileMenu.render;
+            if (hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
+                           FILE_MENU_WIDTH, ITEM_HEIGHT)){
+            editMenu.render = false;
+            viewMenu.render = false;
+            fileMenu.render = !fileMenu.render;
+            }
             break;
-          
+          case 1: // open file
+            cerr << "info: function not implemented" << endl;
+            break;
+          case 2: // save
+            cerr << "info: function not implemented" << endl;
+            break;
+          case 3: // save as
+            cerr << "info: function not implemented" << endl;
+            break;
           case 4: // exit
             state = false;
+            break;
+        }
+
+        //handle edit menu actions
+        switch(editMenu.getActiveElement()) {
+          case 0: // click on file menu again
+            if (hoverOnBox(main.getMouseX(), main.getMouseY(), editMenu.getX(), editMenu.getY(),
+                           EDIT_MENU_WIDTH, ITEM_HEIGHT)){
+            fileMenu.render = false;
+            viewMenu.render = false;
+            editMenu.render = !editMenu.render;
+            }
+            break;
+          case 1: // 
+            cerr << "info: function not implemented" << endl;
+            break;
+          case 2: // 
+            cerr << "info: function not implemented" << endl;
+            break;
+          case 3: //
+            cerr << "info: function not implemented" << endl;
+            break;
+          case 4: // 
+            cerr << "info: function not implemented" << endl;
+            break;
+        }
+
+        //handle view menu actions
+        switch(viewMenu.getActiveElement()) {
+          case 0: // click on file menu again
+            if (hoverOnBox(main.getMouseX(), main.getMouseY(), viewMenu.getX(), viewMenu.getY(),
+                           VIEW_MENU_WIDTH, ITEM_HEIGHT)){
+            fileMenu.render = false;
+            editMenu.render = false;
+            viewMenu.render = !viewMenu.render;
+            }
+            break;
+          case 1: // 
+            cerr << "info: function not implemented" << endl;
+            break;
+          case 2: // 
+            cerr << "info: function not implemented" << endl;
+            break;
+          case 3: //
+            cerr << "info: function not implemented" << endl;
+            break;
+          case 4: // 
+            cerr << "info: function not implemented" << endl;
             break;
         }
 

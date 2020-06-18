@@ -23,7 +23,7 @@ void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
 
   int mainXMin = MENU_MARGIN;
   int mainXMax = mainW - MENU_MARGIN;
-  int mainYMin = MAINMENU_HEIGHT + MENU_MARGIN;
+  int mainYMin = MAIN_MENU_HEIGHT + MENU_MARGIN;
   int mainYMax = mainH - MENU_MARGIN;
   
 
