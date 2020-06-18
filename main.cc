@@ -71,7 +71,8 @@ int main(int argc, char* argv[]) {
 
   // color and cursor/note collision  
   colorRGB lineColor(233, 0, 22); 
-  colorRGB menuColor(222, 222, 222); 
+  colorRGB menuColor(222, 222, 222);
+  colorRGB noteColorSub(233, 50, 50);
   colorRGB menuColorClick(155, 155, 155); 
   colorRGB menuLineColor(22, 22, 22); 
   colorRGB noteColorOn1(0, 100, 255);
@@ -269,24 +270,25 @@ int main(int argc, char* argv[]) {
       }
     }
     
-    // render menu
+    // render main menu bar
     for (int x = 0; x <= main.getWidth(); x++) {
         for (int y = 0; y <= menuHeight; y++) {
           main.setPixelRGB(x, y, menuColor);
         }
     }
     
-    // for menu : in progress  
-
+    // render file menu
     if (fileMenu.render) {
       for (int x = 0; x < fileMenu.getWidth() ; x++) {
-        for (int y = menuHeight; y < fileMenu.getHeight(); y++) {
-          if (!hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
-              fileMenu.getItemX(1), fileMenu.getItemY(1) + fileMenu.getWidth())) {
-            main.setPixelRGB(x, y, noteColorOn2);
+        for (int y = 0; y < fileMenu.getHeight(); y++) {
+          if (!hoverOnBox(x, y, fileMenu.getX(), fileMenu.getY(),
+              fileMenu.getWidth(), fileMenu.getItemY(1))) {
+            main.setPixelRGB(x, y, noteColorSub);
           }
           else {
-            main.setPixelRGB(x, y, menuColor);
+            if (x < FILE_MENU_WIDTH) {
+              main.setPixelRGB(x, y, menuColorClick);
+            }
           }
         }
       }
@@ -426,24 +428,27 @@ int main(int argc, char* argv[]) {
         // note rightclick menu should only be active until left click
         rightMenu.render = false;
         
-        fileMenu.render = false;
-        //fileMenu.render = false;
-        if (main.getMouseX() < 40 && main.getMouseY() < 20) {
-          fileMenu.render = true;
-        }
-        else if (hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
-                 fileMenu.getX() + fileMenu.getWidth(), fileMenu.getY() + fileMenu.getHeight())) { 
-          fileMenu.render = true;
-        }
-        cout << "filemenu after left click" << fileMenu.render << endl;
-
         rightMenu.findActiveElement(main.getMouseX(), main.getMouseY());
         fileMenu.findActiveElement(main.getMouseX(), main.getMouseY());
 
         cout << "rmenu element: " << rightMenu.getActiveElement() << endl;
         cout << "fmenu element: " << fileMenu.getActiveElement() << endl;
+        
+        //handle file menu actions
+        switch(fileMenu.getActiveElement()) {
+          case 0: // click on file menu again
+              fileMenu.render = !fileMenu.render;
+            break;
+          
+          case 4: // exit
+            state = false;
+            break;
+        }
 
-
+        if (!hoverOnBox(main.getMouseX(), main.getMouseY(),fileMenu.getX(),fileMenu.getY(),
+                       fileMenu.getWidth(), fileMenu.getHeight())) {
+          fileMenu.render = false;
+        }
 
         oneTimeFlag = true;
         break;
@@ -478,7 +483,7 @@ int main(int argc, char* argv[]) {
       // redraw buffer if mouse has moved
       oneTimeFlag = true;
     }
-
+    
     main.update();
     
     if (run || oneTimeFlag) {
