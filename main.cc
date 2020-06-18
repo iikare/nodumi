@@ -58,6 +58,11 @@ int main(int argc, char* argv[]) {
   
   // program exit control
   bool state = true;
+  
+  // new file controller
+  bool newFile = false;
+  char* filenameC;
+  osdialog_filters* filetypes = osdialog_filters_parse("MIDI:mid;MKI:mki");
 
   // menu constants
   const static int areaTop = MAIN_MENU_HEIGHT;
@@ -156,6 +161,30 @@ int main(int argc, char* argv[]) {
   }
 
   while (state){
+
+    // load new file
+    if (newFile) {
+      newFile = false;
+
+      main.update();
+      input.load(filename);
+
+      notes = input.getNotes();
+
+      renderNote = notes[0];
+      firstNote = notes[0];
+      lastNote = notes[input.getNoteCount()-1];
+      shiftTime = firstNote.tempo;
+
+      run = false;
+      end = false;
+      fileMenu.render = false;
+      editMenu.render = false;
+      viewMenu.render = false;
+      rightMenu.render = false;
+    }
+
+
     // clear false end flags
     if (end && lastNote.x + lastNote.duration > 0) {
       end = false;
@@ -519,7 +548,13 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 1: // open file
-              cerr << "info: function not implemented" << endl;
+		          filenameC = osdialog_file(OSDIALOG_OPEN, ".", "こんにちは", filetypes);
+              
+              if (filenameC != nullptr) {
+                filename = static_cast<string>(filenameC);
+                newFile = true; 
+                oneTimeFlag = true;
+              }
               break;
             case 2: // save
               cerr << "info: function not implemented" << endl;
@@ -643,6 +678,7 @@ int main(int argc, char* argv[]) {
     }
   }
   
+  osdialog_filters_free(filetypes); 
   main.terminate();
   return 0;
 }
