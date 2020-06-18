@@ -10,10 +10,10 @@ using std::swap;
 using std::fill;
 
 window::window(string title) : 
-  windowA(nullptr), renderer(nullptr), texture(nullptr), windowX(0), windowY(0),
-  tTexture(nullptr), tSurface(nullptr),
-  clipX(0), clipY(0), buffer(nullptr),
-  menuFont(nullptr), menuColor(0, 0, 0), fontSize(0), mouseX(0), mouseY(0) {
+  cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr),
+  windowX(0), windowY(0), tTexture(nullptr), tSurface(nullptr), clipX(0), clipY(0),
+  buffer(nullptr), menuFont(nullptr), menuColor(0, 0, 0), fontSize(0),
+  mouseX(0), mouseY(0) {
   this->title = title;
   clip = {0, 0, 0, 0};
 }

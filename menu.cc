@@ -55,13 +55,14 @@ void menuItem::setHeight(int nHeight) {
 
 
 menu::menu() {
-  cerr << "error: class menu can NOT be initialized without the proper constructor!" << endl;
+  cerr << "error: menu can NOT be initialized without the proper constructor!" << endl;
   exit(1);
 }
 
 menu::menu(int winX, int winY, vector<string> itemNames, bool mainMenu) :
-           render(false), isMainMenu(mainMenu), x(0), y(0), width(0), height(0), itemCount(itemNames.size()),
-           mainX(winX), mainY(winY), items(nullptr) {
+           render(false), isMainMenu(mainMenu), x(0), y(0), width(0), height(0),
+           itemCount(itemNames.size()), mainX(winX), mainY(winY), activeElement(-1),
+           items(nullptr) {
 
   height = ITEM_HEIGHT * itemCount;
   width = ITEM_WIDTH;
@@ -103,6 +104,10 @@ string menu::getContent(int idx) {
   return items[idx].getContent();
 }
 
+int menu::getActiveElement() {
+  return activeElement;
+}
+
 void menu::setContent(string nContent, int idx) {
   if (idx >= itemCount || idx < 0) {
     cerr << "warn: attempted to set menu item " << nContent << " at menu index " << idx << endl;
@@ -117,6 +122,29 @@ void menu::setXY(int nX, int nY) {
   for (int i = 0; i < itemCount; i++) {
     items[i].setX(x);
     items[i].setY(y + i * ITEM_HEIGHT);
+  }
+}
+
+void menu::setActiveElement(int idx) {
+  if (idx >= itemCount || idx < 0) {
+    cerr << "warn: attempted to reference menu element at nonexistent menu index " << idx << endl;
+    return;
+  }
+  activeElement = idx;
+}
+
+void menu::findActiveElement(int curX, int curY) {
+  if (!hoverOnBox(curX, curY, x, y, width, height)) {
+    activeElement = -1;
+    return;
+  }
+  else {
+    for (int i = 0; i < itemCount; i++) {
+      if (hoverOnBox(curX, curY, getItemX(i), getItemY(i), width, height/itemCount)){
+        activeElement = i;
+        break;
+      }
+    }
   }
 }
 

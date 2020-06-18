@@ -437,6 +437,13 @@ int main(int argc, char* argv[]) {
         }
         cout << "filemenu after left click" << fileMenu.render << endl;
 
+        rightMenu.findActiveElement(main.getMouseX(), main.getMouseY());
+        fileMenu.findActiveElement(main.getMouseX(), main.getMouseY());
+
+        cout << "rmenu element: " << rightMenu.getActiveElement() << endl;
+        cout << "fmenu element: " << fileMenu.getActiveElement() << endl;
+
+
 
         oneTimeFlag = true;
         break;

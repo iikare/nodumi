@@ -53,8 +53,8 @@ int mfile::getNoteCount() {
 }
 
 void mfile::shiftX(double shiftX) {
-  cerr << "timeScale is " << timeScale << " from mfile::shiftX" << endl;
-  cerr << "shiftX is " << shiftX << " from mfile::shiftX" << endl;
+  //cerr << "timeScale is " << timeScale << " from mfile::shiftX" << endl;
+  //cerr << "shiftX is " << shiftX << " from mfile::shiftX" << endl;
   for (int i = 0; i < noteCount; i++) {
     notes[i].shiftX(shiftX);
   }
@@ -68,8 +68,8 @@ void mfile::shiftTime(double timeInc) {
 
 void mfile::scaleTime(double timeScale) {
   this->timeScale *= timeScale;
-  cerr << "this timeScale is " << timeScale << endl;
-  cerr << "vs.  " << this->timeScale << endl;
+  //cerr << "this timeScale is " << timeScale << endl;
+  //cerr << "vs.  " << this->timeScale << endl;
   for (int i = 0; i < noteCount; i++) {
     notes[i].scaleTime(timeScale);
   }

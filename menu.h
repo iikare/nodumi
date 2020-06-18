@@ -47,8 +47,13 @@ class menu {
     int getItemY(int idx); 
     string getContent(int idx);
 
+    int getActiveElement();
+
     void setXY(int nX, int nY);
     void setContent(string nContent, int idx);
+    void setActiveElement(int idx);
+
+    void findActiveElement(int curX, int curY);
 
     bool render;
 
@@ -61,6 +66,7 @@ class menu {
     int itemCount;
     int mainX;
     int mainY;
+    int activeElement; 
     menuItem* items;
 };
 
