@@ -78,10 +78,12 @@ int main(int argc, char* argv[]) {
   // color and cursor/note collision  
   colorRGB lineColor(233, 0, 22); 
   colorRGB songTimeColor(233, 233, 233); 
+  colorRGB lightBG(199,199,199); 
+
   colorRGB menuColor(222, 222, 222);
-  colorRGB menuColorSub(233, 50, 50);
   colorRGB menuColorClick(155, 155, 155); 
-  colorRGB menuLineColor(22, 22, 22); 
+  colorRGB menuLineColor(22, 22, 22);
+
   colorRGB noteColorOn1(0, 100, 255);
   colorRGB noteColorOff1(0, 0, 255);
   colorRGB noteColorOn2(233, 50, 50);
@@ -107,7 +109,7 @@ int main(int argc, char* argv[]) {
   int rightClickY = 0;
 
   vector<string> rightClickContents = {"Change Part Color", "Set Tonic"};
-  menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false, 0,0);
+  menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false, -100,-100);
   
   // play state controls
   bool run = false;
@@ -117,6 +119,7 @@ int main(int argc, char* argv[]) {
   // view flags and related variables
   bool drawLine = true;
   bool songTime = false;
+  bool invertColor = false;
   string songTimeText = "";
   
   // note info
@@ -141,7 +144,8 @@ int main(int argc, char* argv[]) {
   vector<string> editMenuContents = {"Edit", "A", "B", "C", "D"};
   menu editMenu(main.getWidth(), main.getHeight(), editMenuContents, true, EDIT_X, 0);
   
-  vector<string> viewMenuContents = {"View", "Hide Now Line", "Display Song Time", "Set Tonic"};
+  vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
+                                     "Display Song Time", "Set Tonic"};
   menu viewMenu(main.getWidth(), main.getHeight(), viewMenuContents, true, VIEW_X, 0);
   
   /*
@@ -206,10 +210,20 @@ int main(int argc, char* argv[]) {
     lastNote = notes[input.getNoteCount()-1];
     firstNote = notes[0];
 
+
+
+
     // begin render logic
     if (!end || oneTimeFlag) {
       if (run || oneTimeFlag) {
-        //cerr << "--------------------------------" << endl; 
+        // paint background before anything else
+        if (invertColor) {
+          for (int i = 0; i < main.getWidth(); i++) {
+            for (int j = 0; j < main.getHeight(); j++) {
+              main.setPixelRGB(i, j, lightBG);
+            }
+          }
+        }
        
         // ensure rerender flag is unset
         oneTimeFlag = false;
@@ -318,8 +332,16 @@ int main(int argc, char* argv[]) {
 
     if (songTime) {
       songTimeText = getSongPercent(firstNote.x, input.getLastTick(), end);
-      main.renderText(0, MAIN_MENU_HEIGHT, songTimeText, songTimeColor);
+
+      // choose text color based on background
+      if (!invertColor) {
+        main.renderText(0, MAIN_MENU_HEIGHT, songTimeText, songTimeColor);
+      }
+      else {
+        main.renderText(0, MAIN_MENU_HEIGHT, songTimeText);
+      }
     } 
+
     
     // render main menu bar
     for (int x = 0; x <= main.getWidth(); x++) {
@@ -548,21 +570,19 @@ int main(int argc, char* argv[]) {
         fileMenu.findActiveElement(main.getMouseX(), main.getMouseY());
         editMenu.findActiveElement(main.getMouseX(), main.getMouseY());
         viewMenu.findActiveElement(main.getMouseX(), main.getMouseY());
-
-        cerr << "rmenu element: " << rightMenu.getActiveElement() << endl;
-        cerr << "fmenu element: " << fileMenu.getActiveElement() << endl;
-        cerr << "emenu element: " << editMenu.getActiveElement() << endl;
-        cerr << "vmenu element: " << viewMenu.getActiveElement() << endl;
         
         //handle file menu actions
         if (fileMenu.render || !fileMenu.getActiveElement()) {
           switch (fileMenu.getActiveElement()) {
+            case -1: //clicked outside menu bounds
+              fileMenu.render = false;
+              break;
             case 0: // click on file menu again
               if (hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
                              FILE_MENU_WIDTH, ITEM_HEIGHT)){
-              editMenu.render = false;
-              viewMenu.render = false;
-              fileMenu.render = !fileMenu.render;
+                editMenu.render = false;
+                viewMenu.render = false;
+                fileMenu.render = !fileMenu.render;
               }
               break;
             case 1: // open file
@@ -590,12 +610,15 @@ int main(int argc, char* argv[]) {
         //handle edit menu actions
         if (editMenu.render || !editMenu.getActiveElement()) {
           switch (editMenu.getActiveElement()) {
+            case -1: // clicked outside menu bounds
+              editMenu.render = false;
+              break;
             case 0: // click on edit menu again
               if (hoverOnBox(main.getMouseX(), main.getMouseY(), editMenu.getX(), editMenu.getY(),
                              EDIT_MENU_WIDTH, ITEM_HEIGHT)){
-              fileMenu.render = false;
-              viewMenu.render = false;
-              editMenu.render = !editMenu.render;
+                fileMenu.render = false;
+                viewMenu.render = false;
+                editMenu.render = !editMenu.render;
               }
               break;
             case 1: // 
@@ -616,15 +639,21 @@ int main(int argc, char* argv[]) {
         //handle view menu actions
         if (viewMenu.render || !viewMenu.getActiveElement()) {
           switch(viewMenu.getActiveElement()) {
+            case -1: // clicked outside menu bounds
+              viewMenu.render = false;
+              break;
             case 0: // click on view menu again
               if (hoverOnBox(main.getMouseX(), main.getMouseY(), viewMenu.getX(), viewMenu.getY(),
                              VIEW_MENU_WIDTH, ITEM_HEIGHT)){
-              fileMenu.render = false;
-              editMenu.render = false;
-              viewMenu.render = !viewMenu.render;
+                fileMenu.render = false;
+                editMenu.render = false;
+                viewMenu.render = !viewMenu.render;
               }
               break;
-            case 1: // now line
+            case 1: //display mode
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 2: // now line
               drawLine = !drawLine;
               if(!drawLine){
                 viewMenu.setContent("Display Now Line", 1);
@@ -633,7 +662,10 @@ int main(int argc, char* argv[]) {
                 viewMenu.setContent("Hide Now Line", 1);
               }
               break;
-            case 2: // display song time 
+            case 3: // invert color scheme
+              invertColor = !invertColor;
+              break;
+            case 4: // display song time 
               songTime = !songTime;
               if(!songTime){
                 viewMenu.setContent("Display Song Time", 2);
@@ -642,19 +674,13 @@ int main(int argc, char* argv[]) {
                 viewMenu.setContent("Hide Song Time", 2);
               }
               break;
-            case 3: //
+            case 5: //
               cerr << "info: function not implemented" << endl;
               break;
-            case 4: // 
+            case 6: // 
               cerr << "info: function not implemented" << endl;
               break;
           }
-        }
-
-
-        if (!hoverOnBox(main.getMouseX(), main.getMouseY(),fileMenu.getX(),fileMenu.getY(),
-                       fileMenu.getWidth(), fileMenu.getHeight())) {
-          fileMenu.render = false;
         }
 
         oneTimeFlag = true;
