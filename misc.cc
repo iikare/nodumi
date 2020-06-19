@@ -1,8 +1,11 @@
 #include <iostream>
+#include <string>
 #include "misc.h"
 
 using std::cerr;
 using std::endl;
+using std::string;
+using std::to_string;
 
 
 bool hoverOnBox(int mouseX, int mouseY, int noteX, 
@@ -52,4 +55,24 @@ void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
     // the menu can start at the note Y value
     rcX = cnX;
   }
+}
+
+string getSongPercent (int pos, double total, bool end) {
+  string untruncText = to_string(static_cast<double>(abs(100 * pos)/total));
+  string result = "100.00%";
+  // complete
+  if (end) {
+    return result;
+  }
+  if (untruncText[0] == 1) {
+    result = untruncText.substr(0,6);
+  }
+  else if (pos == 0) {
+    result = untruncText.substr(0,4);
+  }
+  else {
+    result = untruncText.substr(0,5);
+  }
+  result += "%";
+  return result;
 }

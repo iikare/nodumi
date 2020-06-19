@@ -19,11 +19,16 @@
 #define EDIT_X FILE_MENU_WIDTH
 #define EDIT_MENU_WIDTH 25
 #define VIEW_X EDIT_X + EDIT_MENU_WIDTH
-#define VIEW_MENU_WIDTH 24
+#define VIEW_MENU_WIDTH 28
+
+#include <iostream>
+
+using std::string;
 
 bool hoverOnBox(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int noteHeight);
 void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
                      int& rcX, int& rcY, const int rcW, const int rcH);
+string getSongPercent(int pos, double total, bool end);
 
 
 #endif

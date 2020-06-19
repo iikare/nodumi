@@ -317,9 +317,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (songTime) {
-      cout << firstNote.x << endl;
-      cout << input.getLastTick() << endl;
-      songTimeText = to_string(static_cast<double>(abs(100 * firstNote.x)/input.getLastTick())) + "%";
+      songTimeText = getSongPercent(firstNote.x, input.getLastTick(), end);
       main.renderText(0, MAIN_MENU_HEIGHT, songTimeText, songTimeColor);
     } 
     
@@ -337,7 +335,7 @@ int main(int argc, char* argv[]) {
           if (!hoverOnBox(x, y, fileMenu.getX(), fileMenu.getY(),
               fileMenu.getWidth(), fileMenu.getItemY(1))) {
             if((y - fileMenu.getY()) % ITEM_HEIGHT != 0) { 
-              main.setPixelRGB(x, y, menuColorSub);
+              main.setPixelRGB(x, y, menuColor);
             }
             else {
               main.setPixelRGB(x, y, menuLineColor);
@@ -366,7 +364,7 @@ int main(int argc, char* argv[]) {
           if (!hoverOnBox(x, y, editMenu.getX(), editMenu.getY(),
               editMenu.getWidth(), editMenu.getItemY(1))) {
             if((y - editMenu.getY()) % ITEM_HEIGHT != 0) { 
-              main.setPixelRGB(x, y, menuColorSub);
+              main.setPixelRGB(x, y, menuColor);
             }
             else {
               main.setPixelRGB(x, y, menuLineColor);
@@ -395,14 +393,14 @@ int main(int argc, char* argv[]) {
           if (!hoverOnBox(x, y, viewMenu.getX(), viewMenu.getY(),
               viewMenu.getWidth(), viewMenu.getItemY(1))) {
             if((y - viewMenu.getY()) % ITEM_HEIGHT != 0) { 
-              main.setPixelRGB(x, y, menuColorSub);
+              main.setPixelRGB(x, y, menuColor);
             }
             else {
               main.setPixelRGB(x, y, menuLineColor);
             }
           }
           else {
-            if (x < EDIT_X + EDIT_MENU_WIDTH) { 
+            if (x < VIEW_X + VIEW_MENU_WIDTH) { 
               main.setPixelRGB(x, y, menuColorClick);
             }
           }
