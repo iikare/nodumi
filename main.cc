@@ -17,6 +17,7 @@ using std::string;
 using std::vector;
 using std::ifstream;
 using std::min;
+using std::to_string;
 
 int main(int argc, char* argv[]) {
 
@@ -76,6 +77,7 @@ int main(int argc, char* argv[]) {
 
   // color and cursor/note collision  
   colorRGB lineColor(233, 0, 22); 
+  colorRGB songTimeColor(233, 233, 233); 
   colorRGB menuColor(222, 222, 222);
   colorRGB menuColorSub(233, 50, 50);
   colorRGB menuColorClick(155, 155, 155); 
@@ -111,7 +113,11 @@ int main(int argc, char* argv[]) {
   bool run = false;
   bool oneTimeFlag = true;
   bool end = false;
+
+  // view flags and related variables
   bool drawLine = true;
+  bool songTime = false;
+  string songTimeText = "";
   
   // note info
   note* notes = input.getNotes();
@@ -135,7 +141,7 @@ int main(int argc, char* argv[]) {
   vector<string> editMenuContents = {"Edit", "A", "B", "C", "D"};
   menu editMenu(main.getWidth(), main.getHeight(), editMenuContents, true, EDIT_X, 0);
   
-  vector<string> viewMenuContents = {"View", "Hide Now Line", "Set Tonic"};
+  vector<string> viewMenuContents = {"View", "Hide Now Line", "Display Song Time", "Set Tonic"};
   menu viewMenu(main.getWidth(), main.getHeight(), viewMenuContents, true, VIEW_X, 0);
   
   /*
@@ -309,6 +315,13 @@ int main(int argc, char* argv[]) {
         main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
       }
     }
+
+    if (songTime) {
+      cout << firstNote.x << endl;
+      cout << input.getLastTick() << endl;
+      songTimeText = to_string(static_cast<double>(abs(100 * firstNote.x)/input.getLastTick())) + "%";
+      main.renderText(0, MAIN_MENU_HEIGHT, songTimeText, songTimeColor);
+    } 
     
     // render main menu bar
     for (int x = 0; x <= main.getWidth(); x++) {
@@ -622,8 +635,14 @@ int main(int argc, char* argv[]) {
                 viewMenu.setContent("Hide Now Line", 1);
               }
               break;
-            case 2: // set tonic 
-              cerr << "info: function not implemented" << endl;
+            case 2: // display song time 
+              songTime = !songTime;
+              if(!songTime){
+                viewMenu.setContent("Display Song Time", 2);
+              }
+              else {
+                viewMenu.setContent("Hide Song Time", 2);
+              }
               break;
             case 3: //
               cerr << "info: function not implemented" << endl;

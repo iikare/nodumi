@@ -35,6 +35,7 @@ class mfile {
     note* getNotes();
     int getNoteRange();
     int getNoteCount();
+    double getLastTick();
     double getTimeScale();
 
     void shiftX(double shiftX);
@@ -47,6 +48,7 @@ class mfile {
     int noteMin;
     int noteMax;
     double timeScale;
+    double lastTick;
     note* notes;
 };
 

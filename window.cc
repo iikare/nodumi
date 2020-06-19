@@ -11,7 +11,7 @@ using std::fill;
 
 window::window(string title) : 
   cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr),
-  windowX(0), windowY(0), tTexture(nullptr), tSurface(nullptr), clipX(0), clipY(0),
+  windowX(0), windowY(0), messageX(0), messageY(0), messageText(0), messageCol(0), tTexture(nullptr), tSurface(nullptr), clipX(0), clipY(0),
   buffer(nullptr), menuFont(nullptr), menuColor(0, 0, 0), fontSize(0),
   mouseX(0), mouseY(0) {
   this->title = title;
@@ -71,15 +71,16 @@ bool window::init() {
   return true;
 }
 
-void window::renderText(int x, int y, string text) {
+void window::renderText(int x, int y, string text, colorRGB col) {
   messageX.push_back(x);
   messageY.push_back(y);
   messageText.push_back(text);
+  messageCol.push_back(col);
 }
 
-void window::renderTextToTexture(int x, int y, string text) {
-  SDL_Color col = {menuColor.r, menuColor.g, menuColor.b, 255};
-  tSurface = TTF_RenderText_Blended(menuFont, text.c_str(), col);
+void window::renderTextToTexture(int x, int y, string text, colorRGB col) {
+  SDL_Color color = {col.r, col.g, col.b, 255};
+  tSurface = TTF_RenderText_Blended(menuFont, text.c_str(), color);
   tTexture = SDL_CreateTextureFromSurface(renderer, tSurface);
   SDL_FreeSurface(tSurface);
   SDL_QueryTexture(tTexture, nullptr, nullptr, &clipX, &clipY);
@@ -220,11 +221,12 @@ void window::update() {
 
   int messageCount = messageX.size();
   for (int i = 0; i < messageCount; i++){
-    renderTextToTexture(messageX.back(), messageY.back(), messageText.back());
+    renderTextToTexture(messageX.back(), messageY.back(), messageText.back(), messageCol.back());
     SDL_RenderCopy(renderer, tTexture, nullptr, &clip);
     messageX.pop_back();
     messageY.pop_back();
     messageText.pop_back();
+    messageCol.pop_back();
   }
 
   SDL_RenderPresent(renderer);

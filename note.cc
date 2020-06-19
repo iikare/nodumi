@@ -40,7 +40,7 @@ void note::scaleTime(double timeScale) {
   duration *= timeScale;
 }
 
-mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), timeScale(1), notes(nullptr) {}
+mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), notes(nullptr) {}
 
 mfile::~mfile() {
   delete[] notes;
@@ -89,6 +89,10 @@ int mfile::getNoteRange() {
 
 double mfile::getTimeScale() {
   return timeScale;
+}
+
+double mfile::getLastTick() {
+  return lastTick * timeScale;
 }
 
 void mfile::load(string file) {
@@ -185,11 +189,14 @@ void mfile::load(string file) {
   
   // get first and last note 
   int firstTick = notes[0].x;
+  lastTick = notes[noteCount-1].x + notes[noteCount-1].duration;
 
   for (int i = 0; i < noteCount; i++) {
     // first zero out the starting tick
-    notes[i].x -= firstTick;
+    //notes[i].x -= firstTick;
   }
+
+
   
   // scale for visibility
   scaleTime(static_cast<double>(1)/8);

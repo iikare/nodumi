@@ -43,7 +43,7 @@ class window {
     int getMouseX();
     int getMouseY();
 
-    void renderText(int x, int y, string text);
+    void renderText(int x, int y, string text, colorRGB col = {0, 0, 0});
      
     void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
     void setPixelRGB(int x, int y, colorRGB col);
@@ -53,7 +53,7 @@ class window {
     void clearBuffer();
     void terminate();
   private:
-    void renderTextToTexture(int x, int y, string text);
+    void renderTextToTexture(int x, int y, string text, colorRGB col);
     
     string title;
     SDL_Window* windowA;
@@ -65,6 +65,7 @@ class window {
     deque<int> messageX;
     deque<int> messageY;
     deque<string> messageText;
+    deque<colorRGB> messageCol;
 
     SDL_Texture* tTexture;
     SDL_Surface* tSurface;
