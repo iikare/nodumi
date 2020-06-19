@@ -12,6 +12,7 @@ using std::string;
 class note {
   public:
     note();
+    ~note();
     
     void init(int track, double tempo, double x, int y, double duration);
     void shiftX(double shiftX);

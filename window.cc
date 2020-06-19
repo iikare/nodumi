@@ -81,7 +81,7 @@ void window::renderTextToTexture(int x, int y, string text) {
   SDL_Color col = {menuColor.r, menuColor.g, menuColor.b, 255};
   tSurface = TTF_RenderText_Blended(menuFont, text.c_str(), col);
   tTexture = SDL_CreateTextureFromSurface(renderer, tSurface);
-
+  SDL_FreeSurface(tSurface);
   SDL_QueryTexture(tTexture, nullptr, nullptr, &clipX, &clipY);
   clip = {x + TEXT_OFFSET, y + TEXT_OFFSET, clipX, clipY};
 }
@@ -240,11 +240,11 @@ void window::terminate() {
   delete[] buffer;
 
   TTF_CloseFont(menuFont);
+  menuFont = nullptr;
 
-  SDL_DestroyRenderer(renderer);
   SDL_DestroyTexture(texture);
   SDL_DestroyTexture(tTexture);
-  SDL_FreeSurface(tSurface);
+  SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(windowA);
   TTF_Quit();
   SDL_Quit();

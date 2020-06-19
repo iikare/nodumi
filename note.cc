@@ -17,6 +17,8 @@ using std::swap;
 
 note::note() : track(0), tempo(0),  duration(0), x(0), y(0) {}
 
+note::~note() {}
+
 void note::init(int track, double tempo, double x, int y, double duration) {
   this->track = track;
   this->tempo = tempo;
@@ -42,6 +44,7 @@ mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), timeScale(1), notes(nullp
 
 mfile::~mfile() {
   delete[] notes;
+  notes = nullptr;
 }
 
 note* mfile::getNotes() {
@@ -91,14 +94,24 @@ double mfile::getTimeScale() {
 void mfile::load(string file) {
   if (notes != nullptr) {
     cerr << "info: resetting event structure" << endl;
-    delete []notes;
+    //delete[] notes;
+    notes = nullptr;
+    
     noteCount = 0;
+    noteMin = 0;
+    noteMax = 0;
+    timeScale = 1;
+
   }
 
   cerr << "info: loading MIDI - " << file << endl;
 
   MidiFile midifile;
-  midifile.read(file.c_str());
+  
+  if (!midifile.read(file.c_str())) {
+    cerr << "error: unable to open MIDI" << endl;
+    exit(1);
+  }
 
   midifile.linkNotePairs();
  
@@ -113,6 +126,12 @@ void mfile::load(string file) {
       }
     }
   }
+
+  if (noteCount == 0) {
+    cerr << "error: zero length file" << endl;
+    exit(1);
+  }
+
   notes = new note[noteCount];
 
   int bpm = 0;
@@ -171,6 +190,9 @@ void mfile::load(string file) {
     // first zero out the starting tick
     notes[i].x -= firstTick;
   }
+  
+  // scale for visibility
+  scaleTime(static_cast<double>(1)/8);
 
   // this way, the starting tick is by definition 0 , and the ending tick is the old first tick
 }

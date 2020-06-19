@@ -26,10 +26,11 @@ int main(int argc, char* argv[]) {
   }
   
   string filename = argv[1];
+  string ext = filename.substr(filename.size() - 3);
 
   ifstream filecheck;
   filecheck.open(filename);
-  if (!filecheck) {
+  if (!filecheck || (ext != "mid" && ext != "mki")) {
     cerr << "error: invalid file: " << filename << "!" << endl;
     exit(1);
   }
@@ -45,7 +46,7 @@ int main(int argc, char* argv[]) {
   mfile input;
   
   input.load(filename);
-
+  
   main.clearBuffer();
   
   cerr << "info: initializing render logic" << endl;
@@ -104,7 +105,7 @@ int main(int argc, char* argv[]) {
   int rightClickY = 0;
 
   vector<string> rightClickContents = {"Change Part Color", "Set Tonic"};
-  menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false, -100, -100);
+  menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false, 0,0);
   
   // play state controls
   bool run = false;
@@ -166,15 +167,16 @@ int main(int argc, char* argv[]) {
     if (newFile) {
       newFile = false;
 
-      main.update();
       input.load(filename);
 
       notes = input.getNotes();
 
       renderNote = notes[0];
-      firstNote = notes[0];
-      lastNote = notes[input.getNoteCount()-1];
       shiftTime = firstNote.tempo;
+
+      x = 0;
+      y = 0;
+      width = 0;
 
       run = false;
       end = false;
@@ -183,7 +185,6 @@ int main(int argc, char* argv[]) {
       viewMenu.render = false;
       rightMenu.render = false;
     }
-
 
     // clear false end flags
     if (end && lastNote.x + lastNote.duration > 0) {
@@ -194,7 +195,12 @@ int main(int argc, char* argv[]) {
     if (rightMenu.render || fileMenu.render) {
       oneTimeFlag = true;
     }
-    
+
+    // update note references
+    lastNote = notes[input.getNoteCount()-1];
+    firstNote = notes[0];
+
+    // begin render logic
     if (!end || oneTimeFlag) {
       if (run || oneTimeFlag) {
         //cerr << "--------------------------------" << endl; 
@@ -460,7 +466,8 @@ int main(int argc, char* argv[]) {
           input.shiftX(-shiftX * input.getTimeScale());
         }
         // case2: can only shift to end
-        else if (lastNote.x > 0 && lastNote.x - shiftX * input.getTimeScale() <= 0) {
+        else if (lastNote.x + lastNote.duration > 0 &&
+                 lastNote.x - shiftX * input.getTimeScale() <= 0) {
           input.shiftX(-(lastNote.x + lastNote.duration));
         }
         break;
