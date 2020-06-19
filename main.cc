@@ -466,7 +466,8 @@ int main(int argc, char* argv[]) {
         break;
       case 3: // left arrow
         //res = osdialog_color_picker(&color, 0);
-        //cerr << "test: {" << static_cast<int>(color.r) << ", " << static_cast<int>(color.g) << ", " << static_cast<int>(color.b) << "}"<< endl;
+        //cerr << "test: {" << static_cast<int>(color.r) << ", "
+        //     << static_cast<int>(color.g) << ", " << static_cast<int>(color.b) << "}"<< endl;
 
         //cerr << "run " << run  << " end " << end << endl;
         //cerr << "firstNote.x " << firstNote.x << endl;

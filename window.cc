@@ -251,13 +251,3 @@ void window::terminate() {
   TTF_Quit();
   SDL_Quit();
 }
-
-colorRGB::colorRGB() : r(0), g(0), b(0) {}
-
-colorRGB::colorRGB(unsigned char red, unsigned char green, unsigned char blue) : r(red), g(green), b(blue) {}
-
-void colorRGB::setRGB(unsigned char red, unsigned char green, unsigned char blue) {
-  r = red;
-  g = green;
-  b = blue;
-}

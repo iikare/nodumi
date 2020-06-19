@@ -8,22 +8,10 @@
 #include <SDL2/SDL_ttf.h>
 #include "note.h"
 #include "window.h"
-
+#include "color.h"
 
 using std::string;
 using std::deque;
-
-class colorRGB {
-  public:
-    colorRGB();
-    colorRGB(unsigned char red, unsigned char green, unsigned char blue);
-
-    void setRGB(unsigned char red, unsigned char green, unsigned char blue);
-
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-};
 
 class window {
   public:
