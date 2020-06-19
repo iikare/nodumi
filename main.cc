@@ -564,7 +564,6 @@ int main(int argc, char* argv[]) {
         break;
       case 11: // left click
         // note rightclick menu should only be active until left click
-        rightMenu.render = false;
         
         rightMenu.findActiveElement(main.getMouseX(), main.getMouseY());
         fileMenu.findActiveElement(main.getMouseX(), main.getMouseY());
@@ -586,7 +585,7 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 1: // open file
-		          filenameC = osdialog_file(OSDIALOG_OPEN, ".", "こんにちは", filetypes);
+		          filenameC = osdialog_file(OSDIALOG_OPEN, ".", nullptr, filetypes);
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
@@ -607,6 +606,7 @@ int main(int argc, char* argv[]) {
               break;
           }
         }
+
         //handle edit menu actions
         if (editMenu.render || !editMenu.getActiveElement()) {
           switch (editMenu.getActiveElement()) {
@@ -656,10 +656,10 @@ int main(int argc, char* argv[]) {
             case 2: // now line
               drawLine = !drawLine;
               if(!drawLine){
-                viewMenu.setContent("Display Now Line", 1);
+                viewMenu.setContent("Display Now Line", 2);
               }
               else {
-                viewMenu.setContent("Hide Now Line", 1);
+                viewMenu.setContent("Hide Now Line", 2);
               }
               break;
             case 3: // invert color scheme
@@ -668,10 +668,10 @@ int main(int argc, char* argv[]) {
             case 4: // display song time 
               songTime = !songTime;
               if(!songTime){
-                viewMenu.setContent("Display Song Time", 2);
+                viewMenu.setContent("Display Song Time", 4);
               }
               else {
-                viewMenu.setContent("Hide Song Time", 2);
+                viewMenu.setContent("Hide Song Time", 4);
               }
               break;
             case 5: //
@@ -683,6 +683,26 @@ int main(int argc, char* argv[]) {
           }
         }
 
+        //handle right menu actions
+        if (rightMenu.render || !rightMenu.getActiveElement()) {
+          switch (rightMenu.getActiveElement()) {
+            case -1: // clicked outside menu bounds
+              rightMenu.render = false;
+              break;
+            case 0: // change part color
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 1: // set tonic
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 2: //
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 3: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+          }
+        }
         oneTimeFlag = true;
         break;
       case 12: // right click
