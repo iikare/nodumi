@@ -4,29 +4,29 @@
 class colorHSV {
   public:
     colorHSV();
-    colorHSV(unsigned char hue, unsigned char sat, unsigned char val);
-    colorHSV(colorHSV& col);
+    colorHSV(double hue, double sat, double val);
+    colorHSV(const colorHSV& col);
 
-    void setHSV(unsigned char hue, unsigned char sat, unsigned char val);
+    void setHSV(double hue, double sat, double val);
 
-    unsigned char h;
-    unsigned char s;
-    unsigned char v;
+    double h;
+    double s;
+    double v;
 };
 
 class colorRGB {
   public:
     colorRGB();
-    colorRGB(unsigned char red, unsigned char green, unsigned char blue);
+    colorRGB(double red, double green, double blue);
 
     colorHSV getHSV();
 
-    void setRGB(unsigned char red, unsigned char green, unsigned char blue);
+    void setRGB(double red, double green, double blue);
     void setRGB(colorHSV hsv);
 
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
+    double r;
+    double g;
+    double b;
 };
 
 #endif

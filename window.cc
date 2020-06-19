@@ -79,7 +79,8 @@ void window::renderText(int x, int y, string text, colorRGB col) {
 }
 
 void window::renderTextToTexture(int x, int y, string text, colorRGB col) {
-  SDL_Color color = {col.r, col.g, col.b, 255};
+  SDL_Color color = {static_cast<Uint8>(col.r), static_cast<Uint8>(col.g),
+                     static_cast<Uint8>(col.b), 255};
   tSurface = TTF_RenderText_Blended(menuFont, text.c_str(), color);
   tTexture = SDL_CreateTextureFromSurface(renderer, tSurface);
   SDL_FreeSurface(tSurface);

@@ -147,18 +147,20 @@ int main(int argc, char* argv[]) {
   vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
                                      "Display Song Time", "Set Tonic"};
   menu viewMenu(main.getWidth(), main.getHeight(), viewMenuContents, true, VIEW_X, 0);
-  
+ 
+
   /*
    *  TODO:
    *    add user-customizable line color
-   *    add menu bar on top
-   *    add file picker
+   *    add menu bar on top                       DONE
+   *    add file picker                           DONE (fix memory leaks)
    *    add color picker for parts
    *    add color by parts                        DONE
    *    add color by tonic
    *    add config file parsing
-   *    add note mouse detection
-   *    add note outlines
+   *    add note mouse detection                  DONE
+   *    add note outlines/shadow
+   *    add bg image support
    *    add ctrl left/right to scale faster       DONE
    *    add home/end functionality                DONE
    *    up/down arrow control horizontal scale    DONE 
@@ -172,7 +174,6 @@ int main(int argc, char* argv[]) {
   }
 
   while (state){
-
     // load new file
     if (newFile) {
       newFile = false;
