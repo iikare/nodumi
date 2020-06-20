@@ -181,6 +181,19 @@ int window::getMouseY() {
   return mouseY;
 }
 
+void window::setPixelHSV(int x, int y, double h, double s, double v) {
+  colorHSV col(h, s, v);
+  colorRGB col2;
+  col2.setRGB(col);
+  setPixelRGB(x, y, col2);
+}
+
+void window::setPixelHSV(int x, int y, colorHSV col) {
+  colorRGB col2;
+  col2.setRGB(col);
+  setPixelRGB(x, y, col2);
+}
+
 void window::setPixelRGB(int x, int y, colorRGB col) {
   setPixelRGB(x, y, col.r, col.g, col.b);
 }

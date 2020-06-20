@@ -111,7 +111,7 @@ void colorHSV::setHSV(double hue, double sat, double val) {
 
 colorMenu::colorMenu() : render(false), x(0), y(0), width(0), height(0), cX(0), cY(0),
                          innerRadius(0), outerRadius(0), offset(0), pAngle(0), pX(0),
-                         pY(0), col({0, 0, 0}) {}
+                         pY(0), col({0, 0, 0}), hue(0) {}
 
 colorMenu::colorMenu(int iX, int iY, colorRGB color) : render(false), x(iX), y(iY),
                      width(COLOR_WIDTH), height(COLOR_HEIGHT), cX(iX + COLOR_WIDTH/2), cY(iY + COLOR_HEIGHT/2),
@@ -119,6 +119,9 @@ colorMenu::colorMenu(int iX, int iY, colorRGB color) : render(false), x(iX), y(i
   innerRadius = min(COLOR_WIDTH, COLOR_HEIGHT) * 0.4;
   outerRadius = innerRadius + 6;
   offset = ceil(innerRadius / sqrt(2));
+
+  colorHSV h = color.getHSV();
+  hue = h.h;
 }
 
 void colorMenu::findAngleFromColor() {
@@ -129,4 +132,10 @@ void colorMenu::findAngleFromColor() {
 
   pX = getCenterX() + cos(pAngle) * ((innerRadius + outerRadius)/2 - 1);
   pY = getCenterY() + sin(pAngle) * ((innerRadius + outerRadius)/2 - 1);
+}
+
+void colorMenu::setColor(colorRGB color) {
+  col = color;
+  colorHSV h = color.getHSV();
+  hue = h.h;
 }

@@ -53,11 +53,12 @@ class colorMenu {
     int getPointX() { return pX; }
     int getPointY() { return pY; }
     int getPointAngle() { return pAngle; }
+    int getHue() { return hue; }
     
     colorRGB getColor() { return col; }
 
     void setXY(int nX, int nY) { x = nX; y = nY; }
-    void setColor(colorRGB color) { col = color; }
+    void setColor(colorRGB color);
     void setPointX(int nX) { pX = nX; }
     void setPointY(int nY) { pX = nY; }
     void setPointAngle(int nAngle) { pAngle = nAngle; }
@@ -79,6 +80,7 @@ class colorMenu {
     int pX;
     int pY;
     colorRGB col;
+    double hue;
 };
 
 

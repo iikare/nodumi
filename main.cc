@@ -477,19 +477,27 @@ int main(int argc, char* argv[]) {
           double distP = getDistance(x, y, colorSelect.getPointX(), colorSelect.getPointY());
           colorRGB circleColor = getHueByAngle(x, y, colorSelect.getCenterX(),
                                        colorSelect.getCenterY());
+          double sratio = 1;
+          double vratio = 1;
 
           if (dist > colorSelect.getInner() && dist < colorSelect.getOuter()) {
             main.setPixelRGB(x, y, circleColor);
           }
           else if (hoverOnBox(x, y, colorSelect.getSquareX(), colorSelect.getSquareY(),
                               colorSelect.getSquareSize())){
-            main.setPixelRGB(x, y, colorSelect.getColor());
+            
+            // x increases value, -y increases saturation
+            vratio = static_cast<double>(x - colorSelect.getSquareX()) / colorSelect.getSquareSize();
+            sratio = static_cast<double>(y - colorSelect.getSquareY()) / colorSelect.getSquareSize();
+            
+            cout << vratio << ", " << sratio << endl;
+            
+            main.setPixelHSV(x, y, colorSelect.getHue(), sratio, vratio * 255);
           }
           else{
             main.setPixelRGB(x, y, menuColor);
           }
           if (distP < 6 && dist > colorSelect.getInner() && dist < colorSelect.getOuter()) {
-            cout << x << ", " << y << endl;
             main.setPixelRGB(x, y,0, 0, 0);
           }
         }
