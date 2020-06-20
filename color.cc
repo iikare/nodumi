@@ -1,10 +1,14 @@
 #include <algorithm>
+#include <iostream>
 #include <cmath>
 #include "color.h"
 #include "misc.h"
 
 using std::min;
 using std::max;
+using std::cerr;
+using std::endl;
+
 
 colorRGB::colorRGB() : r(0), g(0), b(0) {}
 
@@ -75,10 +79,23 @@ colorHSV colorRGB::getHSV () {
   return col;
 }
 
+void colorRGB::increaseValue(int valInc) {
+  colorHSV tmp = getHSV();
+  tmp.v = min(360.0, tmp.v + valInc);
+  setRGB(tmp);
+}
+
+
 
 colorHSV::colorHSV() : h(0), s(0), v(0) {}
 
 colorHSV::colorHSV(double hue, double sat, double val) : h(hue), s(sat), v(val) {}
+
+void colorHSV::operator = (const colorHSV& col) {
+  h = col.h;
+  s = col.s;
+  v = col.v;
+}
 
 colorHSV::colorHSV(const colorHSV& col) {
   h = col.h;
@@ -93,17 +110,23 @@ void colorHSV::setHSV(double hue, double sat, double val) {
 }
 
 colorMenu::colorMenu() : render(false), x(0), y(0), width(0), height(0), cX(0), cY(0),
-                         innerRadius(0), outerRadius(0), squareX(0), squareY(0), squareSize(0),
-                         col({0, 0, 0}) {}
+                         innerRadius(0), outerRadius(0), offset(0), pAngle(0), pX(0),
+                         pY(0), col({0, 0, 0}) {}
 
 colorMenu::colorMenu(int iX, int iY, colorRGB color) : render(false), x(iX), y(iY),
                      width(COLOR_WIDTH), height(COLOR_HEIGHT), cX(iX + COLOR_WIDTH/2), cY(iY + COLOR_HEIGHT/2),
                      col(color) {
   innerRadius = min(COLOR_WIDTH, COLOR_HEIGHT) * 0.4;
-  outerRadius = innerRadius + 5;
+  outerRadius = innerRadius + 6;
+  offset = ceil(innerRadius / sqrt(2));
+}
+
+void colorMenu::findAngleFromColor() {
+  colorHSV tmp = col.getHSV();
+  pAngle = tmp.h;
   
-  double offset = innerRadius / sqrt(2);
-  squareX = iX + COLOR_WIDTH/2 - offset;
-  squareY = cY - offset;
-  squareSize = 2 * offset; 
+  
+
+  pX = getCenterX() + cos(pAngle) * ((innerRadius + outerRadius)/2 - 1);
+  pY = getCenterY() + sin(pAngle) * ((innerRadius + outerRadius)/2 - 1);
 }

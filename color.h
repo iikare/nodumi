@@ -1,6 +1,8 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#include <cmath>
+
 class colorHSV {
   public:
     colorHSV();
@@ -8,6 +10,8 @@ class colorHSV {
     colorHSV(const colorHSV& col);
 
     void setHSV(double hue, double sat, double val);
+
+    void operator = (const colorHSV& col);
 
     double h;
     double s;
@@ -23,6 +27,7 @@ class colorRGB {
 
     void setRGB(double red, double green, double blue);
     void setRGB(colorHSV hsv);
+    void increaseValue(int valInc);
 
     double r;
     double g;
@@ -42,13 +47,22 @@ class colorMenu {
     int getCenterY() { return y + cY; }
     int getInner() { return innerRadius; }
     int getOuter() { return outerRadius; }
-    int getSquareX() { return squareX; }
-    int getSquareY() { return squareY; }
-    int getSquareSize() { return squareSize; }
+    int getSquareX() { return x + cX - offset + 2; }
+    int getSquareY() { return y + cY - offset + 2; }
+    int getSquareSize() { return 2 * offset - 4; }
+    int getPointX() { return pX; }
+    int getPointY() { return pY; }
+    int getPointAngle() { return pAngle; }
+    
     colorRGB getColor() { return col; }
 
     void setXY(int nX, int nY) { x = nX; y = nY; }
+    void setColor(colorRGB color) { col = color; }
+    void setPointX(int nX) { pX = nX; }
+    void setPointY(int nY) { pX = nY; }
+    void setPointAngle(int nAngle) { pAngle = nAngle; }
 
+    void findAngleFromColor();
 
     bool render;
   private:
@@ -60,9 +74,10 @@ class colorMenu {
     int cY;
     int innerRadius;
     int outerRadius;
-    int squareX;
-    int squareY;
-    int squareSize;
+    double offset;
+    double pAngle;
+    int pX;
+    int pY;
     colorRGB col;
 };
 

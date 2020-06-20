@@ -91,6 +91,9 @@ int main(int argc, char* argv[]) {
   colorRGB noteColorOn = noteColorOn1;
   colorRGB noteColorOff = noteColorOff1;
 
+  vector<colorRGB> noteColorA = {noteColorOn1, noteColorOn2};
+  vector<colorRGB> noteColorB = {noteColorOff1, noteColorOff2};
+
 
   bool colorByPart = true;
   bool noteOn = false;
@@ -105,6 +108,8 @@ int main(int argc, char* argv[]) {
   int clickNoteY = 0;
   int clickNoteWidth = 0;
   int clickNoteHeight = 0;
+  int clickNoteTrack = 0;
+  bool clickNoteOn = false;
 
   int rightClickX = 0;
   int rightClickY = 0;
@@ -140,10 +145,6 @@ int main(int argc, char* argv[]) {
   // event controller
   SDL_Event event;
 
-  // color picker
-  osdialog_color color = {255, 0, 255, 255};
-  int res = 0;
-  
   // mainmenu controls
   vector<string> fileMenuContents = {"File", "Open File", "Save", "Save As", "Exit"};
   menu fileMenu(main.getWidth(), main.getHeight(), fileMenuContents, true, 0, 0);
@@ -248,17 +249,23 @@ int main(int argc, char* argv[]) {
           
 
           // perform note / cursor collision detection
-          if (main.cursorVisible && hoverOnBox(main.getMouseX(), main.getMouseY(), x, y, width, renderNote.height)) {
-           //cout << "note " << i << " overlaps" << endl;
-           //cout << "x min, x max, x actual" << x << ", " << x + width<< ", " << main.getMouseX() << endl;
-           //cout << "y min, y max, y actual" << y << ", " << y + renderNote.height<< ", " << main.getMouseY() << endl;
-           mouseOnNote = true;
+          if (main.cursorVisible && hoverOnBox(main.getMouseX(), main.getMouseY(),
+                                               x, y, width, renderNote.height)) {
+            mouseOnNote = true;
 
-           // set the note location variables to be used on right click
-           clickNoteX = x;
-           clickNoteY = y;
-           clickNoteWidth = width;
-           clickNoteHeight = renderNote.height;
+            // set the note location variables to be used on right click
+            clickNoteX = x;
+            clickNoteY = y;
+            clickNoteWidth = width;
+            clickNoteHeight = renderNote.height;
+            clickNoteTrack = renderNote.track;
+            // check if note is currently playing
+            if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
+              clickNoteOn = true;
+            }
+            else {
+              clickNoteOn = false;
+            }
           } 
           //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
           
@@ -462,25 +469,28 @@ int main(int argc, char* argv[]) {
     }
 
     if (colorSelect.render) {
-      cout << "finished" << endl;
+      colorSelect.findAngleFromColor();
       for (int x = colorSelect.getX(); x < colorSelect.getX() + colorSelect.getWidth(); x++) {
         for (int y = colorSelect.getY(); y < colorSelect.getY() + colorSelect.getHeight(); y++) {
+          
           double dist = getDistance(x, y, colorSelect.getCenterX(), colorSelect.getCenterY());
-          colorRGB hsv = getHueByAngle(x, y, colorSelect.getCenterX(),
+          double distP = getDistance(x, y, colorSelect.getPointX(), colorSelect.getPointY());
+          colorRGB circleColor = getHueByAngle(x, y, colorSelect.getCenterX(),
                                        colorSelect.getCenterY());
-          if (x == colorSelect.getCenterX() && y == colorSelect.getCenterY()) {
-            main.setPixelRGB(x, y, noteColorOn2);
-          }
-          else if (dist > colorSelect.getInner() && dist < colorSelect.getOuter()) {
-            main.setPixelRGB(x, y, hsv);
-            cout << colorSelect.getSquareSize() << endl;
+
+          if (dist > colorSelect.getInner() && dist < colorSelect.getOuter()) {
+            main.setPixelRGB(x, y, circleColor);
           }
           else if (hoverOnBox(x, y, colorSelect.getSquareX(), colorSelect.getSquareY(),
                               colorSelect.getSquareSize())){
-            main.setPixelRGB(x, y, hsv);
+            main.setPixelRGB(x, y, colorSelect.getColor());
           }
           else{
             main.setPixelRGB(x, y, menuColor);
+          }
+          if (distP < 6 && dist > colorSelect.getInner() && dist < colorSelect.getOuter()) {
+            cout << x << ", " << y << endl;
+            main.setPixelRGB(x, y,0, 0, 0);
           }
         }
       } 
@@ -767,6 +777,13 @@ int main(int argc, char* argv[]) {
           
           // pass that coordinate to the menu class
           rightMenu.setXY(rightClickX, rightClickY);
+
+          if (clickNoteOn) {
+            colorSelect.setColor(noteColorA[clickNoteTrack]);
+          }
+          else { 
+            colorSelect.setColor(noteColorB[clickNoteTrack]);
+          }
 
           cerr << "the menu for this note will take the space {" 
                << rightMenu.getX() << ", " << rightMenu.getY() << "} to {"
