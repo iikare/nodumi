@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <cmath>
 #include "misc.h"
 
 using std::cerr;
@@ -8,6 +9,10 @@ using std::string;
 using std::to_string;
 
 
+bool hoverOnBox(int mouseX, int mouseY, int noteX, 
+                 int noteY, int size) {
+  return hoverOnBox(mouseX, mouseY, noteX, noteY, size, size);
+}
 bool hoverOnBox(int mouseX, int mouseY, int noteX, 
                  int noteY, int noteWidth, int noteHeight) {
   if (mouseX >= noteX && mouseX <= noteX + noteWidth &&
@@ -143,4 +148,24 @@ void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, i
     cpY -= sX/ratio + yBuf;
     cpX -= sX;
   }
+}
+
+double getDistance(int x1, int y1, int x2, int y2) {
+  double deltaX = abs(x1 - x2);
+  double deltaY = abs(y1 - y2);
+  return sqrt(pow(deltaX, 2) + pow(deltaY, 2));
+}
+
+colorRGB getHueByAngle(int x1, int y1, int x2, int y2) {
+  // {x2, y2} iis the center point
+  double deltaX = x1 - x2;
+  double deltaY = y1 - y2;
+  double angle = atan2(deltaY,deltaX) * 180.0/M_PI + 180;
+
+  cerr << "angle: " << endl;
+  colorHSV hsv ((angle/360.0)* 360, 1, 255);
+  colorRGB result;
+  result.setRGB(hsv);
+
+  return result;
 }

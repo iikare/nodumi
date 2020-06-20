@@ -29,10 +29,14 @@
 using std::string;
 
 bool hoverOnBox(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int noteHeight);
+bool hoverOnBox(int mouseX, int mouseY, int noteX, int noteY, int size);
 void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
                      int& rcX, int& rcY, const int rcW, const int rcH);
 string getSongPercent(int pos, double total, bool end);
 void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, int rcY, int xBuf, int yBuf);
+double getDistance(int x1, int y1, int x2, int y2);
+colorRGB getHueByAngle(int x1, int y1, int x2, int y2);
+
 
 
 #endif

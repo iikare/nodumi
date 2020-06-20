@@ -91,6 +91,7 @@ int main(int argc, char* argv[]) {
   colorRGB noteColorOn = noteColorOn1;
   colorRGB noteColorOff = noteColorOff1;
 
+
   bool colorByPart = true;
   bool noteOn = false;
 
@@ -461,10 +462,27 @@ int main(int argc, char* argv[]) {
     }
 
     if (colorSelect.render) {
+      cout << "finished" << endl;
       for (int x = colorSelect.getX(); x < colorSelect.getX() + colorSelect.getWidth(); x++) {
-       for (int y = colorSelect.getY(); y < colorSelect.getY() + colorSelect.getHeight(); y++) {
-         main.setPixelRGB(x, y, menuColor);
-       }
+        for (int y = colorSelect.getY(); y < colorSelect.getY() + colorSelect.getHeight(); y++) {
+          double dist = getDistance(x, y, colorSelect.getCenterX(), colorSelect.getCenterY());
+          colorRGB hsv = getHueByAngle(x, y, colorSelect.getCenterX(),
+                                       colorSelect.getCenterY());
+          if (x == colorSelect.getCenterX() && y == colorSelect.getCenterY()) {
+            main.setPixelRGB(x, y, noteColorOn2);
+          }
+          else if (dist > colorSelect.getInner() && dist < colorSelect.getOuter()) {
+            main.setPixelRGB(x, y, hsv);
+            cout << colorSelect.getSquareSize() << endl;
+          }
+          else if (hoverOnBox(x, y, colorSelect.getSquareX(), colorSelect.getSquareY(),
+                              colorSelect.getSquareSize())){
+            main.setPixelRGB(x, y, hsv);
+          }
+          else{
+            main.setPixelRGB(x, y, menuColor);
+          }
+        }
       } 
    
     } 
@@ -581,6 +599,7 @@ int main(int argc, char* argv[]) {
         }
         break;
       case 11: // left click
+
         // note rightclick menu should only be active until left click
         
         rightMenu.findActiveElement(main.getMouseX(), main.getMouseY());

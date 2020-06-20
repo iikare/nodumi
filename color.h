@@ -38,6 +38,13 @@ class colorMenu {
     int getY() { return y; }
     int getWidth() { return width; }
     int getHeight() { return height; }
+    int getCenterX() { return x + cX; }
+    int getCenterY() { return y + cY; }
+    int getInner() { return innerRadius; }
+    int getOuter() { return outerRadius; }
+    int getSquareX() { return squareX; }
+    int getSquareY() { return squareY; }
+    int getSquareSize() { return squareSize; }
     colorRGB getColor() { return col; }
 
     void setXY(int nX, int nY) { x = nX; y = nY; }
@@ -49,6 +56,13 @@ class colorMenu {
     int y;
     int width;
     int height;
+    int cX;
+    int cY;
+    int innerRadius;
+    int outerRadius;
+    int squareX;
+    int squareY;
+    int squareSize;
     colorRGB col;
 };
 

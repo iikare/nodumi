@@ -21,7 +21,7 @@ void colorRGB::setRGB (colorHSV hsv) {
   
   double chroma = hsv.s * hsv.v;
   double m = hsv.v - chroma;
-  double x = chroma * (1 - abs(fmod((hsv.h / 60), 2) - 1));
+  double x = chroma * (1 - fabs(fmod((hsv.h / 60), 2) - 1));
 
   if (hsv.h > 0 && hsv.h <= 60) {
     setRGB(chroma + m, x + m, m);
@@ -92,7 +92,18 @@ void colorHSV::setHSV(double hue, double sat, double val) {
   v = val;
 }
 
-colorMenu::colorMenu() : render(false), x(0), y(0), width(0), height(0) {}
+colorMenu::colorMenu() : render(false), x(0), y(0), width(0), height(0), cX(0), cY(0),
+                         innerRadius(0), outerRadius(0), squareX(0), squareY(0), squareSize(0),
+                         col({0, 0, 0}) {}
 
 colorMenu::colorMenu(int iX, int iY, colorRGB color) : render(false), x(iX), y(iY),
-                     width(COLOR_WIDTH), height(COLOR_HEIGHT) {}
+                     width(COLOR_WIDTH), height(COLOR_HEIGHT), cX(iX + COLOR_WIDTH/2), cY(iY + COLOR_HEIGHT/2),
+                     col(color) {
+  innerRadius = min(COLOR_WIDTH, COLOR_HEIGHT) * 0.4;
+  outerRadius = innerRadius + 5;
+  
+  double offset = innerRadius / sqrt(2);
+  squareX = iX + COLOR_WIDTH/2 - offset;
+  squareY = cY - offset;
+  squareSize = 2 * offset; 
+}
