@@ -140,7 +140,7 @@ void colorMenu::findAngleFromColor() {
 
 void colorMenu::findHSVFromSquare(){
   double sratio = static_cast<double>(sX - getSquareX())/getSquareSize();
-  double vratio = static_cast<double>(sY - getSquareY())/getSquareSize();
+  double vratio = 1 - static_cast<double>(sY - getSquareY())/getSquareSize();
   
   colhsv.s = sratio;
   colhsv.v = 255 * vratio;
