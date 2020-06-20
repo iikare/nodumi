@@ -136,4 +136,9 @@ void getColorSelectLocation(int mainW, int mainH, int& rcX, int& rcY, int xBuf, 
     rcY += sX/ratio + yBuf;
     rcX -= sX;
   }
+  else if (isXMax && isYMax) {
+    // bottom right corner
+    rcY -= sX/ratio + yBuf;
+    rcX -= sX;
+  }
 }
