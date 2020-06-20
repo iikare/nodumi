@@ -29,4 +29,28 @@ class colorRGB {
     double b;
 };
 
+class colorMenu {
+  public:
+    colorMenu();
+    colorMenu(int iX, int iY, colorRGB color);
+
+    int getX() { return x; }
+    int getY() { return y; }
+    int getWidth() { return width; }
+    int getHeight() { return height; }
+    colorRGB getColor() { return col; }
+
+    void setXY(int nX, int nY) { x = nX; y = nY; }
+
+
+    bool render;
+  private:
+    int x;
+    int y;
+    int width;
+    int height;
+    colorRGB col;
+};
+
+
 #endif

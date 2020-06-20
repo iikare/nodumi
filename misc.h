@@ -20,8 +20,11 @@
 #define EDIT_MENU_WIDTH 25
 #define VIEW_X EDIT_X + EDIT_MENU_WIDTH
 #define VIEW_MENU_WIDTH 28
+#define COLOR_WIDTH 100
+#define COLOR_HEIGHT 100
 
 #include <iostream>
+#include "color.h"
 
 using std::string;
 
@@ -29,6 +32,7 @@ bool hoverOnBox(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int
 void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
                      int& rcX, int& rcY, const int rcW, const int rcH);
 string getSongPercent(int pos, double total, bool end);
+void getColorSelectLocation(int mainW, int mainH, int& rcX, int& rcY, int xBuf, int yBuf);
 
 
 #endif

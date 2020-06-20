@@ -111,6 +111,9 @@ int main(int argc, char* argv[]) {
   vector<string> rightClickContents = {"Change Part Color", "Set Tonic"};
   menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false, -100,-100);
   
+  colorMenu colorSelect(0, 0, menuColor);
+
+
   // play state controls
   bool run = false;
   bool oneTimeFlag = true;
@@ -147,7 +150,6 @@ int main(int argc, char* argv[]) {
   vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
                                      "Display Song Time", "Set Tonic"};
   menu viewMenu(main.getWidth(), main.getHeight(), viewMenuContents, true, VIEW_X, 0);
- 
 
   /*
    *  TODO:
@@ -453,6 +455,15 @@ int main(int argc, char* argv[]) {
       for (int i = 0; i < rightMenu.getSize(); i++) {
         main.renderText(rightMenu.getItemX(i), rightMenu.getItemY(i), rightMenu.getContent(i));
       }
+    }
+
+    if (colorSelect.render) {
+      for (int x = colorSelect.getX(); x < colorSelect.getX() + colorSelect.getWidth(); x++) {
+       for (int y = colorSelect.getY(); y < colorSelect.getY() + colorSelect.getHeight(); y++) {
+         main.setPixelRGB(x, y, menuColor);
+       }
+      } 
+   
     } 
  
     switch (main.eventHandler(event)){
@@ -462,6 +473,8 @@ int main(int argc, char* argv[]) {
       case 2: // play/pause (spacebar)
         if(!end) {
           run = !run;
+          rightMenu.render = false;
+          colorSelect.render = false;
         }
         oneTimeFlag = true;
         break;
@@ -690,9 +703,15 @@ int main(int argc, char* argv[]) {
           switch (rightMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
               rightMenu.render = false;
+              colorSelect.render = false;
               break;
             case 0: // change part color
-              cerr << "info: function not implemented" << endl;
+              cout << "menu will be set at: {" << rightClickX << ", " << rightClickY << "}" << endl; 
+              getColorSelectLocation(main.getWidth(), main.getHeight(), rightClickX, rightClickY,
+                                     rightMenu.getWidth(), rightMenu.getHeight());
+              cout << "menu will be set at: {" << rightClickX << ", " << rightClickY << "}" << endl; 
+              colorSelect.setXY(rightClickX, rightClickY);
+              colorSelect.render = true;
               break;
             case 1: // set tonic
               cerr << "info: function not implemented" << endl;

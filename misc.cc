@@ -76,3 +76,64 @@ string getSongPercent (int pos, double total, bool end) {
   result += "%";
   return result;
 }
+
+void getColorSelectLocation(int mainW, int mainH, int& rcX, int& rcY, int xBuf, int yBuf) {
+
+  int mainXMin = MENU_MARGIN;
+  int mainXMax = mainW - MENU_MARGIN;
+  int mainYMin = MAIN_MENU_HEIGHT + MENU_MARGIN;
+  int mainYMax = mainH - MENU_MARGIN;
+  
+  int cX = rcX + xBuf/2;
+  int cY = rcY + yBuf/2;
+  int sX = COLOR_WIDTH + xBuf;
+  int sY = COLOR_WIDTH + yBuf;
+
+  rcX = cX - COLOR_WIDTH/2;
+  rcY = cY - COLOR_HEIGHT/2;
+
+  bool isXMax = rcX + sX > mainXMax;
+  bool isXMin = rcX - sX < mainXMin;
+  bool isYMax = rcY + sY > mainYMax;
+  bool isYMin = rcY - sY < mainYMin;
+
+  double ratio = static_cast<double>(xBuf)/yBuf;
+
+  if (isXMax + isXMin + isYMax + isYMin <= 1) {
+    if (isXMax) {
+      rcX -= sX;
+    }
+    else if (isXMin) {
+      rcX += sX;
+    }
+
+    if (isYMax) {
+      rcY -= sY;
+    }
+    else if (isYMin) {
+      rcY += sY;
+    }
+    else if (rcX > mainW/2) {
+      rcX -= sX;
+    }
+    else {
+      rcX += sX;
+    }
+
+  }
+  else if (isXMin && isYMin) {   
+    // top left corner
+    rcY += sX/ratio + yBuf;
+    rcX += sX;
+  }
+  else if (isXMin && isYMax) {
+    // bottom left corner
+    rcY -= sX/ratio + yBuf;
+    rcX += sX;
+  }
+  else if (isXMax && isYMin) {
+    // top right corner
+    rcY += sX/ratio + yBuf;
+    rcX -= sX;
+  }
+}

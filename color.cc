@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
 #include "color.h"
+#include "misc.h"
 
 using std::min;
 using std::max;
@@ -90,3 +91,8 @@ void colorHSV::setHSV(double hue, double sat, double val) {
   s = sat;
   v = val;
 }
+
+colorMenu::colorMenu() : render(false), x(0), y(0), width(0), height(0) {}
+
+colorMenu::colorMenu(int iX, int iY, colorRGB color) : render(false), x(iX), y(iY),
+                     width(COLOR_WIDTH), height(COLOR_HEIGHT) {}
