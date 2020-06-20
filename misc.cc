@@ -164,6 +164,10 @@ colorRGB getHueByAngle(int x1, int y1, int x2, int y2) {
   double deltaY = y1 - y2;
   double angle = atan2(deltaY,deltaX) * 180.0/M_PI + 180;
 
+  if (round(angle) == 0) {
+    angle = 360;
+  }
+
   colorHSV hsv (angle, 1, 255);
   colorRGB result;
   result.setRGB(hsv);

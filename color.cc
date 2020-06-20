@@ -28,7 +28,7 @@ void colorRGB::setRGB (colorHSV hsv) {
   double m = hsv.v - chroma;
   double x = chroma * (1 - fabs(fmod((hsv.h / 60), 2) - 1));
 
-  if (hsv.h > 0 && hsv.h <= 60) {
+  if (hsv.h >= 0 && hsv.h <= 60) {
     setRGB(chroma + m, x + m, m);
   }
   else if (hsv.h > 60 && hsv.h <= 120) {
@@ -64,7 +64,7 @@ colorHSV colorRGB::getHSV () {
   if (chroma != 0) {
     if (r == value) {
       // red is max
-      hue = fmod(((g - b) / chroma), 6 ) * 60;
+      hue = fmod(((g - b) / chroma), 6.0 ) * 60;
     }
     else if (g == value) {
       // green is max
@@ -146,7 +146,6 @@ void colorMenu::findHSVFromSquare(){
   colhsv.v = 255 * vratio;
 
 
-  cerr << colhsv.h << ", " << colhsv.s << ", " << colhsv.v << endl;
   cerr << vratio << ", " << 1.0 - colhsv.s << endl;
 
   col.setRGB(colhsv);

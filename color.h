@@ -61,6 +61,7 @@ class colorMenu {
     int getSPointY() { return sY; }
     
     colorRGB getColor() { return col; }
+    colorHSV getColorHSV() { return colhsv; }
 
     void setXY(int nX, int nY) { x = nX; y = nY; }
     void setColor(colorRGB color);

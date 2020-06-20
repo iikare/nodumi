@@ -94,6 +94,7 @@ int main(int argc, char* argv[]) {
   vector<colorRGB> noteColorA = {noteColorOn1, noteColorOn2};
   vector<colorRGB> noteColorB = {noteColorOff1, noteColorOff2};
 
+  colorHSV hsb;
 
   bool colorByPart = true;
   bool noteOn = false;
@@ -464,16 +465,21 @@ int main(int argc, char* argv[]) {
     if (colorSelect.render) {
       if (colorChange) {
         colorChange = false;
+        oneTimeFlag = true;
         colorSelect.findHSVFromSquare();
+        hsb = colorSelect.getColorHSV();
+        cerr << hsb.h << ", " << hsb.s << ", " << hsb.v << endl;
         if(clickNoteOn) {
-          noteColorA[clickNoteTrack] = colorSelect.getColor();
+          noteColorB[clickNoteTrack] = colorSelect.getColor();
         }
         else {
-          noteColorB[clickNoteTrack] = colorSelect.getColor();
+          noteColorA[clickNoteTrack] = colorSelect.getColor();
         }
       }
         colorSelect.findAngleFromColor();
-      cerr << colorSelect.getSPointX()<< ", " << colorSelect.getSPointY() << endl;
+        
+        cerr << hsb.h << ", " << hsb.s << ", " << hsb.v << endl;
+     // cerr << colorSelect.getSPointX()<< ", " << colorSelect.getSPointY() << endl;
       for (int x = colorSelect.getX(); x < colorSelect.getX() + colorSelect.getWidth(); x++) {
         for (int y = colorSelect.getY(); y < colorSelect.getY() + colorSelect.getHeight(); y++) {
           
