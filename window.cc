@@ -143,6 +143,11 @@ unsigned char window::eventHandler(SDL_Event &event) {
           return 12;
         }
         break;
+      case SDL_MOUSEBUTTONUP:
+        if (event.button.button == SDL_BUTTON_LEFT) {
+          return 13;
+        }
+        break;
     }
   }
   return 0;

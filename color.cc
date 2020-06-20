@@ -110,14 +110,16 @@ void colorHSV::setHSV(double hue, double sat, double val) {
   v = val;
 }
 
-colorMenu::colorMenu() : render(false), x(0), y(0), width(0), height(0), cX(0), cY(0),
-                         innerRadius(0), outerRadius(0), offset(0), pAngle(0), pX(0),
+colorMenu::colorMenu() : render(false), squareClick(false), x(0), y(0), width(0), height(0),
+                         cX(0), cY(0), innerRadius(0), outerRadius(0), offset(0), pAngle(0), pX(0),
                          pY(0), col({0, 0, 0}), colhsv({0, 0, 0}), area({0, 0, 0, 0}),
                          areaSquare({0, 0, 0, 0}) {}
 
-colorMenu::colorMenu(int iX, int iY, colorRGB color) : render(false), x(iX), y(iY),
-                     width(COLOR_WIDTH), height(COLOR_HEIGHT), cX(iX + COLOR_WIDTH/2), cY(iY + COLOR_HEIGHT/2),
-                     col(color), area({0, 0, 0, 0}), areaSquare({0, 0, 0, 0}) {
+colorMenu::colorMenu(int iX, int iY, colorRGB color) : render(false), squareClick(false), x(iX), y(iY),
+                     width(COLOR_WIDTH), height(COLOR_HEIGHT), cX(iX + COLOR_WIDTH/2),
+                     cY(iY + COLOR_HEIGHT/2), col(color), area({0, 0, 0, 0}),
+                     areaSquare({0, 0, 0, 0}) {
+
   innerRadius = min(COLOR_WIDTH, COLOR_HEIGHT) * 0.4;
   outerRadius = innerRadius + 6;
   offset = ceil(innerRadius / sqrt(2));
@@ -176,6 +178,9 @@ rect colorMenu::getBoundingBoxSquare() {
   areaSquare.y = getSquareY();
   areaSquare.width = getSquareSize();
   areaSquare.height = getSquareSize();
-  
+ 
+  cerr << getSquareX() << ", " << getSquareY() <<
+    ", " << getSquareSize() << endl;
+
   return areaSquare;
 }

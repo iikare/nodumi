@@ -463,12 +463,16 @@ int main(int argc, char* argv[]) {
     }
 
     if (colorSelect.render) {
+      if(colorSelect.squareClick && hoverOnBox(main.getMouseX(), main.getMouseY(), colorSelect.getBoundingBoxSquare())) {
+        colorSelect.setSPointXY(main.getMouseX(), main.getMouseY());
+        colorChange = true;
+      }
       if (colorChange) {
         colorChange = false;
         oneTimeFlag = true;
         colorSelect.findHSVFromSquare();
         hsb = colorSelect.getColorHSV();
-        cerr << hsb.h << ", " << hsb.s << ", " << hsb.v << endl;
+       // cerr << hsb.h << ", " << hsb.s << ", " << hsb.v << endl;
         if(clickNoteOn) {
           noteColorB[clickNoteTrack] = colorSelect.getColor();
         }
@@ -478,7 +482,6 @@ int main(int argc, char* argv[]) {
       }
         colorSelect.findAngleFromColor();
         
-        cerr << hsb.h << ", " << hsb.s << ", " << hsb.v << endl;
      // cerr << colorSelect.getSPointX()<< ", " << colorSelect.getSPointY() << endl;
       for (int x = colorSelect.getX(); x < colorSelect.getX() + colorSelect.getWidth(); x++) {
         for (int y = colorSelect.getY(); y < colorSelect.getY() + colorSelect.getHeight(); y++) {
@@ -639,6 +642,11 @@ int main(int argc, char* argv[]) {
         editMenu.findActiveElement(main.getMouseX(), main.getMouseY());
         viewMenu.findActiveElement(main.getMouseX(), main.getMouseY());
         
+        // ensure color selector is not selected
+        if (!hoverOnBox(main.getMouseX(), main.getMouseY(), colorSelect.getBoundingBox())) {
+          colorSelect.render = false;
+        }       
+        
         //handle file menu actions
         if (fileMenu.render || !fileMenu.getActiveElement()) {
           switch (fileMenu.getActiveElement()) {
@@ -753,7 +761,7 @@ int main(int argc, char* argv[]) {
         }
 
         //handle right menu actions
-        if (rightMenu.render || !rightMenu.getActiveElement()) {
+        if (colorSelect.render | rightMenu.render || !rightMenu.getActiveElement()) {
           switch (rightMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
               rightMenu.render = false;
@@ -761,11 +769,7 @@ int main(int argc, char* argv[]) {
                 colorSelect.render = false;
               }
               else {
-
-                if(hoverOnBox(main.getMouseX(), main.getMouseY(), colorSelect.getBoundingBoxSquare())) {
-                  colorSelect.setSPointXY(main.getMouseX(), main.getMouseY());
-                  colorChange = true;
-                }
+                colorSelect.squareClick = true;
               }
               break;
             case 0: // change part color
@@ -824,6 +828,9 @@ int main(int argc, char* argv[]) {
           rightMenu.render = true;
           oneTimeFlag = true;
         }
+        break;
+      case 13: // leftclick button up
+        colorSelect.squareClick = false;
         break;
     }
     

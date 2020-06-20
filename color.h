@@ -76,7 +76,7 @@ class colorMenu {
     rect getBoundingBoxSquare();
 
     bool render;
-    
+    bool squareClick;
 
   private:
     int x;
