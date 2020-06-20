@@ -3,6 +3,7 @@
 #include <cmath>
 #include "color.h"
 #include "misc.h"
+#include "box.h"
 
 using std::min;
 using std::max;
@@ -111,31 +112,71 @@ void colorHSV::setHSV(double hue, double sat, double val) {
 
 colorMenu::colorMenu() : render(false), x(0), y(0), width(0), height(0), cX(0), cY(0),
                          innerRadius(0), outerRadius(0), offset(0), pAngle(0), pX(0),
-                         pY(0), col({0, 0, 0}), hue(0) {}
+                         pY(0), col({0, 0, 0}), colhsv({0, 0, 0}), area({0, 0, 0, 0}),
+                         areaSquare({0, 0, 0, 0}) {}
 
 colorMenu::colorMenu(int iX, int iY, colorRGB color) : render(false), x(iX), y(iY),
                      width(COLOR_WIDTH), height(COLOR_HEIGHT), cX(iX + COLOR_WIDTH/2), cY(iY + COLOR_HEIGHT/2),
-                     col(color) {
+                     col(color), area({0, 0, 0, 0}), areaSquare({0, 0, 0, 0}) {
   innerRadius = min(COLOR_WIDTH, COLOR_HEIGHT) * 0.4;
   outerRadius = innerRadius + 6;
   offset = ceil(innerRadius / sqrt(2));
 
-  colorHSV h = color.getHSV();
-  hue = h.h;
+  colhsv = color.getHSV();
 }
 
 void colorMenu::findAngleFromColor() {
-  colorHSV tmp = col.getHSV();
-  pAngle = tmp.h;
-  
-  
+  pAngle = colhsv.h;
 
-  pX = getCenterX() + cos(pAngle) * ((innerRadius + outerRadius)/2 - 1);
-  pY = getCenterY() + sin(pAngle) * ((innerRadius + outerRadius)/2 - 1);
+  double vratio = (1 - colhsv.v/static_cast<double>(255));
+
+  // value scales with positive x
+  sX = getSquareX() + getSquareSize() * colhsv.s;
+  // value scales with positive y
+  sY = getSquareY() + static_cast<double>(getSquareSize()) * vratio;
+  pX = getCenterX() + cos(pAngle) * ((innerRadius + outerRadius)/2);
+  pY = getCenterY() + sin(pAngle) * ((innerRadius + outerRadius)/2);
+}
+
+void colorMenu::findHSVFromSquare(){
+  double sratio = static_cast<double>(sX - getSquareX())/getSquareSize();
+  double vratio = static_cast<double>(sY - getSquareY())/getSquareSize();
+  
+  colhsv.s = sratio;
+  colhsv.v = 255 * vratio;
+
+
+  cerr << colhsv.h << ", " << colhsv.s << ", " << colhsv.v << endl;
+  cerr << vratio << ", " << 1.0 - colhsv.s << endl;
+
+  col.setRGB(colhsv);
+
+}
+
+void colorMenu::setSPointXY(int nX, int nY) {
+  sX = nX;
+  sY = nY;
 }
 
 void colorMenu::setColor(colorRGB color) {
   col = color;
-  colorHSV h = color.getHSV();
-  hue = h.h;
+  colhsv = color.getHSV();
+}
+
+rect colorMenu::getBoundingBox() {
+  area.x = getX();
+  area.y = getY();
+  area.width = getWidth();
+  area.height = getHeight();
+  
+  return area;
+}
+
+rect colorMenu::getBoundingBoxSquare() {
+  areaSquare.x = getSquareX();
+  areaSquare.y = getSquareY();
+  areaSquare.width = getSquareSize();
+  areaSquare.height = getSquareSize();
+  
+  return areaSquare;
 }

@@ -2,6 +2,7 @@
 #define COLOR_H
 
 #include <cmath>
+#include "box.h"
 
 class colorHSV {
   public:
@@ -53,7 +54,11 @@ class colorMenu {
     int getPointX() { return pX; }
     int getPointY() { return pY; }
     int getPointAngle() { return pAngle; }
-    int getHue() { return hue; }
+    int getHue() { return colhsv.h; }
+    int getSat() { return colhsv.s; }
+    int getVal() { return colhsv.v; }
+    int getSPointX() { return sX; }
+    int getSPointY() { return sY; }
     
     colorRGB getColor() { return col; }
 
@@ -61,11 +66,17 @@ class colorMenu {
     void setColor(colorRGB color);
     void setPointX(int nX) { pX = nX; }
     void setPointY(int nY) { pX = nY; }
+    void setSPointXY(int nX, int nY);
     void setPointAngle(int nAngle) { pAngle = nAngle; }
 
     void findAngleFromColor();
+    void findHSVFromSquare();
+    rect getBoundingBox();
+    rect getBoundingBoxSquare();
 
     bool render;
+    
+
   private:
     int x;
     int y;
@@ -79,8 +90,12 @@ class colorMenu {
     double pAngle;
     int pX;
     int pY;
+    int sX;
+    int sY;
     colorRGB col;
-    double hue;
+    colorHSV colhsv;
+    rect area;
+    rect areaSquare;
 };
 
 

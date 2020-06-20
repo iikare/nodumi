@@ -122,6 +122,7 @@ int main(int argc, char* argv[]) {
   
   colorMenu colorSelect(0, 0, menuColor);
 
+  bool colorChange = false;
 
   // play state controls
   bool run = false;
@@ -249,8 +250,8 @@ int main(int argc, char* argv[]) {
           
 
           // perform note / cursor collision detection
-          if (main.cursorVisible && hoverOnBox(main.getMouseX(), main.getMouseY(),
-                                               x, y, width, renderNote.height)) {
+          if (main.cursorVisible && !colorSelect.render &&
+              hoverOnBox(main.getMouseX(), main.getMouseY(), x, y, width, renderNote.height)) {
             mouseOnNote = true;
 
             // set the note location variables to be used on right click
@@ -286,16 +287,8 @@ int main(int argc, char* argv[]) {
                 
                 // set color based on note track 
                 if (colorByPart) {
-                  switch (renderNote.track) {
-                    case 0:
-                      noteColorOn = noteColorOn1;
-                      noteColorOff = noteColorOff1;
-                      break;
-                    case 1:
-                      noteColorOn = noteColorOn2;
-                      noteColorOff = noteColorOff2;
-                      break;
-                  }
+                  noteColorOff = noteColorA[renderNote.track];
+                  noteColorOn = noteColorB[renderNote.track];
 
                   // render note specially if cursor is on it
                   if (mouseOnNote) {
@@ -469,40 +462,55 @@ int main(int argc, char* argv[]) {
     }
 
     if (colorSelect.render) {
-      colorSelect.findAngleFromColor();
+      if (colorChange) {
+        colorChange = false;
+        colorSelect.findHSVFromSquare();
+        if(clickNoteOn) {
+          noteColorA[clickNoteTrack] = colorSelect.getColor();
+        }
+        else {
+          noteColorB[clickNoteTrack] = colorSelect.getColor();
+        }
+      }
+        colorSelect.findAngleFromColor();
+      cerr << colorSelect.getSPointX()<< ", " << colorSelect.getSPointY() << endl;
       for (int x = colorSelect.getX(); x < colorSelect.getX() + colorSelect.getWidth(); x++) {
         for (int y = colorSelect.getY(); y < colorSelect.getY() + colorSelect.getHeight(); y++) {
           
           double dist = getDistance(x, y, colorSelect.getCenterX(), colorSelect.getCenterY());
           double distP = getDistance(x, y, colorSelect.getPointX(), colorSelect.getPointY());
+          double distSP = getDistance(x, y, colorSelect.getSPointX(), colorSelect.getSPointY());
           colorRGB circleColor = getHueByAngle(x, y, colorSelect.getCenterX(),
                                        colorSelect.getCenterY());
           double sratio = 1;
           double vratio = 1;
 
-          if (dist > colorSelect.getInner() && dist < colorSelect.getOuter()) {
-            main.setPixelRGB(x, y, circleColor);
-          }
-          else if (hoverOnBox(x, y, colorSelect.getSquareX(), colorSelect.getSquareY(),
+          if (hoverOnBox(x, y, colorSelect.getSquareX(), colorSelect.getSquareY(),
                               colorSelect.getSquareSize())){
             
-            // x increases value, -y increases saturation
-            vratio = static_cast<double>(x - colorSelect.getSquareX()) / colorSelect.getSquareSize();
-            sratio = static_cast<double>(y - colorSelect.getSquareY()) / colorSelect.getSquareSize();
+            // x increases saturation, y increases value
+            sratio = static_cast<double>(x - colorSelect.getSquareX()) / colorSelect.getSquareSize();
+            vratio = 1-static_cast<double>(y - colorSelect.getSquareY()) / colorSelect.getSquareSize();
             
-            cout << vratio << ", " << sratio << endl;
             
             main.setPixelHSV(x, y, colorSelect.getHue(), sratio, vratio * 255);
+
           }
           else{
             main.setPixelRGB(x, y, menuColor);
           }
-          if (distP < 6 && dist > colorSelect.getInner() && dist < colorSelect.getOuter()) {
-            main.setPixelRGB(x, y,0, 0, 0);
+          if (dist > colorSelect.getInner() && dist < colorSelect.getOuter()) {
+            main.setPixelRGB(x, y, circleColor);
+          }
+          if (distP < 4) {
+            main.setPixelRGB(x, y, (colorSelect.getHue() + 45) % 359, 140, 255);
+          }
+          if (distSP < 4) {
+            //cout << colorSelect.getSPointX() << ", " << colorSelect.getSPointY() << endl;
+            main.setPixelHSV(x, y, (colorSelect.getHue() + 45) % 359, 140, 255);
           }
         }
       } 
-   
     } 
  
     switch (main.eventHandler(event)){
@@ -743,7 +751,16 @@ int main(int argc, char* argv[]) {
           switch (rightMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
               rightMenu.render = false;
-              colorSelect.render = false;
+              if (!hoverOnBox(main.getMouseX(), main.getMouseY(), colorSelect.getBoundingBox())) {
+                colorSelect.render = false;
+              }
+              else {
+
+                if(hoverOnBox(main.getMouseX(), main.getMouseY(), colorSelect.getBoundingBoxSquare())) {
+                  colorSelect.setSPointXY(main.getMouseX(), main.getMouseY());
+                  colorChange = true;
+                }
+              }
               break;
             case 0: // change part color
               if (colorSelect.render) {

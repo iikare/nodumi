@@ -8,7 +8,9 @@ using std::endl;
 using std::string;
 using std::to_string;
 
-
+bool hoverOnBox(int mouseX, int mouseY, rect box) {
+  return hoverOnBox(mouseX, mouseY, box.x, box.y, box.width, box.height);
+}
 bool hoverOnBox(int mouseX, int mouseY, int noteX, 
                  int noteY, int size) {
   return hoverOnBox(mouseX, mouseY, noteX, noteY, size, size);

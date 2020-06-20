@@ -25,10 +25,12 @@
 
 #include <iostream>
 #include "color.h"
+#include "box.h"
 
 using std::string;
 
 bool hoverOnBox(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int noteHeight);
+bool hoverOnBox(int mouseX, int mouseY, rect box);
 bool hoverOnBox(int mouseX, int mouseY, int noteX, int noteY, int size);
 void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
                      int& rcX, int& rcY, const int rcW, const int rcH);
