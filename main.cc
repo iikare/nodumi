@@ -108,6 +108,9 @@ int main(int argc, char* argv[]) {
   int rightClickX = 0;
   int rightClickY = 0;
 
+  int colorSelectX = 0;
+  int colorSelectY = 0;
+
   vector<string> rightClickContents = {"Change Part Color", "Set Tonic"};
   menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false, -100,-100);
   
@@ -706,14 +709,19 @@ int main(int argc, char* argv[]) {
               colorSelect.render = false;
               break;
             case 0: // change part color
-              cout << "menu will be set at: {" << rightClickX << ", " << rightClickY << "}" << endl; 
-              getColorSelectLocation(main.getWidth(), main.getHeight(), rightClickX, rightClickY,
-                                     rightMenu.getWidth(), rightMenu.getHeight());
-              cout << "menu will be set at: {" << rightClickX << ", " << rightClickY << "}" << endl; 
-              colorSelect.setXY(rightClickX, rightClickY);
+              if (colorSelect.render) {
+               // turn off the color picker if clicked again
+                colorSelect.render = false;
+                break;
+              } 
+              getColorSelectLocation(main.getWidth(), main.getHeight(), colorSelectX, colorSelectY,
+                                     rightClickX, rightClickY, rightMenu.getWidth(),
+                                     rightMenu.getHeight());
+              colorSelect.setXY(colorSelectX, colorSelectY);
               colorSelect.render = true;
               break;
             case 1: // set tonic
+              colorSelect.render = false;
               cerr << "info: function not implemented" << endl;
               break;
             case 2: //
@@ -730,6 +738,9 @@ int main(int argc, char* argv[]) {
         if (hoverOnBox(main.getMouseX(), main.getMouseY(), clickNoteX, clickNoteY, 
                        clickNoteWidth, clickNoteHeight)) {
           cerr  << "right clicked on note!" << endl;
+          
+          // stop rendering if clicked again
+          colorSelect.render = false;
 
           // find coordinate to draw right click menu
           getMenuLocation(main.getWidth(), main.getHeight(), main.getMouseX(), main.getMouseY(),

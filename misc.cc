@@ -77,68 +77,70 @@ string getSongPercent (int pos, double total, bool end) {
   return result;
 }
 
-void getColorSelectLocation(int mainW, int mainH, int& rcX, int& rcY, int xBuf, int yBuf) {
+void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, int rcY, int xBuf, int yBuf) {
+  cpX = rcX;
+  cpY = rcY;
 
   int mainXMin = MENU_MARGIN;
   int mainXMax = mainW - MENU_MARGIN;
   int mainYMin = MAIN_MENU_HEIGHT + MENU_MARGIN;
   int mainYMax = mainH - MENU_MARGIN;
   
-  int cX = rcX + xBuf/2;
-  int cY = rcY + yBuf/2;
+  int cX = cpX + xBuf/2;
+  int cY = cpY + yBuf/2;
   int sX = COLOR_WIDTH + xBuf;
   int sY = COLOR_WIDTH + yBuf;
 
-  rcX = cX - COLOR_WIDTH/2;
-  rcY = cY - COLOR_HEIGHT/2;
+  cpX = cX - COLOR_WIDTH/2;
+  cpY = cY - COLOR_HEIGHT/2;
 
-  bool isXMax = rcX + sX > mainXMax;
-  bool isXMin = rcX - sX < mainXMin;
-  bool isYMax = rcY + sY > mainYMax;
-  bool isYMin = rcY - sY < mainYMin;
+  bool isXMax = cpX + sX > mainXMax;
+  bool isXMin = cpX - sX < mainXMin;
+  bool isYMax = cpY + sY > mainYMax;
+  bool isYMin = cpY - sY < mainYMin;
 
   double ratio = static_cast<double>(xBuf)/yBuf;
 
   if (isXMax + isXMin + isYMax + isYMin <= 1) {
     if (isXMax) {
-      rcX -= sX;
+      cpX -= sX;
     }
     else if (isXMin) {
-      rcX += sX;
+      cpX += sX;
     }
 
     if (isYMax) {
-      rcY -= sY;
+      cpY -= sY;
     }
     else if (isYMin) {
-      rcY += sY;
+      cpY += sY;
     }
-    else if (rcX > mainW/2) {
-      rcX -= sX;
+    else if (cpX > mainW/2) {
+      cpX -= sX;
     }
     else {
-      rcX += sX;
+      cpX += sX;
     }
 
   }
   else if (isXMin && isYMin) {   
     // top left corner
-    rcY += sX/ratio + yBuf;
-    rcX += sX;
+    cpY += sX/ratio + yBuf;
+    cpX += sX;
   }
   else if (isXMin && isYMax) {
     // bottom left corner
-    rcY -= sX/ratio + yBuf;
-    rcX += sX;
+    cpY -= sX/ratio + yBuf;
+    cpX += sX;
   }
   else if (isXMax && isYMin) {
     // top right corner
-    rcY += sX/ratio + yBuf;
-    rcX -= sX;
+    cpY += sX/ratio + yBuf;
+    cpX -= sX;
   }
   else if (isXMax && isYMax) {
     // bottom right corner
-    rcY -= sX/ratio + yBuf;
-    rcX -= sX;
+    cpY -= sX/ratio + yBuf;
+    cpX -= sX;
   }
 }

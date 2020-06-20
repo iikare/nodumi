@@ -32,7 +32,7 @@ bool hoverOnBox(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int
 void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
                      int& rcX, int& rcY, const int rcW, const int rcH);
 string getSongPercent(int pos, double total, bool end);
-void getColorSelectLocation(int mainW, int mainH, int& rcX, int& rcY, int xBuf, int yBuf);
+void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, int rcY, int xBuf, int yBuf);
 
 
 #endif
