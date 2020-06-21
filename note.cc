@@ -95,6 +95,10 @@ double mfile::getLastTick() {
   return lastTick * timeScale;
 }
 
+int mfile::getTrackCount() {
+  return trackCount;
+}
+
 void mfile::load(string file) {
   if (notes != nullptr) {
     cerr << "info: resetting event structure" << endl;
@@ -119,10 +123,10 @@ void mfile::load(string file) {
 
   midifile.linkNotePairs();
  
-  int tracks = midifile.getTrackCount();
+  trackCount = midifile.getTrackCount();
   int cTrackCount = 0;
 
-  for (int i = 0; i < tracks; i++) {
+  for (int i = 0; i < trackCount; i++) {
     cTrackCount = midifile.getEventCount(i);
     for (int j = 0; j < cTrackCount; j++) {
       if (midifile[i][j].isNoteOn()) {
@@ -141,7 +145,7 @@ void mfile::load(string file) {
   int bpm = 0;
   int idx = 0;
 
-  for (int i = 0; i < tracks; i++) {
+  for (int i = 0; i < trackCount; i++) {
     for (int j = 0; j < midifile.getEventCount(i); j++) {
       if (midifile[i][j].isNoteOn()) {
        notes[idx].track = i;
@@ -188,16 +192,8 @@ void mfile::load(string file) {
   }
   
   // get first and last note 
-  int firstTick = notes[0].x;
   lastTick = notes[noteCount-1].x + notes[noteCount-1].duration;
 
-  for (int i = 0; i < noteCount; i++) {
-    // first zero out the starting tick
-    //notes[i].x -= firstTick;
-  }
-
-
-  
   // scale for visibility
   scaleTime(static_cast<double>(1)/8);
 

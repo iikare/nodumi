@@ -61,6 +61,7 @@ class colorMenu {
     int getSPointY() { return sY; }
     int getCPointX() { return ciX; }
     int getCPointY() { return ciY; }
+    point getCenterXY() { centerXY.x = getCenterX(); centerXY.y = getCenterY(); return centerXY; }
     
     colorRGB getColor() { return col; }
     colorHSV getColorHSV() { return colhsv; }
@@ -105,6 +106,7 @@ class colorMenu {
     rect area;
     rect areaSquare;
     rect areaCircle;
+    point centerXY;
 };
 
 

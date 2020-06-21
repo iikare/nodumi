@@ -35,6 +35,7 @@ class mfile {
     note* getNotes();
     int getNoteRange();
     int getNoteCount();
+    int getTrackCount();
     double getLastTick();
     double getTimeScale();
 
@@ -44,6 +45,7 @@ class mfile {
 
     void load(string file);
   private:
+    int trackCount;
     int noteCount;
     int noteMin;
     int noteMax;

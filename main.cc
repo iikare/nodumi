@@ -8,6 +8,8 @@
 #include "window.h"
 #include "note.h"
 #include "menu.h"
+#include "color.h"
+#include "colorgen.h"
 #include "dpd/osdialog/osdialog.h"
 
 using std::cerr;
@@ -93,6 +95,9 @@ int main(int argc, char* argv[]) {
 
   vector<colorRGB> noteColorA = {noteColorOn1, noteColorOn2};
   vector<colorRGB> noteColorB = {noteColorOff1, noteColorOff2};
+  vector<colorRGB> noteColorC;
+  vector<colorRGB> noteColorD;
+  getColorScheme(input.getTrackCount(), noteColorC, noteColorD);
 
   bool colorByPart = true;
   bool noteOn = false;
@@ -158,13 +163,16 @@ int main(int argc, char* argv[]) {
 
   /*
    *  TODO:
-   *    add user-customizable line color
+   *    add line color blend mode
+   *    add background selection
    *    add menu bar on top                       DONE
    *    add file picker                           DONE (fix memory leaks)
-   *    add color picker for parts
+   *    add color picker for parts                DONE (set default size bigger)
    *    add color by parts                        DONE
    *    add color by tonic
+   *    add color generation algorithm
    *    add config file parsing
+   *    add save file ability
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
    *    add bg image support
@@ -177,7 +185,7 @@ int main(int argc, char* argv[]) {
   
   // debug track info 
   for (int i = 0; i < input.getNoteCount(); i++) {
-    cerr << "note: " << i << "on track: " << notes[i].track << endl;
+    //cerr << "note " << i << " is on track " << notes[i].track << endl;
   }
 
   while (state){
@@ -279,6 +287,11 @@ int main(int argc, char* argv[]) {
             else {
               noteOn = false;
             }
+            
+            // render with the other color if hovered over
+            if (mouseOnNote) {
+              noteOn = !noteOn;
+            }
 
             // rendering of the note itself 
             for (int j = 0; j < width; j++) {
@@ -289,11 +302,8 @@ int main(int argc, char* argv[]) {
                   noteColorOff = noteColorA[renderNote.track];
                   noteColorOn = noteColorB[renderNote.track];
 
-                  // render note specially if cursor is on it
-                  if (mouseOnNote) {
-                    main.setPixelRGB(x + j, y + k, noteColorOn2.r, noteColorOn2.g, noteColorOn2.b);
-                  }
-                  else if (noteOn) {
+                  // render note by play status
+                  if (noteOn) {
                     main.setPixelRGB(x + j, y + k, noteColorOn.r, noteColorOn.g, noteColorOn.b);
                   }
                   else {
@@ -496,7 +506,6 @@ int main(int argc, char* argv[]) {
         for (int y = colorSelect.getY(); y < colorSelect.getY() + colorSelect.getHeight(); y++) {
           
           double dist = getDistance(x, y, colorSelect.getCenterX(), colorSelect.getCenterY());
-          double distP = getDistance(x, y, colorSelect.getPointX(), colorSelect.getPointY());
           double distSP = getDistance(x, y, colorSelect.getSPointX(), colorSelect.getSPointY());
           double distCP = getDistance(x, y, colorSelect.getCPointX(), colorSelect.getCPointY());
 
@@ -539,10 +548,6 @@ int main(int argc, char* argv[]) {
             else {
               main.setPixelHSV(x, y, 0, 0, 0);
             }
-          }
-          if (distCP < 4) {
-            //main.setPixelHSV(x, y, (colorSelect.getHue() + 45) % 359, 140, 255);
-            //main.setPixelRGB(x, y, (colorSelect.getHue() + 45) % 359, 140, 255);
           }
         }
       } 
@@ -794,7 +799,7 @@ int main(int argc, char* argv[]) {
                 colorSelect.render = false;
               }
               else {
-                if (pointInCircle(main.getMouseXY(), colorSelect.getBoundingBoxCircle())) {
+                if (getDistance(main.getMouseXY(), colorSelect.getCenterXY()) > colorSelect.getInner()) {
                   colorSelect.circleClick = true;
                 }
                 else {
@@ -829,8 +834,11 @@ int main(int argc, char* argv[]) {
         oneTimeFlag = true;
         break;
       case 12: // right click
-        if (hoverOnBox(main.getMouseXY(), clickNoteX, clickNoteY, 
-                       clickNoteWidth, clickNoteHeight)) {
+        // deactivate both rightmenu and color menu
+        colorSelect.render = false;
+        rightMenu.render = false;
+
+        if (hoverOnBox(main.getMouseXY(), clickNoteX, clickNoteY, clickNoteWidth, clickNoteHeight)) {
           cerr  << "right clicked on note!" << endl;
           
           // stop rendering if clicked again
@@ -856,12 +864,15 @@ int main(int argc, char* argv[]) {
                << rightMenu.getY() + rightMenu.getHeight() << "}" << endl;
 
           rightMenu.render = true;
-          oneTimeFlag = true;
+        }
+        else { 
+          cerr << "right clicked on a non-note!" << endl;
         }
         break;
       case 13: // leftclick button up
         colorSelect.squareClick = false;
         colorSelect.circleClick = false;
+        oneTimeFlag = true;
         break;
     }
     
