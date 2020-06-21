@@ -8,13 +8,29 @@ using std::endl;
 using std::string;
 using std::to_string;
 
+bool hoverOnBox(point mouse, rect box) {
+  return hoverOnBox(mouse.x, mouse.y, box.x, box.y, box.width, box.height);
+}
+
 bool hoverOnBox(int mouseX, int mouseY, rect box) {
   return hoverOnBox(mouseX, mouseY, box.x, box.y, box.width, box.height);
 }
+
+bool hoverOnBox(point mouse, int noteX, 
+                 int noteY, int noteWidth, int noteHeight) {
+  return hoverOnBox(mouse.x, mouse.y, noteX, noteY, noteWidth, noteHeight);
+}
+
+bool hoverOnBox(point mouse, int noteX, 
+                 int noteY, int size) {
+  return hoverOnBox(mouse.x, mouse.y, noteX, noteY, size, size);
+}
+
 bool hoverOnBox(int mouseX, int mouseY, int noteX, 
                  int noteY, int size) {
   return hoverOnBox(mouseX, mouseY, noteX, noteY, size, size);
 }
+
 bool hoverOnBox(int mouseX, int mouseY, int noteX, 
                  int noteY, int noteWidth, int noteHeight) {
   if (mouseX >= noteX && mouseX <= noteX + noteWidth &&
@@ -24,6 +40,10 @@ bool hoverOnBox(int mouseX, int mouseY, int noteX,
   else {
     return false;
   }
+}
+void getMenuLocation(point mainDim, point mouseXY, 
+                     int& rcX, int& rcY, const int rcW, const int rcH) {
+  return getMenuLocation(mainDim.x, mainDim.y, mouseXY.x, mouseXY.y, rcX, rcY, rcW, rcH);
 }
 
 void getMenuLocation(int mainW, int mainH, int cnX, int cnY, 

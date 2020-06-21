@@ -59,9 +59,9 @@ menu::menu() {
   exit(1);
 }
 
-menu::menu(int winX, int winY, vector<string> itemNames, bool mainMenu, int menuX, int menuY) :
+menu::menu(point XY, vector<string> itemNames, bool mainMenu, int menuX, int menuY) :
            render(false), isMainMenu(mainMenu), x(menuX), y(menuY), width(0), height(0),
-           itemCount(itemNames.size()), mainX(winX), mainY(winY), activeElement(-1),
+           itemCount(itemNames.size()), mainX(XY.x), mainY(XY.y), activeElement(-1),
            items(nullptr) {
 
   height = ITEM_HEIGHT * itemCount;
@@ -133,7 +133,9 @@ void menu::setActiveElement(int idx) {
   activeElement = idx;
 }
 
-void menu::findActiveElement(int curX, int curY) {
+void menu::findActiveElement(point XY) {
+  int curX = XY.x;
+  int curY = XY.y;
   if (!hoverOnBox(curX, curY, x, y, width, height)) {
     activeElement = -1;
     return;

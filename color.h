@@ -67,16 +67,18 @@ class colorMenu {
     void setColor(colorRGB color);
     void setPointX(int nX) { pX = nX; }
     void setPointY(int nY) { pX = nY; }
-    void setSPointXY(int nX, int nY);
+    void setSPointXY(point XY);
     void setPointAngle(int nAngle) { pAngle = nAngle; }
 
     void findAngleFromColor();
     void findHSVFromSquare();
     rect getBoundingBox();
     rect getBoundingBoxSquare();
+    rect getBoundingBoxCircle();
 
     bool render;
     bool squareClick;
+    bool circleClick;
 
   private:
     int x;
@@ -97,6 +99,7 @@ class colorMenu {
     colorHSV colhsv;
     rect area;
     rect areaSquare;
+    rect areaCircle;
 };
 
 

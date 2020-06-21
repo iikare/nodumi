@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
   int colorSelectY = 0;
 
   vector<string> rightClickContents = {"Change Part Color", "Set Tonic"};
-  menu rightMenu(main.getWidth(), main.getHeight(), rightClickContents, false, -100,-100);
+  menu rightMenu(main.getSize(), rightClickContents, false, -100,-100);
   
   colorMenu colorSelect(0, 0, menuColor);
 
@@ -149,14 +149,14 @@ int main(int argc, char* argv[]) {
 
   // mainmenu controls
   vector<string> fileMenuContents = {"File", "Open File", "Save", "Save As", "Exit"};
-  menu fileMenu(main.getWidth(), main.getHeight(), fileMenuContents, true, 0, 0);
+  menu fileMenu(main.getSize(), fileMenuContents, true, 0, 0);
   
   vector<string> editMenuContents = {"Edit", "A", "B", "C", "D"};
-  menu editMenu(main.getWidth(), main.getHeight(), editMenuContents, true, EDIT_X, 0);
+  menu editMenu(main.getSize(), editMenuContents, true, EDIT_X, 0);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
                                      "Display Song Time", "Set Tonic"};
-  menu viewMenu(main.getWidth(), main.getHeight(), viewMenuContents, true, VIEW_X, 0);
+  menu viewMenu(main.getSize(), viewMenuContents, true, VIEW_X, 0);
 
   /*
    *  TODO:
@@ -252,7 +252,7 @@ int main(int argc, char* argv[]) {
 
           // perform note / cursor collision detection
           if (main.cursorVisible && !colorSelect.render &&
-              hoverOnBox(main.getMouseX(), main.getMouseY(), x, y, width, renderNote.height)) {
+              hoverOnBox(main.getMouseXY(), x, y, width, renderNote.height)) {
             mouseOnNote = true;
 
             // set the note location variables to be used on right click
@@ -463,8 +463,8 @@ int main(int argc, char* argv[]) {
     }
 
     if (colorSelect.render) {
-      if(colorSelect.squareClick && hoverOnBox(main.getMouseX(), main.getMouseY(), colorSelect.getBoundingBoxSquare())) {
-        colorSelect.setSPointXY(main.getMouseX(), main.getMouseY());
+      if(colorSelect.squareClick && hoverOnBox(main.getMouseXY(), colorSelect.getBoundingBoxSquare())) {
+        colorSelect.setSPointXY(main.getMouseXY());
         colorChange = true;
       }
       if (colorChange) {
@@ -637,13 +637,13 @@ int main(int argc, char* argv[]) {
 
         // note rightclick menu should only be active until left click
         
-        rightMenu.findActiveElement(main.getMouseX(), main.getMouseY());
-        fileMenu.findActiveElement(main.getMouseX(), main.getMouseY());
-        editMenu.findActiveElement(main.getMouseX(), main.getMouseY());
-        viewMenu.findActiveElement(main.getMouseX(), main.getMouseY());
+        rightMenu.findActiveElement(main.getMouseXY());
+        fileMenu.findActiveElement(main.getMouseXY());
+        editMenu.findActiveElement(main.getMouseXY());
+        viewMenu.findActiveElement(main.getMouseXY());
         
         // ensure color selector is not selected
-        if (!hoverOnBox(main.getMouseX(), main.getMouseY(), colorSelect.getBoundingBox())) {
+        if (!hoverOnBox(main.getMouseXY(), colorSelect.getBoundingBox())) {
           colorSelect.render = false;
         }       
         
@@ -654,8 +654,7 @@ int main(int argc, char* argv[]) {
               fileMenu.render = false;
               break;
             case 0: // click on file menu again
-              if (hoverOnBox(main.getMouseX(), main.getMouseY(), fileMenu.getX(), fileMenu.getY(),
-                             FILE_MENU_WIDTH, ITEM_HEIGHT)){
+              if (hoverOnBox(main.getMouseXY(), fileMenu.getX(), fileMenu.getY(), FILE_MENU_WIDTH, ITEM_HEIGHT)){
                 editMenu.render = false;
                 viewMenu.render = false;
                 fileMenu.render = !fileMenu.render;
@@ -691,7 +690,7 @@ int main(int argc, char* argv[]) {
               editMenu.render = false;
               break;
             case 0: // click on edit menu again
-              if (hoverOnBox(main.getMouseX(), main.getMouseY(), editMenu.getX(), editMenu.getY(),
+              if (hoverOnBox(main.getMouseXY(), editMenu.getX(), editMenu.getY(),
                              EDIT_MENU_WIDTH, ITEM_HEIGHT)){
                 fileMenu.render = false;
                 viewMenu.render = false;
@@ -720,7 +719,7 @@ int main(int argc, char* argv[]) {
               viewMenu.render = false;
               break;
             case 0: // click on view menu again
-              if (hoverOnBox(main.getMouseX(), main.getMouseY(), viewMenu.getX(), viewMenu.getY(),
+              if (hoverOnBox(main.getMouseXY(), viewMenu.getX(), viewMenu.getY(),
                              VIEW_MENU_WIDTH, ITEM_HEIGHT)){
                 fileMenu.render = false;
                 editMenu.render = false;
@@ -765,11 +764,16 @@ int main(int argc, char* argv[]) {
           switch (rightMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
               rightMenu.render = false;
-              if (!hoverOnBox(main.getMouseX(), main.getMouseY(), colorSelect.getBoundingBox())) {
+              if (!hoverOnBox(main.getMouseXY(), colorSelect.getBoundingBox())) {
                 colorSelect.render = false;
               }
               else {
-                colorSelect.squareClick = true;
+                if (false){//pointInCircle(main.getMouseXY(), colorSelect.getBoundingBoxCircle())) {
+                  colorSelect.circleClick = true;
+                }
+                else {
+                  colorSelect.squareClick = true;
+                }
               }
               break;
             case 0: // change part color
@@ -799,7 +803,7 @@ int main(int argc, char* argv[]) {
         oneTimeFlag = true;
         break;
       case 12: // right click
-        if (hoverOnBox(main.getMouseX(), main.getMouseY(), clickNoteX, clickNoteY, 
+        if (hoverOnBox(main.getMouseXY(), clickNoteX, clickNoteY, 
                        clickNoteWidth, clickNoteHeight)) {
           cerr  << "right clicked on note!" << endl;
           

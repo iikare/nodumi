@@ -9,6 +9,7 @@
 #include "note.h"
 #include "window.h"
 #include "color.h"
+#include "box.h"
 
 using std::string;
 using std::deque;
@@ -28,8 +29,10 @@ class window {
 
     int getWidth();
     int getHeight();
+    point getSize() { windowXY.x = windowX; windowXY.y = windowY; return windowXY; }
     int getMouseX();
     int getMouseY();
+    point getMouseXY() { mouseXY.x = mouseX; mouseXY.y = mouseY; return mouseXY; }
 
     void renderText(int x, int y, string text, colorRGB col = {0, 0, 0});
      
@@ -51,6 +54,7 @@ class window {
     SDL_Texture* texture;
     int windowX;
     int windowY;
+    point windowXY;
     
     deque<int> messageX;
     deque<int> messageY;
@@ -71,6 +75,7 @@ class window {
 
     int mouseX;
     int mouseY;
+    point mouseXY;
 };
 
 #endif

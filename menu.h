@@ -35,7 +35,7 @@ class menuItem {
 class menu {
   public:
     menu();
-    menu(int winX, int winY, vector<string> itemNames, bool mainMenu, int menuX = 0, int menuY = 0);
+    menu(point XY, vector<string> itemNames, bool mainMenu, int menuX = 0, int menuY = 0);
     ~menu();
 
     int getX() { return x; }
@@ -53,7 +53,7 @@ class menu {
     void setContent(string nContent, int idx);
     void setActiveElement(int idx);
 
-    void findActiveElement(int curX, int curY);
+    void findActiveElement(point xy);
 
     bool render;
 

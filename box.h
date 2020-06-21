@@ -8,4 +8,9 @@ struct rect {
   int height;
 };
 
+struct point {
+  int x;
+  int y;
+};
+
 #endif
