@@ -12,7 +12,6 @@
 #include "colorgen.h"
 #include "../dpd/osdialog/osdialog.h"
 
-
 using std::cerr;
 using std::cout;
 using std::endl;
