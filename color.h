@@ -59,6 +59,8 @@ class colorMenu {
     int getVal() { return colhsv.v; }
     int getSPointX() { return sX; }
     int getSPointY() { return sY; }
+    int getCPointX() { return ciX; }
+    int getCPointY() { return ciY; }
     
     colorRGB getColor() { return col; }
     colorHSV getColorHSV() { return colhsv; }
@@ -68,10 +70,11 @@ class colorMenu {
     void setPointX(int nX) { pX = nX; }
     void setPointY(int nY) { pX = nY; }
     void setSPointXY(point XY);
+    void setCPointXY(point XY);
     void setPointAngle(int nAngle) { pAngle = nAngle; }
 
     void findAngleFromColor();
-    void findHSVFromSquare();
+    void findHSVFromSquare(bool findHue);
     rect getBoundingBox();
     rect getBoundingBoxSquare();
     rect getBoundingBoxCircle();
@@ -95,6 +98,8 @@ class colorMenu {
     int pY;
     int sX;
     int sY;
+    int ciX;
+    int ciY;
     colorRGB col;
     colorHSV colhsv;
     rect area;

@@ -41,6 +41,8 @@ void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, i
 double getDistance(int x1, int y1, int x2, int y2);
 colorRGB getHueByAngle(int x1, int y1, int x2, int y2);
 
+bool pointInCircle(point mouse, rect circle);
+
 
 
 #endif

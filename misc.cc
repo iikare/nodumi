@@ -180,9 +180,9 @@ double getDistance(int x1, int y1, int x2, int y2) {
 
 colorRGB getHueByAngle(int x1, int y1, int x2, int y2) {
   // {x2, y2} iis the center point
-  double deltaX = x1 - x2;
+  double deltaX = x2 - x1;
   double deltaY = y1 - y2;
-  double angle = atan2(deltaY,deltaX) * 180.0/M_PI + 180;
+  double angle = atan2(deltaY, deltaX) * 180.0/M_PI + 180;
 
   if (round(angle) == 0) {
     angle = 360;
@@ -193,4 +193,13 @@ colorRGB getHueByAngle(int x1, int y1, int x2, int y2) {
   result.setRGB(hsv);
 
   return result;
+}
+
+bool pointInCircle(point mouse, rect circle) {
+  // set distance bounds
+  int inner = circle.width;
+  int outer = circle.height;
+  double dist = getDistance(mouse.x, mouse.y, circle.x, circle.y);
+
+  return dist > inner && dist < outer;
 }

@@ -94,8 +94,6 @@ int main(int argc, char* argv[]) {
   vector<colorRGB> noteColorA = {noteColorOn1, noteColorOn2};
   vector<colorRGB> noteColorB = {noteColorOff1, noteColorOff2};
 
-  colorHSV hsb;
-
   bool colorByPart = true;
   bool noteOn = false;
 
@@ -467,12 +465,22 @@ int main(int argc, char* argv[]) {
         colorSelect.setSPointXY(main.getMouseXY());
         colorChange = true;
       }
+      if(colorSelect.circleClick && pointInCircle(main.getMouseXY(), colorSelect.getBoundingBoxCircle())) {
+        colorSelect.setCPointXY(main.getMouseXY());
+        colorChange = true;
+      }
       if (colorChange) {
         colorChange = false;
         oneTimeFlag = true;
-        colorSelect.findHSVFromSquare();
-        hsb = colorSelect.getColorHSV();
-       // cerr << hsb.h << ", " << hsb.s << ", " << hsb.v << endl;
+
+        if (colorSelect.circleClick) {
+          // adjust only hue
+          colorSelect.findHSVFromSquare(true);
+        }
+        else {
+          // adjust saturation/value
+          colorSelect.findHSVFromSquare(false);
+        }
         if(clickNoteOn) {
           noteColorB[clickNoteTrack] = colorSelect.getColor();
         }
@@ -481,6 +489,7 @@ int main(int argc, char* argv[]) {
         }
       }
         colorSelect.findAngleFromColor();
+      //  cout << colorSelect.circleClick << endl;
         
      // cerr << colorSelect.getSPointX()<< ", " << colorSelect.getSPointY() << endl;
       for (int x = colorSelect.getX(); x < colorSelect.getX() + colorSelect.getWidth(); x++) {
@@ -489,11 +498,14 @@ int main(int argc, char* argv[]) {
           double dist = getDistance(x, y, colorSelect.getCenterX(), colorSelect.getCenterY());
           double distP = getDistance(x, y, colorSelect.getPointX(), colorSelect.getPointY());
           double distSP = getDistance(x, y, colorSelect.getSPointX(), colorSelect.getSPointY());
-          colorRGB circleColor = getHueByAngle(x, y, colorSelect.getCenterX(),
-                                       colorSelect.getCenterY());
+          double distCP = getDistance(x, y, colorSelect.getCPointX(), colorSelect.getCPointY());
+
+          colorRGB circleColor = getHueByAngle(x, y, colorSelect.getCenterX(),colorSelect.getCenterY());
           double sratio = 1;
           double vratio = 1;
 
+         // cout << "testC"<< colorSelect.getSPointX() << ", " << colorSelect.getSPointY() << endl;
+          //cout << "testP"<< colorSelect.getPointX() << ", " << colorSelect.getPointY() << endl;
           if (hoverOnBox(x, y, colorSelect.getSquareX(), colorSelect.getSquareY(),
                               colorSelect.getSquareSize())){
             
@@ -511,12 +523,26 @@ int main(int argc, char* argv[]) {
           if (dist > colorSelect.getInner() && dist < colorSelect.getOuter()) {
             main.setPixelRGB(x, y, circleColor);
           }
-          if (distP < 4) {
-            main.setPixelRGB(x, y, (colorSelect.getHue() + 45) % 359, 140, 255);
+          if (distCP < 4) {
+            if (distCP < 3) {
+              main.setPixelHSV(x, y, 0, 0, 144);
+            }
+            else {
+              main.setPixelHSV(x, y, 0, 0, 0);
+            }
           }
           if (distSP < 4) {
             //cout << colorSelect.getSPointX() << ", " << colorSelect.getSPointY() << endl;
-            main.setPixelHSV(x, y, (colorSelect.getHue() + 45) % 359, 140, 255);
+            if (distSP < 3) {
+              main.setPixelHSV(x, y, 0, 0, 144);
+            }
+            else {
+              main.setPixelHSV(x, y, 0, 0, 0);
+            }
+          }
+          if (distCP < 4) {
+            //main.setPixelHSV(x, y, (colorSelect.getHue() + 45) % 359, 140, 255);
+            //main.setPixelRGB(x, y, (colorSelect.getHue() + 45) % 359, 140, 255);
           }
         }
       } 
@@ -768,7 +794,7 @@ int main(int argc, char* argv[]) {
                 colorSelect.render = false;
               }
               else {
-                if (false){//pointInCircle(main.getMouseXY(), colorSelect.getBoundingBoxCircle())) {
+                if (pointInCircle(main.getMouseXY(), colorSelect.getBoundingBoxCircle())) {
                   colorSelect.circleClick = true;
                 }
                 else {
@@ -818,10 +844,10 @@ int main(int argc, char* argv[]) {
           rightMenu.setXY(rightClickX, rightClickY);
 
           if (clickNoteOn) {
-            colorSelect.setColor(noteColorA[clickNoteTrack]);
+            colorSelect.setColor(noteColorB[clickNoteTrack]);
           }
           else { 
-            colorSelect.setColor(noteColorB[clickNoteTrack]);
+            colorSelect.setColor(noteColorA[clickNoteTrack]);
           }
 
           cerr << "the menu for this note will take the space {" 
@@ -835,6 +861,7 @@ int main(int argc, char* argv[]) {
         break;
       case 13: // leftclick button up
         colorSelect.squareClick = false;
+        colorSelect.circleClick = false;
         break;
     }
     

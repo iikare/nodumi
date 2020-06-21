@@ -138,20 +138,28 @@ void colorMenu::findAngleFromColor() {
   sX = getSquareX() + getSquareSize() * colhsv.s;
   // value scales with positive y
   sY = getSquareY() + static_cast<double>(getSquareSize()) * vratio;
-  pX = getCenterX() + cos(pAngle) * ((innerRadius + outerRadius)/2);
-  pY = getCenterY() + sin(pAngle) * ((innerRadius + outerRadius)/2);
+  pX = getCenterX() + cos(pAngle * M_PI/180.0) * ((innerRadius + outerRadius)/2);
+  pY = getCenterY() - sin(pAngle * M_PI/180.0) * ((innerRadius + outerRadius)/2);
+  ciX = pX;
+  ciY = pY;
 }
 
-void colorMenu::findHSVFromSquare(){
-  double sratio = static_cast<double>(sX - getSquareX())/getSquareSize();
-  double vratio = 1 - static_cast<double>(sY - getSquareY())/getSquareSize();
+void colorMenu::findHSVFromSquare(bool findHue){
+
+  if (findHue) {
+    pAngle = atan2(ciY - getCenterY(), getCenterX() - ciX) * 180.0/M_PI + 180;
+    colhsv.h = pAngle;
   
-  colhsv.s = sratio;
-  colhsv.v = 255 * vratio;
-
-
-  cerr << vratio << ", " << 1.0 - colhsv.s << endl;
-
+    cerr << "the angle is: " << pAngle << endl;
+  }
+  else {
+    double sratio = static_cast<double>(sX - getSquareX())/getSquareSize();
+    double vratio = 1 - static_cast<double>(sY - getSquareY())/getSquareSize();
+    colhsv.s = sratio;
+    colhsv.v = 255 * vratio;
+    
+    cerr << vratio << ", " << 1.0 - colhsv.s << endl;
+  }
   col.setRGB(colhsv);
 
 }
@@ -159,6 +167,11 @@ void colorMenu::findHSVFromSquare(){
 void colorMenu::setSPointXY(point XY) {
   sX = XY.x;
   sY = XY.y;
+}
+
+void colorMenu::setCPointXY(point XY) {
+  ciX = XY.x;
+  ciY = XY.y;
 }
 
 void colorMenu::setColor(colorRGB color) {
