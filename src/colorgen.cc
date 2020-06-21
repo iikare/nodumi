@@ -16,8 +16,8 @@ void getColorScheme(int trackCount, vector<colorRGB>& colorVecA, vector<colorRGB
   }
 
   // generate color scheme
-  colorHSV off (0, 166, 166);
-  colorHSV on (0, 166, 233);
+  colorHSV off (0, 0.7, 115);
+  colorHSV on (0, 0.7, 199);
 
   colorRGB offRGB;
   colorRGB onRGB;
@@ -28,11 +28,12 @@ void getColorScheme(int trackCount, vector<colorRGB>& colorVecA, vector<colorRGB
   colorVecB.clear();
   
   for (int i = 0; i < trackCount; i++) {
-    off.h = static_cast<int>(off.h + increment) % 360;
-    on.h = static_cast<int>(on.h + increment) % 360;
+    off.h = fmod((off.h + increment),360.0);
+    on.h = off.h;
+    cerr << off.h << " vs. " << on.h << endl; 
 
-    offRGB = off;
-    onRGB = on;
+    offRGB.setRGB(off);
+    onRGB.setRGB(on);
     colorVecA.push_back(offRGB);
     colorVecB.push_back(onRGB);
   }

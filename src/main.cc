@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <string>
+#include "box.h"
 #include "misc.h"
 #include "window.h"
 #include "note.h"
@@ -93,11 +94,14 @@ int main(int argc, char* argv[]) {
   colorRGB noteColorOn = noteColorOn1;
   colorRGB noteColorOff = noteColorOff1;
 
-  vector<colorRGB> noteColorC = {noteColorOn1, noteColorOn2};
-  vector<colorRGB> noteColorD = {noteColorOff1, noteColorOff2};
   vector<colorRGB> noteColorA; //off
   vector<colorRGB> noteColorB; //on
+  vector<colorRGB> noteColorC; //off
+  vector<colorRGB> noteColorD; //on
   getColorScheme(input.getTrackCount(), noteColorA, noteColorB);
+
+  // color scheme for tonic
+  getColorScheme(12, noteColorC, noteColorD);
 
   bool colorByPart = true;
   bool noteOn = false;
@@ -169,8 +173,8 @@ int main(int argc, char* argv[]) {
    *    add file picker                           DONE (fix memory leaks)
    *    add color picker for parts                DONE (set default size bigger)
    *    add color by parts                        DONE
-   *    add color by tonic
-   *    add color generation algorithm
+   *    add color by tonic                        DONE
+   *    add color generation algorithm            DONE
    *    add config file parsing
    *    add save file ability
    *    add note mouse detection                  DONE
@@ -194,7 +198,7 @@ int main(int argc, char* argv[]) {
       newFile = false;
 
       input.load(filename);
-
+      
       getColorScheme(input.getTrackCount(), noteColorA, noteColorB);
       
       notes = input.getNotes();
@@ -301,19 +305,22 @@ int main(int argc, char* argv[]) {
                 
                 // set color based on note track 
                 if (colorByPart) {
-                  noteColorOff = noteColorA[renderNote.track];
-                  noteColorOn = noteColorB[renderNote.track];
-
                   // render note by play status
                   if (noteOn) {
-                    main.setPixelRGB(x + j, y + k, noteColorOn.r, noteColorOn.g, noteColorOn.b);
+                    main.setPixelRGB(x + j, y + k, noteColorB[renderNote.track]);
                   }
                   else {
-                    main.setPixelRGB(x + j, y + k, noteColorOff.r, noteColorOff.g, noteColorOff.b);
+                    main.setPixelRGB(x + j, y + k, noteColorA[renderNote.track]);
                   }
                 }
                 else {
-                  // implement color by tonic
+                  // color by tonic
+                  if (noteOn) { 
+                    main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX) % 12]);
+                  }
+                  else {
+                    main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX) % 12]);
+                  }
                 }
               }
             }
@@ -783,8 +790,14 @@ int main(int argc, char* argv[]) {
                 viewMenu.setContent("Hide Song Time", 4);
               }
               break;
-            case 5: //
-              cerr << "info: function not implemented" << endl;
+            case 5: //set tonic
+              colorByPart = !colorByPart;
+              if(!colorByPart){
+                viewMenu.setContent("Unset Tonic", 5);
+              }
+              else {
+                viewMenu.setContent("Set Tonic", 5);
+              }
               break;
             case 6: // 
               cerr << "info: function not implemented" << endl;
