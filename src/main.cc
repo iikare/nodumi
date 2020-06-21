@@ -10,7 +10,8 @@
 #include "menu.h"
 #include "color.h"
 #include "colorgen.h"
-#include "dpd/osdialog/osdialog.h"
+#include "../dpd/osdialog/osdialog.h"
+
 
 using std::cerr;
 using std::cout;

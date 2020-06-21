@@ -8,6 +8,7 @@ LFLAGS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf $(shell pkg-config --libs g
 OBJS = main.o note.o window.o misc.o menu.o color.o colorgen.o Binasc.o MidiEvent.o MidiEventList.o MidiFile.o MidiMessage.o osdialog.o osdialog_gtk3.o
 
 DIR = build
+SRC = src
 
 NAME = viewer
 
@@ -16,26 +17,26 @@ all: $(NAME)
 $(NAME): $(addprefix $(DIR)/, $(OBJS))
 	$(CC) $(CFLAGS) $(LFLAGS) -o $(NAME) $(addprefix $(DIR)/, $(OBJS)) 
 
-$(DIR)/main.o: main.cc
-	$(CC) $(CFLAGS) -c main.cc  -o build/main.o
+$(DIR)/main.o: ./src/main.cc
+	$(CC) $(CFLAGS) -c ./src/main.cc  -o build/main.o
 
-$(DIR)/note.o: note.cc note.h
-	$(CC) $(CFLAGS) -c note.cc -o build/note.o
+$(DIR)/note.o: ./src/note.cc ./src/note.h
+	$(CC) $(CFLAGS) -c ./src/note.cc -o build/note.o
 
-$(DIR)/window.o: window.cc window.h
-	$(CC) $(CFLAGS) -c window.cc -o build/window.o
+$(DIR)/window.o: ./src/window.cc ./src/window.h
+	$(CC) $(CFLAGS) -c ./src/window.cc -o build/window.o
 
-$(DIR)/misc.o: misc.cc misc.h
-	$(CC) $(CFLAGS) -c misc.cc -o build/misc.o
+$(DIR)/misc.o: ./src/misc.cc ./src/misc.h
+	$(CC) $(CFLAGS) -c ./src/misc.cc -o build/misc.o
 
-$(DIR)/menu.o: menu.cc menu.h
-	$(CC) $(CFLAGS) -c menu.cc -o build/menu.o
+$(DIR)/menu.o: ./src/menu.cc ./src/menu.h
+	$(CC) $(CFLAGS) -c ./src/menu.cc -o build/menu.o
 
-$(DIR)/color.o: color.cc color.h
-	$(CC) $(CFLAGS) -c color.cc -o build/color.o
+$(DIR)/color.o: ./src/color.cc ./src/color.h
+	$(CC) $(CFLAGS) -c ./src/color.cc -o build/color.o
 
-$(DIR)/colorgen.o: colorgen.cc
-	$(CC) $(CFLAGS) -c colorgen.cc -o build/colorgen.o
+$(DIR)/colorgen.o: ./src/colorgen.cc
+	$(CC) $(CFLAGS) -c ./src/colorgen.cc -o build/colorgen.o
 
 $(DIR)/osdialog.o: ./dpd/osdialog/osdialog.c ./dpd/osdialog/osdialog.h
 	$(CC)  $(CFLAGSOD) -c ./dpd/osdialog/osdialog.c -o build/osdialog.o

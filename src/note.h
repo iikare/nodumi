@@ -3,7 +3,7 @@
 
 #include <string>
 #include <algorithm>
-#include "dpd/midifile/MidiFile.h"
+#include "../dpd/midifile/MidiFile.h"
 #include "misc.h"
 
 using namespace smf;
