@@ -30,7 +30,6 @@ void getColorScheme(int trackCount, vector<colorRGB>& colorVecA, vector<colorRGB
   for (int i = 0; i < trackCount; i++) {
     off.h = fmod((off.h + increment),360.0);
     on.h = off.h;
-    cerr << off.h << " vs. " << on.h << endl; 
 
     offRGB.setRGB(off);
     onRGB.setRGB(on);

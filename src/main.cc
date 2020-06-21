@@ -7,6 +7,7 @@
 #include "box.h"
 #include "misc.h"
 #include "window.h"
+#include "file.h"
 #include "note.h"
 #include "menu.h"
 #include "color.h"
@@ -68,6 +69,7 @@ int main(int argc, char* argv[]) {
   bool newFile = false;
   char* filenameC;
   osdialog_filters* filetypes = osdialog_filters_parse("MIDI:mid;MKI:mki");
+  osdialog_filters* savetypes = osdialog_filters_parse("MKI:mki");
 
   // menu constants
   const static int areaTop = MAIN_MENU_HEIGHT;
@@ -252,7 +254,14 @@ int main(int argc, char* argv[]) {
           // calculate note coordinates 
           x = main.getWidth()/2 + renderNote.x;
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
-          width = ceil(renderNote.duration);
+          
+          // prevent notes from disappearing at high scaling
+          if (input.getTimeScale() < 1.0/32) {
+            width = ceil(renderNote.duration);
+          }
+          else {
+            width = renderNote.duration;
+          }
           
 
           // perform note / cursor collision detection
@@ -706,7 +715,14 @@ int main(int argc, char* argv[]) {
               cerr << "info: function not implemented" << endl;
               break;
             case 3: // save as
-              cerr << "info: function not implemented" << endl;
+              filenameC = osdialog_file(OSDIALOG_SAVE, ".", nullptr, savetypes);
+              
+              if (filenameC != nullptr) {
+                filename = static_cast<string>(filenameC);
+                saveFile(filename);
+                oneTimeFlag = true;
+              }
+
               break;
             case 4: // exit
               if (fileMenu.render){
@@ -905,6 +921,7 @@ int main(int argc, char* argv[]) {
   }
   
   osdialog_filters_free(filetypes); 
+  osdialog_filters_free(savetypes); 
   main.terminate();
   return 0;
 }
