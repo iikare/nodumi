@@ -165,8 +165,27 @@ void colorMenu::findHSVFromSquare(bool findHue){
 }
 
 void colorMenu::setSPointXY(point XY) {
-  sX = XY.x;
-  sY = XY.y;
+  // allow setting point from anywhere, but restrict output
+  // to the square boundaries only
+  if (XY.x > getSquareX() + getSquareSize()) {
+    sX = getSquareX() + getSquareSize();
+  }
+  else if (XY.x < getSquareX()) {
+    sX = getSquareX();
+  }
+  else { 
+    sX = XY.x;
+  }
+  
+  if (XY.y > getSquareY() + getSquareSize()) {
+    sY = getSquareY() + getSquareSize();
+  }
+  else if (XY.y < getSquareY()) {
+    sY = getSquareY();
+  }
+  else { 
+    sY = XY.y;
+  }
 }
 
 void colorMenu::setCPointXY(point XY) {

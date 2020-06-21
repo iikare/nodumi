@@ -461,11 +461,11 @@ int main(int argc, char* argv[]) {
     }
 
     if (colorSelect.render) {
-      if(colorSelect.squareClick && hoverOnBox(main.getMouseXY(), colorSelect.getBoundingBoxSquare())) {
+      if(colorSelect.squareClick) {
         colorSelect.setSPointXY(main.getMouseXY());
         colorChange = true;
       }
-      if(colorSelect.circleClick && pointInCircle(main.getMouseXY(), colorSelect.getBoundingBoxCircle())) {
+      if(colorSelect.circleClick) {
         colorSelect.setCPointXY(main.getMouseXY());
         colorChange = true;
       }
