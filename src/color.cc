@@ -15,6 +15,10 @@ colorRGB::colorRGB() : r(0), g(0), b(0) {}
 
 colorRGB::colorRGB(double red, double green, double blue) : r(red), g(green), b(blue) {}
 
+void colorRGB::operator = (const colorHSV& col) {\
+  setRGB(col);
+}
+
 void colorRGB::setRGB(double red, double green, double blue) {
   r = red;
   g = green;

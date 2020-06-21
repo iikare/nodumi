@@ -30,6 +30,8 @@ class colorRGB {
     void setRGB(colorHSV hsv);
     void increaseValue(int valInc);
 
+    void operator = (const colorHSV& col);
+
     double r;
     double g;
     double b;

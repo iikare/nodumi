@@ -48,9 +48,9 @@ int main(int argc, char* argv[]) {
 
   mfile input;
   
-  input.load(filename);
-  
   main.clearBuffer();
+  
+  input.load(filename);
   
   cerr << "info: initializing render logic" << endl;
 
@@ -93,11 +93,11 @@ int main(int argc, char* argv[]) {
   colorRGB noteColorOn = noteColorOn1;
   colorRGB noteColorOff = noteColorOff1;
 
-  vector<colorRGB> noteColorA = {noteColorOn1, noteColorOn2};
-  vector<colorRGB> noteColorB = {noteColorOff1, noteColorOff2};
-  vector<colorRGB> noteColorC;
-  vector<colorRGB> noteColorD;
-  getColorScheme(input.getTrackCount(), noteColorC, noteColorD);
+  vector<colorRGB> noteColorC = {noteColorOn1, noteColorOn2};
+  vector<colorRGB> noteColorD = {noteColorOff1, noteColorOff2};
+  vector<colorRGB> noteColorA; //off
+  vector<colorRGB> noteColorB; //on
+  getColorScheme(input.getTrackCount(), noteColorA, noteColorB);
 
   bool colorByPart = true;
   bool noteOn = false;
@@ -195,6 +195,8 @@ int main(int argc, char* argv[]) {
 
       input.load(filename);
 
+      getColorScheme(input.getTrackCount(), noteColorA, noteColorB);
+      
       notes = input.getNotes();
 
       renderNote = notes[0];
