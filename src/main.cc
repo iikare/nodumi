@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
   
   // note shift controls
   int x, y, width = 0;
-  double widthModifier = 2;
+  double widthModifier = 1.25;
   int shiftTime = 0;
   double shiftX = 200;
 
@@ -86,13 +86,6 @@ int main(int argc, char* argv[]) {
   colorRGB menuColor(222, 222, 222);
   colorRGB menuColorClick(155, 155, 155); 
   colorRGB menuLineColor(22, 22, 22);
-
-  colorRGB noteColorOn1(0, 100, 255);
-  colorRGB noteColorOff1(0, 0, 255);
-  colorRGB noteColorOn2(233, 50, 50);
-  colorRGB noteColorOff2(120, 20, 20);
-  colorRGB noteColorOn = noteColorOn1;
-  colorRGB noteColorOff = noteColorOff1;
 
   vector<colorRGB> noteColorA; //off
   vector<colorRGB> noteColorB; //on
@@ -259,7 +252,7 @@ int main(int argc, char* argv[]) {
           // calculate note coordinates 
           x = main.getWidth()/2 + renderNote.x;
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
-          width = renderNote.duration;
+          width = ceil(renderNote.duration);
           
 
           // perform note / cursor collision detection
