@@ -221,15 +221,14 @@ void window::setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b) {
   buffer[(WIDTH * y) + x] = color;
 }
 
-Uint8* window::getPixelRGB(int x, int y) {
-  Uint8 rgb[3];
+colorRGB window::getPixelRGB(int x, int y) {
+  colorRGB col;
   Uint32 hex = buffer[(WIDTH * y) + x];
 
-  rgb[0] = (hex & 0xFF000000) >> 24;
-  rgb[1] = (hex & 0x00FF0000) >> 16;
-  rgb[2] = (hex & 0x0000FF00) >> 8;
+  col.r = (hex & 0xFF000000) >> 24;
+  col.g = (hex & 0x00FF0000) >> 16;
+  col.b = (hex & 0x0000FF00) >> 8;
 
-  Uint8* col = rgb;
   return col;
 }
 
