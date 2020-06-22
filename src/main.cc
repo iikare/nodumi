@@ -619,7 +619,7 @@ int main(int argc, char* argv[]) {
         break;
       case 5: // up arrow or scroll up
         oneTimeFlag = true;
-        if (input.getTimeScale() < 64) {
+        if (input.getTimeScale() < 2) {
           input.scaleTime(widthModifier);
         }
         break;

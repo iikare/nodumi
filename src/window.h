@@ -70,7 +70,6 @@ class window {
     Uint32* buffer;
     
     TTF_Font* menuFont;
-    colorRGB menuColor;
     int fontSize;
 
     int mouseX;

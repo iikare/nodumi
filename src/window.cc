@@ -252,12 +252,7 @@ void window::update() {
 }
 
 void window::clearBuffer() {
-<<<<<<< HEAD
   fill(buffer, buffer + WIDTH * HEIGHT, 0); 
-=======
-  //memset(buffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
-  std::fill(buffer, buffer + WIDTH * HEIGHT, 0); 
->>>>>>> 72ab9efc4e995cf318d19ce3eea77a548caf8e0b
 }
 
 void window::terminate() {
