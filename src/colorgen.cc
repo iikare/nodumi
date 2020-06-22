@@ -9,7 +9,6 @@ using std::endl;
 void getColorScheme(int trackCount, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB) {
 
   // check zero track
-  
   if (!trackCount) {
     cerr << "error: call to getColorScheme with zero tracks" << endl;
     exit(1);

@@ -256,7 +256,7 @@ int main(int argc, char* argv[]) {
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           
           // prevent notes from disappearing at high scaling
-          if (input.getTimeScale() < 1.0/32) {
+          if (input.getTimeScale() < 1.0/256) {
             width = ceil(renderNote.duration);
           }
           else {

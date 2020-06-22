@@ -124,11 +124,11 @@ void mfile::load(string file) {
   midifile.linkNotePairs();
  
   trackCount = midifile.getTrackCount();
-  int cTrackCount = 0;
+  int eventCount = 0;
 
   for (int i = 0; i < trackCount; i++) {
-    cTrackCount = midifile.getEventCount(i);
-    for (int j = 0; j < cTrackCount; j++) {
+    eventCount = midifile.getEventCount(i);
+    for (int j = 0; j < eventCount; j++) {
       if (midifile[i][j].isNoteOn()) {
         noteCount++;
       }
@@ -146,7 +146,8 @@ void mfile::load(string file) {
   int idx = 0;
 
   for (int i = 0; i < trackCount; i++) {
-    for (int j = 0; j < midifile.getEventCount(i); j++) {
+    eventCount = midifile.getEventCount(i);
+    for (int j = 0; j < eventCount; j++) {
       if (midifile[i][j].isNoteOn()) {
        notes[idx].track = i;
        notes[idx].duration = midifile[i][j].getTickDuration();
@@ -157,15 +158,7 @@ void mfile::load(string file) {
       }
     }
   }
-  
-  for (int i = 0; i < noteCount; i++) {
-    for (int j = 0; j < noteCount; j++) {
-      if(notes[j].x > notes[i].x) {
-        swap(notes[i], notes[j]);
-      }
-    }
-  }
-
+ 
   idx = 0;
   
   midifile.joinTracks();
@@ -182,6 +175,8 @@ void mfile::load(string file) {
   } 
 
   // determine scaling factor
+  // has been removed to improve loading times - function should be independent of loading
+  /*
   for (int i = 0; i < static_cast<int>(sizeof(notes)); i++) {
     if(notes[i].y < MIN_NOTE_IDX || notes[i].y > MAX_NOTE_IDX) {
       cerr << "warn: note " << i << " is out of bounds with index " << notes[i].y << endl;
@@ -190,7 +185,7 @@ void mfile::load(string file) {
     noteMin = min(noteMin, notes[i].y);
     noteMax = max(noteMax, notes[i].y);
   }
-  
+  */
   // get first and last note 
   lastTick = notes[noteCount-1].x + notes[noteCount-1].duration;
 
