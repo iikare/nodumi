@@ -44,16 +44,22 @@ void saveFile(string path, const vector<colorRGB>& colorVecA, const vector<color
     cerr<< "warn: unable to save file at path " << path <<endl;
     return;
   }
-
-  Uint32 setting = 0x00000000;
-  setting += true;//colorByPart;
-  setting <<=2;
-  setting += true;//drawLine;
-  setting <<=2;
-  setting += true;//songTime;
-  setting <<=2;
-  setting += true;//invertColor;
-  setting <<=2;
+  
+  // file format begins with first three bytes '|' (0x01111100)
+  output.write(&separator, sizeof(separator));
+  output.write(&separator, sizeof(separator));
+  output.write(&separator, sizeof(separator));
+  
+  // fourth byte encodes settings data
+  // top four bits currently unused
+  uint8_t setting = 0x00000000;
+  setting += colorByPart;
+  setting <<=1;
+  setting += drawLine;
+  setting <<=1;
+  setting += songTime;
+  setting <<=1;
+  setting += invertColor;
 
   output.write(reinterpret_cast<char*>(&setting), sizeof(setting));
 
@@ -85,13 +91,9 @@ void saveFile(string path, const vector<colorRGB>& colorVecA, const vector<color
   // end of color section
   output.write(&separator, sizeof(separator));
 
-  cerr << file << endl;
+  // midi data would go here but the data structure is broken
 
-
-
-
-  
-  cerr << path << endl;
+  // end save file
   output.close(); 
 }
 
