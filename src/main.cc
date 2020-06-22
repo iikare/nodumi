@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
   
   // new file controller
   bool newFile = false;
-  char* filenameC = nullptr;
+  char* filenameC;
   osdialog_filters* filetypes = osdialog_filters_parse("MIDI:mid;MKI:mki");
   osdialog_filters* savetypes = osdialog_filters_parse("MKI:mki");
 
@@ -709,7 +709,6 @@ int main(int argc, char* argv[]) {
                 filename = static_cast<string>(filenameC);
                 newFile = true; 
                 oneTimeFlag = true;
-                fileMenu.render = false;
               }
               break;
             case 2: // save
@@ -720,10 +719,10 @@ int main(int argc, char* argv[]) {
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
+                saveFile(filename);
                 oneTimeFlag = true;
-                saveFile(filename, noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor);
-                fileMenu.render = false;
               }
+
               break;
             case 4: // exit
               if (fileMenu.render){

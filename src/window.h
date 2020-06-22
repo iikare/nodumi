@@ -40,7 +40,7 @@ class window {
     void setPixelRGB(int x, int y, colorRGB col);
     void setPixelHSV(int x, int y, colorHSV col);
     void setPixelHSV(int x, int y, double h, double s, double v);
-    colorRGB getPixelRGB(int x, int y);
+    Uint8* getPixelRGB(int x, int y);
     
     void update();
     void clearBuffer();
