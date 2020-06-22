@@ -719,7 +719,7 @@ int main(int argc, char* argv[]) {
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
-                saveFile(filename);
+                saveFile(filename, noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor);
                 oneTimeFlag = true;
               }
 

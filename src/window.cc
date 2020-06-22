@@ -254,6 +254,7 @@ void window::update() {
 
 void window::clearBuffer() {
   memset(buffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
+ 
 }
 
 void window::terminate() {
