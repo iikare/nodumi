@@ -86,6 +86,7 @@ void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
 
 string getSongPercent (int pos, double total, bool end) {
   string untruncText = to_string(static_cast<double>(abs(100 * pos)/total));
+  double position = static_cast<double>(abs(100 * pos)/total);
   string result = "100.00%";
   // complete
   if (end) {
@@ -95,6 +96,9 @@ string getSongPercent (int pos, double total, bool end) {
     result = untruncText.substr(0,6);
   }
   else if (pos == 0) {
+    result = untruncText.substr(0,4);
+  }
+  else if (position > 0 && position < 10) {
     result = untruncText.substr(0,4);
   }
   else {

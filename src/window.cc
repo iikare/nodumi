@@ -20,7 +20,7 @@ window::window(string title) :
 
 bool window::init() {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    cerr << "Failed to initialize SDL" << endl;
+    cerr << "error: failed to initialize SDL" << endl;
     return false;
   } 
 
@@ -32,17 +32,17 @@ bool window::init() {
   }
 
   renderer = SDL_CreateRenderer(windowA, -1, SDL_RENDERER_PRESENTVSYNC);
-  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, WIDTH, HEIGHT);
+  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 
   if (renderer == nullptr) {
-    cerr << "Failed to create renderer." << endl;
+    cerr << "error: failed to create renderer." << endl;
     SDL_DestroyWindow(windowA);
     SDL_Quit();
     return false;
   }
 
   if (texture == nullptr) {
-    cerr << "Failed to create texture" << endl;
+    cerr << "error: failed to create texture" << endl;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(windowA);
     SDL_Quit();
@@ -62,11 +62,11 @@ bool window::init() {
   
   if(menuFont == nullptr) {
     cerr << "error: font initialization failed" << endl;
-    exit(1);
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(windowA);
+    SDL_Quit();
   } 
-  int x, y = 0;
-
-  SDL_GetWindowPosition(windowA, &x, &y);
 
   return true;
 }
@@ -221,15 +221,15 @@ void window::setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b) {
   buffer[(WIDTH * y) + x] = color;
 }
 
-Uint8* window::getPixelRGB(int x, int y) {
-  Uint8 rgb[3];
+colorRGB window::getPixelRGB(int x, int y) {
+  
   Uint32 hex = buffer[(WIDTH * y) + x];
+  colorRGB col;
 
-  rgb[0] = (hex & 0xFF000000) >> 24;
-  rgb[1] = (hex & 0x00FF0000) >> 16;
-  rgb[2] = (hex & 0x0000FF00) >> 8;
+  col.r = (hex & 0xFF000000) >> 24;
+  col.g = (hex & 0x00FF0000) >> 16;
+  col.b = (hex & 0x0000FF00) >> 8;
 
-  Uint8* col = rgb;
   return col;
 }
 
@@ -253,8 +253,8 @@ void window::update() {
 }
 
 void window::clearBuffer() {
-  memset(buffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
- 
+  //memset(buffer, 0, WIDTH * HEIGHT * sizeof(Uint32));
+  std::fill(buffer, buffer + WIDTH * HEIGHT, 0); 
 }
 
 void window::terminate() {
