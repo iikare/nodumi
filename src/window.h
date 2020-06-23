@@ -56,10 +56,10 @@ class window {
     int windowY;
     point windowXY;
     
-    deque<int> messageX;
-    deque<int> messageY;
-    deque<string> messageText;
-    deque<colorRGB> messageCol;
+    deque<int>* messageX;
+    deque<int>* messageY;
+    deque<string>* messageText;
+    deque<colorRGB>* messageCol;
 
     SDL_Texture* tTexture;
     SDL_Surface* tSurface;

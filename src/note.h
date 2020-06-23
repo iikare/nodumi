@@ -13,13 +13,15 @@ class note {
   public:
     note();
     ~note();
+    note(const note& nNote);
+    
+    void operator = (const note& nNote);
     
     void init(int track, double tempo, double x, int y, double duration);
     void shiftX(double shiftX);
     void shiftTime(double timeInc);
     void scaleTime(double timeScale);
-
-    int height = round(WIN_HEIGHT/NOTE_RANGE);
+    
     int track;
     double tempo;
     double duration;

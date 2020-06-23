@@ -19,6 +19,22 @@ note::note() : track(0), tempo(0),  duration(0), x(0), y(0) {}
 
 note::~note() {}
 
+note::note(const note& nNote) {
+  track = nNote.track;
+  tempo = nNote.tempo;
+  x = nNote.x;
+  y = nNote.y;
+  duration = nNote.duration;
+}
+
+void note::operator = (const note& nNote) {
+  track = nNote.track;
+  tempo = nNote.tempo;
+  x = nNote.x;
+  y = nNote.y;
+  duration = nNote.duration;
+}
+
 void note::init(int track, double tempo, double x, int y, double duration) {
   this->track = track;
   this->tempo = tempo;

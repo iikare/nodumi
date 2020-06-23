@@ -61,8 +61,7 @@ menu::menu() {
 
 menu::menu(point XY, vector<string> itemNames, bool mainMenu, int menuX, int menuY) :
            render(false), isMainMenu(mainMenu), x(menuX), y(menuY), width(0), height(0),
-           itemCount(itemNames.size()), mainX(XY.x), mainY(XY.y), activeElement(-1),
-           items(nullptr) {
+           itemCount(itemNames.size()), mainX(XY.x), mainY(XY.y), activeElement(-1) {
 
   height = ITEM_HEIGHT * itemCount;
   width = ITEM_WIDTH;

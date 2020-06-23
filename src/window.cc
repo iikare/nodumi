@@ -67,14 +67,19 @@ bool window::init() {
     SDL_Quit();
   } 
 
+  messageX = new deque<int>;
+  messageY = new deque<int>;
+  messageText = new deque<string>;
+  messageCol = new deque<colorRGB>;
+
   return true;
 }
 
 void window::renderText(int x, int y, string text, colorRGB col) {
-  messageX.push_back(x);
-  messageY.push_back(y);
-  messageText.push_back(text);
-  messageCol.push_back(col);
+  messageX->push_back(x);
+  messageY->push_back(y);
+  messageText->push_back(text);
+  messageCol->push_back(col);
 }
 
 void window::renderTextToTexture(int x, int y, string text, colorRGB col) {
@@ -237,14 +242,14 @@ void window::update() {
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
-  int messageCount = messageX.size();
+  int messageCount = messageX->size();
   for (int i = 0; i < messageCount; i++){
-    renderTextToTexture(messageX.back(), messageY.back(), messageText.back(), messageCol.back());
+    renderTextToTexture(messageX->back(), messageY->back(), messageText->back(), messageCol->back());
     SDL_RenderCopy(renderer, tTexture, nullptr, &clip);
-    messageX.pop_back();
-    messageY.pop_back();
-    messageText.pop_back();
-    messageCol.pop_back();
+    messageX->pop_back();
+    messageY->pop_back();
+    messageText->pop_back();
+    messageCol->pop_back();
   }
 
   SDL_RenderPresent(renderer);
@@ -258,6 +263,10 @@ void window::clearBuffer() {
 void window::terminate() {
   
   delete[] buffer;
+  delete messageX;
+  delete messageY;
+  delete messageText;
+  delete messageCol;
 
   TTF_CloseFont(menuFont);
   menuFont = nullptr;

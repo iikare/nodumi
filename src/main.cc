@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <string>
+#include <cstring>
 #include "box.h"
 #include "misc.h"
 #include "window.h"
@@ -22,11 +23,12 @@ using std::vector;
 using std::ifstream;
 using std::min;
 using std::to_string;
+using std::memcpy;
 
 int main(int argc, char* argv[]) {
 
   if (argc !=2) {
-    cerr << "error: invalid usage - specify a input file!" << endl;
+    cerr << "error: invalid usage - specify a input->file!" << endl;
     exit(1);
   }
   
@@ -48,11 +50,11 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-  mfile input;
+  mfile* input= new mfile;
   
   main.clearBuffer();
   
-  input.load(filename);
+  input->load(filename);
   
   cerr << "info: initializing render logic" << endl;
 
@@ -73,6 +75,7 @@ int main(int argc, char* argv[]) {
 
   // menu constants
   const static int areaTop = MAIN_MENU_HEIGHT;
+  const static int noteHeight = round(WIN_HEIGHT/NOTE_RANGE);
   
   // note shift controls
   int x, y, width = 0;
@@ -93,7 +96,7 @@ int main(int argc, char* argv[]) {
   vector<colorRGB> noteColorB; //on
   vector<colorRGB> noteColorC; //off
   vector<colorRGB> noteColorD; //on
-  getColorScheme(input.getTrackCount(), noteColorA, noteColorB);
+  getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
 
   // color scheme for tonic
   getColorScheme(12, noteColorC, noteColorD);
@@ -139,11 +142,13 @@ int main(int argc, char* argv[]) {
   string songTimeText = "";
   
   // note info
-  note* notes = input.getNotes();
+  note* notes = input->getNotes();
+  note* oNotes = new note[input->getNoteCount()];
+  memcpy(oNotes, notes, input->getNoteCount() * sizeof(note));
 
   note renderNote = notes[0];
   note& firstNote = notes[0];
-  note& lastNote = notes[input.getNoteCount()-1];
+  note& lastNote = notes[input->getNoteCount()-1];
   shiftTime = firstNote.tempo;
 
   // event controller
@@ -183,7 +188,7 @@ int main(int argc, char* argv[]) {
    */
   
   // debug track info 
-  for (int i = 0; i < input.getNoteCount(); i++) {
+  for (int i = 0; i < input->getNoteCount(); i++) {
     //cerr << "note " << i << " is on track " << notes[i].track << endl;
   }
 
@@ -191,12 +196,14 @@ int main(int argc, char* argv[]) {
     // load new file
     if (newFile) {
       newFile = false;
-
-      input.load(filename);
+      input->load(filename);
       
-      getColorScheme(input.getTrackCount(), noteColorA, noteColorB);
+      getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
       
-      notes = input.getNotes();
+      delete[] oNotes; 
+      notes = input->getNotes();
+      oNotes = new note[input->getNoteCount()];
+      memcpy(oNotes, notes, input->getNoteCount() * sizeof(note));
 
       renderNote = notes[0];
       shiftTime = firstNote.tempo;
@@ -224,7 +231,7 @@ int main(int argc, char* argv[]) {
     }
 
     // update note references
-    lastNote = notes[input.getNoteCount()-1];
+    lastNote = notes[input->getNoteCount()-1];
     firstNote = notes[0];
 
 
@@ -246,7 +253,7 @@ int main(int argc, char* argv[]) {
         oneTimeFlag = false;
 
         // render notes
-        for (int i = 0; i < input.getNoteCount(); i++) {
+        for (int i = 0; i < input->getNoteCount(); i++) {
           // get current note
           renderNote = notes[i];
           mouseOnNote = false;
@@ -256,7 +263,7 @@ int main(int argc, char* argv[]) {
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           
           // prevent notes from disappearing at high scaling
-          if (input.getTimeScale() < 1.0/256) {
+          if (input->getTimeScale() < 1.0/256) {
             width = ceil(renderNote.duration);
           }
           else {
@@ -266,14 +273,14 @@ int main(int argc, char* argv[]) {
 
           // perform note / cursor collision detection
           if (main.cursorVisible && !colorSelect.render &&
-              hoverOnBox(main.getMouseXY(), x, y, width, renderNote.height)) {
+              hoverOnBox(main.getMouseXY(), x, y, width, noteHeight)) {
             mouseOnNote = true;
 
             // set the note location variables to be used on right click
             clickNoteX = x;
             clickNoteY = y;
             clickNoteWidth = width;
-            clickNoteHeight = renderNote.height;
+            clickNoteHeight = noteHeight;
             clickNoteTrack = renderNote.track;
             // check if note is currently playing
             if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
@@ -303,7 +310,7 @@ int main(int argc, char* argv[]) {
 
             // rendering of the note itself 
             for (int j = 0; j < width; j++) {
-              for (int k = 0; k < renderNote.height; k++) {
+              for (int k = 0; k < noteHeight; k++) {
                 
                 // set color based on note track 
                 if (colorByPart) {
@@ -337,11 +344,11 @@ int main(int argc, char* argv[]) {
           }
           else {
             // shift normally as per tempo, or until end, whichever comes first
-            if (lastNote.x + lastNote.duration > 0 && (shiftTime * input.getTimeScale())/TIME_MODIFIER < lastNote.x + lastNote.duration) {
-              input.shiftTime(shiftTime * input.getTimeScale());
+            if (lastNote.x + lastNote.duration > 0 && (shiftTime * input->getTimeScale())/TIME_MODIFIER < lastNote.x + lastNote.duration) {
+              input->shiftTime(shiftTime * input->getTimeScale());
             }
             else if (lastNote.x + lastNote.duration > 0) {
-              input.shiftTime((lastNote.x + lastNote.duration) * TIME_MODIFIER);
+              input->shiftTime((lastNote.x + lastNote.duration) * TIME_MODIFIER);
             }
           }
         }
@@ -358,7 +365,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (songTime) {
-      songTimeText = getSongPercent(firstNote.x, input.getLastTick(), end);
+      songTimeText = getSongPercent(firstNote.x, input->getLastTick(), end);
 
       // choose text color based on background
       if (!invertColor) {
@@ -590,12 +597,12 @@ int main(int argc, char* argv[]) {
         oneTimeFlag = true;
         end = false;
         // case1: can shift entire specified width
-        if (firstNote.x < 0 && firstNote.x + shiftX * input.getTimeScale() < 0) {
-          input.shiftX(shiftX * input.getTimeScale());
+        if (firstNote.x < 0 && firstNote.x + shiftX * input->getTimeScale() < 0) {
+          input->shiftX(shiftX * input->getTimeScale());
         }
         // case2: can only shift to start
-        else if (firstNote.x < 0 && firstNote.x + shiftX * input.getTimeScale() >= 0){
-          input.shiftX(-firstNote.x);
+        else if (firstNote.x < 0 && firstNote.x + shiftX * input->getTimeScale() >= 0){
+          input->shiftX(-firstNote.x);
         }
         break;
       case 4: // right arrow
@@ -608,38 +615,38 @@ int main(int argc, char* argv[]) {
         oneTimeFlag = true;
         
         // case1: can shift entire specified width
-        if (lastNote.x > 0 && lastNote.x - shiftX * input.getTimeScale() > 0) {
-          input.shiftX(-shiftX * input.getTimeScale());
+        if (lastNote.x > 0 && lastNote.x - shiftX * input->getTimeScale() > 0) {
+          input->shiftX(-shiftX * input->getTimeScale());
         }
         // case2: can only shift to end
         else if (lastNote.x + lastNote.duration > 0 &&
-                 lastNote.x - shiftX * input.getTimeScale() <= 0) {
-          input.shiftX(-(lastNote.x + lastNote.duration));
+                 lastNote.x - shiftX * input->getTimeScale() <= 0) {
+          input->shiftX(-(lastNote.x + lastNote.duration));
         }
         break;
       case 5: // up arrow or scroll up
         oneTimeFlag = true;
-        if (input.getTimeScale() < 2) {
-          input.scaleTime(widthModifier);
+        if (input->getTimeScale() < 2) {
+          input->scaleTime(widthModifier);
         }
         break;
       case 6: //down arrow or scroll down
         oneTimeFlag = true;
-        if (input.getTimeScale() > static_cast<double>(1)/4096) {
-          input.scaleTime(1/widthModifier);
+        if (input->getTimeScale() > static_cast<double>(1)/4096) {
+          input->scaleTime(1/widthModifier);
         }
         break;
       case 7: // home
         oneTimeFlag = true;
         run = false;
         end = false;
-        input.shiftX(-firstNote.x);
+        input->shiftX(-firstNote.x);
         break;
       case 8: //end
         oneTimeFlag = true;
         run = false;
         end = true;
-        input.shiftX(-(lastNote.x + lastNote.duration));
+        input->shiftX(-(lastNote.x + lastNote.duration));
         break;
       case 9: // ctrl + left
         if (firstNote.x >= 0) {
@@ -651,12 +658,12 @@ int main(int argc, char* argv[]) {
           end = false;
         }
         // case1: can shift entire specified width
-        if (firstNote.x < 0 && firstNote.x + shiftX * CTRL_MODIFIER * input.getTimeScale() < 0) {
-          input.shiftX(shiftX * CTRL_MODIFIER * input.getTimeScale());
+        if (firstNote.x < 0 && firstNote.x + shiftX * CTRL_MODIFIER * input->getTimeScale() < 0) {
+          input->shiftX(shiftX * CTRL_MODIFIER * input->getTimeScale());
         }
         // case2: can only shift to start
-        else if (firstNote.x < 0 && firstNote.x + shiftX * CTRL_MODIFIER * input.getTimeScale() >= 0){
-          input.shiftX(-firstNote.x);
+        else if (firstNote.x < 0 && firstNote.x + shiftX * CTRL_MODIFIER * input->getTimeScale() >= 0){
+          input->shiftX(-firstNote.x);
         }
         break;
       case 10: // ctrl + right
@@ -667,12 +674,12 @@ int main(int argc, char* argv[]) {
         oneTimeFlag = true;
         
         // case1: can shift entire specified width
-        if (lastNote.x > 0 && lastNote.x - shiftX * CTRL_MODIFIER * input.getTimeScale() > 0) {
-          input.shiftX(-shiftX * CTRL_MODIFIER * input.getTimeScale());
+        if (lastNote.x > 0 && lastNote.x - shiftX * CTRL_MODIFIER * input->getTimeScale() > 0) {
+          input->shiftX(-shiftX * CTRL_MODIFIER * input->getTimeScale());
         }
         // case2: can only shift to end
-        else if (lastNote.x > 0 && lastNote.x - shiftX * CTRL_MODIFIER * input.getTimeScale() <= 0) {
-          input.shiftX(-(lastNote.x + lastNote.duration));
+        else if (lastNote.x > 0 && lastNote.x - shiftX * CTRL_MODIFIER * input->getTimeScale() <= 0) {
+          input->shiftX(-(lastNote.x + lastNote.duration));
         }
         break;
       case 11: // left click
@@ -719,7 +726,7 @@ int main(int argc, char* argv[]) {
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
-                saveFile(filename, noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor);
+                saveFile(filename, oNotes, input->getNoteCount(), input->getTimeScale(), noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor);
                 oneTimeFlag = true;
               }
 
@@ -843,7 +850,7 @@ int main(int argc, char* argv[]) {
               colorSelect.setXY(colorSelectX, colorSelectY);
               colorSelect.render = true;
               break;
-            case 1: // set tonic
+            case 1: // 
               colorSelect.render = false;
               cerr << "info: function not implemented" << endl;
               break;
@@ -920,6 +927,8 @@ int main(int argc, char* argv[]) {
     }
   }
   
+  delete input;
+  delete[] oNotes;  
   osdialog_filters_free(filetypes); 
   osdialog_filters_free(savetypes); 
   main.terminate();

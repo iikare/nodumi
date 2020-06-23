@@ -16,7 +16,7 @@ using std::transform;
 using std::ofstream;
 using std::ios;
 
-void saveFile(string path, const vector<colorRGB>& colorVecA, const vector<colorRGB>& colorVecB,
+void saveFile(string path, const note* notes, int noteCount, double timeScale, const vector<colorRGB>& colorVecA, const vector<colorRGB>& colorVecB,
               bool colorByPart, bool drawLine, bool songTime, bool invertColor) {
   // force correct file extension
   transform(path.begin(), path.end(), path.begin(), ::tolower);
@@ -31,6 +31,7 @@ void saveFile(string path, const vector<colorRGB>& colorVecA, const vector<color
 
   // start constructing the file
   char separator = '|';
+  char noteSeparator = '~';
   string file;
   file += to_string(colorByPart);
   file += to_string(drawLine);
@@ -92,6 +93,33 @@ void saveFile(string path, const vector<colorRGB>& colorVecA, const vector<color
   output.write(&separator, sizeof(separator));
 
   // midi data would go here but the data structure is broken
+
+  for (int i = 0; i < noteCount; i++) {
+    // each note needs 26 + 1 bytes to encode: broken down as follows
+    // 1 byte: note separator (0x01111110)
+    // 1 byte: track (unsigned char)
+    // 8 bytes: tempo (double)
+    // 8 bytes: duration (double)
+    // 8 bytes: x (double)
+    // 1 bytes: y (unsigned char)
+    // note: this limits the amount of tracks to 256
+    // note: this limits the Y value to 0 - 255
+    
+    double dur = notes[i].duration/timeScale; 
+    double correctedX = notes[i].x;
+
+    if (notes[i].track > 255 || notes[i].y > 255) {
+      cerr << "warn: file attributes exceed limits" << endl;
+    }
+    
+    output.write(&noteSeparator, sizeof(noteSeparator));
+    output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].track)), sizeof(uint8_t));
+    output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].tempo)), sizeof(double));
+    output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].duration)), sizeof(double));
+    output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].x)), sizeof(double));
+    output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].y)), sizeof(uint8_t));
+
+  }  
 
   // end save file
   output.close(); 
