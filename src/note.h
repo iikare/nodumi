@@ -47,7 +47,7 @@ class mfile {
     void shiftTime(double timeInc);
     void scaleTime(double timeScale);
 
-    friend void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector<colorRGB> colorVecB, bool& colorByPart, bool& drawLine, bool& songTime, bool& invertColor);
+    friend void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, bool& colorByPart, bool& drawLine, bool& songTime, bool& invertColor);
 
     void load(string file);
   private:

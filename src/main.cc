@@ -153,11 +153,13 @@ int main(int argc, char* argv[]) {
 
   // view flags and related variables
   // these four are saved in MKI format
-  drawLine = true;
-  songTime = false;
-  invertColor = false;
-  colorByPart = true;
-  
+  if (!fromMKI) {
+    drawLine = true;
+    songTime = false;
+    invertColor = false;
+    colorByPart = true;
+  }
+
   string songTimeText = "";
   
   // note info
@@ -207,9 +209,9 @@ int main(int argc, char* argv[]) {
    */
   
   // debug track info 
-  for (int i = 0; i < input->getNoteCount(); i++) {
-    //cerr << "note " << i << " is on track " << notes[i].track << endl;
-  }
+  //for (int i = 0; i < input->getNoteCount(); i++) {
+   // cerr << "note " << i << " is on track " << notes[i].track << endl;
+  //}
 
   while (state){
     // load new file
@@ -248,7 +250,7 @@ int main(int argc, char* argv[]) {
       viewMenu.render = false;
       rightMenu.render = false;
     }
-
+    
     // clear false end flags
     if (end && lastNote.x + lastNote.duration > 0) {
       end = false;
@@ -292,7 +294,7 @@ int main(int argc, char* argv[]) {
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           
           // prevent notes from disappearing at high scaling
-          if (input->getTimeScale() < 1.0/256) {
+          if (renderNote.duration < 1) {
             width = ceil(renderNote.duration);
           }
           else {
