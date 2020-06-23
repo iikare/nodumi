@@ -1,6 +1,6 @@
 CC = g++
 
-CFLAGS = --std=c++11 -Wall -Wextra -g -fstack-protector-strong
+CFLAGS = --std=c++11 -Wall -Wextra -g 
 CFLAGSOD = --std=c99 -w -fpermissive -g $(shell pkg-config --cflags gtk+-3.0)
 
 LFLAGS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf $(shell pkg-config --libs gtk+-3.0)

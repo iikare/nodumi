@@ -2,12 +2,14 @@
 #define NOTE_H
 
 #include <string>
+#include <vector>
 #include <algorithm>
 #include "../dpd/midifile/MidiFile.h"
 #include "misc.h"
 
 using namespace smf;
 using std::string;
+using std::vector;
 
 class note {
   public:
@@ -44,6 +46,8 @@ class mfile {
     void shiftX(double shiftX);
     void shiftTime(double timeInc);
     void scaleTime(double timeScale);
+
+    friend void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector<colorRGB> colorVecB, bool& colorByPart, bool& drawLine, bool& songTime, bool& invertColor);
 
     void load(string file);
   private:

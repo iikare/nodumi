@@ -24,6 +24,7 @@ using std::ifstream;
 using std::min;
 using std::to_string;
 using std::memcpy;
+using std::transform;
 
 int main(int argc, char* argv[]) {
 
@@ -33,6 +34,7 @@ int main(int argc, char* argv[]) {
   }
   
   string filename = argv[1];
+  transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
   string ext = filename.substr(filename.size() - 3);
 
   ifstream filecheck;
@@ -50,14 +52,28 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
+  
+
+  // get variables for MKI loader
   mfile* input= new mfile;
+
+  vector<colorRGB> noteColorA; //off
+  vector<colorRGB> noteColorB; //on
+
+  bool colorByPart, drawLine, songTime, invertColor;
+  bool fromMKI = false;
   
-  main.clearBuffer();
-  
-  input->load(filename);
+  if (ext == "mid") {
+    input->load(filename);
+  }
+  else {
+    fromMKI = true;
+    loadFileMKI(filename, input, noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor); 
+  }
   
   cerr << "info: initializing render logic" << endl;
 
+  main.clearBuffer();
   /*
    * * * * * * * 
    * VARIABLES *
@@ -80,7 +96,7 @@ int main(int argc, char* argv[]) {
   // note shift controls
   int x, y, width = 0;
   double widthModifier = 1.25;
-  int shiftTime = 0;
+  double shiftTime = 0;
   double shiftX = 200;
 
   // color and cursor/note collision  
@@ -92,16 +108,16 @@ int main(int argc, char* argv[]) {
   colorRGB menuColorClick(155, 155, 155); 
   colorRGB menuLineColor(22, 22, 22);
 
-  vector<colorRGB> noteColorA; //off
-  vector<colorRGB> noteColorB; //on
   vector<colorRGB> noteColorC; //off
   vector<colorRGB> noteColorD; //on
-  getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
+  
+  if (!fromMKI) {
+    getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
+  }
 
   // color scheme for tonic
   getColorScheme(12, noteColorC, noteColorD);
 
-  bool colorByPart = true;
   bool noteOn = false;
 
   bool mouseOnNote = true;
@@ -136,9 +152,12 @@ int main(int argc, char* argv[]) {
   bool end = false;
 
   // view flags and related variables
-  bool drawLine = true;
-  bool songTime = false;
-  bool invertColor = false;
+  // these four are saved in MKI format
+  drawLine = true;
+  songTime = false;
+  invertColor = false;
+  colorByPart = true;
+  
   string songTimeText = "";
   
   // note info
@@ -196,10 +215,20 @@ int main(int argc, char* argv[]) {
     // load new file
     if (newFile) {
       newFile = false;
-      input->load(filename);
+
+      string ext = filename.substr(filename.size() - 3);
+      if (ext == "mid") {
+        input->load(filename);
+      }
+      else {
+        fromMKI = true;
+        loadFileMKI(filename, input, noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor); 
+      }     
       
-      getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
-      
+      if (!fromMKI) {
+        getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
+      }
+
       delete[] oNotes; 
       notes = input->getNotes();
       oNotes = new note[input->getNoteCount()];
@@ -726,7 +755,8 @@ int main(int argc, char* argv[]) {
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
-                saveFile(filename, oNotes, input->getNoteCount(), input->getTimeScale(), noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor);
+                saveFile(filename, input, noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor);
+
                 oneTimeFlag = true;
               }
 

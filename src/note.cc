@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+#include "file.h"
 #include "misc.h"
 #include "note.h"
 
@@ -28,11 +29,11 @@ note::note(const note& nNote) {
 }
 
 void note::operator = (const note& nNote) {
-  track = nNote.track;
-  tempo = nNote.tempo;
-  x = nNote.x;
-  y = nNote.y;
-  duration = nNote.duration;
+  track = static_cast<int>(nNote.track);
+  tempo = static_cast<double>(nNote.tempo);
+  x = static_cast<double>(nNote.x);
+  y = static_cast<int>(nNote.y);
+  duration = static_cast<double>(nNote.duration);
 }
 
 void note::init(int track, double tempo, double x, int y, double duration) {
@@ -118,13 +119,14 @@ int mfile::getTrackCount() {
 void mfile::load(string file) {
   if (notes != nullptr) {
     cerr << "info: resetting event structure" << endl;
-    //delete[] notes;
+   
+   // delete[] notes; 
     notes = nullptr;
     
     noteCount = 0;
     noteMin = 0;
     noteMax = 0;
-    timeScale = 1;
+    timeScale = 1.25;
 
   }
 
@@ -174,7 +176,7 @@ void mfile::load(string file) {
       }
     }
   }
- 
+
   idx = 0;
   
   midifile.joinTracks();
