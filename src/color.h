@@ -85,6 +85,7 @@ class colorMenu {
     bool render;
     bool squareClick;
     bool circleClick;
+    bool clickBG;
 
   private:
     int x;

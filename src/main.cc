@@ -103,6 +103,7 @@ int main(int argc, char* argv[]) {
   colorRGB lineColor(233, 0, 22); 
   colorRGB songTimeColor(233, 233, 233); 
   colorRGB lightBG(199,199,199); 
+  colorRGB darkBG(12,12,12); 
 
   colorRGB menuColor(222, 222, 222);
   colorRGB menuColorClick(155, 155, 155); 
@@ -273,10 +274,13 @@ int main(int argc, char* argv[]) {
     if (!end || oneTimeFlag) {
       if (run || oneTimeFlag) {
         // paint background before anything else
-        if (invertColor) {
-          for (int i = 0; i < main.getWidth(); i++) {
-            for (int j = 0; j < main.getHeight(); j++) {
+        for (int i = 0; i < main.getWidth(); i++) {
+          for (int j = 0; j < main.getHeight(); j++) {
+            if (invertColor) {
               main.setPixelRGB(i, j, lightBG);
+            }
+            else {
+              main.setPixelRGB(i, j, darkBG);
             }
           }
         }
@@ -399,7 +403,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if (songTime) {
+    if (songTime && !fileMenu.render && !editMenu.render) {
       songTimeText = getSongPercent(firstNote.x, input->getLastTick(), end);
 
       // choose text color based on background
@@ -544,7 +548,10 @@ int main(int argc, char* argv[]) {
           // adjust saturation/value
           colorSelect.findHSVFromSquare(false);
         }
-        if(clickNoteOn) {
+        if (colorSelect.clickBG) {
+          darkBG = colorSelect.getColor();
+        }
+        else if(clickNoteOn) {
           noteColorB[clickNoteTrack] = colorSelect.getColor();
         }
         else {
@@ -905,6 +912,9 @@ int main(int argc, char* argv[]) {
         colorSelect.render = false;
         rightMenu.render = false;
 
+        // unselect BG
+        colorSelect.clickBG = false;
+
         if (hoverOnBox(main.getMouseXY(), clickNoteX, clickNoteY, clickNoteWidth, clickNoteHeight)) {
           cerr  << "right clicked on note!" << endl;
           
@@ -931,6 +941,24 @@ int main(int argc, char* argv[]) {
                << rightMenu.getY() + rightMenu.getHeight() << "}" << endl;
 
           rightMenu.render = true;
+        }
+        else if (hoverOnBox(main.getMouseXY(), 0, areaTop, main.getWidth(), main.getHeight() - areaTop)) {
+          // ensure BG is selected
+          colorSelect.clickBG = true;
+
+          // stop rendering if clicked again
+          colorSelect.render = false;
+
+          // find coordinate to draw right click menu
+          getMenuLocation(main.getWidth(), main.getHeight(), main.getMouseX(), main.getMouseY(),
+                          rightClickX, rightClickY, rightMenu.getWidth(), rightMenu.getHeight());
+          
+          // pass that coordinate to the menu class
+          rightMenu.setXY(rightClickX, rightClickY);
+
+          colorSelect.setColor(darkBG);
+          rightMenu.render = true;
+          cerr << "right clicked on the background!" << endl;
         }
         else { 
           cerr << "right clicked on a non-note!" << endl;
