@@ -377,10 +377,13 @@ int main(int argc, char* argv[]) {
           else {
             // shift normally as per tempo, or until end, whichever comes first
             if (lastNote.x + lastNote.duration > 0 && (shiftTime * input->getTimeScale())/TIME_MODIFIER < lastNote.x + lastNote.duration) {
+              cout << "a: " << shiftTime * input->getTimeScale() << endl;
+              cout << "scale: " << input->getTimeScale() << endl;
               input->shiftTime(shiftTime * input->getTimeScale());
             }
             else if (lastNote.x + lastNote.duration > 0) {
               input->shiftTime((lastNote.x + lastNote.duration) * TIME_MODIFIER);
+              cout << "b: " << (lastNote.x + lastNote.duration) * TIME_MODIFIER << endl;
             }
           }
         }

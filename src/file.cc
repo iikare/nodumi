@@ -174,10 +174,10 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   uint8_t boolValue = 0; 
   file.read(reinterpret_cast<char *>(&boolValue), sizeof(uint8_t));
   cerr << (int)boolValue << endl;
-  colorByPart = true; //boolValue & 0x00001000;
-  drawLine = boolValue & 0x00000100;
-  songTime = boolValue & 0x00000010;
-  invertColor = boolValue & 0x00000001;
+  colorByPart = true;//(boolValue >> 4) >> 1;
+  drawLine = (boolValue >> 3) & 1;
+  songTime = (boolValue >> 2) & 1;
+  invertColor = (boolValue >> 1) & 1;
 
 
   // read the note count at third byte
@@ -249,7 +249,7 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   input->notes = new note[input->noteCount];
 
   // initialize misc. data
-  input->timeScale = 1/1.25;
+  input->timeScale = 1.0/8;
   uint16_t tempoShort = 0;
   
   for (int i = 0; i < input->noteCount; i++) {
@@ -261,7 +261,7 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
     file.read(reinterpret_cast<char*>(&input->notes[i].x), sizeof(double));
     file.read(reinterpret_cast<char*>(&input->notes[i].y), sizeof(uint8_t));
 
-    input->notes[i].tempo = static_cast<double>(tempoShort/8);
+    input->notes[i].tempo = static_cast<double>(tempoShort);
  
  /*   cerr << "this is note " << i << endl;
     cerr << input->notes[i].track << endl;
