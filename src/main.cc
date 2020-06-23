@@ -220,6 +220,7 @@ int main(int argc, char* argv[]) {
 
       string ext = filename.substr(filename.size() - 3);
       if (ext == "mid") {
+        fromMKI = false;
         input->load(filename);
       }
       else {

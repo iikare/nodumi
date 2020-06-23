@@ -79,39 +79,34 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
 
   // beginning of colorA
   output.write(&separator, sizeof(separator));
+
   for (int i = 0; i < static_cast<int>(colorVecA.size()); i++) {
-    Uint32 color = 0x00000000;
-    color += static_cast<uint8_t>(round(colorVecA[i].r));
+    uint32_t color = 0x00000000;
+    
+    color += static_cast<uint8_t>(colorVecA[i].r);
     color <<= 8;
-    color += static_cast<uint8_t>(round(colorVecA[i].g));
+    color += static_cast<uint8_t>(colorVecA[i].g);
     color <<= 8;
-    color += static_cast<uint8_t>(round(colorVecA[i].b));
+    color += static_cast<uint8_t>(colorVecA[i].b);
     color <<=8;
     output.write(reinterpret_cast<char*>(&color), sizeof(color));
-
-    cerr << "this is colorA: " << i << endl;
-    cerr << colorVecA[i].r << endl;
-    cerr << colorVecA[i].g << endl;
-    cerr << colorVecA[i].b << endl;
   }
+
   // beginning of colorB
   output.write(&separator, sizeof(separator));
+
   for (int i = 0; i < static_cast<int>(colorVecB.size()); i++) {
-    Uint32 color = 0x00000000;
-    color += static_cast<int>(round(colorVecB[i].r));
-    color <<= 8;
-    color += static_cast<int>(round(colorVecB[i].g));
-    color <<= 8;
-    color += static_cast<int>(round(colorVecB[i].b));
-    color <<=8;
-    color += 0xFF;
-    output.write(reinterpret_cast<char*>(&color), sizeof(color));
+    uint32_t color = 0x00000000;
     
-    cerr << "this is colorB: " << i << endl;
-    cerr << static_cast<int>(static_cast<int>(colorVecB[i].r)) << endl;
-    cerr << static_cast<uint8_t>(round(colorVecB[i].g)) << endl;
-    cerr << static_cast<uint8_t>(round(colorVecB[i].b)) << endl;
+    color += static_cast<uint8_t>(colorVecB[i].r);
+    color <<= 8;
+    color += static_cast<uint8_t>(colorVecB[i].g);
+    color <<= 8;
+    color += static_cast<uint8_t>(colorVecB[i].b);
+    color <<=8;
+    output.write(reinterpret_cast<char*>(&color), sizeof(color));
   }
+
   // end of color section
   output.write(&separator, sizeof(separator));
 
@@ -209,23 +204,20 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   // next 4 * colorCount bytes are the on colors
   for (int i = 0; i < colorCount; i++) {
     // read 4 bytes, store three in col, discard the alpha byte
-
-    file.read(reinterpret_cast<char *>(&r), sizeof(uint8_t));
-    file.read(reinterpret_cast<char *>(&g), sizeof(uint8_t));
-    file.read(reinterpret_cast<char *>(&b), sizeof(uint8_t));
-
-    col.r = static_cast<double>(r);
-    col.g = static_cast<double>(g);
-    col.b = static_cast<double>(b);
-
+    
     // the alpha field doesn't actually do anything...
     file.seekg(1, ios::cur);
+    
+    // bytes are stored in reverse order
+    file.read(reinterpret_cast<char *>(&b), sizeof(uint8_t));
+    file.read(reinterpret_cast<char *>(&g), sizeof(uint8_t));
+    file.read(reinterpret_cast<char *>(&r), sizeof(uint8_t));
+
+    col.r = r;
+    col.g = g;
+    col.b = b;
 
     colorVecA.push_back(col);
-    cerr << "this is colorA: " << i << endl;
-    cerr << colorVecA[i].r << endl;
-    cerr << colorVecA[i].g << endl;
-    cerr << colorVecA[i].b << endl;
   }
 
   // between the colors there is a separator
@@ -234,24 +226,20 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   // next 4 * colorCount bytes are the off colors
   for (int i = 0; i < colorCount; i++) {
     // read 4 bytes, store three in col, discard the alpha byte
-
-    file.read(reinterpret_cast<char *>(&r), sizeof(uint8_t));
-    file.read(reinterpret_cast<char *>(&g), sizeof(uint8_t));
-    file.read(reinterpret_cast<char *>(&b), sizeof(uint8_t));
-
-    col.r = static_cast<double>(r);
-    col.g = static_cast<double>(g);
-    col.b = static_cast<double>(b);
-
+    
     // the alpha field doesn't actually do anything...
     file.seekg(1, ios::cur);
+    
+    // bytes are stored in reverse order
+    file.read(reinterpret_cast<char *>(&b), sizeof(uint8_t));
+    file.read(reinterpret_cast<char *>(&g), sizeof(uint8_t));
+    file.read(reinterpret_cast<char *>(&r), sizeof(uint8_t));
+
+    col.r = r;
+    col.g = g;
+    col.b = b;
 
     colorVecB.push_back(col);
-    
-    cerr << "this is colorB: " << i << endl;
-    cerr << colorVecB[i].r << endl;
-    cerr << colorVecB[i].g << endl;
-    cerr << colorVecB[i].b << endl;
   }
  
   // after the colors there is a separator
@@ -273,7 +261,7 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
     file.read(reinterpret_cast<char*>(&input->notes[i].x), sizeof(double));
     file.read(reinterpret_cast<char*>(&input->notes[i].y), sizeof(uint8_t));
 
-    input->notes[i].tempo = static_cast<double>(tempoShort);
+    input->notes[i].tempo = static_cast<double>(tempoShort/8);
  
  /*   cerr << "this is note " << i << endl;
     cerr << input->notes[i].track << endl;
@@ -299,7 +287,7 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   }
 
   // scale for visibility
-  input->scaleTime(static_cast<double>(8));
+  //input->scaleTime(static_cast<double>(8));
 
   
   // file processing is done
