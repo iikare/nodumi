@@ -125,6 +125,7 @@ int main(int argc, char* argv[]) {
   bool mouseOnNote = true;
   int lastMouseX = 0;
   int lastMouseY = 0;
+  int displayMode = 1;
   
   // right click menu constants
   // determine where to draw rightclick menu
@@ -191,6 +192,9 @@ int main(int argc, char* argv[]) {
   vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
                                      "Display Song Time", "Set Tonic"};
   menu viewMenu(main.getSize(), viewMenuContents, true, VIEW_X, 0);
+
+  vector<string> displayMenuContents = {"Standard", "Line"};
+  menu displayMenu(main.getSize(), displayMenuContents, false, VIEW_X + viewMenu.getWidth(), viewMenu.getItemY(1));
 
   /*
    *  TODO:
@@ -309,13 +313,7 @@ int main(int argc, char* argv[]) {
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           
           // prevent notes from disappearing at high scaling
-          if (renderNote.duration < 1) {
-            width = ceil(renderNote.duration);
-          }
-          else {
-            width = renderNote.duration;
-          }
-          
+          width = renderNote.duration < 1 ? 1 : renderNote.duration;
 
           // perform note / cursor collision detection
           if (main.cursorVisible && !colorSelect.render &&
@@ -520,6 +518,23 @@ int main(int argc, char* argv[]) {
     else {
       // only render the "View"
       main.renderText(viewMenu.getItemX(0), viewMenu.getItemY(0), viewMenu.getContent(0));
+    }
+
+    // render display menu
+    if (displayMenu.render && viewMenu.render) {
+      for (int x = displayMenu.getX(); x < displayMenu.getX() + displayMenu.getWidth() ; x++) {
+        for (int y = displayMenu.getY(); y < displayMenu.getY() + displayMenu.getHeight(); y++) {
+          if((y - displayMenu.getY()) % ITEM_HEIGHT != 0 || y == displayMenu.getY()) { 
+            main.setPixelRGB(x, y, menuColor);
+          }
+          else {
+            main.setPixelRGB(x, y, menuLineColor);
+          }
+        }
+      }
+      for (int i = 0; i < displayMenu.getSize(); i++) {
+        main.renderText(displayMenu.getItemX(i), displayMenu.getItemY(i), displayMenu.getContent(i));
+      }
     }
 
     // draw the note right click menu
@@ -744,6 +759,7 @@ int main(int argc, char* argv[]) {
         fileMenu.findActiveElement(main.getMouseXY());
         editMenu.findActiveElement(main.getMouseXY());
         viewMenu.findActiveElement(main.getMouseXY());
+        displayMenu.findActiveElement(main.getMouseXY());
         
         // ensure color selector is not selected
         if (!hoverOnBox(main.getMouseXY(), colorSelect.getBoundingBox())) {
@@ -830,7 +846,9 @@ int main(int argc, char* argv[]) {
         if (viewMenu.render || !viewMenu.getActiveElement()) {
           switch(viewMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
-              viewMenu.render = false;
+              if (displayMenu.getActiveElement() == -1 && viewMenu.getActiveElement() == -1) {
+                viewMenu.render = false;
+              }
               break;
             case 0: // click on view menu again
               if (hoverOnBox(main.getMouseXY(), viewMenu.getX(), viewMenu.getY(),
@@ -841,7 +859,7 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 1: //display mode
-              cerr << "info: function not implemented" << endl;
+              displayMenu.render = !displayMenu.render;
               break;
             case 2: // now line
               drawLine = !drawLine;
@@ -878,7 +896,33 @@ int main(int argc, char* argv[]) {
               break;
           }
         }
-
+        
+        //handle display menu actions
+        if (displayMenu.render || !displayMenu.getActiveElement()) {
+          switch (displayMenu.getActiveElement()) {
+            case -1: // clicked outside menu bounds
+              if (!viewMenu.render) {
+                displayMenu.render = false;
+              }
+              break;
+            case 0: // standard
+              displayMode = 1;
+              break;
+            case 1: // line
+              displayMode = 2; 
+              break;
+            case 2: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 3: //
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 4: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+          }
+        }
+        
         //handle right menu actions
         if (colorSelect.render | rightMenu.render || !rightMenu.getActiveElement()) {
           switch (rightMenu.getActiveElement()) {
