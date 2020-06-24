@@ -22,6 +22,7 @@ using std::string;
 using std::vector;
 using std::ifstream;
 using std::min;
+using std::max;
 using std::to_string;
 using std::memcpy;
 using std::transform;
@@ -96,7 +97,7 @@ int main(int argc, char* argv[]) {
   const static int noteHeight = round(WIN_HEIGHT/NOTE_RANGE);
   
   // note shift controls
-  int x, y, width = 0;
+  int x, y, width, deltaX, deltaY = 0;
   double widthModifier = 1.25;
   double shiftTime = 0;
   double shiftX = 200;
@@ -315,69 +316,113 @@ int main(int argc, char* argv[]) {
           // prevent notes from disappearing at high scaling
           width = renderNote.duration < 1 ? 1 : renderNote.duration;
 
-          // perform note / cursor collision detection
-          if (main.cursorVisible && !colorSelect.render &&
-              hoverOnBox(main.getMouseXY(), x, y, width, noteHeight)) {
-            mouseOnNote = true;
+          switch (displayMode) {
+            case 1: // standard mode
 
-            // set the note location variables to be used on right click
-            clickNoteX = x;
-            clickNoteY = y;
-            clickNoteWidth = width;
-            clickNoteHeight = noteHeight;
-            clickNoteNumber = (renderNote.y - MIN_NOTE_IDX);
-            clickNoteTonic = (renderNote.y - MIN_NOTE_IDX) % 12;
-            clickNoteTrack = renderNote.track;
-            // check if note is currently playing
-            if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
-              clickNoteOn = true;
-            }
-            else {
-              clickNoteOn = false;
-            }
-          } 
-          //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
-          
-          // only render note if it's visible 
-          if (x < main.getWidth() && x > - width) {
-            
-            // check if note is currently playing
-            if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
-              noteOn = true;
-            }
-            else {
-              noteOn = false;
-            }
-            
-            // render with the other color if hovered over
-            if (mouseOnNote) {
-              noteOn = !noteOn;
-            }
+              // perform note / cursor collision detection
+              if (main.cursorVisible && !colorSelect.render &&
+                  hoverOnBox(main.getMouseXY(), x, y, width, noteHeight)) {
+                mouseOnNote = true;
 
-            // rendering of the note itself 
-            for (int j = 0; j < width; j++) {
-              for (int k = 0; k < noteHeight; k++) {
-                
-                // set color based on note track 
-                if (colorByPart) {
-                  // render note by play status
-                  if (noteOn) {
-                    main.setPixelRGB(x + j, y + k, noteColorB[renderNote.track]);
-                  }
-                  else {
-                    main.setPixelRGB(x + j, y + k, noteColorA[renderNote.track]);
-                  }
+                // set the note location variables to be used on right click
+                clickNoteX = x;
+                clickNoteY = y;
+                clickNoteWidth = width;
+                clickNoteHeight = noteHeight;
+                clickNoteNumber = (renderNote.y - MIN_NOTE_IDX);
+                clickNoteTonic = (renderNote.y - MIN_NOTE_IDX) % 12;
+                clickNoteTrack = renderNote.track;
+                // check if note is currently playing
+                if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
+                  clickNoteOn = true;
                 }
                 else {
-                  // color by tonic
-                  if (noteOn) { 
-                    main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                  clickNoteOn = false;
+                }
+              } 
+              //cerr << "render note y is " << renderNote.y << " while calc y is " << y << endl;
+              
+              // only render note if it's visible 
+              if (x < main.getWidth() && x > - width) {
+                
+                // check if note is currently playing
+                if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
+                  noteOn = true;
+                }
+                else {
+                  noteOn = false;
+                }
+                
+                // render with the other color if hovered over
+                if (mouseOnNote) {
+                  noteOn = !noteOn;
+                }
+
+                // rendering of the note itself 
+                for (int j = 0; j < width; j++) {
+                  for (int k = 0; k < noteHeight; k++) {
+                
+                    // set color based on note track 
+                    if (colorByPart) {
+                      // render note by play status
+                      if (noteOn) {
+                        main.setPixelRGB(x + j, y + k, noteColorB[renderNote.track]);
+                      }
+                      else {
+                        main.setPixelRGB(x + j, y + k, noteColorA[renderNote.track]);
+                      }
+                    }
+                    else {
+                      // color by tonic
+                      if (noteOn) { 
+                        main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                      }
+                      else {
+                        main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                      }
+                    }
                   }
-                  else {
-                    main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                }
+              break;
+            case 2: //  line mode
+              // calculate XY offset from last note
+              if (i == 0) {
+                deltaX = 0;
+                deltaY = 0;
+              }
+              else {
+                // get average y value of chord
+                int offset = 0;
+                int avgY = 0;
+                while (notes[i - 1 - offset].x == notes[i - 1].x) {
+                  avgY += notes[i - 1 - offset].y;
+                  if (i - offset == 0) {
+                    break;
+                  }
+                  offset++;
+                }
+                avgY = avgY == 0 ? notes[i-1].x : avgY;
+                avgY /= offset == 0 ? 1 : offset;
+                int prevX = main.getWidth()/2 + notes[i-offset].x;
+                int prevY = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(notes[i-offset].y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+                y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(avgY - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+                deltaX = x - prevX;
+                deltaY = y - prevY;
+                
+                // render only if the line is visible
+                if (prevX < main.getWidth() && x > 0) {
+                  cout << "X, Y" << deltaX << ", " << deltaY << endl;
+                  for (int j = 0; j < deltaX; j++) {
+                    for (int k = min(prevY, y); k < max(prevY, y); k++) {
+                      int distLine = getDistance(prevX + j, prevY + j * static_cast<double>(deltaY)/deltaX, prevX + j, k);
+                      if (distLine < 2) {
+                        main.setPixelRGB(prevX + j, k, noteColorA[renderNote.track]);
+                      }
+                    }
                   }
                 }
               }
+              break;
             }
           }
         }
