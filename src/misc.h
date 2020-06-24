@@ -49,7 +49,7 @@ bool pointInCircle(point mouse, rect circle);
 
 colorRGB getHueByAngle(int x1, int y1, int x2, int y2);
 
-
+string getNoteInfo(int noteTrack, int notePos);
 
 
 #endif

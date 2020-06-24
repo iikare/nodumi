@@ -118,6 +118,7 @@ int main(int argc, char* argv[]) {
 
   // color scheme for tonic
   getColorScheme(12, noteColorC, noteColorD);
+  int tonic = 0;
 
   bool noteOn = false;
 
@@ -132,6 +133,8 @@ int main(int argc, char* argv[]) {
   int clickNoteWidth = 0;
   int clickNoteHeight = 0;
   int clickNoteTrack = 0;
+  int clickNoteTonic = 0;
+  int clickNoteNumber = 0;
   bool clickNoteOn = false;
 
   int rightClickX = 0;
@@ -140,7 +143,7 @@ int main(int argc, char* argv[]) {
   int colorSelectX = 0;
   int colorSelectY = 0;
 
-  vector<string> rightClickContents = {"Change Part Color", "Set Tonic"};
+  vector<string> rightClickContents = {"Info", "Change Part Color", "Set Tonic"};
   menu rightMenu(main.getSize(), rightClickContents, false, -100,-100);
   
   colorMenu colorSelect(0, 0, menuColor);
@@ -190,15 +193,14 @@ int main(int argc, char* argv[]) {
   /*
    *  TODO:
    *    add line color blend mode
-   *    add background selection
+   *    add background selection                  DONE
    *    add menu bar on top                       DONE
    *    add file picker                           DONE (fix memory leaks)
    *    add color picker for parts                DONE (set default size bigger)
    *    add color by parts                        DONE
-   *    add color by tonic                        DONE
+   *    add color by tonic                        DONE (needs tonic selection)
    *    add color generation algorithm            DONE
-   *    add config file parsing
-   *    add save file ability
+   *    add save file ability                     DONE (bool values are buggy)
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
    *    add bg image support
@@ -317,6 +319,8 @@ int main(int argc, char* argv[]) {
             clickNoteY = y;
             clickNoteWidth = width;
             clickNoteHeight = noteHeight;
+            clickNoteNumber = (renderNote.y - MIN_NOTE_IDX);
+            clickNoteTonic = (renderNote.y - MIN_NOTE_IDX) % 12;
             clickNoteTrack = renderNote.track;
             // check if note is currently playing
             if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
@@ -361,10 +365,10 @@ int main(int argc, char* argv[]) {
                 else {
                   // color by tonic
                   if (noteOn) { 
-                    main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX) % 12]);
+                    main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
                   }
                   else {
-                    main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX) % 12]);
+                    main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
                   }
                 }
               }
@@ -580,7 +584,7 @@ int main(int argc, char* argv[]) {
             
             // x increases saturation, y increases value
             sratio = static_cast<double>(x - colorSelect.getSquareX()) / colorSelect.getSquareSize();
-            vratio = 1-static_cast<double>(y - colorSelect.getSquareY()) / colorSelect.getSquareSize();
+            vratio = 1 - static_cast<double>(y - colorSelect.getSquareY()) / colorSelect.getSquareSize();
             
             
             main.setPixelHSV(x, y, colorSelect.getHue(), sratio, vratio * 255);
@@ -881,7 +885,10 @@ int main(int argc, char* argv[]) {
                 }
               }
               break;
-            case 0: // change part color
+            case 0: // note info
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 1: // change part color
               if (colorSelect.render) {
                // turn off the color picker if clicked again
                 colorSelect.render = false;
@@ -893,15 +900,11 @@ int main(int argc, char* argv[]) {
               colorSelect.setXY(colorSelectX, colorSelectY);
               colorSelect.render = true;
               break;
-            case 1: // 
+            case 2: // set tonic
+              if (!colorByPart) {
+              tonic = clickNoteTonic;
+              } 
               colorSelect.render = false;
-              cerr << "info: function not implemented" << endl;
-              break;
-            case 2: //
-              cerr << "info: function not implemented" << endl;
-              break;
-            case 3: // 
-              cerr << "info: function not implemented" << endl;
               break;
           }
         }
@@ -927,6 +930,9 @@ int main(int argc, char* argv[]) {
           
           // pass that coordinate to the menu class
           rightMenu.setXY(rightClickX, rightClickY);
+
+          // get info about selected note
+          rightMenu.setContent(getNoteInfo(clickNoteTrack, clickNoteNumber), 0);
 
           if (clickNoteOn) {
             colorSelect.setColor(noteColorB[clickNoteTrack]);
@@ -955,14 +961,19 @@ int main(int argc, char* argv[]) {
           
           // pass that coordinate to the menu class
           rightMenu.setXY(rightClickX, rightClickY);
-
+          
+          // clear topitem content
+          rightMenu.setContent("", 0);
+          
           colorSelect.setColor(darkBG);
           rightMenu.render = true;
           cerr << "right clicked on the background!" << endl;
         }
         else { 
+          rightMenu.setContent("", 0);
           cerr << "right clicked on a non-note!" << endl;
         }
+        oneTimeFlag = true;
         break;
       case 13: // leftclick button up
         colorSelect.squareClick = false;

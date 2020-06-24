@@ -211,3 +211,54 @@ bool pointInCircle(point mouse, rect circle) {
 
   return dist > inner && dist < outer;
 }
+
+string getNoteInfo(int noteTrack, int notePos) {
+  string result = "";
+  int key = notePos % 12;
+  int octave = (notePos + 9) / 12;
+  switch(key) {
+    case 0:
+      result += "A";
+      break;
+    case 1:
+      result += "A#/Bb";
+      break;
+    case 2:
+      result += "B";
+      break;
+    case 3:
+      result += "C";
+      break;
+    case 4:
+      result += "C#/Db";
+      break;
+    case 5:
+      result += "D";
+      break;
+    case 6:
+      result += "D#/Eb";
+      break;
+    case 7:
+      result += "E";
+      break;
+    case 8:
+      result += "F";
+      break;
+    case 9:
+      result += "F#/Gb";
+      break;
+    case 10:
+      result += "G";
+      break;
+    case 11:
+      result += "G#/Ab";
+      break;
+    default:
+      return "";
+      break;
+  }
+  result += to_string(octave);
+  result += " | Track " + to_string(noteTrack + 1);
+  return result;
+}
+
