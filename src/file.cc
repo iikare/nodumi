@@ -20,7 +20,7 @@ using std::min;
 using std::max;
 
 void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const vector<colorRGB>& colorVecB,
-              bool colorByPart, bool drawLine, bool songTime, bool invertColor) {
+              colorRGB& bg, bool colorByPart, bool drawLine, bool songTime, bool invertColor) {
   // force correct file extension
   transform(path.begin(), path.end(), path.begin(), ::tolower);
   if (path.substr(path.size() - 4) != ".mki") {
@@ -71,11 +71,25 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
   int colorCount = colorVecA.size();
   output.write(reinterpret_cast<char*>(&colorCount), sizeof(colorCount));
   
+  // separate metadata from file contents
+  output.write(&separator, sizeof(separator));
+  
+  // data encoding begins here
   // each color needs 4 bytes
   // byte 1: R
   // byte 2: G
   // byte 3: B
   // byte 4: A
+  
+  // save background first
+  uint32_t bgcolor = 0x00000000;
+  bgcolor += static_cast<uint8_t>(bg.r);
+  bgcolor <<= 8;
+  bgcolor += static_cast<uint8_t>(bg.g);
+  bgcolor <<= 8;
+  bgcolor += static_cast<uint8_t>(bg.b);
+  bgcolor <<=8;
+  output.write(reinterpret_cast<char*>(&bgcolor), sizeof(bgcolor));
 
   // beginning of colorA
   output.write(&separator, sizeof(separator));
@@ -159,7 +173,8 @@ bool checkMKI(ifstream& file, string path) {
   return true;
 }
 
-void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, bool& colorByPart, bool& drawLine, bool& songTime, bool& invertColor){
+void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, colorRGB& bg,
+                 bool& colorByPart, bool& drawLine, bool& songTime, bool& invertColor){
   ifstream file;
   file.open(path, ios::in | ios::binary);
   if (!file) {
@@ -177,8 +192,7 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   colorByPart = true;//(boolValue >> 4) >> 1;
   drawLine = (boolValue >> 3) & 1;
   songTime = (boolValue >> 2) & 1;
-  invertColor = (boolValue >> 1) & 1;
-
+  invertColor = !(boolValue >> 1) & 1;
 
   // read the note count at third byte
   file.read(reinterpret_cast<char *>(&input->noteCount), sizeof(int));
@@ -196,7 +210,21 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   uint8_t r = 0;
   uint8_t g = 0;
   uint8_t b = 0;
+  
+  // get the background color
+  // the alpha field doesn't actually do anything...
+  file.seekg(1, ios::cur);
+    
+  // bytes are stored in reverse order
+  file.read(reinterpret_cast<char *>(&b), sizeof(uint8_t));
+  file.read(reinterpret_cast<char *>(&g), sizeof(uint8_t));
+  file.read(reinterpret_cast<char *>(&r), sizeof(uint8_t)); 
+  
+  bg.setRGB(r, g, b);
 
+  // next byte must be a separator
+  if (!checkMKI(file, path)) { return; }
+  
   // clear the color vectors before doing anything
   colorVecA.clear();
   colorVecB.clear();

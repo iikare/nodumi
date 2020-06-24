@@ -60,6 +60,8 @@ int main(int argc, char* argv[]) {
   vector<colorRGB> noteColorA; //off
   vector<colorRGB> noteColorB; //on
 
+  colorRGB darkBG;
+
   bool colorByPart, drawLine, songTime, invertColor;
   bool fromMKI = false;
   
@@ -68,7 +70,7 @@ int main(int argc, char* argv[]) {
   }
   else {
     fromMKI = true;
-    loadFileMKI(filename, input, noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor); 
+    loadFileMKI(filename, input, noteColorA, noteColorB, darkBG, colorByPart, drawLine, songTime, invertColor); 
   }
   
   cerr << "info: initializing render logic" << endl;
@@ -103,7 +105,6 @@ int main(int argc, char* argv[]) {
   colorRGB lineColor(233, 0, 22); 
   colorRGB songTimeColor(233, 233, 233); 
   colorRGB lightBG(199,199,199); 
-  colorRGB darkBG(12,12,12); 
 
   colorRGB menuColor(222, 222, 222);
   colorRGB menuColorClick(155, 155, 155); 
@@ -113,7 +114,6 @@ int main(int argc, char* argv[]) {
   vector<colorRGB> noteColorD; //on
   
   if (!fromMKI) {
-    getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
   }
 
   // color scheme for tonic
@@ -155,15 +155,17 @@ int main(int argc, char* argv[]) {
   bool oneTimeFlag = true;
   bool end = false;
 
-  // view flags and related variables
-  // these four are saved in MKI format
+  // these are saved in MKI format and need to be conditionally updated
   if (!fromMKI) {
+    getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
+    darkBG.setRGB(12,12,12); 
     drawLine = true;
     songTime = false;
     invertColor = false;
     colorByPart = true;
   }
-
+  
+  // song time text
   string songTimeText = "";
   
   // note info
@@ -193,14 +195,15 @@ int main(int argc, char* argv[]) {
   /*
    *  TODO:
    *    add line color blend mode
-   *    add background selection                  DONE
+   *    add background selection                  DONE (save in file)
    *    add menu bar on top                       DONE
    *    add file picker                           DONE (fix memory leaks)
    *    add color picker for parts                DONE (set default size bigger)
    *    add color by parts                        DONE
-   *    add color by tonic                        DONE (needs tonic selection)
+   *    add color by tonic                        DONE
    *    add color generation algorithm            DONE
    *    add save file ability                     DONE (bool values are buggy)
+   *    add save existing file 
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
    *    add bg image support
@@ -208,7 +211,7 @@ int main(int argc, char* argv[]) {
    *    add home/end functionality                DONE
    *    up/down arrow control horizontal scale    DONE 
    *    left/right arrow able to move             DONE  
-   *    scale notes to window size                DONE (test with note value 0)
+   *    scale notes to window size                DONE
    */
   
   // debug track info 
@@ -228,11 +231,16 @@ int main(int argc, char* argv[]) {
       }
       else {
         fromMKI = true;
-        loadFileMKI(filename, input, noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor); 
+        loadFileMKI(filename, input, noteColorA, noteColorB, darkBG, colorByPart, drawLine, songTime, invertColor); 
       }     
       
       if (!fromMKI) {
         getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
+        darkBG.setRGB(12,12,12); 
+        drawLine = true;
+        songTime = false;
+        invertColor = false;
+        colorByPart = true;
       }
 
       delete[] oNotes; 
@@ -772,7 +780,7 @@ int main(int argc, char* argv[]) {
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
-                saveFile(filename, input, noteColorA, noteColorB, colorByPart, drawLine, songTime, invertColor);
+                saveFile(filename, input, noteColorA, noteColorB, darkBG, colorByPart, drawLine, songTime, invertColor);
 
                 oneTimeFlag = true;
               }
