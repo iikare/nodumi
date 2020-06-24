@@ -773,18 +773,21 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 2: // save
-              cerr << "info: function not implemented" << endl;
+              if (fromMKI) {
+                cerr << "info: saving MKI - " << filename << endl;
+                saveFile(filename, input, noteColorA, noteColorB, darkBG, colorByPart, drawLine, songTime, invertColor);
+              }
+              oneTimeFlag = true;
               break;
             case 3: // save as
               filenameC = osdialog_file(OSDIALOG_SAVE, ".", nullptr, savetypes);
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
+                cerr << "info: saving MKI - " << filename << endl;
                 saveFile(filename, input, noteColorA, noteColorB, darkBG, colorByPart, drawLine, songTime, invertColor);
-
                 oneTimeFlag = true;
               }
-
               break;
             case 4: // exit
               if (fileMenu.render){
