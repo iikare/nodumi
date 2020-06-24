@@ -897,7 +897,7 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 0: // note info
-              cerr << "info: function not implemented" << endl;
+              // nothing currently happens here
               break;
             case 1: // change part color
               if (colorSelect.render) {
