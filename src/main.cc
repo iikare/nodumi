@@ -386,37 +386,72 @@ int main(int argc, char* argv[]) {
               break;
             case 2: //  line mode
               // calculate XY offset from last note
-              if (i == 0) {
+              if (i + 1 >= input->getNoteCount()) {
                 deltaX = 0;
                 deltaY = 0;
+
+                // stop rendering line at last note
+                break;
               }
               else {
                 // get average y value of chord
-                int offset = 0;
+                int offset = 1;   
                 int avgY = 0;
-                while (notes[i - 1 - offset].x == notes[i - 1].x) {
-                  avgY += notes[i - 1 - offset].y;
-                  if (i - offset == 0) {
-                    break;
+                int avgNextY = 0;
+
+                avgY = renderNote.y - MIN_NOTE_IDX;
+                
+                // get average of current y
+                while (renderNote.x == notes[i + offset].x) {
+                  if (renderNote.track == notes[i + offset].track) {
+                    avgY += notes[i + offset].y - MIN_NOTE_IDX;
                   }
                   offset++;
                 }
-                avgY = avgY == 0 ? notes[i-1].x : avgY;
-                avgY /= offset == 0 ? 1 : offset;
-                int prevX = main.getWidth()/2 + notes[i-offset].x;
-                int prevY = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(notes[i-offset].y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+  
+                // preserve original offset
+                int sOff = offset;
+                avgNextY = notes[i + offset + 1].y - MIN_NOTE_IDX;
+
+                // get average of next Y
+                while (notes[i + offset + 1].x == notes[i + offset + 2].x) {
+                  if (notes[i + offset + 1].track == notes[i + offset + 2].track) {
+                    avgNextY += notes[i + offset + 2].y - MIN_NOTE_IDX;
+                  }
+                  offset++;
+                }
+
+
+                avgY = avgY/sOff + MIN_NOTE_IDX;
+                avgNextY = avgNextY/offset + MIN_NOTE_IDX;
+
+                int nextX = main.getWidth()/2 + notes[i + offset + 1].x;
+                int nextY = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(avgNextY - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
                 y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(avgY - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
-                deltaX = x - prevX;
-                deltaY = y - prevY;
+                deltaX = nextX - x;
+                deltaY = nextY - y;
+
+                // check if note is currently playing
+                if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
+                  noteOn = true;
+                }
+                else {
+                  noteOn = false;
+                }
                 
                 // render only if the line is visible
-                if (prevX < main.getWidth() && x > 0) {
+                if (x < main.getWidth() && nextX > 0) {
                   cout << "X, Y" << deltaX << ", " << deltaY << endl;
                   for (int j = 0; j < deltaX; j++) {
-                    for (int k = min(prevY, y); k < max(prevY, y); k++) {
-                      int distLine = getDistance(prevX + j, prevY + j * static_cast<double>(deltaY)/deltaX, prevX + j, k);
+                    for (int k = min(nextY, y); k < max(nextY, y) + 4; k++) {
+                      int distLine = getDistance(x + j, y + j * static_cast<double>(deltaY)/deltaX, x + j, k);
                       if (distLine < 2) {
-                        main.setPixelRGB(prevX + j, k, noteColorA[renderNote.track]);
+                        if (noteOn) {
+                          main.setPixelRGB(x + j, k, noteColorB[renderNote.track]);
+                        }
+                        else {
+                          main.setPixelRGB(x + j, k, noteColorA[renderNote.track]);
+                        }
                       }
                     }
                   }
