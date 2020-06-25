@@ -1,6 +1,3 @@
-[submodule "dpd/midifile"]
-	path = dpd/midifile
-	url = https://github.com/pkishi/midifile
 [submodule "dpd/osdialog"]
 	path = dpd/osdialog
 	url = https://github.com/AndrewBelt/osdialog
