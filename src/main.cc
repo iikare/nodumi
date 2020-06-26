@@ -76,7 +76,6 @@ int main(int argc, char* argv[]) {
   
   cerr << "info: initializing render logic" << endl;
 
-  main.clearBuffer();
   /*
    * * * * * * * 
    * VARIABLES *
@@ -113,9 +112,6 @@ int main(int argc, char* argv[]) {
 
   vector<colorRGB> noteColorC; //off
   vector<colorRGB> noteColorD; //on
-  
-  if (!fromMKI) {
-  }
 
   // color scheme for tonic
   getColorScheme(12, noteColorC, noteColorD);
@@ -199,7 +195,7 @@ int main(int argc, char* argv[]) {
 
   /*
    *  TODO:
-   *    add line color blend mode
+   *    add alpha blend mode
    *    add background selection                  DONE (save in file)
    *    add menu bar on top                       DONE
    *    add file picker                           DONE (fix memory leaks)
@@ -211,7 +207,9 @@ int main(int argc, char* argv[]) {
    *    add save existing file 
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
-   *    add bg image support
+   *    add image support
+   *    add more display modes                    3 done so far
+   *    support live MIDI input                   
    *    add ctrl left/right to scale faster       DONE
    *    add home/end functionality                DONE
    *    up/down arrow control horizontal scale    DONE 
@@ -536,13 +534,10 @@ int main(int argc, char* argv[]) {
           else {
             // shift normally as per tempo, or until end, whichever comes first
             if (lastNote.x + lastNote.duration > 0 && (shiftTime * input->getTimeScale())/TIME_MODIFIER < lastNote.x + lastNote.duration) {
-              cout << "a: " << shiftTime * input->getTimeScale() << endl;
-              cout << "scale: " << input->getTimeScale() << endl;
               input->shiftTime(shiftTime * input->getTimeScale());
             }
             else if (lastNote.x + lastNote.duration > 0) {
               input->shiftTime((lastNote.x + lastNote.duration) * TIME_MODIFIER);
-              cout << "b: " << (lastNote.x + lastNote.duration) * TIME_MODIFIER << endl;
             }
           }
         }
@@ -559,7 +554,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (songTime && !fileMenu.render && !editMenu.render) {
-      songTimeText = getSongPercent(firstNote.x, input->getLastTick(), end);
+      songTimeText = getSongPercent(static_cast<long double>(firstNote.x) * 1000000 * input->getTimeScale(), static_cast<long double>(1000000) * input->getLastTick(), end);
 
       // choose text color based on background
       if (!invertColor) {

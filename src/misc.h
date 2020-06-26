@@ -40,7 +40,7 @@ void getMenuLocation(int mainW, int mainH, int cnX, int cnY, int& rcX, int& rcY,
 
 void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, int rcY, int xBuf, int yBuf);
 
-string getSongPercent(int pos, double total, bool end);
+string getSongPercent(long int pos, long double total, bool end);
 
 double getDistance(int x1, int y1, int x2, int y2);
 double getDistance(point a, int x2, int y2);

@@ -109,7 +109,7 @@ double mfile::getTimeScale() {
 }
 
 double mfile::getLastTick() {
-  return lastTick * timeScale;
+  return notes[noteCount - 1].x * timeScale;
 }
 
 int mfile::getTrackCount() {
