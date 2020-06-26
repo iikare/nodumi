@@ -13,20 +13,4 @@ struct point {
   int y;
 };
 
-enum keys{
-  A,
-  Asharp,
-  B,
-  C,
-  Csharp,
-  D,
-  Dsharp,
-  E,
-  F,
-  Fsharp,
-  G,
-  Gsharp
-};
-
-
 #endif

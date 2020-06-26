@@ -43,6 +43,7 @@ void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, i
 string getSongPercent(int pos, double total, bool end);
 
 double getDistance(int x1, int y1, int x2, int y2);
+double getDistance(point a, int x2, int y2);
 double getDistance(point a, point b);
 
 bool pointInCircle(point mouse, rect circle);

@@ -182,6 +182,10 @@ double getDistance(int x1, int y1, int x2, int y2) {
   return sqrt(pow(deltaX, 2) + pow(deltaY, 2));
 }
 
+double getDistance(point a, int x2, int y2) {
+  return getDistance(a.x, a.y, x2, y2);
+}
+
 double getDistance(point a, point b) {
   return getDistance(a.x, a.y, b.x, b.y);
 }

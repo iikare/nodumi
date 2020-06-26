@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
                                      "Display Song Time", "Set Tonic"};
   menu viewMenu(main.getSize(), viewMenuContents, true, VIEW_X, 0);
 
-  vector<string> displayMenuContents = {"Standard", "Line"};
+  vector<string> displayMenuContents = {"Standard", "Line", "Ball"};
   menu displayMenu(main.getSize(), displayMenuContents, false, VIEW_X + viewMenu.getWidth(), viewMenu.getItemY(1));
 
   /*
@@ -414,9 +414,9 @@ int main(int argc, char* argv[]) {
                 avgNextY = notes[i + offset + 1].y - MIN_NOTE_IDX;
 
                 // get average of next Y
-                while (notes[i + offset + 1].x == notes[i + offset + 2].x) {
-                  if (notes[i + offset + 1].track == notes[i + offset + 2].track) {
-                    avgNextY += notes[i + offset + 2].y - MIN_NOTE_IDX;
+                while (notes[i + offset].x == notes[i + offset + 1].x) {
+                  if (notes[i + offset].track == notes[i + offset + 1].track) {
+                    avgNextY += notes[i + offset + 1].y - MIN_NOTE_IDX;
                   }
                   offset++;
                 }
@@ -425,8 +425,9 @@ int main(int argc, char* argv[]) {
                 avgY = avgY/sOff + MIN_NOTE_IDX;
                 avgNextY = avgNextY/offset + MIN_NOTE_IDX;
 
-                int nextX = main.getWidth()/2 + notes[i + offset + 1].x;
+                int nextX = main.getWidth()/2 + notes[i + offset].x;
                 int nextY = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(avgNextY - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+                x = main.getWidth()/2 + renderNote.x;
                 y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(avgY - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
                 deltaX = nextX - x;
                 deltaY = nextY - y;
@@ -457,6 +458,70 @@ int main(int argc, char* argv[]) {
                   }
                 }
               }
+              break;
+            case 3: // balls
+              int radius = 3 * log(width) < 1 ? 1 : 3 * log(width);
+              
+              // perform note / cursor collision detection
+              if (main.cursorVisible && !colorSelect.render &&
+                  getDistance(main.getMouseXY(), x, y) < radius) {
+                mouseOnNote = true;
+
+                // set the note location variables to be used on right click
+                clickNoteX = x;
+                clickNoteY = y;
+                clickNoteWidth = radius;
+                clickNoteHeight = radius;
+                clickNoteNumber = (renderNote.y - MIN_NOTE_IDX);
+                clickNoteTonic = (renderNote.y - MIN_NOTE_IDX) % 12;
+                clickNoteTrack = renderNote.track;
+                // check if note is currently playing
+                if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
+                  clickNoteOn = true;
+                }
+                else {
+                  clickNoteOn = false;
+                }
+              } 
+          
+              if (x < main.getWidth() && x > - width) {
+                if (x - radius <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
+                  noteOn = true;
+                }
+                else {
+                  noteOn = false;
+                }
+
+                // render with the other color if hovered over              
+                if (mouseOnNote) {
+                  noteOn = !noteOn;
+                }    
+                
+                for (int j = x - radius; j < x + radius; j++) {
+                  for (int k = y - radius; k < y + radius; k++) {
+                    if (getDistance(x, y, j, k) <= radius) {
+                      if (colorByPart) {
+                        // color by part
+                        if (noteOn) {
+                          main.setPixelRGB(j, k, noteColorB[renderNote.track]);
+                        }
+                        else {
+                          main.setPixelRGB(j, k, noteColorA[renderNote.track]);
+                        }
+                      }
+                      else {
+                        // color by tonic
+                        if (noteOn) { 
+                          main.setPixelRGB(j, k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                        }
+                        else {
+                          main.setPixelRGB(j, k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                        }
+                      }
+                    }
+                  }
+                }
+              }           
               break;
             }
           }
@@ -991,8 +1056,8 @@ int main(int argc, char* argv[]) {
             case 1: // line
               displayMode = 2; 
               break;
-            case 2: // 
-              cerr << "info: function not implemented" << endl;
+            case 2: // balls
+              displayMode = 3;
               break;
             case 3: //
               cerr << "info: function not implemented" << endl;
@@ -1037,7 +1102,7 @@ int main(int argc, char* argv[]) {
               break;
             case 2: // set tonic
               if (!colorByPart) {
-              tonic = clickNoteTonic;
+                tonic = clickNoteTonic;
               } 
               colorSelect.render = false;
               break;
@@ -1053,7 +1118,8 @@ int main(int argc, char* argv[]) {
         // unselect BG
         colorSelect.clickBG = false;
 
-        if (hoverOnBox(main.getMouseXY(), clickNoteX, clickNoteY, clickNoteWidth, clickNoteHeight)) {
+        if ((hoverOnBox(main.getMouseXY(), clickNoteX, clickNoteY, clickNoteWidth, clickNoteHeight) && displayMode == 1) ||
+            (getDistance(main.getMouseXY(), clickNoteX, clickNoteY) < clickNoteWidth && displayMode == 3)) {
           cerr  << "right clicked on note!" << endl;
           
           // stop rendering if clicked again
