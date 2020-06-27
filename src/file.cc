@@ -53,7 +53,7 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
   
   // second byte encodes settings data
   // top four bits currently unused
-  uint8_t setting = 0x00000000;
+  uint8_t setting = 0b00000000;
   setting += colorByPart;
   setting <<=1;
   setting += drawLine;
