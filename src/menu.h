@@ -55,6 +55,8 @@ class menu {
 
     void findActiveElement(point xy);
 
+    void update(vector<string> itemNames);
+
     bool render;
 
   private:

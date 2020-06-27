@@ -2,10 +2,12 @@
 #define INPUT_H
 
 #include <vector>
+#include <string>
 #include "../dpd/rtmidi/RtMidi.h"
 #include "note.h"
 
 using std::vector;
+using std::string;
 
 class MidiInput {
   public:
@@ -17,12 +19,13 @@ class MidiInput {
     
     note* getNotes() { return noteStream->getNotes(); }
     int getNoteCount() { return noteCount; }
-
-    int findNoteIndex(int key);
+    vector<string> getPorts();
 
   private:
     void convertEvents();
     void updateQueue();
+    int findNoteIndex(int key);
+    
     RtMidiIn* midiIn;
     mfile* noteStream;
     vector<unsigned char> msgQueue;

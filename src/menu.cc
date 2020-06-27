@@ -149,5 +149,19 @@ void menu::findActiveElement(point XY) {
   }
 }
 
+void menu::update(vector<string> itemNames){
   
+  activeElement = -1;
+  itemCount = itemNames.size();
+  height = ITEM_HEIGHT * itemCount;
+  delete[] items;
+  items = new menuItem[itemCount];
 
+  for (int i = 0; i < itemCount; i++) {
+    items[i].setContent(itemNames[i]);
+    items[i].setX(x);
+    items[i].setY(y + i * ITEM_HEIGHT);
+    items[i].setWidth(ITEM_WIDTH);
+    items[i].setHeight(ITEM_HEIGHT);
+  }
+}

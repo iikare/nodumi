@@ -188,7 +188,6 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   // read the next byte and set the bool values (in order)
   uint8_t boolValue = 0; 
   file.read(reinterpret_cast<char *>(&boolValue), sizeof(uint8_t));
-  cerr << (int)boolValue << endl;
   colorByPart = true;//(boolValue >> 4) >> 1;
   drawLine = (boolValue >> 3) & 1;
   songTime = (boolValue >> 2) & 1;
@@ -196,12 +195,10 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
 
   // read the note count at third byte
   file.read(reinterpret_cast<char *>(&input->noteCount), sizeof(int));
-  cerr << input->noteCount << endl;
 
   // read the color count
   int colorCount = 0;
   file.read(reinterpret_cast<char *>(&colorCount), sizeof(int));
-  cerr << colorCount << endl;
   
   // next byte must be a separator
   if (!checkMKI(file, path)) { return; }

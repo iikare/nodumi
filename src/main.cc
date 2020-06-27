@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
   menu editMenu(main.getSize(), editMenuContents, true, EDIT_X, 0);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
-                                     "Display Song Time", "Set Tonic"};
+                                     "Display Song Time", "Color By Tonic"};
   menu viewMenu(main.getSize(), viewMenuContents, true, VIEW_X, 0);
 
   vector<string> displayMenuContents = {"Standard", "Line", "Ball"};
@@ -198,6 +198,9 @@ int main(int argc, char* argv[]) {
 
   vector<string> midiMenuContents = {"MIDI", "Input", "Output"};
   menu midiMenu(main.getSize(), midiMenuContents, true, MIDI_X, 0);
+
+  vector<string> inputMenuContents = {"Filler"};
+  menu inputMenu(main.getSize(), inputMenuContents, false, MIDI_X + midiMenu.getWidth(), midiMenu.getItemY(1));
 
   /*
    *  TODO:
@@ -819,6 +822,23 @@ int main(int argc, char* argv[]) {
       main.renderText(midiMenu.getItemX(0), midiMenu.getItemY(0), midiMenu.getContent(0));
     }
 
+    // render input menu
+    if (inputMenu.render && midiMenu.render) {
+      for (int x = inputMenu.getX(); x < inputMenu.getX() + inputMenu.getWidth() ; x++) {
+        for (int y = inputMenu.getY(); y < inputMenu.getY() + inputMenu.getHeight(); y++) {
+          if((y - inputMenu.getY()) % ITEM_HEIGHT != 0 || y == inputMenu.getY()) { 
+            main.setPixelRGB(x, y, menuColor);
+          }
+          else {
+            main.setPixelRGB(x, y, menuLineColor);
+          }
+        }
+      }
+      for (int i = 0; i < inputMenu.getSize(); i++) {
+        main.renderText(inputMenu.getItemX(i), inputMenu.getItemY(i), inputMenu.getContent(i));
+      }
+    }
+
     // event handler
     switch (main.eventHandler(event)){
       case 1: // program closing
@@ -1053,9 +1073,11 @@ int main(int argc, char* argv[]) {
               else {
                 viewMenu.setContent("Hide Now Line", 2);
               }
+              displayMenu.render = false;
               break;
             case 3: // invert color scheme
               invertColor = !invertColor;
+              displayMenu.render = false;
               break;
             case 4: // display song time 
               songTime = !songTime;
@@ -1065,15 +1087,17 @@ int main(int argc, char* argv[]) {
               else {
                 viewMenu.setContent("Hide Song Time", 4);
               }
+              displayMenu.render = false;
               break;
             case 5: //set tonic
               colorByPart = !colorByPart;
               if(!colorByPart){
-                viewMenu.setContent("Unset Tonic", 5);
+                viewMenu.setContent("Color By Part", 5);
               }
               else {
-                viewMenu.setContent("Set Tonic", 5);
+                viewMenu.setContent("Color By Tonic", 5);
               }
+              displayMenu.render = false;
               break;
             case 6: // 
               cerr << "info: function not implemented" << endl;
@@ -1153,6 +1177,7 @@ int main(int argc, char* argv[]) {
           switch (midiMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
               midiMenu.render = false;
+              inputMenu.render = false;
               break;
             case 0: // click on midi menu again
               if (hoverOnBox(main.getMouseXY(), midiMenu.getX(), midiMenu.getY(),
@@ -1163,10 +1188,12 @@ int main(int argc, char* argv[]) {
                 midiMenu.render = !midiMenu.render;
               }
               break;
-            case 1: // 
-              cerr << "info: function not implemented" << endl;
+            case 1: // input 
+              inputMenu.update(userInput.getPorts());
+              inputMenu.render = !inputMenu.render;
               break;
-            case 2: // 
+            case 2: // output
+              inputMenu.render = false;
               cerr << "info: function not implemented" << endl;
               break;
             case 3: //

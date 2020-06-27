@@ -1,10 +1,13 @@
 #include <vector>
+#include <string>
 #include <iostream>
 #include "../dpd/rtmidi/RtMidi.h"
 #include "input.h"
 #include "note.h"
 
+using std::to_string;
 using std::vector;
+using std::string;
 using std::cerr;
 using std::endl;
 
@@ -34,6 +37,32 @@ void MidiInput::openPort(int port) {
     midiIn->openPort(port);
     midiIn->ignoreTypes(false, false, false);
   }
+  else {
+    cerr << "info: attempted to open an already open port" << endl;
+  }
+}
+
+vector<string> MidiInput::getPorts() {
+  vector<string> ports;
+  numPort = midiIn->getPortCount();
+  for (int i = 0; i < numPort; i++) {
+    ports.push_back(midiIn->getPortName(i));
+
+    int sp = 0;
+    for (unsigned int j = 0; j < ports[i].length(); j++) {
+      // break after second space/colon
+      if (ports[i][j] == ' ' || ports[i][j] == ':') {
+        sp++;
+      }
+      if (sp == 2) {
+        ports[i] = ports[i].substr(0, j);
+        break;
+      }
+    }
+    ports[i].insert(0, to_string(i) + ": ");
+  }
+  
+  return ports;
 }
 
 void MidiInput::updateQueue() {
