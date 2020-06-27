@@ -16,7 +16,7 @@ using std::max;
 using std::min;
 using std::swap;
 
-note::note() : track(0), tempo(0),  duration(0), x(0), y(0) {}
+note::note() : track(0), tempo(0),  duration(0), x(0), y(0), velocity(0) {}
 
 note::~note() {}
 
@@ -26,14 +26,16 @@ note::note(const note& nNote) {
   x = nNote.x;
   y = nNote.y;
   duration = nNote.duration;
+  velocity = nNote.velocity;
 }
 
 void note::operator = (const note& nNote) {
-  track = static_cast<int>(nNote.track);
-  tempo = static_cast<double>(nNote.tempo);
-  x = static_cast<double>(nNote.x);
-  y = static_cast<int>(nNote.y);
-  duration = static_cast<double>(nNote.duration);
+  track = nNote.track;
+  tempo = nNote.tempo;
+  x = nNote.x;
+  y = nNote.y;
+  duration = nNote.duration;
+  velocity = nNote.velocity;
 }
 
 void note::init(int track, double tempo, double x, int y, double duration) {
@@ -58,6 +60,10 @@ void note::scaleTime(double timeScale) {
 }
 
 mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), notes(nullptr) {}
+
+mfile::mfile(int bufSize) : noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), notes(nullptr) {
+  notes = new note[bufSize];
+}
 
 mfile::~mfile() {
   delete[] notes;

@@ -16,8 +16,6 @@
 #include "input.h"
 #include "../dpd/osdialog/osdialog.h"
 
-#define __RTMIDI_DEBUG__
-
 using std::cerr;
 using std::cout;
 using std::endl;
@@ -55,8 +53,6 @@ int main(int argc, char* argv[]) {
     cerr << "error: failed to initialize window" << endl;
     exit(1);
   }
-
-  
 
   // get variables for MKI loader
   mfile* input= new mfile;
@@ -96,6 +92,7 @@ int main(int argc, char* argv[]) {
 
   // midi input controller
   MidiInput userInput;
+  userInput.openPort(1);
 
   // menu constants
   const static int areaTop = MAIN_MENU_HEIGHT;
@@ -229,6 +226,9 @@ int main(int argc, char* argv[]) {
   //}
 
   while (state){
+    
+    userInput.update();
+    
     // load new file
     if (newFile) {
       newFile = false;
@@ -282,14 +282,13 @@ int main(int argc, char* argv[]) {
       oneTimeFlag = true;
     }
 
+    // live play debug
+    notes = userInput.getNotes();
+    oneTimeFlag = true;
+
     // update note references
     lastNote = notes[input->getNoteCount()-1];
     firstNote = notes[0];
-
-    // debug midi in
-    userInput.openPort(1);
-    userInput.updateQueue();
-
 
     // begin render logic
     if (!end || oneTimeFlag) {

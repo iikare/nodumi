@@ -29,11 +29,14 @@ class note {
     double duration;
     double x;
     int y;
+    int velocity;
+
 };
 
 class mfile {
   public:
     mfile();
+    mfile(int bufSize);
     ~mfile();
 
     note* getNotes();
@@ -47,6 +50,7 @@ class mfile {
     void shiftTime(double timeInc);
     void scaleTime(double timeScale);
 
+    friend class MidiInput;
     friend void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, colorRGB& bg, bool& colorByPart, bool& drawLine, bool& songTime, bool& invertColor);
 
     void load(string file);
