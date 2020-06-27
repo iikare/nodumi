@@ -13,7 +13,10 @@
 #include "menu.h"
 #include "color.h"
 #include "colorgen.h"
+#include "input.h"
 #include "../dpd/osdialog/osdialog.h"
+
+#define __RTMIDI_DEBUG__
 
 using std::cerr;
 using std::cout;
@@ -90,6 +93,9 @@ int main(int argc, char* argv[]) {
   char* filenameC;
   osdialog_filters* filetypes = osdialog_filters_parse("MIDI:mid;MKI:mki");
   osdialog_filters* savetypes = osdialog_filters_parse("MKI:mki");
+
+  // midi input controller
+  MidiInput userInput;
 
   // menu constants
   const static int areaTop = MAIN_MENU_HEIGHT;
@@ -280,7 +286,9 @@ int main(int argc, char* argv[]) {
     lastNote = notes[input->getNoteCount()-1];
     firstNote = notes[0];
 
-
+    // debug midi in
+    userInput.openPort(1);
+    userInput.updateQueue();
 
 
     // begin render logic

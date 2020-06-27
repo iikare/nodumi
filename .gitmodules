@@ -4,3 +4,6 @@
 [submodule "dpd/midifile"]
 	path = dpd/midifile
 	url = https://github.com/pkishi/midifile
+[submodule "dpd/rtmidi"]
+	path = dpd/rtmidi
+	url = https://github.com/thestk/rtmidi
