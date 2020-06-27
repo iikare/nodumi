@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
   vector<string> fileMenuContents = {"File", "Open File", "Save", "Save As", "Exit"};
   menu fileMenu(main.getSize(), fileMenuContents, true, 0, 0);
   
-  vector<string> editMenuContents = {"Edit", "A", "B", "C", "D"};
+  vector<string> editMenuContents = {"Edit", "A", "B", "C", "Preferences"};
   menu editMenu(main.getSize(), editMenuContents, true, EDIT_X, 0);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
@@ -195,6 +195,9 @@ int main(int argc, char* argv[]) {
 
   vector<string> displayMenuContents = {"Standard", "Line", "Ball"};
   menu displayMenu(main.getSize(), displayMenuContents, false, VIEW_X + viewMenu.getWidth(), viewMenu.getItemY(1));
+
+  vector<string> midiMenuContents = {"MIDI", "Input", "Output"};
+  menu midiMenu(main.getSize(), midiMenuContents, true, MIDI_X, 0);
 
   /*
    *  TODO:
@@ -786,7 +789,37 @@ int main(int argc, char* argv[]) {
         }
       } 
     } 
- 
+  
+    // render midi menu
+    if (midiMenu.render) {
+      for (int x = MIDI_X; x < MIDI_X + midiMenu.getWidth() ; x++) {
+        for (int y = 0; y < midiMenu.getHeight(); y++) {
+          if (!hoverOnBox(x, y, midiMenu.getX(), midiMenu.getY(),
+              midiMenu.getWidth(), midiMenu.getItemY(1))) {
+            if((y - midiMenu.getY()) % ITEM_HEIGHT != 0) { 
+              main.setPixelRGB(x, y, menuColor);
+            }
+            else {
+              main.setPixelRGB(x, y, menuLineColor);
+            }
+          }
+          else {
+            if (x < MIDI_X + MIDI_MENU_WIDTH) { 
+              main.setPixelRGB(x, y, menuColorClick);
+            }
+          }
+        }
+      }
+      for (int i = 0; i < midiMenu.getSize(); i++) {
+        main.renderText(midiMenu.getItemX(i), midiMenu.getItemY(i), midiMenu.getContent(i));
+      }
+    }
+    else {
+      // only render the "MIDI"
+      main.renderText(midiMenu.getItemX(0), midiMenu.getItemY(0), midiMenu.getContent(0));
+    }
+
+    // event handler
     switch (main.eventHandler(event)){
       case 1: // program closing
         state = false;
@@ -906,6 +939,7 @@ int main(int argc, char* argv[]) {
         fileMenu.findActiveElement(main.getMouseXY());
         editMenu.findActiveElement(main.getMouseXY());
         viewMenu.findActiveElement(main.getMouseXY());
+        midiMenu.findActiveElement(main.getMouseXY());
         displayMenu.findActiveElement(main.getMouseXY());
         
         // ensure color selector is not selected
@@ -923,6 +957,7 @@ int main(int argc, char* argv[]) {
               if (hoverOnBox(main.getMouseXY(), fileMenu.getX(), fileMenu.getY(), FILE_MENU_WIDTH, ITEM_HEIGHT)){
                 editMenu.render = false;
                 viewMenu.render = false;
+                midiMenu.render = false;
                 fileMenu.render = !fileMenu.render;
               }
               break;
@@ -971,6 +1006,7 @@ int main(int argc, char* argv[]) {
                              EDIT_MENU_WIDTH, ITEM_HEIGHT)){
                 fileMenu.render = false;
                 viewMenu.render = false;
+                midiMenu.render = false;
                 editMenu.render = !editMenu.render;
               }
               break;
@@ -1002,6 +1038,7 @@ int main(int argc, char* argv[]) {
                              VIEW_MENU_WIDTH, ITEM_HEIGHT)){
                 fileMenu.render = false;
                 editMenu.render = false;
+                midiMenu.render = false;
                 viewMenu.render = !viewMenu.render;
               }
               break;
@@ -1071,7 +1108,7 @@ int main(int argc, char* argv[]) {
         }
         
         //handle right menu actions
-        if (colorSelect.render | rightMenu.render || !rightMenu.getActiveElement()) {
+        if (colorSelect.render || rightMenu.render || !rightMenu.getActiveElement()) {
           switch (rightMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
               rightMenu.render = false;
@@ -1110,6 +1147,37 @@ int main(int argc, char* argv[]) {
               break;
           }
         }
+
+        //handle midi menu actions
+        if (midiMenu.render || !midiMenu.getActiveElement()) {
+          switch (midiMenu.getActiveElement()) {
+            case -1: // clicked outside menu bounds
+              midiMenu.render = false;
+              break;
+            case 0: // click on midi menu again
+              if (hoverOnBox(main.getMouseXY(), midiMenu.getX(), midiMenu.getY(),
+                             MIDI_MENU_WIDTH, ITEM_HEIGHT)){
+                fileMenu.render = false;
+                editMenu.render = false;
+                viewMenu.render = false;
+                midiMenu.render = !midiMenu.render;
+              }
+              break;
+            case 1: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 2: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 3: //
+              cerr << "info: function not implemented" << endl;
+              break;
+            case 4: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+          }
+        }
+
         oneTimeFlag = true;
         break;
       case 12: // right click
