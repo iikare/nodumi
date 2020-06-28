@@ -92,7 +92,6 @@ int main(int argc, char* argv[]) {
 
   // midi input controller
   MidiInput* userInput = new MidiInput;
-  userInput->openPort(1);
   bool livePlay = false;
 
   // menu constants
@@ -196,7 +195,7 @@ int main(int argc, char* argv[]) {
   menu editMenu(main.getSize(), editMenuContents, true, EDIT_X, 0);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
-                                     "Display Song Time", "Color By Tonic"};
+                                     "Display Song Time", "Color By:"};
   menu viewMenu(main.getSize(), viewMenuContents, true, VIEW_X, 0);
 
   vector<string> displayMenuContents = {"Standard", "Line", "Ball"};
@@ -1122,7 +1121,6 @@ int main(int argc, char* argv[]) {
               break;
             case 4: // 
               cerr << "info: function not implemented" << endl;
-              break;
           }
         }
 
@@ -1307,6 +1305,13 @@ int main(int argc, char* argv[]) {
               break;
             case 3: // enable/disable live play
               livePlay = !livePlay;
+
+              // set default input port
+              userInput->openPort(1);
+
+              // default to color by velocity
+              colorMode = 3;
+
               if(!livePlay){
                 midiMenu.setContent("Enable Live Mode", 3);
               }

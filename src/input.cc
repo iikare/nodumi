@@ -11,7 +11,7 @@ using std::string;
 using std::cerr;
 using std::endl;
 
-MidiInput::MidiInput() : noteStream(nullptr), midiIn(nullptr), msgQueue(0), numPort(0), curPort(0), noteCount(0), numOn(0), timestamp(0) {
+MidiInput::MidiInput() : noteStream(nullptr), midiIn(nullptr), msgQueue(0), numPort(0), noteCount(0), numOn(0), timestamp(0) {
   midiIn = new RtMidiIn();
 
   // eventually will be converted to dynamic vector
@@ -27,21 +27,18 @@ MidiInput::~MidiInput() {
 }
 
 void MidiInput::openPort(int port) {
-  if (curPort != port) {
-    midiIn->closePort();
-    curPort = port;
-    numPort = midiIn->getPortCount();
-    if (port >= numPort) {
-      cerr << "warn: unable to open port number " << port << endl;
-      return;
-    }
-    midiIn->openPort(port);
-    midiIn->ignoreTypes(false, false, false);
-    cerr << "info: opened port " << port << endl;
+  midiIn->closePort();
+
+  numPort = midiIn->getPortCount();
+  if (port >= numPort) {
+    cerr << "warn: unable to open port number " << port << endl;
+    return;
   }
-  else {
-    cerr << "info: attempted to open an already open port" << endl;
-  }
+
+  midiIn->openPort(port);
+  midiIn->ignoreTypes(false, false, false);
+  
+  cerr << "info: opened port " << port << endl;
 }
 
 vector<string> MidiInput::getPorts() {
@@ -101,7 +98,7 @@ void MidiInput::convertEvents() {
         tmpNote.isOn = true;
         
         // if this is the note on event, duration is undefined
-        tmpNote.duration = 500;
+        tmpNote.duration = -1;
         
         noteStream->notes[noteCount] = tmpNote;
         noteCount++;

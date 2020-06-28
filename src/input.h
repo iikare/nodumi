@@ -31,7 +31,6 @@ class MidiInput {
     RtMidiIn* midiIn;
     vector<unsigned char> msgQueue;
     int numPort;
-    int curPort;
     int noteCount;
     int numOn;
     double timestamp;
