@@ -165,3 +165,21 @@ void menu::update(vector<string> itemNames){
     items[i].setHeight(ITEM_HEIGHT);
   }
 }
+
+rect menu::getBox(int idx) {
+  rect result = {0, 0, 0, 0};
+  if (idx == -1) {
+    return result;
+  }
+  if (idx > itemCount || idx < 0) {
+    cerr << "warn: invalid call to getBox()" << endl;
+    return result;
+  }
+  
+  result.x = getItemX(idx);
+  result.y = getItemY(idx);
+  result.width = getWidth();
+  result.height = ITEM_HEIGHT;
+
+  return result;
+}

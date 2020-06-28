@@ -16,7 +16,7 @@ using std::max;
 using std::min;
 using std::swap;
 
-note::note() : track(0), tempo(0),  duration(0), x(0), y(0), velocity(0), isOn(false) {}
+note::note() : track(0), tempo(0),  duration(0), x(0), y(0), velocity(0), time(0), isOn(false) {}
 
 note::~note() {}
 
@@ -27,6 +27,7 @@ note::note(const note& nNote) {
   y = nNote.y;
   duration = nNote.duration;
   velocity = nNote.velocity;
+  time = nNote.time;
   isOn = nNote.isOn;
 }
 
@@ -37,15 +38,8 @@ void note::operator = (const note& nNote) {
   y = nNote.y;
   duration = nNote.duration;
   velocity = nNote.velocity;
+  time = nNote.time;
   isOn = nNote.isOn;
-}
-
-void note::init(int track, double tempo, double x, int y, double duration) {
-  this->track = track;
-  this->tempo = tempo;
-  this->x = x;
-  this->y = y;
-  this->duration = duration;
 }
 
 void note::shiftX(double shiftX) {
@@ -61,9 +55,9 @@ void note::scaleTime(double timeScale) {
   duration *= timeScale;
 }
 
-mfile::mfile() : trackCount(0), noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), notes(nullptr) {}
+mfile::mfile() : trackCount(0), noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), lastTime(0),  notes(nullptr) {}
 
-mfile::mfile(int bufSize) : trackCount(0), noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), notes(nullptr) {
+mfile::mfile(int bufSize) : trackCount(0), noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), lastTime(0), notes(nullptr) {
   notes = new note[bufSize];
 }
 
@@ -120,6 +114,10 @@ double mfile::getLastTick() {
   return notes[noteCount - 1].x * timeScale;
 }
 
+double mfile::getLastTime() {
+  return lastTime;
+}
+
 int mfile::getTrackCount() {
   return trackCount;
 }
@@ -168,6 +166,8 @@ void mfile::load(string file) {
 
   int bpm = 0;
   int idx = 0;
+  
+  midifile.doTimeAnalysis();
 
   for (int i = 0; i < trackCount; i++) {
     for (int j = 0; j < midifile.getEventCount(i); j++) {
@@ -177,6 +177,8 @@ void mfile::load(string file) {
         notes[idx].x  = midifile[i][j].tick;
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
+        notes[idx].time = midifile[i][j].seconds;
+        cerr << notes[idx].time << endl;
 
         idx++;
       }
@@ -184,7 +186,7 @@ void mfile::load(string file) {
   }
 
   idx = 0;
-  
+ 
   midifile.joinTracks();
   midifile.sortTracks();
 
@@ -210,14 +212,13 @@ void mfile::load(string file) {
     noteMax = max(noteMax, notes[i].y);
   }
   */
-  // get first and last note 
+
+  // get last note tick and time  
   lastTick = notes[noteCount-1].x + notes[noteCount-1].duration;
+  lastTime = midifile[0].last().seconds;
 
   // scale for visibility
   scaleTime(static_cast<double>(1)/8);
 
-  midifile.doTimeAnalysis();
-  midifile.joinTracks();
-  cout << "sec: " << midifile[0].last().seconds << endl;
   // this way, the starting tick is by definition 0 , and the ending tick is the old first tick
 }

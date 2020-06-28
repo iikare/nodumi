@@ -19,7 +19,6 @@ class note {
     
     void operator = (const note& nNote);
     
-    void init(int track, double tempo, double x, int y, double duration);
     void shiftX(double shiftX);
     void shiftTime(double timeInc);
     void scaleTime(double timeScale);
@@ -30,6 +29,7 @@ class note {
     double x;
     int y;
     int velocity;
+    double time;
     bool isOn;
 
 };
@@ -45,6 +45,7 @@ class mfile {
     int getNoteCount();
     int getTrackCount();
     double getLastTick();
+    double getLastTime();
     double getTimeScale();
 
     void shiftX(double shiftX);
@@ -62,6 +63,7 @@ class mfile {
     int noteMax;
     double timeScale;
     double lastTick;
+    double lastTime;
     note* notes;
 };
 

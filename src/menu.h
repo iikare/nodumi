@@ -48,6 +48,7 @@ class menu {
     string getContent(int idx);
 
     int getActiveElement();
+    rect getBox(int idx);
 
     void setXY(int nX, int nY);
     void setContent(string nContent, int idx);

@@ -215,16 +215,16 @@ int main(int argc, char* argv[]) {
   /*
    *  TODO:
    *    add alpha blend mode
-   *    add background selection                  DONE (save in file)
+   *    add background selection                  DONE
    *    add menu bar on top                       DONE
    *    add file picker                           DONE (fix memory leaks)
    *    add color picker for parts                DONE (set default size bigger)
    *    add color by parts                        DONE
    *    add color by tonic                        DONE
    *    add color generation algorithm            DONE
-   *    add save file ability                     DONE (bool values are buggy)
-   *    add save existing file 
-   *    fix MKI save with new color method
+   *    add save file ability                     DONE
+   *    add save existing file                    DONE 
+   *    fix MKI save with new color method        DONE
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
    *    add image support
@@ -541,7 +541,7 @@ int main(int argc, char* argv[]) {
               } 
           
               if (x < main.getWidth() && x > - width) {
-                if (x - radius <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
+                if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
                   noteOn = true;
                 }
                 else {
@@ -646,14 +646,17 @@ int main(int argc, char* argv[]) {
     
     // render file menu
     if (fileMenu.render) {
+      fileMenu.findActiveElement(main.getMouseXY()); 
       for (int x = 0; x < fileMenu.getWidth() ; x++) {
         for (int y = 0; y < fileMenu.getHeight(); y++) {
-          if (!hoverOnBox(x, y, fileMenu.getX(), fileMenu.getY(),
-              fileMenu.getWidth(), fileMenu.getItemY(1))) {
-            if((y - fileMenu.getY()) % ITEM_HEIGHT != 0) { 
-              main.setPixelRGB(x, y, menuColor);
+          if (!hoverOnBox(x, y, fileMenu.getX(), fileMenu.getY(), fileMenu.getWidth(), fileMenu.getItemY(1))) {
+            main.setPixelRGB(x, y, menuColor);
+
+            if (hoverOnBox(x, y, fileMenu.getBox(fileMenu.getActiveElement()))) {
+              main.setPixelRGB(x, y, menuColorClick);
             }
-            else {
+            
+            if ((y - fileMenu.getY()) % ITEM_HEIGHT == 0) {
               main.setPixelRGB(x, y, menuLineColor);
             }
           }
@@ -675,14 +678,17 @@ int main(int argc, char* argv[]) {
 
     // render edit menu
     if (editMenu.render) {
+      editMenu.findActiveElement(main.getMouseXY());
       for (int x = EDIT_X; x < EDIT_X + editMenu.getWidth() ; x++) {
         for (int y = 0; y < editMenu.getHeight(); y++) {
-          if (!hoverOnBox(x, y, editMenu.getX(), editMenu.getY(),
-              editMenu.getWidth(), editMenu.getItemY(1))) {
-            if((y - editMenu.getY()) % ITEM_HEIGHT != 0) { 
-              main.setPixelRGB(x, y, menuColor);
+          if (!hoverOnBox(x, y, editMenu.getX(), editMenu.getY(), editMenu.getWidth(), editMenu.getItemY(1))) {
+            main.setPixelRGB(x, y, menuColor);
+            
+            if (hoverOnBox(x, y, editMenu.getBox(editMenu.getActiveElement()))) {
+              main.setPixelRGB(x, y, menuColorClick);
             }
-            else {
+            
+            if ((y - editMenu.getY()) % ITEM_HEIGHT == 0) {
               main.setPixelRGB(x, y, menuLineColor);
             }
           }
@@ -704,14 +710,17 @@ int main(int argc, char* argv[]) {
 
     // render view menu
     if (viewMenu.render) {
+      viewMenu.findActiveElement(main.getMouseXY());
       for (int x = VIEW_X; x < VIEW_X + viewMenu.getWidth() ; x++) {
         for (int y = 0; y < viewMenu.getHeight(); y++) {
-          if (!hoverOnBox(x, y, viewMenu.getX(), viewMenu.getY(),
-              viewMenu.getWidth(), viewMenu.getItemY(1))) {
-            if((y - viewMenu.getY()) % ITEM_HEIGHT != 0) { 
-              main.setPixelRGB(x, y, menuColor);
+          if (!hoverOnBox(x, y, viewMenu.getX(), viewMenu.getY(), viewMenu.getWidth(), viewMenu.getItemY(1))) {
+            main.setPixelRGB(x, y, menuColor);
+            
+            if (hoverOnBox(x, y, viewMenu.getBox(viewMenu.getActiveElement()))) {
+              main.setPixelRGB(x, y, menuColorClick);
             }
-            else {
+            
+            if ((y - viewMenu.getY()) % ITEM_HEIGHT == 0) {
               main.setPixelRGB(x, y, menuLineColor);
             }
           }
@@ -733,12 +742,16 @@ int main(int argc, char* argv[]) {
 
     // render display menu
     if (displayMenu.render && viewMenu.render) {
+      displayMenu.findActiveElement(main.getMouseXY());
       for (int x = displayMenu.getX(); x < displayMenu.getX() + displayMenu.getWidth() ; x++) {
         for (int y = displayMenu.getY(); y < displayMenu.getY() + displayMenu.getHeight(); y++) {
-          if(((y - displayMenu.getY()) % ITEM_HEIGHT != 0 && x != displayMenu.getX()) || y == displayMenu.getY()) { 
-            main.setPixelRGB(x, y, menuColor);
+          main.setPixelRGB(x, y, menuColor);
+          
+          if (hoverOnBox(x, y, displayMenu.getBox(displayMenu.getActiveElement()))) {
+            main.setPixelRGB(x, y, menuColorClick);
           }
-          else {
+          
+          if (((y - displayMenu.getY()) % ITEM_HEIGHT == 0 && y != displayMenu.getY()) || x == displayMenu.getX()) {
             main.setPixelRGB(x, y, menuLineColor);
           }
         }
@@ -750,14 +763,18 @@ int main(int argc, char* argv[]) {
 
     // render color menu
     if (colorMenu.render && viewMenu.render) {
+      colorMenu.findActiveElement(main.getMouseXY());
       for (int x = colorMenu.getX(); x < colorMenu.getX() + colorMenu.getWidth() ; x++) {
         for (int y = colorMenu.getY(); y < colorMenu.getY() + colorMenu.getHeight(); y++) {
-          if(((y - colorMenu.getY()) % ITEM_HEIGHT != 0) && x != colorMenu.getX()) { 
             main.setPixelRGB(x, y, menuColor);
-          }
-          else {
-            main.setPixelRGB(x, y, menuLineColor);
-          }
+            
+            if (hoverOnBox(x, y, colorMenu.getBox(colorMenu.getActiveElement()))) {
+              main.setPixelRGB(x, y, menuColorClick);
+            }
+            
+            if (((y - colorMenu.getY()) % ITEM_HEIGHT == 0 && y != colorMenu.getY()) || x == colorMenu.getX()) {
+              main.setPixelRGB(x, y, menuLineColor);
+            }
         }
       }
       for (int i = 0; i < colorMenu.getSize(); i++) {
@@ -767,12 +784,16 @@ int main(int argc, char* argv[]) {
 
     // draw the note right click menu
     if (rightMenu.render) {
+      rightMenu.findActiveElement(main.getMouseXY());
       for (int x = rightMenu.getX(); x < rightMenu.getX() + rightMenu.getWidth(); x++) {
         for (int y = rightMenu.getY(); y < rightMenu.getY() + rightMenu.getHeight(); y++) {
-          if((y - rightMenu.getY()) % ITEM_HEIGHT != 0 || y == rightMenu.getY()) { 
-            main.setPixelRGB(x, y, menuColor);
+          main.setPixelRGB(x, y, menuColor);
+          
+          if (hoverOnBox(x, y, rightMenu.getBox(rightMenu.getActiveElement()))) {
+            main.setPixelRGB(x, y, menuColorClick);
           }
-          else {
+          
+          if ((y - rightMenu.getY()) % ITEM_HEIGHT == 0 && y != rightMenu.getY()) {
             main.setPixelRGB(x, y, menuLineColor);
           }
         }
@@ -870,14 +891,18 @@ int main(int argc, char* argv[]) {
   
     // render midi menu
     if (midiMenu.render) {
+      midiMenu.findActiveElement(main.getMouseXY());
       for (int x = MIDI_X; x < MIDI_X + midiMenu.getWidth() ; x++) {
         for (int y = 0; y < midiMenu.getHeight(); y++) {
           if (!hoverOnBox(x, y, midiMenu.getX(), midiMenu.getY(),
               midiMenu.getWidth(), midiMenu.getItemY(1))) {
-            if((y - midiMenu.getY()) % ITEM_HEIGHT != 0) { 
-              main.setPixelRGB(x, y, menuColor);
+            main.setPixelRGB(x, y, menuColor);
+            
+            if (hoverOnBox(x, y, midiMenu.getBox(midiMenu.getActiveElement()))) {
+              main.setPixelRGB(x, y, menuColorClick);
             }
-            else {
+            
+            if ((y - midiMenu.getY()) % ITEM_HEIGHT == 0) {
               main.setPixelRGB(x, y, menuLineColor);
             }
           }
@@ -899,12 +924,16 @@ int main(int argc, char* argv[]) {
 
     // render input menu
     if (inputMenu.render && midiMenu.render) {
+      inputMenu.findActiveElement(main.getMouseXY());
       for (int x = inputMenu.getX(); x < inputMenu.getX() + inputMenu.getWidth() ; x++) {
         for (int y = inputMenu.getY(); y < inputMenu.getY() + inputMenu.getHeight(); y++) {
-          if(((y - inputMenu.getY()) % ITEM_HEIGHT != 0 && x != inputMenu.getX()) || y == inputMenu.getY()) { 
-            main.setPixelRGB(x, y, menuColor);
+          main.setPixelRGB(x, y, menuColor);
+          
+          if (hoverOnBox(x, y, inputMenu.getBox(inputMenu.getActiveElement()))) {
+            main.setPixelRGB(x, y, menuColorClick);
           }
-          else {
+          
+          if (((y - inputMenu.getY()) % ITEM_HEIGHT == 0 && y != inputMenu.getY()) || x == inputMenu.getX()) {
             main.setPixelRGB(x, y, menuLineColor);
           }
         }
@@ -1074,20 +1103,22 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 2: // save
-              if (fromMKI) {
+              if (fromMKI && !livePlay) {
                 cerr << "info: saving MKI - " << filename << endl;
                 saveFile(filename, input, noteColorA, noteColorB, darkBG, displayMode, colorMode, drawLine, songTime, invertColor);
               }
               oneTimeFlag = true;
               break;
             case 3: // save as
-              filenameC = osdialog_file(OSDIALOG_SAVE, ".", nullptr, savetypes);
-              
-              if (filenameC != nullptr) {
-                filename = static_cast<string>(filenameC);
-                cerr << "info: saving MKI - " << filename << endl;
-                saveFile(filename, input, noteColorA, noteColorB, darkBG, displayMode, colorMode, drawLine, songTime, invertColor);
-                oneTimeFlag = true;
+              if (!livePlay) {
+                filenameC = osdialog_file(OSDIALOG_SAVE, ".", nullptr, savetypes);
+                
+                if (filenameC != nullptr) {
+                  filename = static_cast<string>(filenameC);
+                  cerr << "info: saving MKI - " << filename << endl;
+                  saveFile(filename, input, noteColorA, noteColorB, darkBG, displayMode, colorMode, drawLine, songTime, invertColor);
+                  oneTimeFlag = true;
+                }
               }
               break;
             case 4: // exit
