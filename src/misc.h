@@ -28,8 +28,11 @@
 #include <iostream>
 #include "color.h"
 #include "box.h"
+#include "note.h"
 
 using std::string;
+
+class note;
 
 bool hoverOnBox(int mouseX, int mouseY, int noteX, int noteY, int noteWidth, int noteHeight);
 bool hoverOnBox(point mouse, int noteX, int noteY, int noteWidth, int noteHeight);
@@ -43,6 +46,7 @@ void getMenuLocation(int mainW, int mainH, int cnX, int cnY, int& rcX, int& rcY,
 void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, int rcY, int xBuf, int yBuf);
 
 string getSongPercent(long int pos, long double total, bool end);
+string getSongTime(long int pos, note cNote, double tTime);
 
 double getDistance(int x1, int y1, int x2, int y2);
 double getDistance(point a, int x2, int y2);

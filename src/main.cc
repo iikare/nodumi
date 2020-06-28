@@ -625,7 +625,8 @@ int main(int argc, char* argv[]) {
     }
 
     if (songTime && !fileMenu.render && !editMenu.render) {
-      songTimeText = getSongPercent(static_cast<long double>(firstNote.x) * 1000000 * input->getTimeScale(), static_cast<long double>(1000000) * input->getLastTick(), end);
+      songTimeText = getSongTime(firstNote.x, input->findCurrentNote(), input->getLastTime());
+      //songTimeText = getSongPercent(static_cast<long double>(firstNote.x) * 1000000 * input->getTimeScale(), static_cast<long double>(1000000) * input->getLastTick(), end);
 
       // choose text color based on background
       if (!invertColor) {

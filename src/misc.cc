@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include "note.h"
 #include "misc.h"
 
 using std::cerr;
@@ -109,6 +110,24 @@ string getSongPercent (long int pos,long double total, bool end) {
     result = untruncText.substr(0,5);
   }
   result += "%";
+  return result;
+}
+
+string getSongTime(long int pos, note cNote, double tTime) {
+  string result;
+
+  double secTick= cNote.time / (cNote.x - pos);
+
+  double ratio = -cNote.x / cNote.duration;
+
+  double realTime = cNote.time + ratio * secTick * cNote.duration;
+
+  //cerr << "ratio, realtime: " << ratio << ", " << realTime << endl;
+  cerr << "pos, x: " << -cNote.x << ", " << cNote.duration << ", "<< ratio << endl;
+
+  result += to_string(realTime);
+  result += " / ";
+  result += to_string(tTime);
   return result;
 }
 

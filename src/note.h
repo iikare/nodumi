@@ -48,6 +48,8 @@ class mfile {
     double getLastTime();
     double getTimeScale();
 
+    note findCurrentNote();
+
     void shiftX(double shiftX);
     void shiftTime(double timeInc);
     void scaleTime(double timeScale);

@@ -122,6 +122,15 @@ int mfile::getTrackCount() {
   return trackCount;
 }
 
+note mfile::findCurrentNote() {
+  for (int i = 0; i < noteCount; i++) {
+    if (notes[i].x < 0 && notes[i].x + notes[i].duration > 0) {
+      return notes[i];
+    }
+  }
+  return notes[0];
+}
+
 void mfile::load(string file) {
   if (notes != nullptr) {
     cerr << "info: resetting event structure" << endl;
@@ -178,7 +187,6 @@ void mfile::load(string file) {
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
         notes[idx].time = midifile[i][j].seconds;
-        cerr << notes[idx].time << endl;
 
         idx++;
       }
