@@ -624,7 +624,8 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if (songTime && !fileMenu.render && !editMenu.render) {
+    // only render song time if no main menus are rendered to prevent text overlap
+    if (songTime && !fileMenu.render && !editMenu.render && !viewMenu.render && !midiMenu.render) {
       songTimeText = getSongTime(firstNote.x, input->findCurrentNote(), input->getLastTime());
       //songTimeText = getSongPercent(static_cast<long double>(firstNote.x) * 1000000 * input->getTimeScale(), static_cast<long double>(1000000) * input->getLastTick(), end);
 

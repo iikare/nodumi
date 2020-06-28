@@ -127,6 +127,10 @@ note mfile::findCurrentNote() {
     if (notes[i].x < 0 && notes[i].x + notes[i].duration > 0) {
       return notes[i];
     }
+    else if (i != noteCount - 1 && notes[i].x + notes[i].duration < 0 && notes[i + 1].x > 0) {
+      // in between two notes
+      return notes[i];
+    }
   }
   return notes[0];
 }
