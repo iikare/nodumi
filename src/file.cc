@@ -138,24 +138,27 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
     // 2 bytes: tempo (uint16_t)
     // 8 bytes: duration (double)
     // 8 bytes: x (double)
-    // 1 bytes: y (unsigned char)
+    // 1 byte: y (uint8_t)
+    // 1 byte: velocity (uint8_t)
     // note: this limits the amount of tracks to 256
-    // note: this limits the Y value to 0 - 255
+    // note: this limits the y and velocity value to 0 - 255
     // note: this limits the tempo to 0 - 65535
 
-    if (notes[i].track > 255 || notes[i].y > 255) {
-      cerr << "warn: file attributes exceed limits" << endl;
+    if (notes[i].track > 255 || notes[i].y > 255 || notes[i].velocity > 127) {
+      cerr << "warn: file attributes exceed limits at note " << i << endl;
     }
     
     uint8_t trackByte = static_cast<uint8_t>(notes[i].track);
     uint16_t tempoShort = static_cast<uint16_t>(notes[i].tempo);
     uint8_t yByte = static_cast<uint8_t>(notes[i].y);
+    uint8_t velByte = static_cast<uint8_t>(notes[i].velocity);
 
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&trackByte)), sizeof(uint8_t));
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&tempoShort)), sizeof(uint16_t));
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].duration)), sizeof(double));
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].x)), sizeof(double));
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&yByte)), sizeof(uint8_t));
+    output.write(const_cast<char*>(reinterpret_cast<const char*>(&velByte)), sizeof(uint8_t));
 
   /*  cerr << "this is note " << i << endl;
     cerr << notes[i].track << endl;
@@ -300,6 +303,7 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
     file.read(reinterpret_cast<char*>(&input->notes[i].duration), sizeof(double));
     file.read(reinterpret_cast<char*>(&input->notes[i].x), sizeof(double));
     file.read(reinterpret_cast<char*>(&input->notes[i].y), sizeof(uint8_t));
+    file.read(reinterpret_cast<char*>(&input->notes[i].velocity), sizeof(uint8_t));
 
     input->notes[i].tempo = static_cast<double>(tempoShort);
  

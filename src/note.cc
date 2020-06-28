@@ -150,11 +150,9 @@ void mfile::load(string file) {
   midifile.linkNotePairs();
  
   trackCount = midifile.getTrackCount();
-  int eventCount = 0;
 
   for (int i = 0; i < trackCount; i++) {
-    eventCount = midifile.getEventCount(i);
-    for (int j = 0; j < eventCount; j++) {
+    for (int j = 0; j < midifile.getEventCount(i); j++) {
       if (midifile[i][j].isNoteOn()) {
         noteCount++;
       }
@@ -172,15 +170,15 @@ void mfile::load(string file) {
   int idx = 0;
 
   for (int i = 0; i < trackCount; i++) {
-    eventCount = midifile.getEventCount(i);
-    for (int j = 0; j < eventCount; j++) {
+    for (int j = 0; j < midifile.getEventCount(i); j++) {
       if (midifile[i][j].isNoteOn()) {
-       notes[idx].track = i;
-       notes[idx].duration = midifile[i][j].getTickDuration();
-       notes[idx].x  = midifile[i][j].tick;
-       notes[idx].y = midifile[i][j].getKeyNumber();
+        notes[idx].track = i;
+        notes[idx].duration = midifile[i][j].getTickDuration();
+        notes[idx].x  = midifile[i][j].tick;
+        notes[idx].y = midifile[i][j].getKeyNumber();
+        notes[idx].velocity = midifile[i][j][2];
 
-       idx++;
+        idx++;
       }
     }
   }
@@ -218,5 +216,8 @@ void mfile::load(string file) {
   // scale for visibility
   scaleTime(static_cast<double>(1)/8);
 
+  midifile.doTimeAnalysis();
+  midifile.joinTracks();
+  cout << "sec: " << midifile[0].last().seconds << endl;
   // this way, the starting tick is by definition 0 , and the ending tick is the old first tick
 }
