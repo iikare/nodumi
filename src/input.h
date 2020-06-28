@@ -21,6 +21,7 @@ class MidiInput {
     int getNoteCount() { return noteCount; }
     vector<string> getPorts();
 
+    mfile* noteStream;
   private:
     void convertEvents();
     void updatePosition();
@@ -28,7 +29,6 @@ class MidiInput {
     int findNoteIndex(int key);
     
     RtMidiIn* midiIn;
-    mfile* noteStream;
     vector<unsigned char> msgQueue;
     int numPort;
     int curPort;

@@ -11,7 +11,7 @@ using std::string;
 using std::cerr;
 using std::endl;
 
-MidiInput::MidiInput() : msgQueue(0), numPort(0), curPort(0), noteCount(0), numOn(0), timestamp(0) {
+MidiInput::MidiInput() : noteStream(nullptr), midiIn(nullptr), msgQueue(0), numPort(0), curPort(0), noteCount(0), numOn(0), timestamp(0) {
   midiIn = new RtMidiIn();
 
   // eventually will be converted to dynamic vector
@@ -88,7 +88,7 @@ void MidiInput::convertEvents() {
   for (long unsigned int i = 0; i < msgQueue.size(); i++) { 
     if (msgQueue[i] == 0b11111000) { // 248: clock signal
       //cerr << "shift by " << timestamp*100 << endl;
-      noteStream->shiftX(-timestamp*100);
+      noteStream->shiftX(-timestamp * 100 * noteStream->getTimeScale());
     }
     else if (msgQueue[i] == 0b10010000) { // 144: note on/off
       if (msgQueue[i + 2] != 0) { // if note on

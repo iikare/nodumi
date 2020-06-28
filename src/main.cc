@@ -31,7 +31,7 @@ using std::transform;
 int main(int argc, char* argv[]) {
 
   if (argc !=2) {
-    cerr << "error: invalid usage - specify a input->file!" << endl;
+    cerr << "error: invalid usage - specify a input file!" << endl;
     exit(1);
   }
   
@@ -91,8 +91,8 @@ int main(int argc, char* argv[]) {
   osdialog_filters* savetypes = osdialog_filters_parse("MKI:mki");
 
   // midi input controller
-  MidiInput userInput;
-  userInput.openPort(1);
+  MidiInput* userInput = new MidiInput;
+  userInput->openPort(1);
   bool livePlay = false;
 
   // menu constants
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
   const static int noteHeight = round(WIN_HEIGHT/NOTE_RANGE);
   
   // note shift controls
-  int x, y, width, deltaX, deltaY = 0;
+  int x, y, width, deltaX, deltaY, noteLimit = 0;
   double widthModifier = 1.25;
   double shiftTime = 0;
   double shiftX = 200;
@@ -232,7 +232,7 @@ int main(int argc, char* argv[]) {
 
   while (state){
     
-    userInput.update();
+    userInput->update();
     
     // load new file
     if (newFile) {
@@ -287,17 +287,26 @@ int main(int argc, char* argv[]) {
 
     // live play
     if (livePlay) {
-      notes = userInput.getNotes();
+      notes = userInput->getNotes();
+      noteLimit = userInput->getNoteCount();
+    //  input = userInput->noteStream;
       oneTimeFlag = true;
     }
+    else {
+      noteLimit = input->getNoteCount();
+    }
+
 
     // update note references
     lastNote = notes[input->getNoteCount()-1];
     firstNote = notes[0];
 
     // begin render logic
-    if (!end || oneTimeFlag) {
-      if (run || oneTimeFlag) {
+    if (!end || livePlay || oneTimeFlag) {
+      if (run || livePlay || oneTimeFlag) {
+        // ensure rerender flag is unset
+        oneTimeFlag = false;
+
         // paint background before anything else
         for (int i = 0; i < main.getWidth(); i++) {
           for (int j = 0; j < main.getHeight(); j++) {
@@ -310,11 +319,8 @@ int main(int argc, char* argv[]) {
           }
         }
        
-        // ensure rerender flag is unset
-        oneTimeFlag = false;
-
         // render notes
-        for (int i = 0; i < input->getNoteCount(); i++) {
+        for (int i = 0; i < noteLimit; i++) {
           // get current note
           renderNote = notes[i];
           mouseOnNote = false;
@@ -536,8 +542,13 @@ int main(int argc, char* argv[]) {
             }
           }
         }
+        // the shift is constant if in live mode
+        if (livePlay) {
+          //cerr << "a, b " << shiftTime << userInput->noteStream->getTimeScale() << endl;
+          //userInput->noteStream->shiftTime(shiftTime * userInput->noteStream->getTimeScale());
+        }
         // only update position if running (oneTimeFlag redraws buffer)
-        if (run) {
+        else if (run) {
           // end of file was reached
           if(lastNote.x + lastNote.duration<= 0) {
             run = false;
@@ -894,14 +905,20 @@ int main(int argc, char* argv[]) {
         break;
       case 5: // up arrow or scroll up
         oneTimeFlag = true;
-        if (input->getTimeScale() < 2) {
+        if (input->getTimeScale() < 2 && !livePlay) {
           input->scaleTime(widthModifier);
+        }
+        else if (userInput->noteStream->getTimeScale() < 2) {
+          userInput->noteStream->scaleTime(widthModifier);
         }
         break;
       case 6: //down arrow or scroll down
         oneTimeFlag = true;
-        if (input->getTimeScale() > static_cast<double>(1)/4096) {
+        if (input->getTimeScale() > static_cast<double>(1)/4096 && !livePlay) {
           input->scaleTime(1/widthModifier);
+        }
+        else if (userInput->noteStream->getTimeScale() > static_cast<double>(1)/4096) {
+          userInput->noteStream->scaleTime(1/widthModifier);
         }
         break;
       case 7: // home
@@ -1190,7 +1207,7 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 1: // input 
-              inputMenu.update(userInput.getPorts());
+              inputMenu.update(userInput->getPorts());
               inputMenu.render = !inputMenu.render;
               break;
             case 2: // output
@@ -1221,7 +1238,7 @@ int main(int argc, char* argv[]) {
               }
               break;
             default:
-              userInput.openPort(inputMenu.getActiveElement());
+              userInput->openPort(inputMenu.getActiveElement());
               break;
           }
         }
@@ -1310,9 +1327,8 @@ int main(int argc, char* argv[]) {
     
     main.update();
     
-    if (run || oneTimeFlag) {
+    if (run || livePlay || oneTimeFlag) {
       main.clearBuffer();
-      //cerr << "--------------------------------" << endl; 
     }
     else if (!end || lastNote.x + lastNote.duration == 0) {
       end = true;
@@ -1320,6 +1336,7 @@ int main(int argc, char* argv[]) {
   }
   
   delete input;
+  delete userInput;
   delete[] oNotes;  
   osdialog_filters_free(filetypes); 
   osdialog_filters_free(savetypes); 
