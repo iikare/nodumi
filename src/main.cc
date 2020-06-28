@@ -717,6 +717,13 @@ int main(int argc, char* argv[]) {
           if (!hoverOnBox(x, y, viewMenu.getX(), viewMenu.getY(), viewMenu.getWidth(), viewMenu.getItemY(1))) {
             main.setPixelRGB(x, y, menuColor);
             
+            if (displayMenu.render && hoverOnBox(x, y, viewMenu.getBox(1))) {
+              main.setPixelRGB(x, y, menuColorClick);
+            }
+            else if (colorMenu.render && hoverOnBox(x, y, viewMenu.getBox(5))) {
+              main.setPixelRGB(x, y, menuColorClick);
+            }
+
             if (hoverOnBox(x, y, viewMenu.getBox(viewMenu.getActiveElement()))) {
               main.setPixelRGB(x, y, menuColorClick);
             }
@@ -752,7 +759,7 @@ int main(int argc, char* argv[]) {
             main.setPixelRGB(x, y, menuColorClick);
           }
           
-          if (((y - displayMenu.getY()) % ITEM_HEIGHT == 0 && y != displayMenu.getY()) || x == displayMenu.getX()) {
+          if (((y - displayMenu.getY()) % ITEM_HEIGHT == 0 || x == displayMenu.getX()) && y != displayMenu.getY()) {
             main.setPixelRGB(x, y, menuLineColor);
           }
         }
@@ -773,9 +780,9 @@ int main(int argc, char* argv[]) {
               main.setPixelRGB(x, y, menuColorClick);
             }
             
-            if (((y - colorMenu.getY()) % ITEM_HEIGHT == 0 && y != colorMenu.getY()) || x == colorMenu.getX()) {
-              main.setPixelRGB(x, y, menuLineColor);
-            }
+          if (((y - colorMenu.getY()) % ITEM_HEIGHT == 0 || x == colorMenu.getX()) && y != colorMenu.getY()) {
+            main.setPixelRGB(x, y, menuLineColor);
+          }
         }
       }
       for (int i = 0; i < colorMenu.getSize(); i++) {
@@ -789,6 +796,10 @@ int main(int argc, char* argv[]) {
       for (int x = rightMenu.getX(); x < rightMenu.getX() + rightMenu.getWidth(); x++) {
         for (int y = rightMenu.getY(); y < rightMenu.getY() + rightMenu.getHeight(); y++) {
           main.setPixelRGB(x, y, menuColor);
+          
+          if (colorSelect.render && hoverOnBox(x, y, rightMenu.getBox(1))) {
+            main.setPixelRGB(x, y, menuColorClick);
+          }       
           
           if (hoverOnBox(x, y, rightMenu.getBox(rightMenu.getActiveElement()))) {
             main.setPixelRGB(x, y, menuColorClick);
@@ -898,7 +909,11 @@ int main(int argc, char* argv[]) {
           if (!hoverOnBox(x, y, midiMenu.getX(), midiMenu.getY(),
               midiMenu.getWidth(), midiMenu.getItemY(1))) {
             main.setPixelRGB(x, y, menuColor);
-            
+
+            if (inputMenu.render && hoverOnBox(x, y, midiMenu.getBox(1))) {
+              main.setPixelRGB(x, y, menuColorClick);
+            }     
+
             if (hoverOnBox(x, y, midiMenu.getBox(midiMenu.getActiveElement()))) {
               main.setPixelRGB(x, y, menuColorClick);
             }
@@ -934,7 +949,7 @@ int main(int argc, char* argv[]) {
             main.setPixelRGB(x, y, menuColorClick);
           }
           
-          if (((y - inputMenu.getY()) % ITEM_HEIGHT == 0 && y != inputMenu.getY()) || x == inputMenu.getX()) {
+          if (((y - inputMenu.getY()) % ITEM_HEIGHT == 0 || x == inputMenu.getX()) && y != inputMenu.getY()) {
             main.setPixelRGB(x, y, menuLineColor);
           }
         }
