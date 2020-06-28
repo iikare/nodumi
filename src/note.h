@@ -30,6 +30,7 @@ class note {
     double x;
     int y;
     int velocity;
+    bool isOn;
 
 };
 

@@ -25,6 +25,7 @@ class window {
     unsigned char eventHandler(SDL_Event &event);
     bool pointVisible(int x, int y);
     bool noteVisible(note n);
+    bool cursorChange() { return (lastMouseX != mouseX || lastMouseY != mouseY); }
     void updateCursor();
 
     int getWidth();
@@ -71,7 +72,9 @@ class window {
     
     TTF_Font* menuFont;
     int fontSize;
-
+  
+    int lastMouseX;
+    int lastMouseY;
     int mouseX;
     int mouseY;
     point mouseXY;

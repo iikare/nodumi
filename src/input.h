@@ -23,7 +23,8 @@ class MidiInput {
 
   private:
     void convertEvents();
-    void updateQueue();
+    void updatePosition();
+    bool updateQueue();
     int findNoteIndex(int key);
     
     RtMidiIn* midiIn;
@@ -32,6 +33,7 @@ class MidiInput {
     int numPort;
     int curPort;
     int noteCount;
+    int numOn;
     double timestamp;
 
 };

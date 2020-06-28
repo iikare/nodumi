@@ -13,7 +13,7 @@ window::window(string title) :
   cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr),
   windowX(0), windowY(0), messageX(0), messageY(0), messageText(0), messageCol(0), tTexture(nullptr), tSurface(nullptr), clipX(0), clipY(0),
   buffer(nullptr), menuFont(nullptr), fontSize(0),
-  mouseX(0), mouseY(0) {
+  lastMouseX(0), lastMouseY(0), mouseX(0), mouseY(0) {
   this->title = title;
   clip = {0, 0, 0, 0};
 }
@@ -156,6 +156,8 @@ bool window::noteVisible(note n) {
 }
 
 void window::updateCursor() {
+  lastMouseX = mouseX;
+  lastMouseY = mouseY;
   SDL_GetGlobalMouseState(&mouseX, &mouseY);
   SDL_GetWindowPosition(windowA, &windowX, &windowY);
   mouseX = mouseX - windowX;

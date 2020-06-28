@@ -16,7 +16,7 @@ using std::max;
 using std::min;
 using std::swap;
 
-note::note() : track(0), tempo(0),  duration(0), x(0), y(0), velocity(0) {}
+note::note() : track(0), tempo(0),  duration(0), x(0), y(0), velocity(0), isOn(false) {}
 
 note::~note() {}
 
@@ -27,6 +27,7 @@ note::note(const note& nNote) {
   y = nNote.y;
   duration = nNote.duration;
   velocity = nNote.velocity;
+  isOn = nNote.isOn;
 }
 
 void note::operator = (const note& nNote) {
@@ -36,6 +37,7 @@ void note::operator = (const note& nNote) {
   y = nNote.y;
   duration = nNote.duration;
   velocity = nNote.velocity;
+  isOn = nNote.isOn;
 }
 
 void note::init(int track, double tempo, double x, int y, double duration) {

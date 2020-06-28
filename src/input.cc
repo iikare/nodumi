@@ -11,7 +11,7 @@ using std::string;
 using std::cerr;
 using std::endl;
 
-MidiInput::MidiInput() : msgQueue(0), numPort(0), curPort(0), noteCount(0), timestamp(0) {
+MidiInput::MidiInput() : msgQueue(0), numPort(0), curPort(0), noteCount(0), numOn(0), timestamp(0) {
   midiIn = new RtMidiIn();
 
   // eventually will be converted to dynamic vector
@@ -67,7 +67,7 @@ vector<string> MidiInput::getPorts() {
   return ports;
 }
 
-void MidiInput::updateQueue() {
+bool MidiInput::updateQueue() {
   timestamp = midiIn->getMessage(&msgQueue);
   for (long unsigned int i = 0; i < msgQueue.size(); i++) {
     if ((int)msgQueue[i] != 248 && (int)msgQueue[i] != 254){ 
@@ -79,7 +79,9 @@ void MidiInput::updateQueue() {
     if ((int)msgQueue[0] != 248 && (int)msgQueue[0] != 254){ 
       cerr << "timestamp: " << timestamp << endl;
     }
+    return true;
   }
+  return false;
 }
 
 void MidiInput::convertEvents() {
@@ -96,21 +98,43 @@ void MidiInput::convertEvents() {
         tmpNote.x = 0;
         tmpNote.y = static_cast<int>(msgQueue[i + 1]);
         tmpNote.velocity = static_cast<int>(msgQueue[i + 2]);
+        tmpNote.isOn = true;
         
         // if this is the note on event, duration is undefined
         tmpNote.duration = 500;
+        
         noteStream->notes[noteCount] = tmpNote;
         noteCount++;
+        numOn++;
         i += 2;
+        
         cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
+        
         noteStream->noteCount = noteCount;
       }
       else {
         int idx = findNoteIndex(static_cast<int>(msgQueue[i + 1]));
-        noteStream->notes[idx].duration = -noteStream->notes[idx].x;
+        noteStream->notes[idx].isOn = false;
         note tmpNote = noteStream->notes[idx];
+
+        numOn--;
+
         cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
       }
+    }
+  }
+}
+
+void MidiInput::updatePosition() {
+  int i = 0;
+  for (int j = noteCount - 1; j >= 0; j--) {
+    if (i >= numOn) {
+      // all on notes shifted
+      break;
+    }
+    if (noteStream->notes[j].isOn) {
+      noteStream->notes[j].duration = -noteStream->notes[j].x;
+      i++;
     }
   }
 }
@@ -125,6 +149,8 @@ int MidiInput::findNoteIndex(int key) {
 }
 
 void MidiInput::update() {
-  updateQueue();
-  convertEvents();
+  while (updateQueue()) {
+    convertEvents();
+    updatePosition();
+  }
 }

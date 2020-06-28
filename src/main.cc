@@ -93,6 +93,7 @@ int main(int argc, char* argv[]) {
   // midi input controller
   MidiInput userInput;
   userInput.openPort(1);
+  bool livePlay = false;
 
   // menu constants
   const static int areaTop = MAIN_MENU_HEIGHT;
@@ -123,8 +124,6 @@ int main(int argc, char* argv[]) {
   bool noteOn = false;
 
   bool mouseOnNote = true;
-  int lastMouseX = 0;
-  int lastMouseY = 0;
   int displayMode = 1;
   
   // right click menu constants
@@ -196,10 +195,10 @@ int main(int argc, char* argv[]) {
   vector<string> displayMenuContents = {"Standard", "Line", "Ball"};
   menu displayMenu(main.getSize(), displayMenuContents, false, VIEW_X + viewMenu.getWidth(), viewMenu.getItemY(1));
 
-  vector<string> midiMenuContents = {"MIDI", "Input", "Output"};
+  vector<string> midiMenuContents = {"MIDI", "Input", "Output", "Enable Live Mode"};
   menu midiMenu(main.getSize(), midiMenuContents, true, MIDI_X, 0);
 
-  vector<string> inputMenuContents = {"Filler"};
+  vector<string> inputMenuContents = {""};
   menu inputMenu(main.getSize(), inputMenuContents, false, MIDI_X + midiMenu.getWidth(), midiMenu.getItemY(1));
 
   /*
@@ -272,9 +271,11 @@ int main(int argc, char* argv[]) {
 
       run = false;
       end = false;
+      livePlay = false;
       fileMenu.render = false;
       editMenu.render = false;
       viewMenu.render = false;
+      midiMenu.render = false;
       rightMenu.render = false;
     }
     
@@ -283,14 +284,12 @@ int main(int argc, char* argv[]) {
       end = false;
     }
 
-    // force rerender if menu is on
-    if (rightMenu.render || fileMenu.render) {
+
+    // live play
+    if (livePlay) {
+      notes = userInput.getNotes();
       oneTimeFlag = true;
     }
-
-    // live play debug
-    notes = userInput.getNotes();
-    oneTimeFlag = true;
 
     // update note references
     lastNote = notes[input->getNoteCount()-1];
@@ -1177,8 +1176,8 @@ int main(int argc, char* argv[]) {
         if (midiMenu.render || !midiMenu.getActiveElement()) {
           switch (midiMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
-              if (displayMenu.getActiveElement() == -1 && viewMenu.getActiveElement() == -1) {
-                viewMenu.render = false;
+              if (midiMenu.getActiveElement() == -1 && inputMenu.getActiveElement() == -1) {
+                midiMenu.render = false;
               }
               break;
             case 0: // click on midi menu again
@@ -1198,8 +1197,14 @@ int main(int argc, char* argv[]) {
               inputMenu.render = false;
               cerr << "info: function not implemented" << endl;
               break;
-            case 3: //
-              cerr << "info: function not implemented" << endl;
+            case 3: // enable/disable live play
+              livePlay = !livePlay;
+              if(!livePlay){
+                midiMenu.setContent("Enable Live Mode", 3);
+              }
+              else {
+                midiMenu.setContent("Disable Live Mode", 3);
+              }
               break;
             case 4: // 
               cerr << "info: function not implemented" << endl;
@@ -1297,10 +1302,8 @@ int main(int argc, char* argv[]) {
     }
     
     // update mouse position and check for changes
-    lastMouseX = main.getMouseX();
-    lastMouseY = main.getMouseY();
     main.updateCursor();
-    if (main.cursorVisible && (lastMouseX != main.getMouseX() || lastMouseY != main.getMouseY())) {
+    if (main.cursorVisible && main.cursorChange()) {
       // redraw buffer if mouse has moved
       oneTimeFlag = true;
     }
