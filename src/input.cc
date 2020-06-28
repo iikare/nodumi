@@ -28,6 +28,7 @@ MidiInput::~MidiInput() {
 
 void MidiInput::openPort(int port) {
   if (curPort != port) {
+    midiIn->closePort();
     curPort = port;
     numPort = midiIn->getPortCount();
     if (port >= numPort) {
@@ -36,6 +37,7 @@ void MidiInput::openPort(int port) {
     }
     midiIn->openPort(port);
     midiIn->ignoreTypes(false, false, false);
+    cerr << "info: opened port " << port << endl;
   }
   else {
     cerr << "info: attempted to open an already open port" << endl;

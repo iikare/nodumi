@@ -959,8 +959,9 @@ int main(int argc, char* argv[]) {
         fileMenu.findActiveElement(main.getMouseXY());
         editMenu.findActiveElement(main.getMouseXY());
         viewMenu.findActiveElement(main.getMouseXY());
-        midiMenu.findActiveElement(main.getMouseXY());
         displayMenu.findActiveElement(main.getMouseXY());
+        midiMenu.findActiveElement(main.getMouseXY());
+        inputMenu.findActiveElement(main.getMouseXY());
         
         // ensure color selector is not selected
         if (!hoverOnBox(main.getMouseXY(), colorSelect.getBoundingBox())) {
@@ -1176,8 +1177,9 @@ int main(int argc, char* argv[]) {
         if (midiMenu.render || !midiMenu.getActiveElement()) {
           switch (midiMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
-              midiMenu.render = false;
-              inputMenu.render = false;
+              if (displayMenu.getActiveElement() == -1 && viewMenu.getActiveElement() == -1) {
+                viewMenu.render = false;
+              }
               break;
             case 0: // click on midi menu again
               if (hoverOnBox(main.getMouseXY(), midiMenu.getX(), midiMenu.getY(),
@@ -1201,6 +1203,20 @@ int main(int argc, char* argv[]) {
               break;
             case 4: // 
               cerr << "info: function not implemented" << endl;
+              break;
+          }
+        }
+
+        //handle input menu actions
+        if (inputMenu.render || !inputMenu.getActiveElement()) {
+          switch (inputMenu.getActiveElement()) {
+            case -1: // clicked outside menu bounds
+              if (!midiMenu.render) {
+                inputMenu.render = false;
+              }
+              break;
+            default:
+              userInput.openPort(inputMenu.getActiveElement());
               break;
           }
         }

@@ -59,9 +59,9 @@ void note::scaleTime(double timeScale) {
   duration *= timeScale;
 }
 
-mfile::mfile() : noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), notes(nullptr) {}
+mfile::mfile() : trackCount(0), noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), notes(nullptr) {}
 
-mfile::mfile(int bufSize) : noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), notes(nullptr) {
+mfile::mfile(int bufSize) : trackCount(0), noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), notes(nullptr) {
   notes = new note[bufSize];
 }
 
