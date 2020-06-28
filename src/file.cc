@@ -20,7 +20,7 @@ using std::min;
 using std::max;
 
 void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const vector<colorRGB>& colorVecB,
-              colorRGB& bg, bool colorByPart, bool drawLine, bool songTime, bool invertColor) {
+              colorRGB& bg, int displayMode, int colorMode, bool drawLine, bool songTime, bool invertColor) {
   // force correct file extension
   transform(path.begin(), path.end(), path.begin(), ::tolower);
   if (path.substr(path.size() - 4) != ".mki") {
@@ -54,8 +54,6 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
   // second byte encodes settings data
   // top four bits currently unused
   uint8_t setting = 0b00000000;
-  setting += colorByPart;
-  setting <<=1;
   setting += drawLine;
   setting <<=1;
   setting += songTime;
@@ -63,11 +61,20 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
   setting += invertColor;
 
   output.write(reinterpret_cast<char*>(&setting), sizeof(setting));
+  
+  uint8_t dispMode = static_cast<uint8_t>(displayMode);
+  uint8_t colMode = static_cast<uint8_t>(colorMode);
 
-  // third byte encodes note count
+  // third byte encodes the display mode
+  output.write(reinterpret_cast<char*>(&dispMode), sizeof(dispMode));
+
+  // fourth byte encodes the color mode
+  output.write(reinterpret_cast<char*>(&colMode), sizeof(colMode));
+
+  // fifth byte encodes note count
   output.write(reinterpret_cast<char*>(&noteCount), sizeof(noteCount));
 
-  // fourth byte encodes color count
+  // sixth byte encodes color count
   int colorCount = colorVecA.size();
   output.write(reinterpret_cast<char*>(&colorCount), sizeof(colorCount));
   
@@ -174,7 +181,7 @@ bool checkMKI(ifstream& file, string path) {
 }
 
 void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, colorRGB& bg,
-                 bool& colorByPart, bool& drawLine, bool& songTime, bool& invertColor){
+                 int& displayMode, int& colorMode, bool& drawLine, bool& songTime, bool& invertColor){
   ifstream file;
   file.open(path, ios::in | ios::binary);
   if (!file) {
@@ -188,15 +195,23 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   // read the next byte and set the bool values (in order)
   uint8_t boolValue = 0; 
   file.read(reinterpret_cast<char *>(&boolValue), sizeof(uint8_t));
-  colorByPart = true;//(boolValue >> 4) >> 1;
   drawLine = (boolValue >> 3) & 1;
   songTime = (boolValue >> 2) & 1;
-  invertColor = !(boolValue >> 1) & 1;
+  invertColor = (boolValue >> 1) & 1;
 
-  // read the note count at third byte
+  uint8_t tmpValue = 0;
+  // read the display mode at third byte
+  file.read(reinterpret_cast<char *>(&tmpValue), sizeof(uint8_t));
+  displayMode = static_cast<int>(tmpValue);
+  
+  // read the display mode at fourth byte
+  file.read(reinterpret_cast<char *>(&tmpValue), sizeof(uint8_t));
+  colorMode = static_cast<int>(tmpValue);
+
+  // read the note count at fifth byte
   file.read(reinterpret_cast<char *>(&input->noteCount), sizeof(int));
 
-  // read the color count
+  // read the color count at sixth byte
   int colorCount = 0;
   file.read(reinterpret_cast<char *>(&colorCount), sizeof(int));
   

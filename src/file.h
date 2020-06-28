@@ -11,7 +11,7 @@ using std::vector;
 using std::ifstream;
 
 void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const vector<colorRGB>& colorVecB,
-              colorRGB& bg, bool colorByPart, bool drawLine, bool songTime, bool invertColor);
+              colorRGB& bg, int displayMode, int colorMode, bool drawLine, bool songTime, bool invertColor);
 
 bool checkMKI(ifstream& file, string path);
 

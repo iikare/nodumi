@@ -52,7 +52,7 @@ class mfile {
     void scaleTime(double timeScale);
 
     friend class MidiInput;
-    friend void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, colorRGB& bg, bool& colorByPart, bool& drawLine, bool& songTime, bool& invertColor);
+    friend void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, colorRGB& bg, int& displayMode, int& colorMode, bool& drawLine, bool& songTime, bool& invertColor);
 
     void load(string file);
   private:

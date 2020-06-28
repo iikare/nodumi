@@ -62,15 +62,17 @@ int main(int argc, char* argv[]) {
 
   colorRGB darkBG;
 
-  bool colorByPart, drawLine, songTime, invertColor;
+  bool drawLine, songTime, invertColor;
   bool fromMKI = false;
+
+  int displayMode, colorMode = 0;
   
   if (ext == "mid") {
     input->load(filename);
   }
   else {
     fromMKI = true;
-    loadFileMKI(filename, input, noteColorA, noteColorB, darkBG, colorByPart, drawLine, songTime, invertColor); 
+    loadFileMKI(filename, input, noteColorA, noteColorB, darkBG, displayMode, colorMode, drawLine, songTime, invertColor); 
   }
   
   cerr << "info: initializing render logic" << endl;
@@ -129,8 +131,7 @@ int main(int argc, char* argv[]) {
   bool noteOn = false;
 
   bool mouseOnNote = true;
-  int displayMode = 1;
-  int colorMode = 1;
+
   
   // right click menu constants
   // determine where to draw rightclick menu
@@ -168,7 +169,8 @@ int main(int argc, char* argv[]) {
     drawLine = true;
     songTime = false;
     invertColor = false;
-    colorByPart = true;
+    displayMode = 1;
+    colorMode = 1;
   }
   
   // song time text
@@ -256,7 +258,7 @@ int main(int argc, char* argv[]) {
       }
       else {
         fromMKI = true;
-        loadFileMKI(filename, input, noteColorA, noteColorB, darkBG, colorByPart, drawLine, songTime, invertColor); 
+        loadFileMKI(filename, input, noteColorA, noteColorB, darkBG, displayMode, colorMode, drawLine, songTime, invertColor); 
       }     
       
       if (!fromMKI) {
@@ -265,7 +267,8 @@ int main(int argc, char* argv[]) {
         drawLine = true;
         songTime = false;
         invertColor = false;
-        colorByPart = true;
+        displayMode = 1;
+        colorMode = 1;
       }
 
       delete[] oNotes; 
@@ -1073,7 +1076,7 @@ int main(int argc, char* argv[]) {
             case 2: // save
               if (fromMKI) {
                 cerr << "info: saving MKI - " << filename << endl;
-                saveFile(filename, input, noteColorA, noteColorB, darkBG, colorByPart, drawLine, songTime, invertColor);
+                saveFile(filename, input, noteColorA, noteColorB, darkBG, displayMode, colorMode, drawLine, songTime, invertColor);
               }
               oneTimeFlag = true;
               break;
@@ -1083,7 +1086,7 @@ int main(int argc, char* argv[]) {
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
                 cerr << "info: saving MKI - " << filename << endl;
-                saveFile(filename, input, noteColorA, noteColorB, darkBG, colorByPart, drawLine, songTime, invertColor);
+                saveFile(filename, input, noteColorA, noteColorB, darkBG, displayMode, colorMode, drawLine, songTime, invertColor);
                 oneTimeFlag = true;
               }
               break;
@@ -1270,7 +1273,8 @@ int main(int argc, char* argv[]) {
               colorSelect.render = true;
               break;
             case 2: // set tonic
-              if (!colorByPart) {
+              // only if render by tonic is selected
+              if (displayMode == 3) {
                 tonic = clickNoteTonic;
               } 
               colorSelect.render = false;
@@ -1306,16 +1310,16 @@ int main(int argc, char* argv[]) {
             case 3: // enable/disable live play
               livePlay = !livePlay;
 
-              // set default input port
-              userInput->openPort(1);
-
-              // default to color by velocity
-              colorMode = 3;
-
               if(!livePlay){
                 midiMenu.setContent("Enable Live Mode", 3);
               }
               else {
+                // set default input port
+                userInput->openPort(1);
+
+                // default to color by velocity
+                colorMode = 3;
+
                 midiMenu.setContent("Disable Live Mode", 3);
               }
               break;
