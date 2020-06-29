@@ -831,7 +831,7 @@ int main(int argc, char* argv[]) {
         for (int y = rightMenu.getY(); y < rightMenu.getY() + rightMenu.getHeight(); y++) {
           main.setPixelRGB(x, y, menuColor);
           
-          if (colorSelect.render && hoverOnBox(x, y, rightMenu.getBox(1))) {
+          if (!colorSelect.clickBG && colorSelect.render && hoverOnBox(x, y, rightMenu.getBox(1))) {
             main.setPixelRGB(x, y, menuColorClick);
           }       
           
@@ -1373,24 +1373,37 @@ int main(int argc, char* argv[]) {
                 }
               }
               break;
-            case 0: // note info
-              // nothing currently happens here
+            case 0: // note info (note)  change color (BG)
+              if (colorSelect.clickBG) {
+                if (colorSelect.render) {
+                 // turn off the color picker if clicked again
+                  colorSelect.render = false;
+                  break;
+                } 
+                getColorSelectLocation(main.getWidth(), main.getHeight(), colorSelectX, colorSelectY,
+                                       rightClickX, rightClickY, rightMenu.getWidth(),
+                                       rightMenu.getHeight());
+                colorSelect.setXY(colorSelectX, colorSelectY);
+                colorSelect.render = true;
+              }
               break;
             case 1: // change part color
-              if (colorSelect.render) {
-               // turn off the color picker if clicked again
-                colorSelect.render = false;
-                break;
-              } 
-              getColorSelectLocation(main.getWidth(), main.getHeight(), colorSelectX, colorSelectY,
-                                     rightClickX, rightClickY, rightMenu.getWidth(),
-                                     rightMenu.getHeight());
-              colorSelect.setXY(colorSelectX, colorSelectY);
-              colorSelect.render = true;
+              if (!colorSelect.clickBG) {
+                if (colorSelect.render) {
+                 // turn off the color picker if clicked again
+                  colorSelect.render = false;
+                  break;
+                } 
+                getColorSelectLocation(main.getWidth(), main.getHeight(), colorSelectX, colorSelectY,
+                                       rightClickX, rightClickY, rightMenu.getWidth(),
+                                       rightMenu.getHeight());
+                colorSelect.setXY(colorSelectX, colorSelectY);
+                colorSelect.render = true;
+              }
               break;
             case 2: // set tonic
               // only if render by tonic is selected
-              if (displayMode == 3) {
+              if (colorMode == 3) {
                 tonic = clickNoteTonic;
               } 
               colorSelect.render = false;
@@ -1471,9 +1484,12 @@ int main(int argc, char* argv[]) {
         // unselect BG
         colorSelect.clickBG = false;
 
+
         if ((hoverOnBox(main.getMouseXY(), clickNoteX, clickNoteY, clickNoteWidth, clickNoteHeight) && displayMode == 1) ||
             (getDistance(main.getMouseXY(), clickNoteX, clickNoteY) < clickNoteWidth && displayMode == 3)) {
-          cerr  << "right clicked on note!" << endl;
+          //cerr  << "right clicked on note!" << endl;
+
+          rightMenu.update(rightClickContents);
           
           // stop rendering if clicked again
           colorSelect.render = false;
@@ -1495,10 +1511,10 @@ int main(int argc, char* argv[]) {
             colorSelect.setColor(noteColorA[clickNoteTrack]);
           }
 
-          cerr << "the menu for this note will take the space {" 
+          /*cerr << "the menu for this note will take the space {" 
                << rightMenu.getX() << ", " << rightMenu.getY() << "} to {"
                << rightMenu.getX() + rightMenu.getWidth() << ", " 
-               << rightMenu.getY() + rightMenu.getHeight() << "}" << endl;
+               << rightMenu.getY() + rightMenu.getHeight() << "}" << endl;*/
 
           rightMenu.render = true;
         }
@@ -1509,6 +1525,10 @@ int main(int argc, char* argv[]) {
           // stop rendering if clicked again
           colorSelect.render = false;
 
+          // generate Menu
+          vector<string> BGRight= {"Change Color"};
+          rightMenu.update(BGRight);
+
           // find coordinate to draw right click menu
           getMenuLocation(main.getWidth(), main.getHeight(), main.getMouseX(), main.getMouseY(),
                           rightClickX, rightClickY, rightMenu.getWidth(), rightMenu.getHeight());
@@ -1516,16 +1536,13 @@ int main(int argc, char* argv[]) {
           // pass that coordinate to the menu class
           rightMenu.setXY(rightClickX, rightClickY);
           
-          // clear topitem content
-          rightMenu.setContent("", 0);
-          
           colorSelect.setColor(darkBG);
           rightMenu.render = true;
-          cerr << "right clicked on the background!" << endl;
+          //cerr << "right clicked on the background!" << endl;
         }
         else { 
           rightMenu.setContent("", 0);
-          cerr << "right clicked on a non-note!" << endl;
+          //cerr << "right clicked on a non-note!" << endl;
         }
         oneTimeFlag = true;
         break;

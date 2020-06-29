@@ -15,6 +15,9 @@ using std::string;
 using std::max;
 using std::min;
 using std::swap;
+using std::sort;
+using std::pair;
+using std::make_pair;
 
 note::note() : track(0), tempo(0),  duration(0), x(0), y(0), velocity(0), time(0), isOn(false) {}
 
@@ -124,7 +127,10 @@ int mfile::getTrackCount() {
 
 note mfile::findCurrentNote() {
   for (int i = 0; i < noteCount; i++) {
-    if (notes[i].x >= 0) {
+    if (notes[0].x < 0 && notes[2].x > 0) {
+      return notes[1];
+    }
+    else if (notes[i].x >= 0) {
       return notes[i-1];
     }
     else if (i + 1 == noteCount) {
@@ -139,7 +145,7 @@ void mfile::load(string file) {
   if (notes != nullptr) {
     cerr << "info: resetting event structure" << endl;
    
-   // delete[] notes; 
+    //delete[] notes; 
     notes = nullptr;
     
     noteCount = 0;
@@ -162,9 +168,16 @@ void mfile::load(string file) {
  
   trackCount = midifile.getTrackCount();
 
+  vector<pair<int,int>> trackInfo;
+
   for (int i = 0; i < trackCount; i++) {
+    bool once = true;
     for (int j = 0; j < midifile.getEventCount(i); j++) {
       if (midifile[i][j].isNoteOn()) {
+        if (once) {
+          once = false;
+          trackInfo.push_back(make_pair(midifile[i][j].tick, i));
+        }
         noteCount++;
       }
     }
@@ -175,6 +188,8 @@ void mfile::load(string file) {
     exit(1);
   }
 
+  sort(trackInfo.begin(), trackInfo.end());
+
   notes = new note[noteCount];
 
   int bpm = 0;
@@ -182,7 +197,8 @@ void mfile::load(string file) {
   
   midifile.doTimeAnalysis();
 
-  for (int i = 0; i < trackCount; i++) {
+  for (unsigned int track = 0; track < trackInfo.size(); track++) {
+    int i = trackInfo[track].second;
     for (int j = 0; j < midifile.getEventCount(i); j++) {
       if (midifile[i][j].isNoteOn()) {
         notes[idx].track = i;
@@ -209,15 +225,6 @@ void mfile::load(string file) {
     if (midifile[0][i].isNoteOn()) {
       notes[idx].tempo = bpm;
       idx++;
-    }
-  }
-
-  for (int i = 0; i < noteCount; i++) {
-    for (int j = 0; j < noteCount; j++) {
-      if (notes[i].x > notes[j].x && i < j) {
-        // must be done for misordered tracks
-        swap(notes[i], notes[j]);
-      }
     }
   }
 
