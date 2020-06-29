@@ -25,7 +25,6 @@ class note {
     void scaleTime(double timeScale);
     
     int track;
-    double tempo;
     double duration;
     double x;
     int y;
@@ -48,6 +47,7 @@ class mfile {
     double getLastTick();
     double getLastTime();
     double getTimeScale();
+    vector<pair<double, int>> getTempoMap() { return tempoMap; }
 
     note findCurrentNote();
     int findCurrentTempo();

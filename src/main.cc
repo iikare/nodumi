@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
   /*
    *  TODO:
    *    add alpha blend mode
-   *    add background color selection                  DONE
+   *    add background color selection            DONE
    *    add menu bar on top                       DONE
    *    add file picker                           DONE (fix memory leaks)
    *    add color picker for parts                DONE (set default size bigger)
@@ -229,7 +229,8 @@ int main(int argc, char* argv[]) {
    *    add save file ability                     DONE
    *    add save existing file                    DONE 
    *    add colorMode to MKI
-   *    improve tempo detection
+   *    add tempo detection                       DONE
+   *    fix note timing detection                 DONE
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
    *    add image support

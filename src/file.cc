@@ -15,6 +15,8 @@ using std::to_string;
 using std::transform;
 using std::ofstream;
 using std::ifstream;
+using std::pair;
+using std::make_pair;
 using std::ios;
 using std::min;
 using std::max;
@@ -135,11 +137,27 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
   // end of color section
   output.write(&separator, sizeof(separator));
 
+  // tempo map encoding
+  vector<pair<double, int>> tempoMap = file->getTempoMap();
+  int tempoSize = tempoMap.size(); 
+
+  //next byte is the size of the tempo map
+  
+  output.write(reinterpret_cast<char*>(&tempoSize), sizeof(tempoSize));
+ 
+  // the data in pair (int, double) format immediately follows
+  for (int i = 0; i < tempoSize; i++) {
+    output.write(reinterpret_cast<char*>(&tempoMap[i].first), sizeof(tempoMap[i].first));
+    output.write(reinterpret_cast<char*>(&tempoMap[i].second), sizeof(tempoMap[i].second));
+  }
+
+  // end of tempo map section
+  output.write(&separator, sizeof(separator));
+  
   // midi data encoding
   for (int i = 0; i < noteCount; i++) {
-    // each note needs 29 bytes to encode: broken down as follows
+    // each note needs 27 bytes to encode: broken down as follows
     // 1 byte: track (uint8_t)
-    // 2 bytes: tempo (uint16_t)
     // 8 bytes: duration (double)
     // 8 bytes: x (double)
     // 1 byte: y (uint8_t)
@@ -147,19 +165,16 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
     // 8 bytes: timestamp
     // note: this limits the amount of tracks to 256
     // note: this limits the y and velocity value to 0 - 255
-    // note: this limits the tempo to 0 - 65535
 
     if (notes[i].track > 255 || notes[i].y > 255 || notes[i].velocity > 127) {
       cerr << "warn: file attributes exceed limits at note " << i << endl;
     }
     
     uint8_t trackByte = static_cast<uint8_t>(notes[i].track);
-    uint16_t tempoShort = static_cast<uint16_t>(notes[i].tempo);
     uint8_t yByte = static_cast<uint8_t>(notes[i].y);
     uint8_t velByte = static_cast<uint8_t>(notes[i].velocity);
 
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&trackByte)), sizeof(uint8_t));
-    output.write(const_cast<char*>(reinterpret_cast<const char*>(&tempoShort)), sizeof(uint16_t));
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].duration)), sizeof(double));
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].x)), sizeof(double));
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&yByte)), sizeof(uint8_t));
@@ -168,7 +183,6 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
 
   /*  cerr << "this is note " << i << endl;
     cerr << notes[i].track << endl;
-    cerr << notes[i].tempo << endl;
     cerr << notes[i].duration << endl;
     cerr << notes[i].x << endl;
     cerr << notes[i].y << endl;*/
@@ -297,29 +311,44 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   // after the colors there is a separator
   if (!checkMKI(file, path)) { return; }
 
+  // tempo map encoding
+  int tempoSize = 0; 
+  input->tempoMap.clear();
+
+  //next byte is the size of the tempo map
+  
+  file.read(reinterpret_cast<char*>(&tempoSize), sizeof(tempoSize));
+ 
+  // the data in pair (int, double) format immediately follows
+  for (int i = 0; i < tempoSize; i++) {
+    double tick = 0;
+    int bpm = 0;
+    file.read(reinterpret_cast<char*>(&tick), sizeof(tick));
+    file.read(reinterpret_cast<char*>(&bpm), sizeof(bpm));
+    input->tempoMap.push_back(make_pair(tick, bpm));
+  }
+
+  // end of tempo map section
+  if (!checkMKI(file, path)) { return; }
+
   // initialize the note array
   input->notes = new note[input->noteCount];
 
   // initialize misc. data
   input->timeScale = 1.0/8;
-  uint16_t tempoShort = 0;
   
   for (int i = 0; i < input->noteCount; i++) {
     // read into array
     //
     file.read(reinterpret_cast<char*>(&input->notes[i].track), sizeof(uint8_t));
-    file.read(reinterpret_cast<char*>(&tempoShort), sizeof(uint16_t));
     file.read(reinterpret_cast<char*>(&input->notes[i].duration), sizeof(double));
     file.read(reinterpret_cast<char*>(&input->notes[i].x), sizeof(double));
     file.read(reinterpret_cast<char*>(&input->notes[i].y), sizeof(uint8_t));
     file.read(reinterpret_cast<char*>(&input->notes[i].velocity), sizeof(uint8_t));
     file.read(reinterpret_cast<char*>(&input->notes[i].time), sizeof(double));
 
-    input->notes[i].tempo = static_cast<double>(tempoShort);
- 
  /*   cerr << "this is note " << i << endl;
     cerr << input->notes[i].track << endl;
-    cerr << input->notes[i].tempo << endl;
     cerr << input->notes[i].duration << endl;
     cerr << input->notes[i].x << endl;
     cerr << input->notes[i].y << endl;   */

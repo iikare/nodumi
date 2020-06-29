@@ -91,7 +91,6 @@ void MidiInput::convertEvents() {
       if (msgQueue[i + 2] != 0) { // if note on
         note tmpNote;
         tmpNote.track = 1; // by default
-        tmpNote.tempo = 120; 
         tmpNote.x = 0;
         tmpNote.y = static_cast<int>(msgQueue[i + 1]);
         tmpNote.velocity = static_cast<int>(msgQueue[i + 2]);

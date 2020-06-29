@@ -19,13 +19,12 @@ using std::sort;
 using std::pair;
 using std::make_pair;
 
-note::note() : track(0), tempo(0),  duration(0), x(0), y(0), velocity(0), time(0), isOn(false) {}
+note::note() : track(0),  duration(0), x(0), y(0), velocity(0), time(0), isOn(false) {}
 
 note::~note() {}
 
 note::note(const note& nNote) {
   track = nNote.track;
-  tempo = nNote.tempo;
   x = nNote.x;
   y = nNote.y;
   duration = nNote.duration;
@@ -36,7 +35,6 @@ note::note(const note& nNote) {
 
 void note::operator = (const note& nNote) {
   track = nNote.track;
-  tempo = nNote.tempo;
   x = nNote.x;
   y = nNote.y;
   duration = nNote.duration;
@@ -142,14 +140,15 @@ note mfile::findCurrentNote() {
 }
 
 int mfile::findCurrentTempo() {
-  //cerr << notes[0].x << endl;
   double firstX = -notes[0].x / timeScale;
-  cerr<< firstX << endl;
+  //cerr<< firstX << endl;
   for (unsigned int i = 0; i < tempoMap.size(); i++) {
     if (i + 1 == tempoMap.size() || (firstX >= tempoMap[i].first && firstX < tempoMap[i + 1].first)) {
      return tempoMap[i].second;
     }
-  } 
+  }
+  // default tempo for no tempo map
+  return 120; 
 }
 
 void mfile::load(string file) {
@@ -231,13 +230,11 @@ void mfile::load(string file) {
   midifile.sortTracks();
   
   int lastIdx = 0;
-  int bpm = 0;
 
   for (int i = 0; i < midifile.getEventCount(0); i++) {
 
     if (midifile[0][i].isTempo()) {
-      bpm = midifile[0][i].getTempoBPM();
-      tempoMap.push_back(make_pair(notes[lastIdx].x, bpm));
+      tempoMap.push_back(make_pair(notes[lastIdx].x, midifile[0][i].getTempoBPM()));
     }
     if (midifile[0][i].isNoteOn()) {
       lastIdx = idx;
@@ -245,9 +242,9 @@ void mfile::load(string file) {
     }
   }
 
-  for (unsigned int i = 0; i < tempoMap.size(); i++) {
-    cerr << "tick: "<< tempoMap[i].first << " bpm: " << tempoMap[i].second << endl;
-  }
+  //for (unsigned int i = 0; i < tempoMap.size(); i++) {
+    //cerr << "tick: "<< tempoMap[i].first << " bpm: " << tempoMap[i].second << endl;
+  //}
 
   // determine scaling factor
   // has been removed to improve loading times - function should be independent of loading
