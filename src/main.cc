@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
   note renderNote = notes[0];
   note& firstNote = notes[0];
   note& lastNote = notes[input->getNoteCount()-1];
-  shiftTime = firstNote.tempo;
+  shiftTime = input->findCurrentTempo();
 
   // event controller
   SDL_Event event;
@@ -282,7 +282,7 @@ int main(int argc, char* argv[]) {
       memcpy(oNotes, notes, input->getNoteCount() * sizeof(note));
 
       renderNote = notes[0];
-      shiftTime = notes[0].tempo;
+      shiftTime = input->findCurrentTempo();
 
       x = 0;
       y = 0;
@@ -319,6 +319,7 @@ int main(int argc, char* argv[]) {
     // update note references
     lastNote = notes[input->getNoteCount()-1];
     firstNote = notes[0];
+    shiftTime = input->findCurrentTempo();
 
     // begin render logic
     if (!end || livePlay || oneTimeFlag) {

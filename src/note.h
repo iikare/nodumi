@@ -10,6 +10,7 @@
 using namespace smf;
 using std::string;
 using std::vector;
+using std::pair;
 
 class note {
   public:
@@ -49,6 +50,7 @@ class mfile {
     double getTimeScale();
 
     note findCurrentNote();
+    int findCurrentTempo();
 
     void shiftX(double shiftX);
     void shiftTime(double timeInc);
@@ -66,6 +68,8 @@ class mfile {
     double timeScale;
     double lastTick;
     double lastTime;
+
+    vector<pair<double, int>> tempoMap;
     note* notes;
 };
 

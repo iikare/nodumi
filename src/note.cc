@@ -58,9 +58,9 @@ void note::scaleTime(double timeScale) {
   duration *= timeScale;
 }
 
-mfile::mfile() : trackCount(0), noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), lastTime(0),  notes(nullptr) {}
+mfile::mfile() : trackCount(0), noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), lastTime(0), tempoMap(0), notes(nullptr) {}
 
-mfile::mfile(int bufSize) : trackCount(0), noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), lastTime(0), notes(nullptr) {
+mfile::mfile(int bufSize) : trackCount(0), noteCount(0), noteMin(0), noteMax(0), timeScale(1), lastTick(0), lastTime(0), tempoMap(0), notes(nullptr) {
   notes = new note[bufSize];
 }
 
@@ -141,6 +141,17 @@ note mfile::findCurrentNote() {
   return notes[0];
 }
 
+int mfile::findCurrentTempo() {
+  //cerr << notes[0].x << endl;
+  double firstX = -notes[0].x / timeScale;
+  cerr<< firstX << endl;
+  for (unsigned int i = 0; i < tempoMap.size(); i++) {
+    if (i + 1 == tempoMap.size() || (firstX >= tempoMap[i].first && firstX < tempoMap[i + 1].first)) {
+     return tempoMap[i].second;
+    }
+  } 
+}
+
 void mfile::load(string file) {
   if (notes != nullptr) {
     cerr << "info: resetting event structure" << endl;
@@ -148,6 +159,8 @@ void mfile::load(string file) {
     //delete[] notes; 
     notes = nullptr;
     
+    tempoMap.clear();
+
     noteCount = 0;
     noteMin = 0;
     noteMax = 0;
@@ -192,7 +205,6 @@ void mfile::load(string file) {
 
   notes = new note[noteCount];
 
-  int bpm = 0;
   int idx = 0;
   
   midifile.doTimeAnalysis();
@@ -217,15 +229,24 @@ void mfile::load(string file) {
  
   midifile.joinTracks();
   midifile.sortTracks();
+  
+  int lastIdx = 0;
+  int bpm = 0;
 
   for (int i = 0; i < midifile.getEventCount(0); i++) {
+
     if (midifile[0][i].isTempo()) {
       bpm = midifile[0][i].getTempoBPM();
+      tempoMap.push_back(make_pair(notes[lastIdx].x, bpm));
     }
     if (midifile[0][i].isNoteOn()) {
-      notes[idx].tempo = bpm;
+      lastIdx = idx;
       idx++;
     }
+  }
+
+  for (unsigned int i = 0; i < tempoMap.size(); i++) {
+    cerr << "tick: "<< tempoMap[i].first << " bpm: " << tempoMap[i].second << endl;
   }
 
   // determine scaling factor
