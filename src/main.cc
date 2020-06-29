@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
   /*
    *  TODO:
    *    add alpha blend mode
-   *    add background selection                  DONE
+   *    add background color selection                  DONE
    *    add menu bar on top                       DONE
    *    add file picker                           DONE (fix memory leaks)
    *    add color picker for parts                DONE (set default size bigger)
@@ -229,7 +229,7 @@ int main(int argc, char* argv[]) {
    *    add save file ability                     DONE
    *    add save existing file                    DONE 
    *    add colorMode to MKI
-   *    reset tempo between files
+   *    improve tempo detection
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
    *    add image support
@@ -282,7 +282,7 @@ int main(int argc, char* argv[]) {
       memcpy(oNotes, notes, input->getNoteCount() * sizeof(note));
 
       renderNote = notes[0];
-      shiftTime = firstNote.tempo;
+      shiftTime = notes[0].tempo;
 
       x = 0;
       y = 0;
@@ -608,6 +608,7 @@ int main(int argc, char* argv[]) {
             end = true;
           }
           else {
+            cerr << "shiftTime: " << shiftTime << endl;
             // shift normally as per tempo, or until end, whichever comes first
             if (lastNote.x + lastNote.duration > 0 && (shiftTime * input->getTimeScale())/TIME_MODIFIER < lastNote.x + lastNote.duration) {
               input->shiftTime(shiftTime * input->getTimeScale());
@@ -793,7 +794,7 @@ int main(int argc, char* argv[]) {
               main.setPixelRGB(x, y, menuColorClick);
             }
             
-          if (((y - songMenu.getY()) % ITEM_HEIGHT == 0 || x == songMenu.getX()) && y != songMenu.getY()) {
+          if (((y - songMenu.getY()) % ITEM_HEIGHT == 0 && y != songMenu.getY()) || x == songMenu.getX()) {
             main.setPixelRGB(x, y, menuLineColor);
           }
         }
@@ -814,7 +815,7 @@ int main(int argc, char* argv[]) {
               main.setPixelRGB(x, y, menuColorClick);
             }
             
-          if (((y - colorMenu.getY()) % ITEM_HEIGHT == 0 || x == colorMenu.getX()) && y != colorMenu.getY()) {
+          if (((y - colorMenu.getY()) % ITEM_HEIGHT == 0 && y != colorMenu.getY()) || x == colorMenu.getX()) {
             main.setPixelRGB(x, y, menuLineColor);
           }
         }
