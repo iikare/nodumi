@@ -117,17 +117,46 @@ string getSongTime(long int pos, note cNote, double tTime) {
   string result;
 
   double secTick= cNote.time / (cNote.x - pos);
-
   double ratio = -cNote.x / cNote.duration;
-
   double realTime = cNote.time + ratio * secTick * cNote.duration;
 
-  //cerr << "ratio, realtime: " << ratio << ", " << realTime << endl;
-  cerr << "pos, x: " << -cNote.x << ", " << cNote.duration << ", "<< ratio << endl;
+  //cerr << "pos, x: " << -cNote.x << ", " << cNote.duration << ", "<< ratio << endl;
 
-  result += to_string(realTime);
+  result += toMinutes(realTime);
   result += " / ";
-  result += to_string(tTime);
+  result += toMinutes(tTime);
+  return result;
+}
+
+string toMinutes(double seconds) {
+  string result;
+
+  int hours = seconds / 3600;
+  int min = seconds / 60;
+  int sec = static_cast<int>(round(seconds)) % 60;
+
+  if (hours != 0) {
+    string hrStr = to_string(hours);
+    if (hours < 10) {
+      hrStr = "0" + hrStr;
+    }
+    result += hrStr;
+    result += ":";
+  }
+  
+  string minStr = to_string(min);
+  if (min < 10 && hours != 0) {
+    minStr = "0" + minStr;
+  }
+  result += minStr;
+  result += ":";
+  
+  string secStr = to_string(sec);
+  if (sec < 10) {
+    secStr = "0" + secStr;
+  }
+  result += secStr;
+
   return result;
 }
 

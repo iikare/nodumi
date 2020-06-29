@@ -175,6 +175,7 @@ int main(int argc, char* argv[]) {
   
   // song time text
   string songTimeText = "";
+  int songMode = 1;
   
   // note info
   note* notes = input->getNotes();
@@ -202,6 +203,9 @@ int main(int argc, char* argv[]) {
 
   vector<string> displayMenuContents = {"Standard", "Line", "Ball"};
   menu displayMenu(main.getSize(), displayMenuContents, false, VIEW_X + viewMenu.getWidth(), viewMenu.getItemY(1));
+
+  vector<string> songMenuContents = {"Relative", "Absolute"};
+  menu songMenu(main.getSize(), songMenuContents, false, VIEW_X + viewMenu.getWidth(), viewMenu.getItemY(4));
 
   vector<string> colorMenuContents = {"Part", "Velocity", "Tonic"};
   menu colorMenu(main.getSize(), colorMenuContents, false, VIEW_X + viewMenu.getWidth(), viewMenu.getItemY(5));
@@ -626,8 +630,12 @@ int main(int argc, char* argv[]) {
 
     // only render song time if no main menus are rendered to prevent text overlap
     if (songTime && !fileMenu.render && !editMenu.render && !viewMenu.render && !midiMenu.render) {
-      songTimeText = getSongTime(firstNote.x, input->findCurrentNote(), input->getLastTime());
-      //songTimeText = getSongPercent(static_cast<long double>(firstNote.x) * 1000000 * input->getTimeScale(), static_cast<long double>(1000000) * input->getLastTick(), end);
+      if (songMode == 1) {
+        songTimeText = getSongPercent(static_cast<long double>(firstNote.x) * 1000000 * input->getTimeScale(), static_cast<long double>(1000000) * input->getLastTick(), end);
+      }
+      else if (songMode == 2) {
+        songTimeText = getSongTime(firstNote.x, input->findCurrentNote(), input->getLastTime());
+      }
 
       // choose text color based on background
       if (!invertColor) {
@@ -721,6 +729,9 @@ int main(int argc, char* argv[]) {
             if (displayMenu.render && hoverOnBox(x, y, viewMenu.getBox(1))) {
               main.setPixelRGB(x, y, menuColorClick);
             }
+            else if (songMenu.render && hoverOnBox(x, y, viewMenu.getBox(4))) {
+              main.setPixelRGB(x, y, menuColorClick);
+            }
             else if (colorMenu.render && hoverOnBox(x, y, viewMenu.getBox(5))) {
               main.setPixelRGB(x, y, menuColorClick);
             }
@@ -767,6 +778,27 @@ int main(int argc, char* argv[]) {
       }
       for (int i = 0; i < displayMenu.getSize(); i++) {
         main.renderText(displayMenu.getItemX(i), displayMenu.getItemY(i), displayMenu.getContent(i));
+      }
+    }
+
+    // render song menu
+    if (songMenu.render && viewMenu.render) {
+      songMenu.findActiveElement(main.getMouseXY());
+      for (int x = songMenu.getX(); x < songMenu.getX() + songMenu.getWidth() ; x++) {
+        for (int y = songMenu.getY(); y < songMenu.getY() + songMenu.getHeight(); y++) {
+            main.setPixelRGB(x, y, menuColor);
+            
+            if (hoverOnBox(x, y, songMenu.getBox(songMenu.getActiveElement()))) {
+              main.setPixelRGB(x, y, menuColorClick);
+            }
+            
+          if (((y - songMenu.getY()) % ITEM_HEIGHT == 0 || x == songMenu.getX()) && y != songMenu.getY()) {
+            main.setPixelRGB(x, y, menuLineColor);
+          }
+        }
+      }
+      for (int i = 0; i < songMenu.getSize(); i++) {
+        main.renderText(songMenu.getItemX(i), songMenu.getItemY(i), songMenu.getContent(i));
       }
     }
 
@@ -1087,6 +1119,7 @@ int main(int argc, char* argv[]) {
         editMenu.findActiveElement(main.getMouseXY());
         viewMenu.findActiveElement(main.getMouseXY());
         displayMenu.findActiveElement(main.getMouseXY());
+        songMenu.findActiveElement(main.getMouseXY());
         colorMenu.findActiveElement(main.getMouseXY());
         midiMenu.findActiveElement(main.getMouseXY());
         inputMenu.findActiveElement(main.getMouseXY());
@@ -1095,7 +1128,7 @@ int main(int argc, char* argv[]) {
         if (!hoverOnBox(main.getMouseXY(), colorSelect.getBoundingBox())) {
           colorSelect.render = false;
         }       
-        
+
         //handle file menu actions
         if (fileMenu.render || !fileMenu.getActiveElement()) {
           switch (fileMenu.getActiveElement()) {
@@ -1179,9 +1212,11 @@ int main(int argc, char* argv[]) {
         if (viewMenu.render || !viewMenu.getActiveElement()) {
           switch(viewMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
-              if (displayMenu.getActiveElement() == -1 && colorMenu.getActiveElement() == -1 && viewMenu.getActiveElement() == -1) {
+              if (((displayMenu.getActiveElement() == -1 && displayMenu.render) || (songMenu.getActiveElement() == -1 && songMenu.render) ||
+                   (colorMenu.getActiveElement() == -1 && colorMenu.render)) && viewMenu.getActiveElement() == -1) {
                 viewMenu.render = false;
               }
+
               break;
             case 0: // click on view menu again
               if (hoverOnBox(main.getMouseXY(), viewMenu.getX(), viewMenu.getY(),
@@ -1190,10 +1225,14 @@ int main(int argc, char* argv[]) {
                 editMenu.render = false;
                 midiMenu.render = false;
                 viewMenu.render = !viewMenu.render;
+                if (!songMode) {          
+                  viewMenu.setContent("Display Song Time", 4);
+                }
               }
               break;
             case 1: //display mode
               displayMenu.render = !displayMenu.render;
+              songMenu.render = false;
               colorMenu.render = false;
               break;
             case 2: // now line
@@ -1205,27 +1244,35 @@ int main(int argc, char* argv[]) {
                 viewMenu.setContent("Hide Now Line", 2);
               }
               displayMenu.render = false;
+              songMenu.render = false;
               colorMenu.render = false;
               break;
             case 3: // invert color scheme
               invertColor = !invertColor;
               displayMenu.render = false;
+              songMenu.render = false;
               colorMenu.render = false;
               break;
-            case 4: // display song time 
-              songTime = !songTime;
-              if(!songTime){
+            case 4: // display song time
+              if (songTime) {
                 viewMenu.setContent("Display Song Time", 4);
+                songTime = false;
+                songMenu.render = false;
               }
               else {
-                viewMenu.setContent("Hide Song Time", 4);
+                viewMenu.setContent("Hide Song Time" , 4);
+                songMenu.render = true;
+                songMode = 0;
               }
+
+              // check for if no selection was mode
               displayMenu.render = false;
               colorMenu.render = false;
               break;
             case 5: //set color method
               colorMenu.render = !colorMenu.render;
               displayMenu.render = false;
+              songMenu.render = false;
               break;
             case 6: // 
               cerr << "info: function not implemented" << endl;
@@ -1259,6 +1306,29 @@ int main(int argc, char* argv[]) {
           }
         }  
 
+        //handle song menu actions
+        if (songMenu.render || !songMenu.getActiveElement()) {
+          switch (songMenu.getActiveElement()) {
+            case -1: // clicked outside menu bounds
+              if (!viewMenu.render) {
+                songMenu.render = false;
+              }
+
+              break;
+            case 0: // relative
+              songTime = true;
+              songMode = 1;
+              break;
+            case 1: // absolute
+              songTime = true;
+              songMode = 2; 
+              break;
+            case 2: // 
+              cerr << "info: function not implemented" << endl;
+              break;
+          }
+        }  
+
         //handle color menu actions
         if (colorMenu.render || !colorMenu.getActiveElement()) {
           switch (colorMenu.getActiveElement()) {
@@ -1269,15 +1339,12 @@ int main(int argc, char* argv[]) {
               break;
             case 0: // part
               colorMode = 1;
-              cerr << "info: function not implemented" << endl;
               break;
             case 1: // velocity
               colorMode = 2; 
-              cerr << "info: function not implemented" << endl;
               break;
             case 2: // tonic
               colorMode = 3;
-              cerr << "info: function not implemented" << endl;
               break;
             case 3: //
               cerr << "info: function not implemented" << endl;
@@ -1386,11 +1453,13 @@ int main(int argc, char* argv[]) {
               }
               break;
             default:
-              userInput->openPort(inputMenu.getActiveElement());
+              if (inputMenu.render) {
+                userInput->openPort(inputMenu.getActiveElement());
+              }
               break;
           }
         }
-
+        
         oneTimeFlag = true;
         break;
       case 12: // right click
