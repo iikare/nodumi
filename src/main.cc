@@ -1212,11 +1212,18 @@ int main(int argc, char* argv[]) {
         if (viewMenu.render || !viewMenu.getActiveElement()) {
           switch(viewMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
-              if (((displayMenu.getActiveElement() == -1 && displayMenu.render) || (songMenu.getActiveElement() == -1 && songMenu.render) ||
-                   (colorMenu.getActiveElement() == -1 && colorMenu.render)) && viewMenu.getActiveElement() == -1) {
+              if (viewMenu.getActiveElement() == -1 &&  displayMenu.getActiveElement() == -1) {
+                displayMenu.render = false;
+              } 
+              if (viewMenu.getActiveElement() == -1 &&  songMenu.getActiveElement() == -1) {
+                songMenu.render = false;
+              } 
+              if (viewMenu.getActiveElement() == -1 &&  colorMenu.getActiveElement() == -1) {
+                colorMenu.render = false;
+              } 
+              if (!displayMenu.render && !songMenu.render && !colorMenu.render && viewMenu.getActiveElement() == -1) {
                 viewMenu.render = false;
               }
-
               break;
             case 0: // click on view menu again
               if (hoverOnBox(main.getMouseXY(), viewMenu.getX(), viewMenu.getY(),
@@ -1284,9 +1291,7 @@ int main(int argc, char* argv[]) {
         if (displayMenu.render || !displayMenu.getActiveElement()) {
           switch (displayMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
-              if (!viewMenu.render) {
-                displayMenu.render = false;
-              }
+              // handled inside parent menu
               break;
             case 0: // standard
               displayMode = 1;
@@ -1310,10 +1315,7 @@ int main(int argc, char* argv[]) {
         if (songMenu.render || !songMenu.getActiveElement()) {
           switch (songMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
-              if (!viewMenu.render) {
-                songMenu.render = false;
-              }
-
+              // handled inside parent menu
               break;
             case 0: // relative
               songTime = true;
@@ -1333,9 +1335,7 @@ int main(int argc, char* argv[]) {
         if (colorMenu.render || !colorMenu.getActiveElement()) {
           switch (colorMenu.getActiveElement()) {
             case -1: // clicked outside menu bounds
-              if (!viewMenu.render) {
-                colorMenu.render = false;
-              }
+              // handled inside parent menu
               break;
             case 0: // part
               colorMode = 1;
