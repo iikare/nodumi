@@ -71,12 +71,16 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
   // fourth byte encodes the color mode
   output.write(reinterpret_cast<char*>(&colMode), sizeof(colMode));
 
-  // fifth byte encodes note count
+  // fifth - eighth byte encodes note count
   output.write(reinterpret_cast<char*>(&noteCount), sizeof(noteCount));
 
-  // sixth byte encodes color count
+  // ninth - twelfth byte encodes color count
   int colorCount = colorVecA.size();
   output.write(reinterpret_cast<char*>(&colorCount), sizeof(colorCount));
+  
+  // 13th - 21st byte encode total time
+  double time = file->getLastTime();
+  output.write(reinterpret_cast<char*>(&time), sizeof(time));
   
   // separate metadata from file contents
   output.write(&separator, sizeof(separator));
@@ -133,13 +137,14 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
 
   // midi data encoding
   for (int i = 0; i < noteCount; i++) {
-    // each note needs 20 bytes to encode: broken down as follows
+    // each note needs 29 bytes to encode: broken down as follows
     // 1 byte: track (uint8_t)
     // 2 bytes: tempo (uint16_t)
     // 8 bytes: duration (double)
     // 8 bytes: x (double)
     // 1 byte: y (uint8_t)
     // 1 byte: velocity (uint8_t)
+    // 8 bytes: timestamp
     // note: this limits the amount of tracks to 256
     // note: this limits the y and velocity value to 0 - 255
     // note: this limits the tempo to 0 - 65535
@@ -159,6 +164,7 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].x)), sizeof(double));
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&yByte)), sizeof(uint8_t));
     output.write(const_cast<char*>(reinterpret_cast<const char*>(&velByte)), sizeof(uint8_t));
+    output.write(const_cast<char*>(reinterpret_cast<const char*>(&notes[i].time)), sizeof(double));
 
   /*  cerr << "this is note " << i << endl;
     cerr << notes[i].track << endl;
@@ -214,9 +220,12 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   // read the note count at fifth byte
   file.read(reinterpret_cast<char *>(&input->noteCount), sizeof(int));
 
-  // read the color count at sixth byte
+  // read the color count at ninth byte
   int colorCount = 0;
   file.read(reinterpret_cast<char *>(&colorCount), sizeof(int));
+
+  // read the total time at thirteenth byte
+  file.read(reinterpret_cast<char *>(&input->lastTime), sizeof(double));
   
   // next byte must be a separator
   if (!checkMKI(file, path)) { return; }
@@ -304,6 +313,7 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
     file.read(reinterpret_cast<char*>(&input->notes[i].x), sizeof(double));
     file.read(reinterpret_cast<char*>(&input->notes[i].y), sizeof(uint8_t));
     file.read(reinterpret_cast<char*>(&input->notes[i].velocity), sizeof(uint8_t));
+    file.read(reinterpret_cast<char*>(&input->notes[i].time), sizeof(double));
 
     input->notes[i].tempo = static_cast<double>(tempoShort);
  

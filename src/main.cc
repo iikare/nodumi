@@ -228,7 +228,7 @@ int main(int argc, char* argv[]) {
    *    add color generation algorithm            DONE
    *    add save file ability                     DONE
    *    add save existing file                    DONE 
-   *    add time data to MKI
+   *    add colorMode to MKI
    *    reset tempo between files
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
@@ -1480,6 +1480,16 @@ int main(int argc, char* argv[]) {
         // deactivate both rightmenu and color menu
         colorSelect.render = false;
         rightMenu.render = false;
+
+        // turn off all other menus
+        fileMenu.render = false;
+        editMenu.render = false;
+        viewMenu.render = false;
+        displayMenu.render = false;
+        songMenu.render = false;
+        colorMenu.render = false;
+        midiMenu.render = false;
+        inputMenu.render = false;
 
         // unselect BG
         colorSelect.clickBG = false;
