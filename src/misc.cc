@@ -6,6 +6,7 @@
 
 using std::cerr;
 using std::endl;
+using std::isnan;
 using std::string;
 using std::to_string;
 
@@ -115,16 +116,23 @@ string getSongPercent (long int pos,long double total, bool end) {
 
 string getSongTime(long int pos, note cNote, double tTime) {
   string result;
-
   double secTick= cNote.time / (cNote.x - pos);
   double ratio = -cNote.x / cNote.duration;
-  double realTime = cNote.time + ratio * secTick * cNote.duration;
+  double realTime = ceil(cNote.time + ratio * secTick * cNote.duration);
 
-  //cerr << "pos, x: " << -cNote.x << ", " << cNote.duration << ", "<< ratio << endl;
+
+  if (pos == 0) {
+    realTime = 0;
+  }
+
+  if ((isnan(secTick) || isnan(ratio)) && pos != 0) {
+    cerr << "secTick, ratio, realTime " << secTick << ", " << ratio << ", "<< realTime << endl;
+    cerr << " ^ pos, cTime, tTime " << pos << ", " << cNote.time << ", " << tTime << endl;
+  }
 
   result += toMinutes(realTime);
   result += " / ";
-  result += toMinutes(tTime);
+  result += toMinutes(ceil(tTime));
   return result;
 }
 

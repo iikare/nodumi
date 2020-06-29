@@ -124,14 +124,14 @@ int mfile::getTrackCount() {
 
 note mfile::findCurrentNote() {
   for (int i = 0; i < noteCount; i++) {
-    if (notes[i].x < 0 && notes[i].x + notes[i].duration > 0) {
-      return notes[i];
+    if (notes[i].x >= 0) {
+      return notes[i-1];
     }
-    else if (i != noteCount - 1 && notes[i].x + notes[i].duration < 0 && notes[i + 1].x > 0) {
-      // in between two notes
+    else if (i + 1 == noteCount) {
       return notes[i];
     }
   }
+  cerr << "warn: findCurrentNote() failed with idx 0" << endl;
   return notes[0];
 }
 
@@ -210,7 +210,16 @@ void mfile::load(string file) {
       notes[idx].tempo = bpm;
       idx++;
     }
-  } 
+  }
+
+  for (int i = 0; i < noteCount; i++) {
+    for (int j = 0; j < noteCount; j++) {
+      if (notes[i].x > notes[j].x && i < j) {
+        // must be done for misordered tracks
+        swap(notes[i], notes[j]);
+      }
+    }
+  }
 
   // determine scaling factor
   // has been removed to improve loading times - function should be independent of loading

@@ -228,7 +228,8 @@ int main(int argc, char* argv[]) {
    *    add color generation algorithm            DONE
    *    add save file ability                     DONE
    *    add save existing file                    DONE 
-   *    fix MKI save with new color method        DONE
+   *    add time data to MKI
+   *    reset tempo between files
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
    *    add image support
@@ -991,7 +992,7 @@ int main(int argc, char* argv[]) {
         main.renderText(inputMenu.getItemX(i), inputMenu.getItemY(i), inputMenu.getContent(i));
       }
     }
-
+ // cerr << firstNote.x << endl;
     // event handler
     switch (main.eventHandler(event)){
       case 1: // program closing
