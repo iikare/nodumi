@@ -90,8 +90,9 @@ int main(int argc, char* argv[]) {
   // new file controller
   bool newFile = false;
   char* filenameC;
-  osdialog_filters* filetypes = osdialog_filters_parse("MIDI:mid;MKI:mki");
-  osdialog_filters* savetypes = osdialog_filters_parse("MKI:mki");
+  osdialog_filters* filetypes = osdialog_filters_parse("midi:mid;mki:mki");
+  osdialog_filters* savetypes = osdialog_filters_parse("mki:mki");
+  osdialog_filters* imagetypes = osdialog_filters_parse("png:png");
 
   // midi input controller
   MidiInput* userInput = new MidiInput;
@@ -190,22 +191,22 @@ int main(int argc, char* argv[]) {
 
   // image controller
   BGImage* bgI = new BGImage;
-  string bgfile = "";
-  bgI->loadPNG("tests/benchmark.png");
-  bool bgRender = true;
+  string bgPath = "";
+  bool bgRender = false;
+  bool loadBG = false;
 
   // event controller
   SDL_Event event;
 
   // mainmenu controls
-  vector<string> fileMenuContents = {"File", "Open File", "Save", "Save As", "Exit"};
+  vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Exit"};
   menu fileMenu(main.getSize(), fileMenuContents, true, 0, 0);
   
   vector<string> editMenuContents = {"Edit", "A", "B", "C", "Preferences"};
   menu editMenu(main.getSize(), editMenuContents, true, EDIT_X, 0);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
-                                     "Display Song Time", "Color By:"};
+                                     "Display Song Time", "Color By:", "Show Background"};
   menu viewMenu(main.getSize(), viewMenuContents, true, VIEW_X, 0);
 
   vector<string> displayMenuContents = {"Standard", "Line", "Ball"};
@@ -300,12 +301,16 @@ int main(int argc, char* argv[]) {
       end = false;
       livePlay = false;
       fileMenu.render = false;
-      editMenu.render = false;
-      viewMenu.render = false;
-      midiMenu.render = false;
-      rightMenu.render = false;
     }
-    
+
+    if (loadBG) {
+      loadBG = false;
+      bgI->loadPNG(bgPath);
+      bgRender = true;
+      livePlay = false;
+      fileMenu.render = false;
+    }
+
     // clear false end flags
     if (end && lastNote.x + lastNote.duration > 0) {
       end = false;
@@ -350,13 +355,13 @@ int main(int argc, char* argv[]) {
         }
         else {
           // render bg
-          for (int i = 0; i < bgI->getWidth(); i++) {
-            for (int j = 0; j < bgI->getHeight(); j++) {
-              main.setPixelRGB(i, j, bgI->getPixelRGB(i, j));
+          for (int i = bgI->getX(); i < bgI->getX() + bgI->getWidth(); i++) {
+            for (int j = areaTop + bgI->getY(); j < areaTop + bgI->getY() + bgI->getHeight(); j++) {
+              main.setPixelRGB(i, j, bgI->getPixelRGB(i - bgI->getX(), j - bgI->getY()));
             }
           }
         }
-       
+        
         // render notes
         for (int i = 0; i < noteLimit; i++) {
           // get current note
@@ -1173,14 +1178,23 @@ int main(int argc, char* argv[]) {
                 oneTimeFlag = true;
               }
               break;
-            case 2: // save
+            case 2: // open image
+		          filenameC = osdialog_file(OSDIALOG_OPEN, ".", nullptr, imagetypes);
+              
+              if (filenameC != nullptr) {
+                bgPath = static_cast<string>(filenameC);
+                loadBG = true; 
+                oneTimeFlag = true;
+              }
+              break;
+            case 3: // save
               if (fromMKI && !livePlay) {
                 cerr << "info: saving MKI - " << filename << endl;
                 saveFile(filename, input, noteColorA, noteColorB, darkBG, displayMode, colorMode, drawLine, songTime, invertColor);
               }
               oneTimeFlag = true;
               break;
-            case 3: // save as
+            case 4: // save as
               if (!livePlay) {
                 filenameC = osdialog_file(OSDIALOG_SAVE, ".", nullptr, savetypes);
                 
@@ -1192,7 +1206,7 @@ int main(int argc, char* argv[]) {
                 }
               }
               break;
-            case 4: // exit
+            case 5: // exit
               if (fileMenu.render){
                 state = false;
               }
@@ -1302,9 +1316,24 @@ int main(int argc, char* argv[]) {
               displayMenu.render = false;
               songMenu.render = false;
               break;
-            case 6: // 
-              cerr << "info: function not implemented" << endl;
+            case 6: // toggle bg image
+              if (!bgI->getWidth()) { 
+                cerr << "info: no image loaded" << endl;
+                viewMenu.setContent("Show Background", 6);
+              }
+              else{
+                bgRender = !bgRender;
+                if (!bgRender) {
+                  viewMenu.setContent("Hide Background", 6);
+                }
+                else {
+                  viewMenu.setContent("Show Background", 6);
+                }
+                displayMenu.render = false;
+                songMenu.render = false;
+                colorMenu.render = false;
               break;
+              }
           }
         }
          
@@ -1606,6 +1635,7 @@ int main(int argc, char* argv[]) {
   delete[] oNotes;  
   osdialog_filters_free(filetypes); 
   osdialog_filters_free(savetypes); 
+  osdialog_filters_free(imagetypes); 
   main.terminate();
   return 0;
 }
