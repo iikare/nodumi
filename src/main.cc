@@ -192,6 +192,7 @@ int main(int argc, char* argv[]) {
   BGImage* bgI = new BGImage;
   string bgfile = "";
   bgI->loadPNG("tests/benchmark.png");
+  bool bgRender = true;
 
   // event controller
   SDL_Event event;
@@ -335,13 +336,23 @@ int main(int argc, char* argv[]) {
         oneTimeFlag = false;
 
         // paint background before anything else
-        for (int i = 0; i < main.getWidth(); i++) {
-          for (int j = 0; j < main.getHeight(); j++) {
-            if (invertColor) {
-              main.setPixelRGB(i, j, lightBG);
+        if (!bgRender) {
+          for (int i = 0; i < main.getWidth(); i++) {
+            for (int j = 0; j < main.getHeight(); j++) {
+              if (invertColor) {
+                main.setPixelRGB(i, j, lightBG);
+              }
+              else {
+                main.setPixelRGB(i, j, darkBG);
+              }
             }
-            else {
-              main.setPixelRGB(i, j, darkBG);
+          }
+        }
+        else {
+          // render bg
+          for (int i = 0; i < bgI->getWidth(); i++) {
+            for (int j = 0; j < bgI->getHeight(); j++) {
+              main.setPixelRGB(i, j, bgI->getPixelRGB(i, j));
             }
           }
         }
