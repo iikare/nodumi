@@ -207,7 +207,7 @@ int main(int argc, char* argv[]) {
   menu editMenu(main.getSize(), editMenuContents, true, EDIT_X, 0);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
-                                     "Display Song Time", "Color By:", "Show Background"};
+                                     "Display Song Time", "Color By:", "Show Background", "Swap Colors"};
   menu viewMenu(main.getSize(), viewMenuContents, true, VIEW_X, 0);
 
   vector<string> displayMenuContents = {"Standard", "Line", "Ball"};
@@ -314,8 +314,8 @@ int main(int argc, char* argv[]) {
 
     // update bg position if needed
     if (bgMove && bgRender && bgI->getWidth()) {
-      cerr << "test " << endl;
       bgI->setXY(main.getMouseXY());
+      oneTimeFlag = true;
     }
     
     // clear false end flags
@@ -1337,8 +1337,13 @@ int main(int argc, char* argv[]) {
                 displayMenu.render = false;
                 songMenu.render = false;
                 colorMenu.render = false;
-              break;
               }
+              break;
+            case 7: // swap note colors
+              swap(noteColorA, noteColorB);
+              swap(noteColorC, noteColorD);
+              swap(noteColorE, noteColorF);
+              break;
           }
         }
          
