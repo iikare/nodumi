@@ -9,7 +9,7 @@ using std::string;
 using std::cerr;
 using std::endl;
 
-BGImage::BGImage() : buffer(0), image(0), x(0), y(0), width(0), height(0) {}
+BGImage::BGImage() : buffer(0), image(0), x(0), y(0), width(0), height(0), xOff(0), yOff(0), xOrig(0), yOrig(0) {} 
 
 BGImage::~BGImage() {}
 
@@ -23,6 +23,8 @@ void BGImage::loadPNG(string path) {
   y = 0;
   width = 0;
   height = 0;
+  xOff = 0;
+  yOff = 0;
 
   loadFile(buffer, path);
 

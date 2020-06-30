@@ -5,6 +5,8 @@
 #include <string>
 #include "../dpd/picoPNG/picopng.h"
 #include "color.h"
+#include "misc.h"
+#include "box.h"
 
 using std::vector;
 using std::string;
@@ -21,9 +23,14 @@ class BGImage {
     int getY() { return y; }
     int getWidth() { return width; }
     int getHeight() { return height; }
+    rect getBox() { rect result(x, y, width, height); return result; };
 
     void setX(int nX) { x = nX; }
     void setY(int nY) { y = nY; }
+    void setXY(point XY) { x = xOrig + XY.x - xOff; y =  yOrig + XY.y - yOff; }
+    void setXYOffset(point XYOff) { xOrig = x; yOrig = y; xOff = XYOff.x; yOff = XYOff.y; };
+    
+    void clearXYOffset() { xOff = 0; yOff = 0; xOrig = 0; yOrig = 0; };
 
   private:
     vector<unsigned char> buffer;
@@ -32,6 +39,10 @@ class BGImage {
     int y;
     unsigned long width;
     unsigned long height;
+    int xOff;
+    int yOff;
+    int xOrig;
+    int yOrig;
 };
 
 #endif

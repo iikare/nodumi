@@ -193,6 +193,7 @@ int main(int argc, char* argv[]) {
   BGImage* bgI = new BGImage;
   string bgPath = "";
   bool bgRender = false;
+  bool bgMove = false;
   bool loadBG = false;
 
   // event controller
@@ -311,6 +312,12 @@ int main(int argc, char* argv[]) {
       fileMenu.render = false;
     }
 
+    // update bg position if needed
+    if (bgMove && bgRender && bgI->getWidth()) {
+      cerr << "test " << endl;
+      bgI->setXY(main.getMouseXY());
+    }
+    
     // clear false end flags
     if (end && lastNote.x + lastNote.duration > 0) {
       end = false;
@@ -341,19 +348,17 @@ int main(int argc, char* argv[]) {
         oneTimeFlag = false;
 
         // paint background before anything else
-        if (!bgRender) {
-          for (int i = 0; i < main.getWidth(); i++) {
-            for (int j = 0; j < main.getHeight(); j++) {
-              if (invertColor) {
-                main.setPixelRGB(i, j, lightBG);
-              }
-              else {
-                main.setPixelRGB(i, j, darkBG);
-              }
+        for (int i = 0; i < main.getWidth(); i++) {
+          for (int j = 0; j < main.getHeight(); j++) {
+            if (invertColor) {
+              main.setPixelRGB(i, j, lightBG);
+            }
+            else {
+              main.setPixelRGB(i, j, darkBG);
             }
           }
         }
-        else {
+        if (bgRender) {
           // render bg
           for (int i = bgI->getX(); i < bgI->getX() + bgI->getWidth(); i++) {
             for (int j = areaTop + bgI->getY(); j < areaTop + bgI->getY() + bgI->getHeight(); j++) {
@@ -1577,7 +1582,7 @@ int main(int argc, char* argv[]) {
 
           rightMenu.render = true;
         }
-        else if (hoverOnBox(main.getMouseXY(), 0, areaTop, main.getWidth(), main.getHeight() - areaTop)) {
+        else if (hoverOnBox(main.getMouseXY(), 0, areaTop, main.getWidth(), main.getHeight() - areaTop) && (!bgRender || !hoverOnBox(main.getMouseXY(), bgI->getBox()))) {
           // ensure BG is selected
           colorSelect.clickBG = true;
 
@@ -1608,7 +1613,17 @@ int main(int argc, char* argv[]) {
       case 13: // leftclick button up
         colorSelect.squareClick = false;
         colorSelect.circleClick = false;
+        bgMove = false;
+        bgI->clearXYOffset();
         oneTimeFlag = true;
+        break;
+      case 14: // background move
+        // only move bg image if clicked on
+        if (hoverOnBox(main.getMouseXY(), bgI->getBox())) {
+          bgMove = true;
+          bgI->setXYOffset(main.getMouseXY());
+          oneTimeFlag = true;
+        }
         break;
     }
     

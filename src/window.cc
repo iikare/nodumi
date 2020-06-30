@@ -131,6 +131,9 @@ unsigned char window::eventHandler(SDL_Event &event) {
         break;
       case SDL_MOUSEBUTTONDOWN:
         if (event.button.button == SDL_BUTTON_LEFT) {
+          if (SDL_GetModState() == KMOD_LSHIFT || SDL_GetModState() == KMOD_RSHIFT) {
+            return 14;
+          }
           return 11;
         }
         else if (event.button.button == SDL_BUTTON_RIGHT) {
