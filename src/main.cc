@@ -224,7 +224,7 @@ int main(int argc, char* argv[]) {
 
   vector<string> inputMenuContents = {""};
   menu inputMenu(main.getSize(), inputMenuContents, false, MIDI_X + midiMenu.getWidth(), midiMenu.getItemY(1));
-
+  
   /*
    *  TODO:
    *    add alpha blend mode
@@ -238,11 +238,12 @@ int main(int argc, char* argv[]) {
    *    add save file ability                     DONE
    *    add save existing file                    DONE 
    *    add colorMode to MKI
+   *    add image to MKI (maybe)                
    *    add tempo detection                       DONE
    *    fix note timing detection                 DONE
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
-   *    add image support
+   *    add image support                         DONE (make image scalable)
    *    add color by velocity                     DONE
    *    add more display modes                    2 done so far
    *    support live MIDI input                   DONE
@@ -258,6 +259,8 @@ int main(int argc, char* argv[]) {
    // cerr << "note " << i << " is on track " << notes[i].track << endl;
   //}
 
+    bgI->loadPNG("tests/grid.png");
+   bgRender = true; 
   while (state){
     
     userInput->update();
@@ -1626,12 +1629,12 @@ int main(int argc, char* argv[]) {
         // only move bg image if clicked on
         if (hoverOnBox(main.getMouseXY(), bgI->getBox())) {
           bgMove = true;
+          bgI->scale(1.1);
           bgI->setXYOffset(main.getMouseXY());
           oneTimeFlag = true;
         }
         break;
     }
-    
     // update mouse position and check for changes
     main.updateCursor();
     if (main.cursorVisible && main.cursorChange()) {
