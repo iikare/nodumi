@@ -14,6 +14,7 @@
 #include "color.h"
 #include "colorgen.h"
 #include "input.h"
+#include "image.h"
 #include "../dpd/osdialog/osdialog.h"
 
 using std::cerr;
@@ -186,6 +187,11 @@ int main(int argc, char* argv[]) {
   note& firstNote = notes[0];
   note& lastNote = notes[input->getNoteCount()-1];
   shiftTime = input->findCurrentTempo();
+
+  // image controller
+  BGImage* bgI = new BGImage;
+  string bgfile = "";
+  bgI->loadPNG("tests/benchmark.png");
 
   // event controller
   SDL_Event event;
@@ -1582,7 +1588,8 @@ int main(int argc, char* argv[]) {
       end = true;
     }
   }
-  
+ 
+  delete bgI; 
   delete input;
   delete userInput;
   delete[] oNotes;  

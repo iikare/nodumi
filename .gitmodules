@@ -7,3 +7,6 @@
 [submodule "dpd/rtmidi"]
 	path = dpd/rtmidi
 	url = https://github.com/thestk/rtmidi
+[submodule "dpd/picoPNG"]
+	path = dpd/picoPNG
+	url = https://github.com/pkishi/picoPNG
