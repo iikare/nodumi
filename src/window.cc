@@ -218,7 +218,7 @@ void window::setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b) {
   color <<= 8;
   color += b;
   color <<=8;
-  color += 0xFF;
+  color += 0x00;
 
   buffer[(WIDTH * y) + x] = color;
 }
@@ -248,7 +248,7 @@ void window::updateBackground(unsigned char* bufI, rect box) {
     color <<= 8;
     color += bufI[i + 2];
     color <<=8;
-    color += 0xFF; 
+    color += 0x00; 
     buf[i/4] = color;
   } 
  // memcpy(buffer, buf, box.width * box.height * sizeof(uint32_t)); //SDL_UpdateTexture(bgTexture, nullptr, buffer, WIDTH * sizeof(Uint32));
@@ -268,7 +268,7 @@ void window::update() {
     messageText->pop_back();
     messageCol->pop_back();
   }
-
+SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
   SDL_RenderPresent(renderer);
 
   SDL_RenderClear(renderer);

@@ -275,7 +275,14 @@ int main(int argc, char* argv[]) {
   bgI->loadPNG("tests/large.png");
   bgRender = true;
 
+  //fps
+  uint32_t tick = SDL_GetTicks();
+  uint32_t fps = 0;
+  uint32_t fCount = 0;
+
   while (state){
+
+
     
     userInput->update();
     
@@ -1802,8 +1809,17 @@ int main(int argc, char* argv[]) {
       oneTimeFlag = true;
     }
     
-    main.update();
+    fCount++;
+    if (tick < SDL_GetTicks() - 1000) {
+      tick = SDL_GetTicks();
+      fps = fCount;
+      fCount = 0;
+    }  
+
+    main.renderText(main.getWidth() - 50, 0, to_string(fps));
     
+    main.update();
+ 
     if (run || livePlay || oneTimeFlag) {
       main.clearBuffer();
     }
