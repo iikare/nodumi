@@ -5,6 +5,8 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <future>
+#include <thread>
 #include "box.h"
 #include "misc.h"
 #include "window.h"
@@ -27,7 +29,7 @@ using std::min;
 using std::max;
 using std::to_string;
 using std::memcpy;
-using std::transform;
+using std::thread;
 
 int main(int argc, char* argv[]) {
 
@@ -270,7 +272,7 @@ int main(int argc, char* argv[]) {
   
 
   // debug bg
-  bgI->loadPNG("tests/benchmark.png");
+  bgI->loadPNG("tests/large.png");
   bgRender = true;
 
   while (state){
@@ -375,10 +377,15 @@ int main(int argc, char* argv[]) {
         }
         if (bgRender) {
           // render bg
-          for (int i = bgI->getX(); i < bgI->getX() + bgI->getWidth(); i++) {
-            for (int j = areaTop + bgI->getY(); j < areaTop + bgI->getY() + bgI->getHeight(); j++) {
-              main.setPixelRGB(i, j, bgI->getPixelRGB(i - bgI->getX(), j - bgI->getY() - areaTop));
-            }
+          //main.updateBackground(bgI->getBuffer(), bgI->getBox());
+          for (int i = max(0, bgI->getX()); i < min(main.getWidth(), bgI->getX() + bgI->getWidth()); i++) {
+            for (int j = max(0, areaTop + bgI->getY()); j < min(main.getHeight(), areaTop + bgI->getY() + bgI->getHeight()); j++) {
+              // to be optimized
+              if (main.pointVisible(i, j)) { 
+                main.setPixelRGB(i, j, bgI->getPixelRGB(i - bgI->getX(), j - bgI->getY() - areaTop));
+              }
+
+             }
           }
         }
         
@@ -652,7 +659,7 @@ int main(int argc, char* argv[]) {
             end = true;
           }
           else {
-            cerr << "shiftTime: " << shiftTime << endl;
+          //  cerr << "shiftTime: " << shiftTime << endl;
             // shift normally as per tempo, or until end, whichever comes first
             if (lastNote.x + lastNote.duration > 0 && (shiftTime * input->getTimeScale())/TIME_MODIFIER < lastNote.x + lastNote.duration) {
               input->shiftTime(shiftTime * input->getTimeScale());

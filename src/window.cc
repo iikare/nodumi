@@ -10,7 +10,7 @@ using std::swap;
 using std::fill;
 
 window::window(string title) : 
-  cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr),
+  cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr), bgTexture(nullptr),
   windowX(0), windowY(0), messageX(0), messageY(0), messageText(0), messageCol(0), tTexture(nullptr), tSurface(nullptr), clipX(0), clipY(0),
   buffer(nullptr), menuFont(nullptr), fontSize(0),
   lastMouseX(0), lastMouseY(0), mouseX(0), mouseY(0) {
@@ -31,8 +31,7 @@ bool window::init() {
     return false;
   }
 
-  renderer = SDL_CreateRenderer(windowA, -1, SDL_RENDERER_PRESENTVSYNC);
-  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+  renderer = SDL_CreateRenderer(windowA, -1, SDL_RENDERER_ACCELERATED);
 
   if (renderer == nullptr) {
     cerr << "error: failed to create renderer." << endl;
@@ -41,7 +40,10 @@ bool window::init() {
     return false;
   }
 
-  if (texture == nullptr) {
+  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+  bgTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+  
+  if (texture == nullptr || bgTexture == nullptr) {
     cerr << "error: failed to create texture" << endl;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(windowA);
@@ -65,6 +67,7 @@ bool window::init() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(windowA);
     SDL_Quit();
+    return false;
   } 
 
   messageX = new deque<int>;
@@ -232,9 +235,28 @@ colorRGB window::getPixelRGB(int x, int y) {
   return col;
 }
 
+void window::updateBackground(unsigned char* bufI, rect box) {
+  //SDL_UpdateTexture(bgTexture, nullptr
+  return;
+  uint32_t* buf = new uint32_t[box.width * box.height];
+  for (int i = 0; i < box.width * box.height * 4; i += 4) {
+    uint32_t color = 0x00000000;
+
+    color += bufI[i];
+    color <<= 8;
+    color += bufI[i + 1];
+    color <<= 8;
+    color += bufI[i + 2];
+    color <<=8;
+    color += 0xFF; 
+    buf[i/4] = color;
+  } 
+ // memcpy(buffer, buf, box.width * box.height * sizeof(uint32_t)); //SDL_UpdateTexture(bgTexture, nullptr, buffer, WIDTH * sizeof(Uint32));
+}
+
 void window::update() {
   SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(Uint32));
-  SDL_RenderClear(renderer);
+  SDL_RenderCopy(renderer, bgTexture, nullptr, nullptr);
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
   int messageCount = messageX->size();
@@ -249,6 +271,7 @@ void window::update() {
 
   SDL_RenderPresent(renderer);
 
+  SDL_RenderClear(renderer);
 }
 
 void window::clearBuffer() {
@@ -267,6 +290,7 @@ void window::terminate() {
   menuFont = nullptr;
 
   SDL_DestroyTexture(texture);
+  SDL_DestroyTexture(bgTexture);
   SDL_DestroyTexture(tTexture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(windowA);

@@ -17,7 +17,7 @@ class BGImage {
     ~BGImage();
     
     void loadPNG(string path);
-    void scale(double ratio);
+    void scale(double ratio, bool init = false);
     void flip(bool dir);
     void clear();
 
@@ -26,6 +26,7 @@ class BGImage {
     int getY() { return y; }
     int getWidth() { return width; }
     int getHeight() { return height; }
+    unsigned char* getBuffer() { return dstImage; }
     rect getBox() { rect result(x, y, width, height); return result; };
 
     void setX(int nX) { x = nX; }
@@ -38,6 +39,8 @@ class BGImage {
   private:
     vector<unsigned char> buffer;
     vector<unsigned char> image;
+    vector<unsigned char> oImage;
+    unsigned char* dstImage;
     int x;
     int y;
     unsigned long width;
@@ -46,6 +49,9 @@ class BGImage {
     int yOff;
     int xOrig;
     int yOrig;
+    double scaleRatio;
+    int oWidth;
+    int oHeight;
 };
 
 #endif

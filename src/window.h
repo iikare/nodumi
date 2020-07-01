@@ -43,6 +43,7 @@ class window {
     void setPixelHSV(int x, int y, double h, double s, double v);
     colorRGB getPixelRGB(int x, int y);
     
+    void updateBackground(unsigned char* bufI, rect box);
     void update();
     void clearBuffer();
     void terminate();
@@ -53,6 +54,7 @@ class window {
     SDL_Window* windowA;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
+    SDL_Texture* bgTexture;
     int windowX;
     int windowY;
     point windowXY;
