@@ -37,6 +37,16 @@ void BGImage::loadPNG(string path) {
   //cerr << "width, height: " << width << ", " << height << endl;
 }
 
+void BGImage::clear() {
+  buffer.clear();
+  image.clear();
+  x = 0;
+  y = 0;
+  width = 0;
+  xOff = 0;
+  yOff = 0;
+}
+
 colorRGB BGImage::getPixelRGB(int x, int y) {
   // each pixel is 4 bytes
   colorRGB col;
@@ -86,4 +96,8 @@ void BGImage::scale(double ratio) {
 
   width = nWidth;
   height = nHeight;
+}
+
+void BGImage::flip(bool dir) {
+
 }

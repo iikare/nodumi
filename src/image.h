@@ -18,6 +18,8 @@ class BGImage {
     
     void loadPNG(string path);
     void scale(double ratio);
+    void flip(bool dir);
+    void clear();
 
     colorRGB getPixelRGB(int x, int y);
     int getX() { return x; }
