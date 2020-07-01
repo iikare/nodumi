@@ -40,7 +40,7 @@ void BGImage::loadPNG(string path) {
 colorRGB BGImage::getPixelRGB(int x, int y) {
   // each pixel is 4 bytes
   colorRGB col;
-  if (x > width || x < 0 || y > height || y < 0) {
+  if (x > static_cast<int>(width) || x < 0 || y > static_cast<int>(height) || y < 0) {
     cerr << "warn: invalid call to getPixelRGB() with {x, y}: {" << x << ", " << y << "}" << endl;
     return col;
   }
@@ -64,7 +64,7 @@ void BGImage::scale(double ratio) {
   unsigned char* srcImage = new unsigned char[width * height * 4];
   unsigned char* dstImage = new unsigned char[nWidth * nHeight * 3];
 
-  for (int i = 0; i < width * height * 4; i++) {
+  for (long unsigned int i = 0; i < width * height * 4; i++) {
     if (i%4 != 0) {
       srcImage[offset++] = image[i - 1];
     }

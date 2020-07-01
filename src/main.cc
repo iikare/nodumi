@@ -155,9 +155,15 @@ int main(int argc, char* argv[]) {
   vector<string> rightClickContents = {"Info", "Change Part Color", "Set Tonic"};
   menu rightMenu(main.getSize(), rightClickContents, false, -100,-100);
   
+  vector<string> imageMenuContents = {"x1.25", "x1.1", "x1.025", "x0.975", "x0.9", "x0.75"};
+  menu imageMenu(main.getSize(), imageMenuContents, false, -100,-100);
+
+  
   colorMenu colorSelect(0, 0, menuColor);
 
+  
   bool colorChange = false;
+  bool rightImage = false;
 
   // play state controls
   bool run = false;
@@ -243,7 +249,7 @@ int main(int argc, char* argv[]) {
    *    fix note timing detection                 DONE
    *    add note mouse detection                  DONE
    *    add note outlines/shadow
-   *    add image support                         DONE (make image scalable)
+   *    add image support                         DONE (make image scalable) (right menu options scale/flip/remove)
    *    add color by velocity                     DONE
    *    add more display modes                    2 done so far
    *    support live MIDI input                   DONE
@@ -259,7 +265,7 @@ int main(int argc, char* argv[]) {
    // cerr << "note " << i << " is on track " << notes[i].track << endl;
   //}
 
-    bgI->loadPNG("tests/grid.png");
+    bgI->loadPNG("tests/benchmark.png");
    bgRender = true; 
   while (state){
     
@@ -1163,6 +1169,11 @@ int main(int argc, char* argv[]) {
           colorSelect.render = false;
         }       
 
+        // ensure rightImage is corrected
+        if (!bgRender) {
+          rightImage = false;
+        }
+
         //handle file menu actions
         if (fileMenu.render || !fileMenu.getActiveElement()) {
           switch (fileMenu.getActiveElement()) {
@@ -1542,6 +1553,7 @@ int main(int argc, char* argv[]) {
         // deactivate both rightmenu and color menu
         colorSelect.render = false;
         rightMenu.render = false;
+        rightImage = false;
 
         // turn off all other menus
         fileMenu.render = false;
@@ -1598,7 +1610,7 @@ int main(int argc, char* argv[]) {
           colorSelect.render = false;
 
           // generate Menu
-          vector<string> BGRight= {"Change Color"};
+          vector<string> BGRight = {"Change Color"};
           rightMenu.update(BGRight);
 
           // find coordinate to draw right click menu
@@ -1611,6 +1623,23 @@ int main(int argc, char* argv[]) {
           colorSelect.setColor(darkBG);
           rightMenu.render = true;
           //cerr << "right clicked on the background!" << endl;
+        }
+        else if (bgRender && hoverOnBox(main.getMouseXY(), bgI->getBox())) {
+          vector<string> IRight = {"Scale Image", "Flip Image", "Remove Image"};
+          rightMenu.update(IRight);
+ 
+          // find coordinate to draw right click menu
+          getMenuLocation(main.getWidth(), main.getHeight(), main.getMouseX(), main.getMouseY(),
+                          rightClickX, rightClickY, rightMenu.getWidth(), rightMenu.getHeight());
+          
+          // pass that coordinate to the menu class
+          rightMenu.setXY(rightClickX, rightClickY);  
+
+          rightMenu.render = true;
+          colorSelect.render = false;
+          rightImage = true;
+
+          //cerr << "right clicked on an image!" << endl;
         }
         else { 
           rightMenu.setContent("", 0);
@@ -1629,7 +1658,6 @@ int main(int argc, char* argv[]) {
         // only move bg image if clicked on
         if (hoverOnBox(main.getMouseXY(), bgI->getBox())) {
           bgMove = true;
-          bgI->scale(1.1);
           bgI->setXYOffset(main.getMouseXY());
           oneTimeFlag = true;
         }
