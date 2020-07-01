@@ -19,7 +19,7 @@ class BGImage {
     void loadPNG(string path);
     void scale(double ratio);
 
-    colorRGB getPixelRGB(int x, int y, bool useOriginal = false);
+    colorRGB getPixelRGB(int x, int y);
     int getX() { return x; }
     int getY() { return y; }
     int getWidth() { return width; }
@@ -30,14 +30,12 @@ class BGImage {
     void setY(int nY) { y = nY; }
     void setXY(point XY) { x = xOrig + XY.x - xOff; y =  yOrig + XY.y - yOff; }
     void setXYOffset(point XYOff) { xOrig = x; yOrig = y; xOff = XYOff.x; yOff = XYOff.y; };
-    void setPixelRGB(int x, int y, colorRGB color, int nWidth = 0);
 
     void clearXYOffset() { xOff = 0; yOff = 0; xOrig = 0; yOrig = 0; };
 
   private:
     vector<unsigned char> buffer;
     vector<unsigned char> image;
-    vector<unsigned char> oImage;
     int x;
     int y;
     unsigned long width;

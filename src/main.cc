@@ -365,7 +365,7 @@ int main(int argc, char* argv[]) {
           // render bg
           for (int i = bgI->getX(); i < bgI->getX() + bgI->getWidth(); i++) {
             for (int j = areaTop + bgI->getY(); j < areaTop + bgI->getY() + bgI->getHeight(); j++) {
-              main.setPixelRGB(i, j, bgI->getPixelRGB(i - bgI->getX(), j - bgI->getY()));
+              main.setPixelRGB(i, j, bgI->getPixelRGB(i - bgI->getX(), j - bgI->getY() - areaTop));
             }
           }
         }
