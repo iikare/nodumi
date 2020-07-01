@@ -10,6 +10,3 @@
 [submodule "dpd/picoPNG"]
 	path = dpd/picoPNG
 	url = https://github.com/pkishi/picoPNG
-[submodule "dpd/single-header-image-resampler"]
-	path = dpd/single-header-image-resampler
-	url = https://github.com/pkishi/single-header-image-resampler.git
