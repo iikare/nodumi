@@ -59,7 +59,6 @@ class window {
     SDL_Window* windowA;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
-    SDL_Texture* bgTexture;
     int windowX;
     int windowY;
     point windowXY;

@@ -14,7 +14,7 @@ using std::max;
 using std::min;
 
 window::window(string title) : 
-  cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr), bgTexture(nullptr),
+  cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr),
   windowX(0), windowY(0), messageX(0), messageY(0), messageText(0), messageCol(0), tTexture(nullptr), tSurface(nullptr), clipX(0), clipY(0),
   buffer(nullptr), buffer2(nullptr),  menuFont(nullptr), fontSize(0),
   lastMouseX(0), lastMouseY(0), mouseX(0), mouseY(0) {
@@ -45,9 +45,8 @@ bool window::init() {
   }
 
   texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
-  bgTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
   
-  if (!texture || !bgTexture) {
+  if (!texture) {
     cerr << "error: failed to create texture" << endl;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(windowA);
@@ -61,7 +60,12 @@ bool window::init() {
   fontSize = 14;
  
   if (TTF_Init() < 0) {
-    cerr << "warn: font engine initialization failed" << endl;
+    cerr << "error: font engine initialization failed" << endl;
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(windowA);
+    SDL_Quit();
+    return false;
   }
   
   menuFont = TTF_OpenFont("dpd/fonts/yklight.ttf", fontSize);
@@ -260,13 +264,13 @@ void window::fillBG(colorRGB col) {
 
 void window::update() {
   SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(Uint32));
-  SDL_RenderCopy(renderer, bgTexture, nullptr, nullptr);
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
   int messageCount = messageX->size();
   for (int i = 0; i < messageCount; i++){
     renderTextToTexture(messageX->back(), messageY->back(), messageText->back(), messageCol->back());
     SDL_RenderCopy(renderer, tTexture, nullptr, &clip);
+    SDL_DestroyTexture(tTexture);
     messageX->pop_back();
     messageY->pop_back();
     messageText->pop_back();
@@ -305,7 +309,6 @@ void window::terminate() {
   menuFont = nullptr;
 
   SDL_DestroyTexture(texture);
-  SDL_DestroyTexture(bgTexture);
   SDL_DestroyTexture(tTexture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(windowA);
