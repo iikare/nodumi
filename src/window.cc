@@ -35,7 +35,7 @@ bool window::init() {
     return false;
   }
 
-  renderer = SDL_CreateRenderer(windowA, -1, SDL_RENDERER_ACCELERATED);
+  renderer = SDL_CreateRenderer(windowA, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
   if (!renderer) {
     cerr << "error: failed to create renderer." << endl;

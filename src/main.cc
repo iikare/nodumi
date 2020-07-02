@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
   }
 
   // get variables for MKI loader
-  mfile* input= new mfile;
+  mfile* input = new mfile;
 
   vector<colorRGB> noteColorA; //off
   vector<colorRGB> noteColorB; //on
@@ -88,7 +88,8 @@ int main(int argc, char* argv[]) {
   
   // program exit control
   bool state = true;
-  
+  bool showFPS = false;
+
   // new file controller
   bool newFile = false;
   char* filenameC;
@@ -219,7 +220,7 @@ int main(int argc, char* argv[]) {
   menu editMenu(main.getSize(), editMenuContents, true, EDIT_X, 0);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Hide Now Line", "Invert Color Scheme",
-                                     "Display Song Time", "Color By:", "Show Background", "Swap Colors"};
+                                     "Display Song Time", "Color By:", "Show Background", "Swap Colors", "Show FPS"};
   menu viewMenu(main.getSize(), viewMenuContents, true, VIEW_X, 0);
 
   vector<string> displayMenuContents = {"Standard", "Line", "Ball"};
@@ -284,8 +285,10 @@ int main(int argc, char* argv[]) {
   while (state){
     
     // refresh note count
-    userInput->update();
-    
+    if (livePlay) {
+      userInput->update();
+    }
+
     // load new file
     if (newFile) {
       newFile = false;
@@ -1166,7 +1169,7 @@ int main(int argc, char* argv[]) {
         if (input->getTimeScale() < 2 && !livePlay) {
           input->scaleTime(widthModifier);
         }
-        else if (userInput->noteStream->getTimeScale() < 2) {
+        else if (livePlay && userInput->noteStream->getTimeScale() < 2) {
           userInput->noteStream->scaleTime(widthModifier);
         }
         break;
@@ -1175,7 +1178,7 @@ int main(int argc, char* argv[]) {
         if (input->getTimeScale() > static_cast<double>(1)/4096 && !livePlay) {
           input->scaleTime(1/widthModifier);
         }
-        else if (userInput->noteStream->getTimeScale() > static_cast<double>(1)/4096) {
+        else if (livePlay && userInput->noteStream->getTimeScale() > static_cast<double>(1)/4096) {
           userInput->noteStream->scaleTime(1/widthModifier);
         }
         break;
@@ -1438,6 +1441,17 @@ int main(int argc, char* argv[]) {
               swap(noteColorA, noteColorB);
               swap(noteColorC, noteColorD);
               swap(noteColorE, noteColorF);
+              
+              displayMenu.render = false;
+              songMenu.render = false;
+              colorMenu.render = false;
+              break;
+            case 8:
+              showFPS = !showFPS;
+              
+              displayMenu.render = false;
+              songMenu.render = false;
+              colorMenu.render = false;
               break;
           }
         }
@@ -1841,11 +1855,10 @@ int main(int argc, char* argv[]) {
       tick = SDL_GetTicks();
       fps = fCount;
       fCount = 0;
-      cerr << fps << endl;
     }  
-
-    main.renderText(main.getWidth() - 50, 0, to_string(fps));
-    
+    if (showFPS) {
+      main.renderText(main.getWidth() - 22, 0, to_string(fps));
+    }
     main.update();
  
     if (run || livePlay || oneTimeFlag) {
