@@ -1418,6 +1418,7 @@ int main(int argc, char* argv[]) {
               break;
             case 3: // invert color scheme
               invertColor = !invertColor;
+              updateBG = true;
               displayMenu.render = false;
               songMenu.render = false;
               colorMenu.render = false;
@@ -1760,7 +1761,7 @@ int main(int argc, char* argv[]) {
                 userInput->openPort(1);
 
                 // default to color by velocity
-                colorMode = 3;
+                colorMode = 2;
 
                 midiMenu.setContent("Disable Live Mode", 3);
               }

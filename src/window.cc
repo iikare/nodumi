@@ -309,7 +309,6 @@ void window::terminate() {
   menuFont = nullptr;
 
   SDL_DestroyTexture(texture);
-  SDL_DestroyTexture(tTexture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(windowA);
   TTF_Quit();
