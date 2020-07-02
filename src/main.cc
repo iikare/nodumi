@@ -202,7 +202,7 @@ int main(int argc, char* argv[]) {
   note renderNote = notes[0];
   note& firstNote = notes[0];
   note& lastNote = notes[input->getNoteCount()-1];
-  shiftTime = input->findCurrentTempo();
+  shiftTime = 60;//input->findCurrentTempo();
 
   // image controller/
   BGImage* bgI = new BGImage;
@@ -322,7 +322,7 @@ int main(int argc, char* argv[]) {
       memcpy(oNotes, notes, input->getNoteCount() * sizeof(note));
 
       renderNote = notes[0];
-      shiftTime = input->findCurrentTempo();
+      //shiftTime = input->findCurrentTempo();
 
       x = 0;
       y = 0;
@@ -372,7 +372,7 @@ int main(int argc, char* argv[]) {
     // update note references
     lastNote = notes[input->getNoteCount()-1];
     firstNote = notes[0];
-    shiftTime = input->findCurrentTempo();
+    //shiftTime = input->findCurrentTempo();
 
     // begin render logic
     if (!end || livePlay || oneTimeFlag) {
@@ -425,7 +425,7 @@ int main(int argc, char* argv[]) {
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           
           // prevent notes from disappearing at high scaling
-          width = renderNote.duration < 1 ? 1 : renderNote.duration * 120.0/input->findCurrentTempo();
+          width = renderNote.duration < 1 ? 1 : renderNote.duration;
 
           switch (displayMode) {
             case 1: // standard mode
