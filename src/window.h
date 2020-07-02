@@ -5,6 +5,8 @@
 #include <string>
 #include <deque>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 #include "note.h"
 #include "window.h"
 #include "color.h"
@@ -28,6 +30,9 @@ class window {
     bool cursorChange() { return (lastMouseX != mouseX || lastMouseY != mouseY); }
     void updateCursor();
 
+    void saveBuffer();
+    void loadBuffer();
+
     int getWidth();
     int getHeight();
     point getSize() { windowXY.x = windowX; windowXY.y = windowY; return windowXY; }
@@ -44,7 +49,6 @@ class window {
     void setPixelHSV(int x, int y, double h, double s, double v);
     colorRGB getPixelRGB(int x, int y);
     
-    void updateBackground(unsigned char* bufI, rect box);
     void update();
     void clearBuffer();
     void terminate();
@@ -72,6 +76,7 @@ class window {
     int clipY;
 
     Uint32* buffer;
+    Uint32* buffer2;
     
     TTF_Font* menuFont;
     int fontSize;

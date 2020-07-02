@@ -206,6 +206,7 @@ int main(int argc, char* argv[]) {
   bool bgRender = false;
   bool bgMove = false;
   bool loadBG = false;
+  bool updateBG = true;
 
   // event controller
   SDL_Event event;
@@ -281,9 +282,8 @@ int main(int argc, char* argv[]) {
   uint32_t fCount = 0;
 
   while (state){
-
-
     
+    // refresh note count
     userInput->update();
     
     // load new file
@@ -329,6 +329,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (loadBG) {
+      updateBG = true;
       loadBG = false;
       bgI->loadPNG(bgPath);
       bgRender = true;
@@ -338,8 +339,10 @@ int main(int argc, char* argv[]) {
 
     // update bg position if needed
     if (bgMove && bgRender && bgI->getWidth()) {
+      run = false;
       bgI->setXY(main.getMouseXY());
       oneTimeFlag = true;
+      updateBG = true;
     }
     
     // clear false end flags
@@ -370,37 +373,39 @@ int main(int argc, char* argv[]) {
       if (run || livePlay || oneTimeFlag) {
         // ensure rerender flag is unset
         oneTimeFlag = false;
-        
-        if (invertColor) {
-          main.fillBG(lightBG);
+       
+
+        // this will rerender the background and save it to the secondary buffer
+        // the background must be rerendered if:
+        //    BG color changes
+        //    invert light/dark is pressed 
+        //    image is scaled / flipped
+        //    image is removed
+        if (updateBG) { 
+
+          updateBG = false;
+
+          if (invertColor) {
+            main.fillBG(lightBG);
+          }
+          else {
+            main.fillBG(darkBG);
+          }
+          if (bgRender) {
+            // render bg
+            for (int i = max(0, bgI->getX()); i < min(main.getWidth(), bgI->getX() + bgI->getWidth()); i++) {
+              for (int j = max(0, areaTop + bgI->getY()); j < min(main.getHeight(), areaTop + bgI->getY() + bgI->getHeight()); j++) {
+                // to be optimized
+                if (main.pointVisible(i, j)) { 
+                  main.setPixelRGB(i, j, bgI->getPixelRGB(i - bgI->getX(), j - bgI->getY() - areaTop));
+                }
+              }
+            }
+          }
+          main.saveBuffer();
         }
         else {
-          main.fillBG(darkBG);
-        }
-
-        // paint background before anything else
-      /*  for (int i = 0; i < main.getWidth(); i++) {
-          for (int j = 0; j < main.getHeight(); j++) {
-            if (invertColor) {
-              main.setPixelRGB(i, j, lightBG);
-            }
-            else {
-              main.setPixelRGB(i, j, darkBG);
-            }
-          }
-        }*/
-        if (bgRender) {
-          // render bg
-          main.updateBackground(bgI->getBuffer(), bgI->getBox());
-          for (int i = max(0, bgI->getX()); i < min(main.getWidth(), bgI->getX() + bgI->getWidth()); i++) {
-            for (int j = max(0, areaTop + bgI->getY()); j < min(main.getHeight(), areaTop + bgI->getY() + bgI->getHeight()); j++) {
-              // to be optimized
-              if (main.pointVisible(i, j)) { 
-                main.setPixelRGB(i, j, bgI->getPixelRGB(i - bgI->getX(), j - bgI->getY() - areaTop));
-              }
-
-             }
-          }
+          main.loadBuffer();
         }
         
         // render notes
@@ -979,6 +984,7 @@ int main(int argc, char* argv[]) {
           colorSelect.findHSVFromSquare(false);
         }
         if (colorSelect.clickBG) {
+          updateBG = true;
           darkBG = colorSelect.getColor();
         }
         else if(clickNoteOn) {
@@ -1256,6 +1262,7 @@ int main(int argc, char* argv[]) {
                 editMenu.render = false;
                 viewMenu.render = false;
                 midiMenu.render = false;
+                rightMenu.render = false;
                 fileMenu.render = !fileMenu.render;
               }
               break;
@@ -1316,6 +1323,7 @@ int main(int argc, char* argv[]) {
                 fileMenu.render = false;
                 viewMenu.render = false;
                 midiMenu.render = false;
+                rightMenu.render = false;
                 editMenu.render = !editMenu.render;
               }
               break;
@@ -1356,6 +1364,7 @@ int main(int argc, char* argv[]) {
                 fileMenu.render = false;
                 editMenu.render = false;
                 midiMenu.render = false;
+                rightMenu.render = false;
                 viewMenu.render = !viewMenu.render;
                 if (!songMode) {          
                   viewMenu.setContent("Display Song Time", 4);
@@ -1412,6 +1421,7 @@ int main(int argc, char* argv[]) {
                 viewMenu.setContent("Show Background", 6);
               }
               else{
+                updateBG = true;
                 bgRender = !bgRender;
                 if (!bgRender) {
                   viewMenu.setContent("Hide Background", 6);
@@ -1570,6 +1580,7 @@ int main(int argc, char* argv[]) {
                 colorSelect.render = false;
               }
               else {
+                updateBG = true;
                 bgI->clear();
 
                 bgRender = false;
@@ -1588,21 +1599,27 @@ int main(int argc, char* argv[]) {
               // handled inside parent menu
               break;
             case 0: // 1.25
+              updateBG = true;
               bgI->scale(1.25);
               break;
             case 1: // 1.1
+              updateBG = true;
               bgI->scale(1.1);
               break;
             case 2: // 1.025 
+              updateBG = true;
               bgI->scale(1.025);
               break;
             case 3: // 0.975
+              updateBG = true;
               bgI->scale(0.975);
               break;
             case 4: // 0.9
+              updateBG = true;
               bgI->scale(0.9);
               break;
             case 5: // 0.75 
+              updateBG = true;
               bgI->scale(0.75);
               break;
           }
@@ -1615,9 +1632,11 @@ int main(int argc, char* argv[]) {
               // handled inside parent menu
               break;
             case 0: // horizontal
+              updateBG = true;
               bgI->flip(true);
               break;
             case 1: // vertical
+              updateBG = true;
               bgI->flip(false);
               break;
           }
@@ -1637,6 +1656,7 @@ int main(int argc, char* argv[]) {
                 fileMenu.render = false;
                 editMenu.render = false;
                 viewMenu.render = false;
+                rightMenu.render = false;
                 midiMenu.render = !midiMenu.render;
               }
               break;

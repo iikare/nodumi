@@ -16,7 +16,7 @@ using std::min;
 window::window(string title) : 
   cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr), bgTexture(nullptr),
   windowX(0), windowY(0), messageX(0), messageY(0), messageText(0), messageCol(0), tTexture(nullptr), tSurface(nullptr), clipX(0), clipY(0),
-  buffer(nullptr), menuFont(nullptr), fontSize(0),
+  buffer(nullptr), buffer2(nullptr),  menuFont(nullptr), fontSize(0),
   lastMouseX(0), lastMouseY(0), mouseX(0), mouseY(0) {
   this->title = title;
   clip = {0, 0, 0, 0};
@@ -56,6 +56,7 @@ bool window::init() {
   }
   
   buffer = new Uint32[WIDTH * HEIGHT];
+  buffer2 = new Uint32[WIDTH * HEIGHT];
   
   fontSize = 14;
  
@@ -242,25 +243,6 @@ colorRGB window::getPixelRGB(int x, int y) {
   return col;
 }
 
-void window::updateBackground(unsigned char* bufI, rect box) {
-  if (box.x > getWidth() || box.y > getHeight()) {
-    return;
-  }
-  
-  // find limits to draw
-  int boundX = max(0, box.x);
-  int boundY = max(0 + MAIN_MENU_HEIGHT, box.y + MAIN_MENU_HEIGHT);
-  int boundXX = min(getWidth(), box.x + box.width);
-  int boundYY = min(getHeight(), box.y + MAIN_MENU_HEIGHT + box.height);
-
-  // find the limiting width/height
-  int drawnWidth = boundXX - boundX;
-  int drawnHeight = boundYY - boundY;
-  
-  cerr << "limit w/h " << drawnWidth << ", " << drawnHeight << endl;
-  cerr << "x, y, width, height" << boundX << ", " << boundY << ", " << boundXX << ", " << boundYY <<endl; 
-}
-
 void window::fillBG(colorRGB col) {
   
   uint32_t color = 0x00000000;
@@ -300,9 +282,20 @@ void window::clearBuffer() {
   fill(buffer, buffer + WIDTH * HEIGHT, 0); 
 }
 
+void window::saveBuffer() {
+  // copy contents of buffer 1 to buffer 2
+  memcpy(buffer2, buffer, WIDTH * HEIGHT * sizeof(Uint32));
+}
+
+void window::loadBuffer() {
+  // copy contents of buffer 2 to buffer 1
+  memcpy(buffer, buffer2, WIDTH * HEIGHT * sizeof(Uint32));
+}
+
 void window::terminate() {
   
   delete[] buffer;
+  delete[] buffer2;
   delete messageX;
   delete messageY;
   delete messageText;
