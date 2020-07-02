@@ -213,16 +213,12 @@ void mfile::load(string file) {
     for (int j = 0; j < midifile.getEventCount(i); j++) {
       if (midifile[i][j].isNoteOn()) {
         notes[idx].track = i;
-        //notes[idx].duration = midifile[i][j].getTickDuration();
         notes[idx].duration = midifile[i][j].getDurationInSeconds() * 500;
-        //notes[idx].x  = midifile[i][j].tick;
         notes[idx].x  = midifile[i][j].seconds * 500;
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
         notes[idx].time = midifile[i][j].seconds;
         
-        cerr << "note " << idx << " vs. time " << midifile[i][j].getDurationInSeconds() << endl;
-
         idx++;
       }
     }

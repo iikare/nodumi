@@ -1473,6 +1473,12 @@ int main(int argc, char* argv[]) {
               break;
             case 8:
               showFPS = !showFPS;
+              if (!showFPS) {
+                viewMenu.setContent("Show FPS", 8);
+              }
+              else {
+                viewMenu.setContent("Hide FPS", 8);
+              }
               
               displayMenu.render = false;
               songMenu.render = false;
@@ -1562,7 +1568,7 @@ int main(int argc, char* argv[]) {
               if (rightMenu.getActiveElement() == -1 &&  flipMenu.getActiveElement() == -1) {
                 flipMenu.render = false;
               } 
-              if (!scaleMenu.render && !flipMenu.render && !colorSelect.render && viewMenu.getActiveElement() == -1) {
+              if (!scaleMenu.render && !moveMenu.render && !flipMenu.render && !colorSelect.render && viewMenu.getActiveElement() == -1) {
                 rightMenu.render = false;
               }
               if (!hoverOnBox(main.getMouseXY(), colorSelect.getBoundingBox())) {
@@ -1703,12 +1709,16 @@ int main(int argc, char* argv[]) {
               // handled inside parent menu
               break;
             case 0: // horizontal
-              updateBG = true;
-              bgI->flip(true);
+              if (flipMenu.render) {
+                updateBG = true;
+                bgI->flip(true);
+              }
               break;
             case 1: // vertical
-              updateBG = true;
-              bgI->flip(false);
+              if (flipMenu.render) {
+                updateBG = true;
+                bgI->flip(false);
+              }
               break;
           }
         }  

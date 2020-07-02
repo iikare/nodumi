@@ -154,5 +154,5 @@ void BGImage::flip(bool dir) {
 
 void BGImage::centerImage(int cX, int cY) {
  x = cX/2 - width/2;
- y = cY/2 - height/2;
+ y = cY/2 - height/2 - MAIN_MENU_HEIGHT/2;
 }

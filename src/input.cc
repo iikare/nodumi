@@ -68,13 +68,13 @@ bool MidiInput::updateQueue() {
   timestamp = midiIn->getMessage(&msgQueue);
   for (long unsigned int i = 0; i < msgQueue.size(); i++) {
     if ((int)msgQueue[i] != 248 && (int)msgQueue[i] != 254){ 
-      cerr << "byte " << i << " is " << (int)msgQueue[i] << ", ";
+      //cerr << "byte " << i << " is " << (int)msgQueue[i] << ", ";
     }
 
   }
   if (msgQueue.size() > 0) {
     if ((int)msgQueue[0] != 248 && (int)msgQueue[0] != 254){ 
-      cerr << "timestamp: " << timestamp << endl;
+      //cerr << "timestamp: " << timestamp << endl;
     }
     return true;
   }
@@ -82,6 +82,7 @@ bool MidiInput::updateQueue() {
 }
 
 void MidiInput::convertEvents() {
+  //-timestamp * 100 * noteStream->getTimeScale()
   for (long unsigned int i = 0; i < msgQueue.size(); i++) { 
     if (msgQueue[i] == 0b11111000) { // 248: clock signal
       //cerr << "shift by " << timestamp*100 << endl;
@@ -104,7 +105,7 @@ void MidiInput::convertEvents() {
         numOn++;
         i += 2;
         
-        cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
+        //cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
         
         noteStream->noteCount = noteCount;
       }
@@ -115,7 +116,7 @@ void MidiInput::convertEvents() {
 
         numOn--;
 
-        cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
+        //cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
       }
     }
   }
@@ -145,8 +146,14 @@ int MidiInput::findNoteIndex(int key) {
 }
 
 void MidiInput::update() {
-  while (updateQueue()) {
-    convertEvents();
-    updatePosition();
+  if (midiIn->isPortOpen()) {
+    while (updateQueue()) {
+      convertEvents();
+      updatePosition();
+    }
+  }
+  else {
+    // shift even when midi input is disconnected
+    noteStream->shiftX(0.0167 * 100 * noteStream->getTimeScale());
   }
 }
