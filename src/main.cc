@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
   ifstream filecheck;
   filecheck.open(filename);
   if (!filecheck || (ext != "mid" && ext != "mki")) {
-    cerr << "error: invalid file: " << filename << "!" << endl;
+    cerr << "error: invalid file - " << filename << "!" << endl;
     exit(1);
   }
   filecheck.close();

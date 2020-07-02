@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include "../dpd/single-header-image-resampler/base_resample.h"
 #include "color.h"
@@ -8,6 +9,7 @@
 #include "misc.h"
 
 using namespace base;
+using std::ifstream;
 using std::vector;
 using std::string;
 using std::cerr;
@@ -33,11 +35,19 @@ void BGImage::loadPNG(string path) {
   yOff = 0;
   scaleRatio = 1;
 
+  ifstream filecheck;
+  filecheck.open(path);
+  if (!filecheck) {
+    cerr << "warn: invalid file - " << path << endl;
+    return;
+  }
+
   loadFile(buffer, path);
 
   int error = decodePNG(image, width, height, buffer.empty() ? 0 : &buffer[0], static_cast<unsigned long>(buffer.size()));
   if (error != 0) {
     cerr << "warn: png decode error: " << error << endl;
+    return;
   }
   
   oImage = image;
