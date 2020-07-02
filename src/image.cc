@@ -13,10 +13,9 @@ using std::cerr;
 using std::endl;
 using std::swap;
 
-BGImage::BGImage() : buffer(0), image(0), oImage(0), dstImage(0), x(0), y(0), width(0), height(0), xOff(0), yOff(0), xOrig(0), yOrig(0), scaleRatio(1), oWidth(0), oHeight(0) {} 
+BGImage::BGImage() : buffer(0), image(0), oImage(0),  x(0), y(0), width(0), height(0), xOff(0), yOff(0), xOrig(0), yOrig(0), scaleRatio(1), oWidth(0), oHeight(0) {} 
 
 BGImage::~BGImage() {
-  delete[] dstImage;
 }
 
 void BGImage::loadPNG(string path) {
@@ -43,9 +42,6 @@ void BGImage::loadPNG(string path) {
   oImage = image;
   oWidth = width;
   oHeight = height;
-
-  unsigned char* dstImage = new unsigned char[oWidth * oHeight * 3];
-  scale(1, true);
 
   //cerr << "width, height: " << width << ", " << height << endl;
 }
@@ -77,7 +73,7 @@ colorRGB BGImage::getPixelRGB(int x, int y) {
 }
 
 
-void BGImage::scale(double ratio, bool init) {
+void BGImage::scale(double ratio) {
   if (ratio <= 0 || ratio > 3) {
     cerr << "warn: invalid call to scale() with ratio " << ratio << endl;
     return;
@@ -87,24 +83,18 @@ void BGImage::scale(double ratio, bool init) {
   int nHeight = scaleRatio * oHeight;
   int offset = 0;
 
-  delete[] dstImage;
   unsigned char* dstImage = new unsigned char[nWidth * nHeight * 3];
-  unsigned char* srcImage;
-  
-  if (!init) {
-    unsigned char* srcImage = new unsigned char[oWidth * oHeight * 3];
+  unsigned char* srcImage = new unsigned char[oWidth * oHeight * 3];
 
-
-    for (long unsigned int i = 0; i < oWidth * oHeight * 4; i++) {
-      if (i % 4 != 0) {
-        srcImage[offset++] = oImage[i - 1];
-      }
+  for (int i = 0; i < oWidth * oHeight * 4; i++) {
+    if (i % 4 != 0) {
+      srcImage[offset++] = oImage[i - 1];
     }
-
-    image.clear();
-
-    ResampleImage24(srcImage, oWidth, oHeight, dstImage, nWidth, nHeight, KernelTypeLanczos3);
   }
+
+  image.clear();
+
+  ResampleImage24(srcImage, oWidth, oHeight, dstImage, nWidth, nHeight, KernelTypeLanczos3);
 
   for (int i = 0; i < nWidth * nHeight * 3; i += 3) {
     image.push_back(dstImage[i]);
@@ -113,9 +103,8 @@ void BGImage::scale(double ratio, bool init) {
     image.push_back(0);
   }
 
-  if (!init) {
-    delete[] srcImage;
-  }
+  delete[] srcImage;
+  delete[] dstImage;
 
   width = nWidth;
   height = nHeight;
