@@ -1033,21 +1033,13 @@ int main(int argc, char* argv[]) {
           double distCP = getDistance(x, y, colorSelect.getCPointX(), colorSelect.getCPointY());
 
           colorRGB circleColor = getHueByAngle(x, y, colorSelect.getCenterX(),colorSelect.getCenterY());
-          double sratio = 1;
-          double vratio = 1;
 
-         // cout << "testC"<< colorSelect.getSPointX() << ", " << colorSelect.getSPointY() << endl;
-          //cout << "testP"<< colorSelect.getPointX() << ", " << colorSelect.getPointY() << endl;
-          if (hoverOnBox(x, y, colorSelect.getSquareX(), colorSelect.getSquareY(),
-                              colorSelect.getSquareSize())){
-            
+          if (hoverOnBox(x, y, colorSelect.getSquareX(), colorSelect.getSquareY(), colorSelect.getSquareSize())){
             // x increases saturation, y increases value
-            sratio = static_cast<double>(x - colorSelect.getSquareX()) / colorSelect.getSquareSize();
-            vratio = 1 - static_cast<double>(y - colorSelect.getSquareY()) / colorSelect.getSquareSize();
-            
+            double sratio = static_cast<double>(x - colorSelect.getSquareX()) / colorSelect.getSquareSize();
+            double vratio = 1 - static_cast<double>(y - colorSelect.getSquareY()) / colorSelect.getSquareSize();
             
             main.setPixelHSV(x, y, colorSelect.getHue(), sratio, vratio * 255);
-
           }
           else{
             main.setPixelRGB(x, y, menuColor);

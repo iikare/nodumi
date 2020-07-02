@@ -23,6 +23,7 @@ class note {
     void shiftX(double shiftX);
     void shiftTime(double timeInc);
     void scaleTime(double timeScale);
+
     
     int track;
     double duration;

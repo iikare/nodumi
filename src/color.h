@@ -2,7 +2,10 @@
 #define COLOR_H
 
 #include <cmath>
+#include <iostream>
 #include "box.h"
+
+using std::ostream;
 
 class colorHSV {
   public:
@@ -31,6 +34,7 @@ class colorRGB {
     void increaseValue(int valInc);
 
     void operator = (const colorHSV& col);
+    friend ostream& operator << (ostream& out, colorRGB color);
 
     double r;
     double g;
@@ -56,7 +60,7 @@ class colorMenu {
     int getPointX() { return pX; }
     int getPointY() { return pY; }
     int getPointAngle() { return pAngle; }
-    int getHue() { return colhsv.h; }
+    int getHue() { return fmod(colhsv.h + 360, 360); }
     int getSat() { return colhsv.s; }
     int getVal() { return colhsv.v; }
     int getSPointX() { return sX; }

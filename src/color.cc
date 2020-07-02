@@ -9,7 +9,7 @@ using std::min;
 using std::max;
 using std::cerr;
 using std::endl;
-
+using std::ostream;
 
 colorRGB::colorRGB() : r(0), g(0), b(0) {}
 
@@ -17,6 +17,11 @@ colorRGB::colorRGB(double red, double green, double blue) : r(red), g(green), b(
 
 void colorRGB::operator = (const colorHSV& col) {\
   setRGB(col);
+}
+
+ostream& operator << (ostream& out, colorRGB color) {
+  out << "{" << color.r << ", " << color.g << ", " << color.b << "}";
+  return out;
 }
 
 void colorRGB::setRGB(double red, double green, double blue) {
@@ -154,7 +159,7 @@ void colorMenu::findHSVFromSquare(bool findHue){
     pAngle = atan2(ciY - getCenterY(), getCenterX() - ciX) * 180.0/M_PI + 180;
     colhsv.h = pAngle;
   
-    cerr << "the angle is: " << pAngle << endl;
+    //cerr << "the angle is: " << pAngle << endl;
   }
   else {
     double sratio = static_cast<double>(sX - getSquareX())/getSquareSize();
@@ -162,7 +167,7 @@ void colorMenu::findHSVFromSquare(bool findHue){
     colhsv.s = sratio;
     colhsv.v = 255 * vratio;
     
-    cerr << vratio << ", " << 1.0 - colhsv.s << endl;
+    //cerr << vratio << ", " << 1.0 - colhsv.s << endl;
   }
   col.setRGB(colhsv);
 

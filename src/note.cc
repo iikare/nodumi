@@ -178,9 +178,11 @@ void mfile::load(string file) {
 
   midifile.linkNotePairs();
  
+  midifile.doTimeAnalysis();
+  
   trackCount = midifile.getTrackCount();
 
-  vector<pair<int,int>> trackInfo;
+  vector<pair<double, int>> trackInfo;
 
   for (int i = 0; i < trackCount; i++) {
     bool once = true;
@@ -206,8 +208,6 @@ void mfile::load(string file) {
 
   int idx = 0;
   
-  midifile.doTimeAnalysis();
-
   for (unsigned int track = 0; track < trackInfo.size(); track++) {
     int i = trackInfo[track].second;
     for (int j = 0; j < midifile.getEventCount(i); j++) {
