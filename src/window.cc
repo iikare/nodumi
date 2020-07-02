@@ -1,13 +1,17 @@
 #include <algorithm>
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-
+#include <SDL2/SDL_image.h>
 #include "window.h"
 #include "note.h"
+
 
 using std::cerr;
 using std::endl;
 using std::swap;
 using std::fill;
+using std::max;
+using std::min;
 
 window::window(string title) : 
   cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr), bgTexture(nullptr),
@@ -24,16 +28,16 @@ bool window::init() {
     return false;
   } 
 
-  windowA = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+  windowA = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
-  if (windowA == nullptr) {
+  if (!windowA) {
     SDL_Quit();
     return false;
   }
 
   renderer = SDL_CreateRenderer(windowA, -1, SDL_RENDERER_ACCELERATED);
 
-  if (renderer == nullptr) {
+  if (!renderer) {
     cerr << "error: failed to create renderer." << endl;
     SDL_DestroyWindow(windowA);
     SDL_Quit();
@@ -43,7 +47,7 @@ bool window::init() {
   texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
   bgTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
   
-  if (texture == nullptr || bgTexture == nullptr) {
+  if (!texture || !bgTexture) {
     cerr << "error: failed to create texture" << endl;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(windowA);
@@ -61,15 +65,18 @@ bool window::init() {
   
   menuFont = TTF_OpenFont("dpd/fonts/yklight.ttf", fontSize);
   
-  if(menuFont == nullptr) {
+  if(!menuFont) {
     cerr << "error: font initialization failed" << endl;
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(windowA);
     SDL_Quit();
     return false;
-  } 
+  }
 
+
+
+  // text rendering items
   messageX = new deque<int>;
   messageY = new deque<int>;
   messageText = new deque<string>;
@@ -225,7 +232,7 @@ void window::setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b) {
 
 colorRGB window::getPixelRGB(int x, int y) {
   
-  Uint32 hex = buffer[(WIDTH * y) + x];
+  uint32_t hex = buffer[(WIDTH * y) + x];
   colorRGB col;
 
   col.r = (hex & 0xFF000000) >> 24;
@@ -236,22 +243,37 @@ colorRGB window::getPixelRGB(int x, int y) {
 }
 
 void window::updateBackground(unsigned char* bufI, rect box) {
-  //SDL_UpdateTexture(bgTexture, nullptr
-  return;
-  uint32_t* buf = new uint32_t[box.width * box.height];
-  for (int i = 0; i < box.width * box.height * 4; i += 4) {
-    uint32_t color = 0x00000000;
+  if (box.x > getWidth() || box.y > getHeight()) {
+    return;
+  }
+  
+  // find limits to draw
+  int boundX = max(0, box.x);
+  int boundY = max(0 + MAIN_MENU_HEIGHT, box.y + MAIN_MENU_HEIGHT);
+  int boundXX = min(getWidth(), box.x + box.width);
+  int boundYY = min(getHeight(), box.y + MAIN_MENU_HEIGHT + box.height);
 
-    color += bufI[i];
-    color <<= 8;
-    color += bufI[i + 1];
-    color <<= 8;
-    color += bufI[i + 2];
-    color <<=8;
-    color += 0x00; 
-    buf[i/4] = color;
-  } 
- // memcpy(buffer, buf, box.width * box.height * sizeof(uint32_t)); //SDL_UpdateTexture(bgTexture, nullptr, buffer, WIDTH * sizeof(Uint32));
+  // find the limiting width/height
+  int drawnWidth = boundXX - boundX;
+  int drawnHeight = boundYY - boundY;
+  
+  cerr << "limit w/h " << drawnWidth << ", " << drawnHeight << endl;
+  cerr << "x, y, width, height" << boundX << ", " << boundY << ", " << boundXX << ", " << boundYY <<endl; 
+}
+
+void window::fillBG(colorRGB col) {
+  
+  uint32_t color = 0x00000000;
+
+  color += col.r;
+  color <<= 8;
+  color += col.g;
+  color <<= 8;
+  color += col.b;
+  color <<=8;
+  color += 0x00;
+
+  fill(buffer, buffer + WIDTH * HEIGHT, color); 
 }
 
 void window::update() {
@@ -268,7 +290,7 @@ void window::update() {
     messageText->pop_back();
     messageCol->pop_back();
   }
-SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+  
   SDL_RenderPresent(renderer);
 
   SDL_RenderClear(renderer);

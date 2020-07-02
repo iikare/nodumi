@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
   note& lastNote = notes[input->getNoteCount()-1];
   shiftTime = input->findCurrentTempo();
 
-  // image controller
+  // image controller/
   BGImage* bgI = new BGImage;
   string bgPath = "";
   bool bgRender = false;
@@ -370,9 +370,16 @@ int main(int argc, char* argv[]) {
       if (run || livePlay || oneTimeFlag) {
         // ensure rerender flag is unset
         oneTimeFlag = false;
+        
+        if (invertColor) {
+          main.fillBG(lightBG);
+        }
+        else {
+          main.fillBG(darkBG);
+        }
 
         // paint background before anything else
-        for (int i = 0; i < main.getWidth(); i++) {
+      /*  for (int i = 0; i < main.getWidth(); i++) {
           for (int j = 0; j < main.getHeight(); j++) {
             if (invertColor) {
               main.setPixelRGB(i, j, lightBG);
@@ -381,10 +388,10 @@ int main(int argc, char* argv[]) {
               main.setPixelRGB(i, j, darkBG);
             }
           }
-        }
+        }*/
         if (bgRender) {
           // render bg
-          //main.updateBackground(bgI->getBuffer(), bgI->getBox());
+          main.updateBackground(bgI->getBuffer(), bgI->getBox());
           for (int i = max(0, bgI->getX()); i < min(main.getWidth(), bgI->getX() + bgI->getWidth()); i++) {
             for (int j = max(0, areaTop + bgI->getY()); j < min(main.getHeight(), areaTop + bgI->getY() + bgI->getHeight()); j++) {
               // to be optimized
@@ -1810,10 +1817,11 @@ int main(int argc, char* argv[]) {
     }
     
     fCount++;
-    if (tick < SDL_GetTicks() - 1000) {
+    if (SDL_GetTicks() > 1000 && tick < SDL_GetTicks() - 1000) {
       tick = SDL_GetTicks();
       fps = fCount;
       fCount = 0;
+      cerr << fps << endl;
     }  
 
     main.renderText(main.getWidth() - 50, 0, to_string(fps));

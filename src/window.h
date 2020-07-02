@@ -5,7 +5,6 @@
 #include <string>
 #include <deque>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 #include "note.h"
 #include "window.h"
 #include "color.h"
@@ -22,6 +21,7 @@ class window {
      
     window(string title);
     bool init();
+    bool initGL();
     unsigned char eventHandler(SDL_Event &event);
     bool pointVisible(int x, int y);
     bool noteVisible(note n);
@@ -36,6 +36,7 @@ class window {
     point getMouseXY() { mouseXY.x = mouseX; mouseXY.y = mouseY; return mouseXY; }
 
     void renderText(int x, int y, string text, colorRGB col = {0, 0, 0});
+    void fillBG(colorRGB col);
      
     void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
     void setPixelRGB(int x, int y, colorRGB col);
