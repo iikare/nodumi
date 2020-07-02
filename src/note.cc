@@ -188,7 +188,7 @@ void mfile::load(string file) {
       if (midifile[i][j].isNoteOn()) {
         if (once) {
           once = false;
-          trackInfo.push_back(make_pair(midifile[i][j].tick, i));
+          trackInfo.push_back(make_pair(midifile[i][j].seconds * 500, i));
         }
         noteCount++;
       }

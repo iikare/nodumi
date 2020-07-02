@@ -86,15 +86,12 @@ void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
   }
 }
 
-string getSongPercent (long int pos,long double total, bool end) {
-  string untruncText = to_string(static_cast<long double>(100 * pos)/(pos - total));
-  long double position = static_cast<long double>(100 * pos)/(pos - total);
+string getSongPercent (double pos, double total) {
+  string untruncText = to_string( 100 * pos / total);
+  double position = 100 * pos / total;
 
   string result = "100.00%";
-  // complete
-  if (end) {
-    return result;
-  }
+  
   if (pos == 0) {
     return "0.00%";
   }
@@ -114,21 +111,14 @@ string getSongPercent (long int pos,long double total, bool end) {
   return result;
 }
 
-string getSongTime(long int pos, note cNote, double tTime) {
+string getSongTime(double pos, double total, double tTime) {
   string result;
-  double secTick= cNote.time / (cNote.x - pos);
-  double ratio = -cNote.x / cNote.duration;
-  double realTime = ceil(cNote.time + ratio * secTick * cNote.duration);
-
+  double realTime = tTime * pos / total;
 
   if (pos == 0) {
     realTime = 0;
   }
 
-  if ((isnan(secTick) || isnan(ratio)) && pos != 0) {
-    cerr << "secTick, ratio, realTime " << secTick << ", " << ratio << ", "<< realTime << endl;
-    cerr << " ^ pos, cTime, tTime " << pos << ", " << cNote.time << ", " << tTime << endl;
-  }
 
   result += toMinutes(realTime);
   result += " / ";

@@ -709,10 +709,10 @@ int main(int argc, char* argv[]) {
     // only render song time if no main menus are rendered to prevent text overlap
     if (songTime && !fileMenu.render && !editMenu.render && !viewMenu.render && !midiMenu.render) {
       if (songMode == 1) {
-        songTimeText = getSongPercent(static_cast<long double>(firstNote.x) * 1000000 * input->getTimeScale(), static_cast<long double>(1000000) * input->getLastTick(), end);
+        songTimeText = getSongPercent(input->getTimeScale() * -firstNote.x, input->getTimeScale() * (lastNote.x + lastNote.duration - firstNote.x));
       }
       else if (songMode == 2) {
-        songTimeText = getSongTime(firstNote.x, input->findCurrentNote(), input->getLastTime());
+        songTimeText = getSongTime(input->getTimeScale() * -firstNote.x, input->getTimeScale() * (lastNote.x + lastNote.duration - firstNote.x), input->getLastTime()); 
       }
 
       // choose text color based on background
