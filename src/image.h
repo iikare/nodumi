@@ -20,6 +20,9 @@ class BGImage {
     void scale(double ratio);
     void flip(bool dir);
     void clear();
+    void resetPosition() { x = 0; y = 0; }
+    void resetScale() { scale(1/scaleRatio); }
+    void centerImage(int cX, int cY); 
 
     colorRGB getPixelRGB(int x, int y);
     int getX() { return x; }

@@ -5,6 +5,7 @@
 #include "../dpd/single-header-image-resampler/base_resample.h"
 #include "color.h"
 #include "image.h"
+#include "misc.h"
 
 using namespace base;
 using std::vector;
@@ -42,6 +43,10 @@ void BGImage::loadPNG(string path) {
   oImage = image;
   oWidth = width;
   oHeight = height;
+
+  if (oWidth > WIN_WIDTH && oHeight > WIN_HEIGHT) {
+    scale(static_cast<double>(WIN_WIDTH)/oWidth);
+  }
 
   //cerr << "width, height: " << width << ", " << height << endl;
 }
@@ -135,4 +140,9 @@ void BGImage::flip(bool dir) {
       }
     }
   }
+}
+
+void BGImage::centerImage(int cX, int cY) {
+ x = cX/2 - width/2;
+ y = cY/2 - height/2;
 }

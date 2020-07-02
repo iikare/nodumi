@@ -158,8 +158,11 @@ int main(int argc, char* argv[]) {
   vector<string> rightClickContents = {"Info", "Change Part Color", "Set Tonic"};
   menu rightMenu(main.getSize(), rightClickContents, false, -100,-100);
   
-  vector<string> scaleMenuContents = {"x1.25", "x1.1", "x1.025", "x0.975", "x0.9", "x0.75"};
+  vector<string> scaleMenuContents = {"Reset Scale", "x1.25", "x1.1", "x1.025", "x0.975", "x0.9", "x0.75"};
   menu scaleMenu(main.getSize(), scaleMenuContents, false, -100,-100);
+  
+  vector<string> moveMenuContents = {"Reset Position", "Center Image"};
+  menu moveMenu(main.getSize(), moveMenuContents, false, -100,-100);
   
   vector<string> flipMenuContents = {"Horizontal", "Vertical"};
   menu flipMenu(main.getSize(), flipMenuContents, false, -100,-100);
@@ -422,7 +425,7 @@ int main(int argc, char* argv[]) {
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           
           // prevent notes from disappearing at high scaling
-          width = renderNote.duration < 1 ? 1 : renderNote.duration;
+          width = renderNote.duration < 1 ? 1 : renderNote.duration * 120.0/input->findCurrentTempo();
 
           switch (displayMode) {
             case 1: // standard mode
@@ -944,6 +947,27 @@ int main(int argc, char* argv[]) {
       }
     }   
 
+    // render move menu
+    if (moveMenu.render && rightMenu.render) {
+      moveMenu.findActiveElement(main.getMouseXY());
+      for (int x = moveMenu.getX(); x < moveMenu.getX() + moveMenu.getWidth() ; x++) {
+        for (int y = moveMenu.getY(); y < moveMenu.getY() + moveMenu.getHeight(); y++) {
+          main.setPixelRGB(x, y, menuColor);
+          
+          if (hoverOnBox(x, y, moveMenu.getBox(moveMenu.getActiveElement()))) {
+            main.setPixelRGB(x, y, menuColorClick);
+          }
+          
+          if (((y - moveMenu.getY()) % ITEM_HEIGHT == 0 || x == moveMenu.getX()) && y != moveMenu.getY()) {
+            main.setPixelRGB(x, y, menuLineColor);
+          }
+        }
+      }
+      for (int i = 0; i < moveMenu.getSize(); i++) {
+        main.renderText(moveMenu.getItemX(i), moveMenu.getItemY(i), moveMenu.getContent(i));
+      }
+    }   
+
     // render flip menu
     if (flipMenu.render && rightMenu.render) {
       flipMenu.findActiveElement(main.getMouseXY());
@@ -1234,6 +1258,7 @@ int main(int argc, char* argv[]) {
         
         rightMenu.findActiveElement(main.getMouseXY());
         scaleMenu.findActiveElement(main.getMouseXY());
+        moveMenu.findActiveElement(main.getMouseXY());
         flipMenu.findActiveElement(main.getMouseXY());
         fileMenu.findActiveElement(main.getMouseXY());
         editMenu.findActiveElement(main.getMouseXY());
@@ -1531,6 +1556,9 @@ int main(int argc, char* argv[]) {
               if (rightMenu.getActiveElement() == -1 &&  scaleMenu.getActiveElement() == -1) {
                 scaleMenu.render = false;
               } 
+              if (rightMenu.getActiveElement() == -1 &&  moveMenu.getActiveElement() == -1) {
+                moveMenu.render = false;
+              } 
               if (rightMenu.getActiveElement() == -1 &&  flipMenu.getActiveElement() == -1) {
                 flipMenu.render = false;
               } 
@@ -1565,9 +1593,10 @@ int main(int argc, char* argv[]) {
               else if (rightImage) {
                 scaleMenu.render = !scaleMenu.render;
                 flipMenu.render = false;
+                moveMenu.render = false;
               }
               break;
-            case 1: // change part color (note) open flip menu (bg image)
+            case 1: // change part color (note) open move menu (bg image)
               if (!colorSelect.clickBG && !rightImage) {
                 if (colorSelect.render) {
                  // turn off the color picker if clicked again
@@ -1581,11 +1610,12 @@ int main(int argc, char* argv[]) {
                 colorSelect.render = true;
               }
               else if (rightImage) {
-                flipMenu.render = !flipMenu.render;
+                moveMenu.render = !moveMenu.render;
+                flipMenu.render = false;
                 scaleMenu.render = false;
               }
               break;
-            case 2: // set tonic (note) remove image (bg image)
+            case 2: // set tonic (note) flip menu (bg image)
               // only if render by tonic is selected
               if (!rightImage) {
                 if (colorMode == 3) {
@@ -1594,14 +1624,20 @@ int main(int argc, char* argv[]) {
                 colorSelect.render = false;
               }
               else {
-                updateBG = true;
-                bgI->clear();
-
-                bgRender = false;
-                rightMenu.render = false;
+                flipMenu.render = !flipMenu.render;
+                moveMenu.render = false;
                 scaleMenu.render = false;
-                flipMenu.render = false;
               }
+              break;
+            case 3: // remove bg image
+              updateBG = true;
+              bgI->clear();
+
+              bgRender = false;
+              scaleMenu.render = false;
+              flipMenu.render = false;
+              moveMenu.render = false;
+
               break;
           }
         }
@@ -1612,32 +1648,53 @@ int main(int argc, char* argv[]) {
             case -1: // clicked outside menu bounds
               // handled inside parent menu
               break;
-            case 0: // 1.25
+            case 0:
+              updateBG = true;
+              bgI->resetScale();
+              break;
+            case 1: // 1.25
               updateBG = true;
               bgI->scale(1.25);
               break;
-            case 1: // 1.1
+            case 2: // 1.1
               updateBG = true;
               bgI->scale(1.1);
               break;
-            case 2: // 1.025 
+            case 3: // 1.025 
               updateBG = true;
               bgI->scale(1.025);
               break;
-            case 3: // 0.975
+            case 4: // 0.975
               updateBG = true;
               bgI->scale(0.975);
               break;
-            case 4: // 0.9
+            case 5: // 0.9
               updateBG = true;
               bgI->scale(0.9);
               break;
-            case 5: // 0.75 
+            case 6: // 0.75 
               updateBG = true;
               bgI->scale(0.75);
               break;
           }
         } 
+
+        //handle move menu actions
+        if (moveMenu.render || !moveMenu.getActiveElement()) {
+          switch (moveMenu.getActiveElement()) {
+            case -1: // clicked outside menu bounds
+              // handled inside parent menu
+              break;
+            case 0: // reset position
+              updateBG = true;
+              bgI->resetPosition();
+              break;
+            case 1: // center image
+              updateBG = true;
+              bgI->centerImage(main.getWidth(), main.getHeight());
+              break;
+          }
+        }  
 
         //handle flip menu actions
         if (flipMenu.render || !flipMenu.getActiveElement()) {
@@ -1738,6 +1795,7 @@ int main(int argc, char* argv[]) {
         midiMenu.render = false;
         inputMenu.render = false;
         scaleMenu.render = false;
+        moveMenu.render = false;
         flipMenu.render = false;
 
         // unselect BG
@@ -1800,7 +1858,7 @@ int main(int argc, char* argv[]) {
           //cerr << "right clicked on the background!" << endl;
         }
         else if (bgRender && hoverOnBox(main.getMouseXY(), bgI->getBox())) {
-          vector<string> IRight = {"Scale Image", "Flip Image", "Remove Image"};
+          vector<string> IRight = {"Scale Image", "Move Image", "Flip Image", "Remove Image"};
           rightMenu.update(IRight);
  
           // find coordinate to draw right click menu
@@ -1812,8 +1870,8 @@ int main(int argc, char* argv[]) {
 
           // update position for submenus
           scaleMenu.setXY(rightMenu.getX() + rightMenu.getWidth(), rightMenu.getItemY(0));
-          flipMenu.setXY(rightMenu.getX() + rightMenu.getWidth(), rightMenu.getItemY(1));
-          
+          moveMenu.setXY(rightMenu.getX() + rightMenu.getWidth(), rightMenu.getItemY(1));
+          flipMenu.setXY(rightMenu.getX() + rightMenu.getWidth(), rightMenu.getItemY(2));
           
           rightMenu.render = true;
           colorSelect.render = false;
