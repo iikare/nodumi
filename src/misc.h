@@ -61,5 +61,6 @@ string getNoteInfo(int noteTrack, int notePos);
 string toMinutes (double seconds);
 
 colorRGB getWeightedAverage(colorRGB col1, colorRGB col2, unsigned char weight);
+colorRGB getOverlayColor(colorRGB baseColor);
 
 #endif

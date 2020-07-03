@@ -15,8 +15,8 @@ using std::pair;
 class note {
   public:
     note();
-    ~note();
     note(const note& nNote);
+    ~note();
     
     void operator = (const note& nNote);
     

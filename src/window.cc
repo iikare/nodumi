@@ -253,6 +253,16 @@ void window::setPixelRGBA(int x, int y, colorRGB col, unsigned char alpha) {
   }
 }
 
+void window::setPixelRGBO(int x, int y) {
+  if (!pointVisible(x, y)) {
+    cerr << "warn: invalid call to setPixelRGBO() with x, y - {" << x << ", " << y << "}" << endl;
+  }
+  else{
+    // calculate overlay color
+    setPixelRGB(x, y, getOverlayColor(getPixelRGB(x, y)));
+  }
+}
+
 colorRGB window::getPixelRGB(int x, int y) {
   
   uint32_t hex = buffer[(WIDTH * y) + x];

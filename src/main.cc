@@ -257,7 +257,7 @@ int main(int argc, char* argv[]) {
   
   /*
    *  TODO:
-   *    add alpha blend mode
+   *    add alpha blend mode                      DONE
    *    add background color selection            DONE
    *    add menu bar on top                       DONE
    *    add file picker                           DONE (fix memory leaks)
@@ -419,6 +419,22 @@ int main(int argc, char* argv[]) {
               }
             }
           }
+
+          // now line will render below notes
+          if (drawLine) {
+            // draw alpha only if background enabled
+            if (bgI->getWidth()) {
+              for (int j = areaTop; j < main.getHeight(); j++) {
+                main.setPixelRGBO(main.getWidth()/2, j);
+              }
+            }
+            else {
+              for (int j = areaTop; j < main.getHeight(); j++) {
+                main.setPixelRGB(main.getWidth()/2, j, lineColor);
+              }
+            }
+          }
+
           main.saveBuffer();
         }
         else {
@@ -715,13 +731,6 @@ int main(int argc, char* argv[]) {
     }
     
     // everything after this point will render on top of notes
-
-    // now line will always render regardless of play state
-    if (drawLine) {
-      for (int j = areaTop; j < main.getHeight(); j++) {
-        main.setPixelRGB(main.getWidth()/2, j, lineColor);
-      }
-    }
 
     // only render song time if no main menus are rendered to prevent text overlap
     if (songTime && !fileMenu.render && !editMenu.render && !viewMenu.render && !midiMenu.render) {

@@ -1,9 +1,12 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <cmath>
 #include "note.h"
 #include "misc.h"
 
+using std::min;
+using std::max;
 using std::cerr;
 using std::endl;
 using std::isnan;
@@ -87,7 +90,7 @@ void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
 }
 
 string getSongPercent (double pos, double total) {
-  string untruncText = to_string( 100 * pos / total);
+  string untruncText = to_string(100 * pos / total);
   double position = 100 * pos / total;
 
   string result = "100.00%";
@@ -323,6 +326,21 @@ colorRGB getWeightedAverage(colorRGB col1, colorRGB col2, unsigned char weight) 
   result.r = ((1 - weightRatio) * col1.r + weightRatio * col2.r);
   result.g = ((1 - weightRatio) * col1.g + weightRatio * col2.g);
   result.b = ((1 - weightRatio) * col1.b + weightRatio * col2.b);
+
+  return result;
+}
+
+colorRGB getOverlayColor(colorRGB baseColor) {
+  colorHSV tmp(baseColor.getHSV());
+  double val = tmp.v / 255.0;
+  if (val < 0 ) {
+    cerr << "OH NO VAL NEGATIVE" << val << endl;
+  }
+  
+  // map value according to function
+  tmp.v = 255 * pow(val, 0.5);
+  colorRGB result;
+  result.setRGB(tmp);
 
   return result;
 }
