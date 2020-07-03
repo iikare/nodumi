@@ -87,6 +87,40 @@ colorRGB BGImage::getPixelRGB(int x, int y) {
   return col;
 }
 
+vector<pixel> BGImage::getKMeansSample(int& kWidth, int& kHeight) {
+  if (!image.size()) {
+    cerr << "warn: attempted to get kMeans of non-existent picture" << endl;
+    return kMeansData;
+  }
+
+  kWidth = 400;
+  kHeight = 400 * static_cast<double>(width)/height;
+  int offset = 0;
+
+  unsigned char* dstImage = new unsigned char[kWidth * kHeight * 3];
+  unsigned char* srcImage = new unsigned char[oWidth * oHeight * 3];
+
+  for (int i = 0; i < oWidth * oHeight * 4; i++) {
+    if (i % 4 != 0) {
+      srcImage[offset++] = oImage[i - 1];
+    }
+  }
+
+  kMeansData.clear();
+  
+  // needs to be fast
+  ResampleImage24(srcImage, oWidth, oHeight, dstImage, kWidth, kHeight, KernelTypeNearest);
+
+  for (int i = 0; i < kWidth * kHeight * 3; i += 3) {
+    colorRGB col(dstImage[i], dstImage[i + 1], dstImage[i + 2]);
+    kMeansData.push_back(pixel(col));
+  }
+
+  delete[] srcImage;
+  delete[] dstImage;
+
+  return kMeansData;
+}
 
 void BGImage::scale(double ratio) {
   if (ratio <= 0 || ratio > 3) {

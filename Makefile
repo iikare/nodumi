@@ -2,7 +2,7 @@ CC = g++
 
 CFLAGS = --std=c++11 -Wall -Wextra -g -Wno-class-memaccess -D__LINUX_ALSA__ -D__UNIX_JACK__ -D__RTMIDI_DEBUG__ 
 
-CFLAGSOD = --std=c99 -w -fpermissive -g $(shell pkg-config --cflags gtk+-3.0)
+CFLAGSOD = --std=c99 -w -fpermissive -g  $(shell pkg-config --cflags gtk+-3.0)
 
 LFLAGS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lasound -lpthread -ljack $(shell pkg-config --libs gtk+-3.0)
 

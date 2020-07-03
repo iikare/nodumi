@@ -5,6 +5,7 @@
 #include <string>
 #include "../dpd/picoPNG/picopng.h"
 #include "color.h"
+#include "colorgen.h"
 #include "misc.h"
 #include "box.h"
 
@@ -18,6 +19,7 @@ class BGImage {
     
     void loadPNG(string path);
     void scale(double ratio);
+    vector<pixel> getKMeansSample(int& kWidth, int& kHeight);
     void flip(bool dir);
     void clear();
     void resetPosition() { x = 0; y = 0; }
@@ -37,11 +39,11 @@ class BGImage {
     void setXYOffset(point XYOff) { xOrig = x; yOrig = y; xOff = XYOff.x; yOff = XYOff.y; };
 
     void clearXYOffset() { xOff = 0; yOff = 0; xOrig = 0; yOrig = 0; };
-
   private:
     vector<unsigned char> buffer;
     vector<unsigned char> image;
     vector<unsigned char> oImage;
+    vector<pixel> kMeansData;
     int x;
     int y;
     unsigned long width;

@@ -1583,12 +1583,16 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 0: // relative
-              songTime = true;
-              songMode = 1;
+              if (songMenu.render) {
+                songTime = true;
+                songMode = 1;
+              }
               break;
             case 1: // absolute
-              songTime = true;
-              songMode = 2; 
+              if (songMenu.render) {
+                songTime = true;
+                songMode = 2; 
+              }
               break;
             case 2: // 
               cerr << "info: function not implemented" << endl;
@@ -1914,9 +1918,19 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 0: // default
-              cerr << "info: function not implemented" << endl;
+              getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
+              getColorScheme(12, noteColorC, noteColorD);
+              getColorScheme(128, noteColorE, noteColorF);
               break;
             case 1: // from picture
+              if (bgI->getWidth()) {
+                getColorSchemeBG(bgI, input->getTrackCount(), 0, noteColorA, noteColorB);
+                getColorSchemeBG(bgI, 12, 4, noteColorC, noteColorD);
+                getColorSchemeBG(bgI, 128, 4, noteColorE, noteColorF);
+              }
+              else {
+                cerr << "info: no image loaded" << endl;
+              } 
               break;
             case 2: // 
               cerr << "info: function not implemented" << endl;
