@@ -45,6 +45,7 @@ class window {
      
     void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
     void setPixelRGB(int x, int y, colorRGB col);
+    void setPixelRGBA(int x, int y, colorRGB col, unsigned char alpha);
     void setPixelHSV(int x, int y, colorHSV col);
     void setPixelHSV(int x, int y, double h, double s, double v);
     colorRGB getPixelRGB(int x, int y);

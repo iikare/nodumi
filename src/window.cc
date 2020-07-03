@@ -235,6 +235,24 @@ void window::setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b) {
   buffer[(WIDTH * y) + x] = color;
 }
 
+void window::setPixelRGBA(int x, int y, colorRGB col, unsigned char alpha) {
+  if (!pointVisible(x, y)) {
+    cerr << "warn: invalid call to setPixelRGBA() with x, y - {" << x << ", " << y << "}" << endl;
+  }
+
+  if (alpha == 0) {
+    return;
+  }
+  else if (alpha == 255) {
+    setPixelRGB(x, y, col);
+  }
+  else{
+    // do a weighted average
+    colorRGB cur = getPixelRGB(x, y);
+    setPixelRGB(x, y, getWeightedAverage(cur, col, alpha));
+  }
+}
+
 colorRGB window::getPixelRGB(int x, int y) {
   
   uint32_t hex = buffer[(WIDTH * y) + x];

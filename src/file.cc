@@ -205,6 +205,9 @@ bool checkMKI(ifstream& file, string path) {
 
 void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, colorRGB& bg,
                  int& displayMode, int& colorMode, bool& drawLine, bool& songTime, bool& invertColor){
+  
+  cerr << "info: loading MKI - " << path << endl;
+
   ifstream file;
   file.open(path, ios::in | ios::binary);
   if (!file) {

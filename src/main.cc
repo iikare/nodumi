@@ -88,6 +88,11 @@ int main(int argc, char* argv[]) {
   
   // program exit control
   bool state = true;
+
+  //fps
+  uint32_t tick = SDL_GetTicks();
+  uint32_t fps = 0;
+  uint32_t fCount = 0;
   bool showFPS = false;
 
   // new file controller
@@ -212,6 +217,10 @@ int main(int argc, char* argv[]) {
   bool loadBG = false;
   bool updateBG = true;
 
+  // debug bg
+  bgI->loadPNG("tests/large.png");
+  bgRender = true;
+
   // event controller
   SDL_Event event;
 
@@ -240,6 +249,11 @@ int main(int argc, char* argv[]) {
 
   vector<string> inputMenuContents = {""};
   menu inputMenu(main.getSize(), inputMenuContents, false, MIDI_X + midiMenu.getWidth(), midiMenu.getItemY(1));
+
+  // correct menu items after loading file
+  bgRender ? viewMenu.setContent("Hide Background", 6) : viewMenu.setContent("Show Background", 6);
+  drawLine ? viewMenu.setContent("Hide Now Line", 2) : viewMenu.setContent("Display Now Line", 2);
+  songTime ? viewMenu.setContent("Hide Song Time", 4) : viewMenu.setContent("Display Song Time", 4);
   
   /*
    *  TODO:
@@ -275,16 +289,6 @@ int main(int argc, char* argv[]) {
    // cerr << "note " << i << " is on track " << notes[i].track << endl;
   //}
   
-
-  // debug bg
-  bgI->loadPNG("tests/large.png");
-  bgRender = true;
-
-  //fps
-  uint32_t tick = SDL_GetTicks();
-  uint32_t fps = 0;
-  uint32_t fCount = 0;
-
   while (state){
     
     // refresh note count
@@ -315,6 +319,11 @@ int main(int argc, char* argv[]) {
         displayMode = 1;
         colorMode = 1;
       }
+
+      // correct menu items after loading file
+      bgRender ? viewMenu.setContent("Hide Background", 6) : viewMenu.setContent("Show Background", 6);
+      drawLine ? viewMenu.setContent("Hide Now Line", 2) : viewMenu.setContent("Display Now Line", 2);
+      songTime ? viewMenu.setContent("Hide Song Time", 4) : viewMenu.setContent("Display Song Time", 4);
 
       delete[] oNotes; 
       notes = input->getNotes();
@@ -356,18 +365,20 @@ int main(int argc, char* argv[]) {
       end = false;
     }
 
-
     // live play
     if (livePlay) {
       notes = userInput->getNotes();
       noteLimit = userInput->getNoteCount();
     //  input = userInput->noteStream;
       oneTimeFlag = true;
+      songTime = false;
     }
     else {
       noteLimit = input->getNoteCount();
     }
 
+    // ensure songtime is correct
+    songTime ? viewMenu.setContent("Hide Song Time", 4) : viewMenu.setContent("Display Song Time", 4);
 
     // update note references
     lastNote = notes[input->getNoteCount()-1];
@@ -472,31 +483,33 @@ int main(int argc, char* argv[]) {
                 // rendering of the note itself 
                 for (int j = 0; j < width; j++) {
                   for (int k = 0; k < noteHeight; k++) {
-                    switch (colorMode) {
-                      case 1: // part
-                        if (noteOn) {
-                          main.setPixelRGB(x + j, y + k, noteColorB[renderNote.track]);
-                        }
-                        else {
-                          main.setPixelRGB(x + j, y + k, noteColorA[renderNote.track]);
-                        }
-                        break;
-                      case 2: // velocity
-                        if (noteOn) {
-                          main.setPixelRGB(x + j, y + k, noteColorF[renderNote.velocity % 127]);
-                        }
-                        else {
-                          main.setPixelRGB(x + j, y + k, noteColorE[renderNote.velocity % 127]);
-                        }
-                        break;
-                      case 3: // tonic
-                        if (noteOn) { 
-                          main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                        }
-                        else {
-                          main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                        }
-                        break;
+                    if (x + j > 0 && x + j < main.getWidth()) {
+                      switch (colorMode) {
+                        case 1: // part
+                          if (noteOn) {
+                            main.setPixelRGB(x + j, y + k, noteColorB[renderNote.track]);
+                          }
+                          else {
+                            main.setPixelRGB(x + j, y + k, noteColorA[renderNote.track]);
+                          }
+                          break;
+                        case 2: // velocity
+                          if (noteOn) {
+                            main.setPixelRGB(x + j, y + k, noteColorF[renderNote.velocity % 127]);
+                          }
+                          else {
+                            main.setPixelRGB(x + j, y + k, noteColorE[renderNote.velocity % 127]);
+                          }
+                          break;
+                        case 3: // tonic
+                          if (noteOn) { 
+                            main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                          }
+                          else {
+                            main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                          }
+                          break;
+                      }
                     }
                   }
                 }
@@ -564,31 +577,33 @@ int main(int argc, char* argv[]) {
                     for (int k = min(nextY, y); k < max(nextY, y) + 4; k++) {
                       int distLine = getDistance(x + j, y + j * static_cast<double>(deltaY)/deltaX, x + j, k);
                       if (distLine < 2) {
-                        switch (colorMode) {
-                          case 1: // part
-                            if (noteOn) {
-                              main.setPixelRGB(x + j, y + k, noteColorB[renderNote.track]);
-                            }
-                            else {
-                              main.setPixelRGB(x + j, y + k, noteColorA[renderNote.track]);
-                            }
-                            break;
-                          case 2: // velocity
-                            if (noteOn) {
-                              main.setPixelRGB(x + j, y + k, noteColorF[renderNote.velocity % 127]);
-                            }
-                            else {
-                              main.setPixelRGB(x + j, y + k, noteColorE[renderNote.velocity % 127]);
-                            }
-                            break;
-                          case 3: // tonic
-                            if (noteOn) { 
-                              main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                            }
-                            else {
-                              main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                            }
-                            break;
+                        if (x + j > 0 && x + j < main.getWidth()) {
+                          switch (colorMode) {
+                            case 1: // part
+                              if (noteOn) {
+                                main.setPixelRGB(x + j, y + k, noteColorB[renderNote.track]);
+                              }
+                              else {
+                                main.setPixelRGB(x + j, y + k, noteColorA[renderNote.track]);
+                              }
+                              break;
+                            case 2: // velocity
+                              if (noteOn) {
+                                main.setPixelRGB(x + j, y + k, noteColorF[renderNote.velocity % 127]);
+                              }
+                              else {
+                                main.setPixelRGB(x + j, y + k, noteColorE[renderNote.velocity % 127]);
+                              }
+                              break;
+                            case 3: // tonic
+                              if (noteOn) { 
+                                main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                              }
+                              else {
+                                main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                              }
+                              break;
+                          }
                         }
                       }
                     }
@@ -637,31 +652,33 @@ int main(int argc, char* argv[]) {
                 for (int j = x - radius; j < x + radius; j++) {
                   for (int k = y - radius; k < y + radius; k++) {
                     if (getDistance(x, y, j, k) <= radius) {
-                      switch (colorMode) {
-                        case 1: // part
-                          if (noteOn) {
-                            main.setPixelRGB(j, k, noteColorB[renderNote.track]);
-                          }
-                          else {
-                            main.setPixelRGB(j, k, noteColorA[renderNote.track]);
-                          }
-                          break;
-                        case 2: // velocity
-                          if (noteOn) {
-                            main.setPixelRGB(j, k, noteColorF[renderNote.velocity % 127]);
-                          }
-                          else {
-                            main.setPixelRGB(j, k, noteColorE[renderNote.velocity % 127]);
-                          }
-                          break;
-                        case 3: // tonic
-                          if (noteOn) { 
-                            main.setPixelRGB(j, k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                          }
-                          else {
-                            main.setPixelRGB(j, k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                          }
-                          break;
+                      if (j > 0 && j < main.getWidth()) {
+                        switch (colorMode) {
+                          case 1: // part
+                            if (noteOn) {
+                              main.setPixelRGB(j, k, noteColorB[renderNote.track]);
+                            }
+                            else {
+                              main.setPixelRGB(j, k, noteColorA[renderNote.track]);
+                            }
+                            break;
+                          case 2: // velocity
+                            if (noteOn) {
+                              main.setPixelRGB(j, k, noteColorF[renderNote.velocity % 127]);
+                            }
+                            else {
+                              main.setPixelRGB(j, k, noteColorE[renderNote.velocity % 127]);
+                            }
+                            break;
+                          case 3: // tonic
+                            if (noteOn) { 
+                              main.setPixelRGB(j, k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                            }
+                            else {
+                              main.setPixelRGB(j, k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
+                            }
+                            break;
+                        }
                       }
                     }
                   }
@@ -701,8 +718,8 @@ int main(int argc, char* argv[]) {
 
     // now line will always render regardless of play state
     if (drawLine) {
-      for (int y = areaTop; y < main.getHeight(); y++) {
-        main.setPixelRGB(main.getWidth()/2, y, lineColor.r, lineColor.g, lineColor.b);
+      for (int j = areaTop; j < main.getHeight(); j++) {
+        main.setPixelRGB(main.getWidth()/2, j, lineColor);
       }
     }
 
@@ -1444,7 +1461,7 @@ int main(int argc, char* argv[]) {
               else{
                 updateBG = true;
                 bgRender = !bgRender;
-                if (!bgRender) {
+                if (bgRender) {
                   viewMenu.setContent("Hide Background", 6);
                 }
                 else {

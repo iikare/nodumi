@@ -119,10 +119,9 @@ string getSongTime(double pos, double total, double tTime) {
     realTime = 0;
   }
 
-
   result += toMinutes(realTime);
   result += " / ";
-  result += toMinutes(ceil(tTime));
+  result += toMinutes(tTime);
   return result;
 }
 
@@ -313,6 +312,18 @@ string getNoteInfo(int noteTrack, int notePos) {
   }
   result += to_string(octave);
   result += " | Track " + to_string(noteTrack + 1);
+  return result;
+}
+
+colorRGB getWeightedAverage(colorRGB col1, colorRGB col2, unsigned char weight) {
+  colorRGB result;
+  
+  double weightRatio = weight / 255.0;
+
+  result.r = ((1 - weightRatio) * col1.r + weightRatio * col2.r);
+  result.g = ((1 - weightRatio) * col1.g + weightRatio * col2.g);
+  result.b = ((1 - weightRatio) * col1.b + weightRatio * col2.b);
+
   return result;
 }
 
