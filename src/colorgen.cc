@@ -69,7 +69,19 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
   vector<pixel> colorData = image->getKMeansSample(); 
 
   int meanV = 0;
+  
   vector<colorRGB> colorVecC = findKMeans(colorData, k, meanV);
+
+  
+  if (k == 1) {
+    // filter single color
+    colorHSV col = colorVecC[0].getHSV();
+    while (col.v < 100) {
+      colorVecC.clear();
+      vector<colorRGB> colorVecC = findKMeans(colorData, k, meanV);
+      col.v = colorVecC[0].getHSV().v;
+    }
+  }
 
   bool isAOn = false;
 
@@ -110,6 +122,7 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
       colorVecB.push_back(colB);
     }
   }
+
   //find n shades of k colors
   if (n > k) {
     if (k != 2) {
@@ -165,6 +178,7 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
     // provide contrast on dark images
     swap(colorVecA, colorVecB);
   }
+  
 }
 
 vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
@@ -185,6 +199,15 @@ vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
   vector<int> idxUsed(k, 0);
   vector<pixel> centroidData;
 
+  // get mean value if k = 1
+  if (k == 1) {
+    for (unsigned int i = 0; i < colorData.size(); i++) {
+      colorHSV col = colorData[i].data.getHSV();
+      intVal += col.v;
+    }
+    meanV = intVal / colorData.size(); 
+  }
+
   for (int i = 0; i < k; ++i) {
     // initial centroid is random
     if (i == 0) {
@@ -204,13 +227,13 @@ vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
         }
 
         double distToCentroid = 0;
-        for (int k = 0; k < i; k++) {
+        for (int m = 0; m < i; m++) {
           // prevent clustering of centroids
-          if (centroidData[k].distance(colorData[j].data) < 100) {
+          if (centroidData[m].distance(colorData[j].data) < 100) {
             distToCentroid = 0;
             break;
           }
-          distToCentroid += centroidData[k].distance(colorData[j].data);
+          distToCentroid += centroidData[m].distance(colorData[j].data);
         }
         if (distToCentroid > maxDist) {
             maxDist = distToCentroid;
