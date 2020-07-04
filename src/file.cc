@@ -192,10 +192,19 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
   output.close(); 
 }
 
+bool readFromFile(ifstream& in, char* data, int width) {
+  if (!in.eof()) { in.read(data, width); return true; }
+  else {
+    cerr << "error: invalid EOF" << endl;
+    exit(1);
+  }
+  return false;
+}
+
 bool checkMKI(ifstream& file, string path) {
   // this function verifies the integrity of the MKI file
   char formatcheck = '\0';
-  file.read(reinterpret_cast<char *>(&formatcheck), sizeof(formatcheck));
+  readFromFile(file, reinterpret_cast<char *>(&formatcheck), sizeof(formatcheck));
   if (formatcheck != '|') {
     cerr << "error: invalid MKI file: " << path << "!" << endl;
     return false;
@@ -220,29 +229,29 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   
   // read the next byte and set the bool values (in order)
   uint8_t boolValue = 0; 
-  file.read(reinterpret_cast<char *>(&boolValue), sizeof(uint8_t));
+  readFromFile(file, reinterpret_cast<char *>(&boolValue), sizeof(uint8_t));
   drawLine = !((boolValue >> 3) & 1);
   songTime = (boolValue >> 2) & 1;
   invertColor = (boolValue >> 1) & 1;
 
   uint8_t tmpValue = 0;
   // read the display mode at third byte
-  file.read(reinterpret_cast<char *>(&tmpValue), sizeof(uint8_t));
+  readFromFile(file, reinterpret_cast<char *>(&tmpValue), sizeof(uint8_t));
   displayMode = static_cast<int>(tmpValue);
   
   // read the display mode at fourth byte
-  file.read(reinterpret_cast<char *>(&tmpValue), sizeof(uint8_t));
+  readFromFile(file, reinterpret_cast<char *>(&tmpValue), sizeof(uint8_t));
   colorMode = static_cast<int>(tmpValue);
 
   // read the note count at fifth byte
-  file.read(reinterpret_cast<char *>(&input->noteCount), sizeof(int));
+  readFromFile(file, reinterpret_cast<char *>(&input->noteCount), sizeof(int));
 
   // read the color count at ninth byte
   int colorCount = 0;
-  file.read(reinterpret_cast<char *>(&colorCount), sizeof(int));
+  readFromFile(file, reinterpret_cast<char *>(&colorCount), sizeof(int));
 
   // read the total time at thirteenth byte
-  file.read(reinterpret_cast<char *>(&input->lastTime), sizeof(double));
+  readFromFile(file, reinterpret_cast<char *>(&input->lastTime), sizeof(double));
   
   // next byte must be a separator
   if (!checkMKI(file, path)) { return; }
@@ -254,12 +263,12 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   
   // get the background color
   // the alpha field doesn't actually do anything...
-  file.seekg(1, ios::cur);
+  if (!file.eof()) { file.seekg(1, ios::cur); }
     
   // bytes are stored in reverse order
-  file.read(reinterpret_cast<char *>(&b), sizeof(uint8_t));
-  file.read(reinterpret_cast<char *>(&g), sizeof(uint8_t));
-  file.read(reinterpret_cast<char *>(&r), sizeof(uint8_t)); 
+  readFromFile(file, reinterpret_cast<char *>(&b), sizeof(uint8_t));
+  readFromFile(file, reinterpret_cast<char *>(&g), sizeof(uint8_t));
+  readFromFile(file, reinterpret_cast<char *>(&r), sizeof(uint8_t)); 
   
   bg.setRGB(r, g, b);
 
@@ -275,12 +284,12 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
     // read 4 bytes, store three in col, discard the alpha byte
     
     // the alpha field doesn't actually do anything...
-    file.seekg(1, ios::cur);
+    if (!file.eof()) { file.seekg(1, ios::cur); }
     
     // bytes are stored in reverse order
-    file.read(reinterpret_cast<char *>(&b), sizeof(uint8_t));
-    file.read(reinterpret_cast<char *>(&g), sizeof(uint8_t));
-    file.read(reinterpret_cast<char *>(&r), sizeof(uint8_t));
+    readFromFile(file, reinterpret_cast<char *>(&b), sizeof(uint8_t));
+    readFromFile(file, reinterpret_cast<char *>(&g), sizeof(uint8_t));
+    readFromFile(file, reinterpret_cast<char *>(&r), sizeof(uint8_t));
 
     col.r = r;
     col.g = g;
@@ -297,12 +306,12 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
     // read 4 bytes, store three in col, discard the alpha byte
     
     // the alpha field doesn't actually do anything...
-    file.seekg(1, ios::cur);
+    if (!file.eof()) { file.seekg(1, ios::cur); }
     
     // bytes are stored in reverse order
-    file.read(reinterpret_cast<char *>(&b), sizeof(uint8_t));
-    file.read(reinterpret_cast<char *>(&g), sizeof(uint8_t));
-    file.read(reinterpret_cast<char *>(&r), sizeof(uint8_t));
+    readFromFile(file, reinterpret_cast<char *>(&b), sizeof(uint8_t));
+    readFromFile(file, reinterpret_cast<char *>(&g), sizeof(uint8_t));
+    readFromFile(file, reinterpret_cast<char *>(&r), sizeof(uint8_t));
 
     col.r = r;
     col.g = g;
@@ -320,14 +329,14 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
 
   //next byte is the size of the tempo map
   
-  file.read(reinterpret_cast<char*>(&tempoSize), sizeof(tempoSize));
+  readFromFile(file, reinterpret_cast<char*>(&tempoSize), sizeof(tempoSize));
  
   // the data in pair (int, double) format immediately follows
   for (int i = 0; i < tempoSize; i++) {
     double tick = 0;
     int bpm = 0;
-    file.read(reinterpret_cast<char*>(&tick), sizeof(tick));
-    file.read(reinterpret_cast<char*>(&bpm), sizeof(bpm));
+    readFromFile(file, reinterpret_cast<char*>(&tick), sizeof(tick));
+    readFromFile(file, reinterpret_cast<char*>(&bpm), sizeof(bpm));
     input->tempoMap.push_back(make_pair(tick, bpm));
   }
 
@@ -343,12 +352,12 @@ void loadFileMKI(string path, mfile*& input, vector<colorRGB>& colorVecA, vector
   for (int i = 0; i < input->noteCount; i++) {
     // read into array
     //
-    file.read(reinterpret_cast<char*>(&input->notes[i].track), sizeof(uint8_t));
-    file.read(reinterpret_cast<char*>(&input->notes[i].duration), sizeof(double));
-    file.read(reinterpret_cast<char*>(&input->notes[i].x), sizeof(double));
-    file.read(reinterpret_cast<char*>(&input->notes[i].y), sizeof(uint8_t));
-    file.read(reinterpret_cast<char*>(&input->notes[i].velocity), sizeof(uint8_t));
-    file.read(reinterpret_cast<char*>(&input->notes[i].time), sizeof(double));
+    readFromFile(file, reinterpret_cast<char*>(&input->notes[i].track), sizeof(uint8_t));
+    readFromFile(file, reinterpret_cast<char*>(&input->notes[i].duration), sizeof(double));
+    readFromFile(file, reinterpret_cast<char*>(&input->notes[i].x), sizeof(double));
+    readFromFile(file, reinterpret_cast<char*>(&input->notes[i].y), sizeof(uint8_t));
+    readFromFile(file, reinterpret_cast<char*>(&input->notes[i].velocity), sizeof(uint8_t));
+    readFromFile(file, reinterpret_cast<char*>(&input->notes[i].time), sizeof(double));
 
  /*   cerr << "this is note " << i << endl;
     cerr << input->notes[i].track << endl;

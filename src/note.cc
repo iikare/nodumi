@@ -164,7 +164,6 @@ void mfile::load(string file) {
     noteMin = 0;
     noteMax = 0;
     timeScale = 1.25;
-
   }
 
   cerr << "info: loading MIDI - " << file << endl;

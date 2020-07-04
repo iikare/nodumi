@@ -113,7 +113,7 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
   //find n shades of k colors
   if (n > k) {
     if (k != 2) {
-      cerr << "this value of k is not supported for color interpolation" << endl;
+      cerr << "warn: this value of k is not supported for color interpolation (k = " << k << ")" << endl;
       return;
     }
     
@@ -135,12 +135,29 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
     double incS = abs(col2.s - col1.s) / n;
     double incV = abs(col2.v - col1.v) / n;
   
+    colorHSV start(0, 0, 0);
+
+    // find starting values
+    col1.v > col2.v ? start = col2 : start = col1;
 
     colorVecA.clear();
     colorVecB.clear();
 
     for (int i = 0; i < n; i++) {
+      colorHSV mid = start;
+      start.h += incH * n;
+      start.s += incS * n;
+      start.v += incV * n;
+      
+      colorRGB midRGB;
+      midRGB.setRGB(mid);
 
+      colorVecB.push_back(midRGB);
+
+      mid.h = min(255.0, mid.h * 1.2);
+      midRGB.setRGB(mid);
+
+      colorVecA.push_back(midRGB);
     }
   }
 
