@@ -20,7 +20,7 @@ void colorRGB::operator = (const colorHSV& col) {\
 }
 
 ostream& operator << (ostream& out, colorRGB color) {
-  out << "{" << color.r << ", " << color.g << ", " << color.b << "}";
+  out << "{" << color.r << ", " << color.g << ", " << color.b << "} (RGB)";
   return out;
 }
 
@@ -111,6 +111,11 @@ colorHSV::colorHSV(const colorHSV& col) {
   h = col.h;
   s = col.s;
   v = col.v;
+}
+
+ostream& operator << (ostream& out, colorHSV color) {
+  out << "{" << color.h << ", " << color.s << ", " << color.v << "} (HSV)";
+  return out;
 }
 
 void colorHSV::setHSV(double hue, double sat, double val) {

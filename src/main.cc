@@ -1892,13 +1892,19 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 0: // part
-              colorMode = 1;
+              if (colorMenu.render) {
+                colorMode = 1;
+              }
               break;
             case 1: // velocity
-              colorMode = 2; 
+              if (colorMenu.render) {
+                colorMode = 2;
+              }
               break;
             case 2: // tonic
-              colorMode = 3;
+              if (colorMenu.render) {
+                colorMode = 3;
+              }
               break;
             case 3: //
               cerr << "info: function not implemented" << endl;
@@ -1918,12 +1924,14 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 0: // default
-              getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
-              getColorScheme(12, noteColorC, noteColorD);
-              getColorScheme(128, noteColorE, noteColorF);
+              if (paletteMenu.render) {
+                getColorScheme(input->getTrackCount(), noteColorA, noteColorB);
+                getColorScheme(12, noteColorC, noteColorD);
+                getColorScheme(128, noteColorE, noteColorF);
+              }
               break;
             case 1: // from picture
-              if (bgI->getWidth()) {
+              if (bgI->getWidth() && paletteMenu.render) {
                 switch (colorMode) {
                   case 1: // part 
                     thread(getColorSchemeBG, bgI, input->getTrackCount(), 0, ref(noteColorA), ref(noteColorB)).detach();

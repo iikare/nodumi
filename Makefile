@@ -1,6 +1,6 @@
 CC = g++
 
-CFLAGS = --std=c++11 -Wall -Wextra -g -Wno-class-memaccess -D__LINUX_ALSA__ -D__UNIX_JACK__ -D__RTMIDI_DEBUG__ 
+CFLAGS = --std=c++17 -Wall -Wextra -g -Wno-class-memaccess -D__LINUX_ALSA__ -D__UNIX_JACK__ -D__RTMIDI_DEBUG__ 
 
 CFLAGSOD = --std=c99 -w -fpermissive -g  $(shell pkg-config --cflags gtk+-3.0)
 

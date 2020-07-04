@@ -12,7 +12,6 @@ using namespace std::chrono;
 using std::mt19937;
 using std::uniform_int_distribution;
 using std::vector;
-using std::count;
 using std::swap;
 using std::cerr;
 using std::endl;
@@ -69,9 +68,9 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
   vector<pixel> colorData = image->getKMeansSample(); 
 
   int meanV = 0;
-  
   vector<colorRGB> colorVecC = findKMeans(colorData, k, meanV);
 
+  bool isAOn = false;
   
   if (k == 1) {
     // filter single color
@@ -83,7 +82,6 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
     }
   }
 
-  bool isAOn = false;
 
   for (unsigned int i = 0; i < colorVecC.size(); i++) {
     colorHSV col(colorVecC[i].getHSV());
@@ -130,23 +128,30 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
       return;
     }
     
+    cerr << colorVecC[0] << endl;
+    cerr << colorVecC[1] << endl;
+
     colorHSV col1(0, 0, 0);
     colorHSV col2(0 ,0 ,0);
     
     if (isAOn) {
-      // interpolate using A values 
-      col1 = colorVecA[0].getHSV();
-      col2 = colorVecA[1].getHSV();
-    }
-    else {
-      // interpolate using B values
+      // interpolate using 0->1 values 
       col1 = colorVecB[0].getHSV();
       col2 = colorVecB[1].getHSV();
     }
+    else {
+      // interpolate using 1->0 values
+      col1 = colorVecB[1].getHSV();
+      col2 = colorVecB[0].getHSV();
+    }
 
-    double incH = abs(col2.h - col1.h) / n;
-    double incS = abs(col2.s - col1.s) / n;
-    double incV = abs(col2.v - col1.v) / n;
+    cerr << col1 << endl;
+    cerr << col2 << endl;
+
+    double incH = fabs(col2.h - col1.h) / n;
+    double incS = fabs(col2.s - col1.s) / n;
+    double incV = fabs(col2.v - col1.v) / n;
+    cerr << "incHSV: " << incH << ", " << incS << ", " << incV << endl; 
   
     colorHSV start(0, 0, 0);
 
@@ -158,9 +163,9 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
 
     for (int i = 0; i < n; i++) {
       colorHSV mid = start;
-      start.h += incH * n;
-      start.s += incS * n;
-      start.v += incV * n;
+      start.h += incH * i /n;
+      start.s += incS * i / n;
+      start.v += incV * i / n;
       
       colorRGB midRGB;
       midRGB.setRGB(mid);
@@ -171,6 +176,9 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
       midRGB.setRGB(mid);
 
       colorVecA.push_back(midRGB);
+    }
+    for (unsigned int i = 0; i < colorVecB.size(); i++) {
+      cerr << colorVecA[i] << endl;
     }
   }
 
@@ -265,7 +273,7 @@ vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
         }
       }
     }
-    
+
     // accumulate centroid data
     for (unsigned int i = 0; i < colorData.size(); i++) {
       int nCluster = colorData[i].cluster;

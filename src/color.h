@@ -17,6 +17,8 @@ class colorHSV {
 
     void operator = (const colorHSV& col);
 
+    friend ostream& operator << (ostream& out, colorHSV color);
+    
     double h;
     double s;
     double v;

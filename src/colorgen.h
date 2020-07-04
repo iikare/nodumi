@@ -16,7 +16,7 @@ struct pixel {
   pixel() : data({0, 0, 0}), cluster(-1), cDist(__DBL_MAX__) {}
   pixel(colorRGB color) : data(color), cluster(-1), cDist(__DBL_MAX__) {}
 
-  double distance(pixel point) {
+  double distance(const pixel& point) {
     //sqrt omitted for efficiency
     return pow(point.data.r - data.r, 2) + pow(point.data.g - data.g, 2) + pow(point.data.b - data.b, 2);
   }
