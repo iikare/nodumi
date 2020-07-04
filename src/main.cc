@@ -5,7 +5,6 @@
 #include <fstream>
 #include <string>
 #include <cstring>
-#include <future>
 #include <thread>
 #include "box.h"
 #include "misc.h"
@@ -30,6 +29,7 @@ using std::max;
 using std::to_string;
 using std::memcpy;
 using std::thread;
+using std::ref;
 
 int main(int argc, char* argv[]) {
 
@@ -141,7 +141,6 @@ int main(int argc, char* argv[]) {
   bool noteOn = false;
 
   bool mouseOnNote = true;
-
   
   // right click menu constants
   // determine where to draw rightclick menu
@@ -1927,13 +1926,13 @@ int main(int argc, char* argv[]) {
               if (bgI->getWidth()) {
                 switch (colorMode) {
                   case 1: // part 
-                    getColorSchemeBG(bgI, input->getTrackCount(), 0, noteColorA, noteColorB);
+                    thread(getColorSchemeBG, bgI, input->getTrackCount(), 0, ref(noteColorA), ref(noteColorB)).detach();
                     break;
                   case 2: // velocity
-                    getColorSchemeBG(bgI, 128, 2, noteColorE, noteColorF);
+                    thread(getColorSchemeBG, bgI, 128, 2, ref(noteColorE), ref(noteColorF)).detach();
                     break;
                   case 3: // tonic
-                    getColorSchemeBG(bgI, 12, 0, noteColorC, noteColorD);
+                    thread(getColorSchemeBG, bgI, 12, 0, ref(noteColorC), ref(noteColorD)).detach();
                     break;
                 }
               }
