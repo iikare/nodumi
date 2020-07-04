@@ -1924,9 +1924,17 @@ int main(int argc, char* argv[]) {
               break;
             case 1: // from picture
               if (bgI->getWidth()) {
-                getColorSchemeBG(bgI, input->getTrackCount(), 0, noteColorA, noteColorB);
-                getColorSchemeBG(bgI, 12, 4, noteColorC, noteColorD);
-                getColorSchemeBG(bgI, 128, 4, noteColorE, noteColorF);
+                switch (colorMode) {
+                  case 1: // part 
+                    getColorSchemeBG(bgI, input->getTrackCount(), 0, noteColorA, noteColorB);
+                    break;
+                  case 2: // velocity
+                    getColorSchemeBG(bgI, 128, 2, noteColorE, noteColorF);
+                    break;
+                  case 3: // tonic
+                    getColorSchemeBG(bgI, 12, 0, noteColorC, noteColorD);
+                    break;
+                }
               }
               else {
                 cerr << "info: no image loaded" << endl;

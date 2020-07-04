@@ -1,18 +1,23 @@
 #include <functional>
+#include <algorithm>
 #include <iostream>
 #include <random>
 #include <vector>
-#include <ctime>
+#include <chrono>
 #include "color.h"
 #include "image.h"
 #include "colorgen.h"
 
+using namespace std::chrono;
 using std::mt19937;
 using std::uniform_int_distribution;
 using std::vector;
+using std::count;
+using std::swap;
 using std::cerr;
 using std::endl;
 using std::bind;
+using std::min;
 
 void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB) {
 
@@ -53,52 +58,163 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
     return;
   }
 
-  if (n == 1) {
-    // handle k = 1 later 
-    return;
-  }
-
   if (!k) {
     // 2k distinct colors
     k = n;
   }
 
-  //colorVecA.clear();
-  //colorVecB.clear();
+  colorVecA.clear();
+  colorVecB.clear();
   
-  int kWidth, kHeight = 0;
-  vector<pixel> colorData = image->getKMeansSample(kWidth, kHeight); 
- 
-  vector<colorRGB> colorVecC = findKMeans(colorData, kWidth, kHeight, k);
+  vector<pixel> colorData = image->getKMeansSample(); 
+
+  int meanV = 0;
+  vector<colorRGB> colorVecC = findKMeans(colorData, k, meanV);
+
+  bool isAOn = false;
 
   for (unsigned int i = 0; i < colorVecC.size(); i++) {
-    cerr << colorVecC[i] << endl;
+    colorHSV col(colorVecC[i].getHSV());
+
+    if (col.v > meanV) {
+      // this is on color, calculate off
+      colorRGB colB;
+      colB.setRGB(col);
+
+      col.v = min(255.0, 1.2 * meanV);
+      colB.setRGB(col);
+      colorVecB.push_back(colB);
+      
+      col.v = meanV * 0.8;
+      colB.setRGB(col);
+
+      colorVecA.push_back(colB);
+
+      isAOn = false;
+    }
+    else {
+      // do inverse
+      
+      colorRGB colB;
+      colB.setRGB(col);
+
+      col.v = meanV * 0.8;
+      colB.setRGB(col);
+      
+      colorVecA.push_back(colB);
+      isAOn = true;
+      
+      col.v = min(255.0, 1.2 * meanV);
+      colB.setRGB(col);
+      
+      colorVecB.push_back(colB);
+    }
+  }
+  //find n shades of k colors
+  if (n > k) {
+    if (k != 2) {
+      cerr << "this value of k is not supported for color interpolation" << endl;
+      return;
+    }
+    
+    colorHSV col1(0, 0, 0);
+    colorHSV col2(0 ,0 ,0);
+    
+    if (isAOn) {
+      // interpolate using A values 
+      col1 = colorVecA[0].getHSV();
+      col2 = colorVecA[1].getHSV();
+    }
+    else {
+      // interpolate using B values
+      col1 = colorVecB[0].getHSV();
+      col2 = colorVecB[1].getHSV();
+    }
+
+    double incH = abs(col2.h - col1.h) / n;
+    double incS = abs(col2.s - col1.s) / n;
+    double incV = abs(col2.v - col1.v) / n;
+  
+
+    colorVecA.clear();
+    colorVecB.clear();
+
+    for (int i = 0; i < n; i++) {
+
+    }
   }
 
-  //find n shades of k colors
-
+  if (meanV < 200) {
+    // provide contrast on dark images
+    swap(colorVecA, colorVecB);
+  }
 }
 
-vector<colorRGB> findKMeans(vector<pixel>& colorData, int kWidth, int kHeight, int k) {
+vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
+  // result vector
   vector<colorRGB> result;
+
+  // mean value
+  double intVal = 0;
+
+  // init rng
+  mt19937::result_type gen = high_resolution_clock::now().time_since_epoch().count();
+  uniform_int_distribution<int> range(0, colorData.size() - 1);
+  auto getCentroid = bind(range, mt19937(gen));
+
+  // generate starting points via distance-based selection algorithm
+  double maxDist = 0; 
+  int idxNextCentroid = 0;
+  vector<int> idxUsed(k, 0);
   vector<pixel> centroidData;
 
-  mt19937::result_type gen = time(0);
-  uniform_int_distribution<int> rng(0, colorData.size() - 1);
-  auto getCentroid = bind(rng, mt19937(gen));
+  for (int i = 0; i < k; ++i) {
+    // initial centroid is random
+    if (i == 0) {
+      centroidData.push_back(colorData[getCentroid()]);
+      if (k == 1) {
+        colorRGB col(round(centroidData[i].data.r), round(centroidData[i].data.g), round(centroidData[i].data.b)); 
+        result.push_back(col);
+        return result;
+      }
+    }
+    else {
+      for (unsigned int j = 0; j < colorData.size(); j++) {
+        if (i == 1) {
+          // only calculate once
+          colorHSV col = colorData[j].data.getHSV();
+          intVal += col.v;
+        }
+
+        double distToCentroid = 0;
+        for (int k = 0; k < i; k++) {
+          // prevent clustering of centroids
+          if (centroidData[k].distance(colorData[j].data) < 100) {
+            distToCentroid = 0;
+            break;
+          }
+          distToCentroid += centroidData[k].distance(colorData[j].data);
+        }
+        if (distToCentroid > maxDist) {
+            maxDist = distToCentroid;
+            idxNextCentroid = j;
+        }  
+      }
+      idxUsed.push_back(idxNextCentroid);
+      centroidData.push_back(colorData[idxNextCentroid]);
+      maxDist = 0;
+    }
+  }
+
+  meanV = intVal / colorData.size(); 
+
   vector<int> nPixel(k, 0);
   vector<double> sumR(k, 0); 
   vector<double> sumG(k, 0); 
   vector<double> sumB(k, 0);
-
-  // generate random starting points
-  for (int i = 0; i < k; ++i) {
-    cerr << getCentroid() << endl;
-    centroidData.push_back(colorData[getCentroid()]);
-  }
-
+  
   // run algorithm q times
-  for (int q = 0; q < 12; q++) {
+  for (int q = 0; q < 3; q++) {
     // assign pixels to centroids
     for (unsigned int i = 0; i < centroidData.size(); i++) {
       for (unsigned int j = 0; j < colorData.size(); j++) {
@@ -110,8 +226,6 @@ vector<colorRGB> findKMeans(vector<pixel>& colorData, int kWidth, int kHeight, i
       }
     }
     
-
-
     // accumulate centroid data
     for (unsigned int i = 0; i < colorData.size(); i++) {
       int nCluster = colorData[i].cluster;
@@ -139,6 +253,7 @@ vector<colorRGB> findKMeans(vector<pixel>& colorData, int kWidth, int kHeight, i
   }
 
   // convert to colorRGB vector
+  
   for (unsigned int i = 0; i < centroidData.size(); i++) {
     colorRGB col(round(centroidData[i].data.r), round(centroidData[i].data.g), round(centroidData[i].data.b)); 
     result.push_back(col);

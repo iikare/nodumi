@@ -24,6 +24,6 @@ struct pixel {
 
 void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB);
 void getColorSchemeBG(BGImage* image, int k, int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB);
-vector<colorRGB> findKMeans(vector<pixel>& colorData, int kWidth, int kHeight, int k);
+vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV);
 
 #endif

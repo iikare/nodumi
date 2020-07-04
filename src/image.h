@@ -19,7 +19,7 @@ class BGImage {
     
     void loadPNG(string path);
     void scale(double ratio);
-    vector<pixel> getKMeansSample(int& kWidth, int& kHeight);
+    vector<pixel> getKMeansSample();
     void flip(bool dir);
     void clear();
     void resetPosition() { x = 0; y = 0; }

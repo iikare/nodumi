@@ -87,14 +87,14 @@ colorRGB BGImage::getPixelRGB(int x, int y) {
   return col;
 }
 
-vector<pixel> BGImage::getKMeansSample(int& kWidth, int& kHeight) {
+vector<pixel> BGImage::getKMeansSample() {
   if (!image.size()) {
     cerr << "warn: attempted to get kMeans of non-existent picture" << endl;
     return kMeansData;
   }
 
-  kWidth = 400;
-  kHeight = 400 * static_cast<double>(width)/height;
+  int kWidth = 400;
+  int kHeight = 400 * static_cast<double>(width)/height;
   int offset = 0;
 
   unsigned char* dstImage = new unsigned char[kWidth * kHeight * 3];
