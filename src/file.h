@@ -15,4 +15,6 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
 
 bool checkMKI(ifstream& file, string path);
 
+bool readFromFile(ifstream& in, char* data, int width);
+
 #endif

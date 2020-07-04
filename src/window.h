@@ -23,7 +23,6 @@ class window {
      
     window(string title);
     bool init();
-    bool initGL();
     unsigned char eventHandler(SDL_Event &event);
     bool pointVisible(int x, int y);
     bool noteVisible(note n);
@@ -43,9 +42,9 @@ class window {
     void renderText(int x, int y, string text, colorRGB col = {0, 0, 0});
     void fillBG(colorRGB col);
      
-    void setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b);
-    void setPixelRGB(int x, int y, colorRGB col);
-    void setPixelRGBA(int x, int y, colorRGB col, unsigned char alpha);
+    void setPixelRGB(const int& x, const int& y, const uint8_t& r, const uint8_t& g, const uint8_t& b);
+    void setPixelRGB(const int& x, const int& y, const colorRGB& col);
+    void setPixelRGBA(int x, int y, const colorRGB& col, unsigned char alpha);
     void setPixelRGBO(int x, int y);
     void setPixelHSV(int x, int y, colorHSV col);
     void setPixelHSV(int x, int y, double h, double s, double v);
@@ -76,8 +75,8 @@ class window {
     int clipX;
     int clipY;
 
-    Uint32* buffer;
-    Uint32* buffer2;
+    uint32_t* buffer;
+    uint32_t* buffer2;
     
     TTF_Font* menuFont;
     int fontSize;

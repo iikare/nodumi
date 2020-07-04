@@ -34,7 +34,6 @@ class menuItem {
 
 class menu {
   public:
-    menu();
     menu(point XY, vector<string> itemNames, bool mainMenu, int menuX = 0, int menuY = 0);
     ~menu();
 

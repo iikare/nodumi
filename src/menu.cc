@@ -52,13 +52,6 @@ void menuItem::setHeight(int nHeight) {
   height = nHeight;
 }
 
-
-
-menu::menu() {
-  cerr << "error: menu can NOT be initialized without the proper constructor!" << endl;
-  exit(1);
-}
-
 menu::menu(point XY, vector<string> itemNames, bool mainMenu, int menuX, int menuY) :
            render(false), isMainMenu(mainMenu), x(menuX), y(menuY), width(0), height(0),
            itemCount(itemNames.size()), mainX(XY.x), mainY(XY.y), activeElement(-1) {

@@ -15,11 +15,10 @@ using std::min;
 
 window::window(string title) : 
   cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr),
-  windowX(0), windowY(0), messageX(0), messageY(0), messageText(0), messageCol(0), tTexture(nullptr), tSurface(nullptr), clipX(0), clipY(0),
+  windowX(0), windowY(0), windowXY({0, 0}), messageX(0), messageY(0), messageText(0), messageCol(0), tTexture(nullptr), tSurface(nullptr), clip({0, 0, 0, 0}), clipX(0), clipY(0),
   buffer(nullptr), buffer2(nullptr),  menuFont(nullptr), fontSize(0),
   lastMouseX(0), lastMouseY(0), mouseX(0), mouseY(0) {
   this->title = title;
-  clip = {0, 0, 0, 0};
 }
 
 bool window::init() {
@@ -54,8 +53,8 @@ bool window::init() {
     return false;
   }
   
-  buffer = new Uint32[WIDTH * HEIGHT];
-  buffer2 = new Uint32[WIDTH * HEIGHT];
+  buffer = new uint32_t[WIDTH * HEIGHT];
+  buffer2 = new uint32_t[WIDTH * HEIGHT];
   
   fontSize = 14;
  
@@ -213,16 +212,16 @@ void window::setPixelHSV(int x, int y, colorHSV col) {
   setPixelRGB(x, y, col2);
 }
 
-void window::setPixelRGB(int x, int y, colorRGB col) {
+void window::setPixelRGB(const int& x, const int& y, const colorRGB& col) {
   setPixelRGB(x, y, col.r, col.g, col.b);
 }
 
-void window::setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b) {
+void window::setPixelRGB(const int& x, const int& y, const uint8_t& r, const uint8_t& g, const uint8_t& b) {
   if (!pointVisible(x, y)) {
     return;
   }
   
-  Uint32 color = 0x00000000;
+  uint32_t color = 0x00000000;
 
   color += r;
   color <<= 8;
@@ -235,7 +234,7 @@ void window::setPixelRGB(int x, int y, Uint8 r, Uint8 g, Uint8 b) {
   buffer[(WIDTH * y) + x] = color;
 }
 
-void window::setPixelRGBA(int x, int y, colorRGB col, unsigned char alpha) {
+void window::setPixelRGBA(int x, int y, const colorRGB& col, unsigned char alpha) {
   if (!pointVisible(x, y)) {
     cerr << "warn: invalid call to setPixelRGBA() with x, y - {" << x << ", " << y << "}" << endl;
   }
@@ -291,7 +290,7 @@ void window::fillBG(colorRGB col) {
 }
 
 void window::update() {
-  SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(Uint32));
+  SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(uint32_t));
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
   int messageCount = messageX->size();
@@ -316,12 +315,12 @@ void window::clearBuffer() {
 
 void window::saveBuffer() {
   // copy contents of buffer 1 to buffer 2
-  memcpy(buffer2, buffer, WIDTH * HEIGHT * sizeof(Uint32));
+  memcpy(buffer2, buffer, WIDTH * HEIGHT * sizeof(uint32_t));
 }
 
 void window::loadBuffer() {
   // copy contents of buffer 2 to buffer 1
-  memcpy(buffer, buffer2, WIDTH * HEIGHT * sizeof(Uint32));
+  memcpy(buffer, buffer2, WIDTH * HEIGHT * sizeof(uint32_t));
 }
 
 void window::terminate() {
