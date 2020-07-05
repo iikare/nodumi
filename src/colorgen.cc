@@ -77,11 +77,10 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
     colorHSV col = colorVecC[0].getHSV();
     while (col.v < 100) {
       colorVecC.clear();
-      vector<colorRGB> colorVecC = findKMeans(colorData, k, meanV);
+      colorVecC = findKMeans(colorData, k, meanV);
       col.v = colorVecC[0].getHSV().v;
     }
   }
-
 
   for (unsigned int i = 0; i < colorVecC.size(); i++) {
     colorHSV col(colorVecC[i].getHSV());
@@ -128,8 +127,8 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
       return;
     }
     
-    cerr << colorVecC[0] << endl;
-    cerr << colorVecC[1] << endl;
+    //cerr << colorVecC[0] << endl;
+    //cerr << colorVecC[1] << endl;
 
     colorHSV col1(0, 0, 0);
     colorHSV col2(0 ,0 ,0);
@@ -145,40 +144,47 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
       col2 = colorVecB[0].getHSV();
     }
 
-    cerr << col1 << endl;
-    cerr << col2 << endl;
-
-    double incH = fabs(col2.h - col1.h) / n;
-    double incS = fabs(col2.s - col1.s) / n;
-    double incV = fabs(col2.v - col1.v) / n;
-    cerr << "incHSV: " << incH << ", " << incS << ", " << incV << endl; 
-  
     colorHSV start(0, 0, 0);
+    colorHSV end(0, 0, 0);
 
     // find starting values
     col1.v > col2.v ? start = col2 : start = col1;
+    start == col2 ? end = col1 : end = col2;
 
+    end.s = min(255.0, end.s * 1.3);
+
+    end.s = min(255.0, end.s * 1.6);
+    end.v = min(255.0, end.v * 1.6);
+    
+    //cerr << start << endl;
+    //cerr << end << endl;
+
+    double incH = fabs(start.h - end.h) / n;
+    double incS = fabs(start.s - end.s) / n;
+    double incV = fabs(start.v - end.v) / n;
+
+    //cerr << "incHSV: " << incH << ", " << incS << ", " << incV << endl; 
+  
     colorVecA.clear();
     colorVecB.clear();
 
     for (int i = 0; i < n; i++) {
       colorHSV mid = start;
-      start.h += incH * i /n;
-      start.s += incS * i / n;
-      start.v += incV * i / n;
+      mid.h += incH * i;
+      mid.s += incS * i;
+      mid.v += incV * i;
+      
+      cerr << i << ": " << mid << endl;
       
       colorRGB midRGB;
       midRGB.setRGB(mid);
 
       colorVecB.push_back(midRGB);
 
-      mid.h = min(255.0, mid.h * 1.2);
+      mid.v = min(255.0, mid.v * 0.8);
       midRGB.setRGB(mid);
 
       colorVecA.push_back(midRGB);
-    }
-    for (unsigned int i = 0; i < colorVecB.size(); i++) {
-      cerr << colorVecA[i] << endl;
     }
   }
 
@@ -260,9 +266,14 @@ vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
   vector<double> sumR(k, 0); 
   vector<double> sumG(k, 0); 
   vector<double> sumB(k, 0);
-  
+
   // run algorithm q times
   for (int q = 0; q < 3; q++) {
+    nPixel.clear();
+    sumR.clear();
+    sumG.clear();
+    sumB.clear();
+
     // assign pixels to centroids
     for (unsigned int i = 0; i < centroidData.size(); i++) {
       for (unsigned int j = 0; j < colorData.size(); j++) {
@@ -273,7 +284,7 @@ vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
         }
       }
     }
-
+    
     // accumulate centroid data
     for (unsigned int i = 0; i < colorData.size(); i++) {
       int nCluster = colorData[i].cluster;

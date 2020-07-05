@@ -93,8 +93,8 @@ vector<pixel> BGImage::getKMeansSample() {
     return kMeansData;
   }
 
-  int kWidth = 400;
-  int kHeight = 400 * static_cast<double>(width)/height;
+  int kWidth = 150;
+  int kHeight = 150 * static_cast<double>(height)/width;
   int offset = 0;
 
   unsigned char* dstImage = new unsigned char[kWidth * kHeight * 3];

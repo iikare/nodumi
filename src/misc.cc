@@ -228,6 +228,10 @@ void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, i
   }
 }
 
+double getDistance(colorRGB a, colorRGB b) {
+  return sqrt(pow(a.r - b.r, 2) + pow(a.g - b.g , 2) + pow(a.b - b.b, 2));
+}
+
 double getDistance(int x1, int y1, int x2, int y2) {
   double deltaX = abs(x1 - x2);
   double deltaY = abs(y1 - y2);

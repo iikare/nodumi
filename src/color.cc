@@ -107,6 +107,13 @@ void colorHSV::operator = (const colorHSV& col) {
   v = col.v;
 }
 
+bool colorHSV::operator == (const colorHSV& col) {
+  if (h == col.h && s == col.s && v == col.v) {
+    return true;
+  }
+  return false;
+}
+
 colorHSV::colorHSV(const colorHSV& col) {
   h = col.h;
   s = col.s;

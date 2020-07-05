@@ -50,6 +50,7 @@ void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, i
 string getSongPercent(double pos, double total);
 string getSongTime(double pos, double total, double tTime);
 
+double getDistance(colorRGB a, colorRGB b);
 double getDistance(int x1, int y1, int x2, int y2);
 double getDistance(point a, int x2, int y2);
 double getDistance(point a, point b);
@@ -64,5 +65,6 @@ string toMinutes (double seconds);
 
 colorRGB getWeightedAverage(colorRGB col1, colorRGB col2, unsigned char weight);
 colorRGB getOverlayColor(colorRGB baseColor);
+
 
 #endif
