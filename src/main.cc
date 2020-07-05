@@ -547,13 +547,16 @@ int main(int argc, char* argv[]) {
                 break;
               }
               // render only if the line is visible
-              else if (x < main.getWidth() && x > 0) {
+              else if (x < main.getWidth() && x > -main.getWidth()) {
                 int idxNext = i;
                 x = main.getWidth()/2 + renderNote.x;
                 y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(input->findChordY(i) - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
                 
                 while (idxNext < noteLimit && renderNote.x == notes[idxNext].x) {
                   idxNext++;
+                }
+                if (idxNext == noteLimit) {
+                  break;
                 }
 
                 int nextX = main.getWidth()/2 + notes[idxNext].x;
@@ -562,10 +565,12 @@ int main(int argc, char* argv[]) {
                 deltaX = nextX - x;
                 deltaY = nextY - y;
 
-                //cerr << "y, nextY " << y << ", " << nextY << endl;
+                double dYdX = static_cast<double>(deltaY)/deltaX;
+                
+                  //cerr << "y, nextY " << y << ", " << nextY << endl;
 
                 // check if note is currently playing
-                if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
+                if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - deltaX) {
                   noteOn = true;
                 }
                 else {
@@ -575,11 +580,17 @@ int main(int argc, char* argv[]) {
                 // determine color based on note status
                 noteOn ? colorFinal = colorOn : colorFinal = colorOff;
                 
-                //cout << "X, Y" << deltaX << ", " << deltaY << endl;
+                //cerr << "X, Y" << deltaX << ", " << deltaY << endl;
+                
+                // render line 
                 for (int j = 0; j < deltaX; j++) {
-                  for (int k = min(nextY, y); k < max(nextY, y) + 4; k++) {
-                    if (getDistance(x + j, k, x + j, y + j * static_cast<double>(deltaY)/deltaX) < 2) {
-                      main.setPixelRGB(x + j, k, colorFinal);
+                  int k = y + j * dYdX;
+                  int klim = input->getTimeScale() > 0.01 ? (abs(dYdX) > 1 ? abs(dYdX) : 1) : 1;
+                  for (int m = -1; m <= 1; m++) {
+                    for (int n = -klim; n <= klim; n++) {
+                      if (x + j + m < main.getWidth() && x + j + m > 0) {
+                        main.setPixelRGB(x + j + m, k + n, colorFinal); 
+                      }
                     }
                   }
                 }

@@ -240,6 +240,7 @@ void window::setPixelRGBA(int x, int y, const colorRGB& col, unsigned char alpha
   }
 
   if (alpha == 0) {
+    cerr << "warn: invalid call to setPixelRGBA() with alpha - " << static_cast<int>(alpha) << endl;
     return;
   }
   else if (alpha == 255) {
