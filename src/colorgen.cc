@@ -90,7 +90,7 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
       colorRGB colB;
       colB.setRGB(col);
 
-      col.v = min(255.0, 1.2 * meanV);
+      col.v = min(255.0, 1.6 * meanV);
       colB.setRGB(col);
       colorVecB.push_back(colB);
       
@@ -113,7 +113,7 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
       colorVecA.push_back(colB);
       isAOn = true;
       
-      col.v = min(255.0, 1.2 * meanV);
+      col.v = min(255.0, 1.6 * meanV);
       colB.setRGB(col);
       
       colorVecB.push_back(colB);
@@ -151,10 +151,17 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
     col1.v > col2.v ? start = col2 : start = col1;
     start == col2 ? end = col1 : end = col2;
 
-    end.s = min(255.0, end.s * 1.3);
+    start.s = min(255.0, end.s * 0.9);
+    start.v = start.v * 0.8;
 
     end.s = min(255.0, end.s * 1.6);
-    end.v = min(255.0, end.v * 1.6);
+    end.v = min(255.0, end.v * 1.1);
+
+    if (fabs(start.h - end.h) < 100) {
+      // boost gradient if algorithmic values are too low
+      start.h = fmod(start.h - 10, 360);
+      end.h = fmod(end.h + 10, 360);
+    }
     
     //cerr << start << endl;
     //cerr << end << endl;
@@ -174,7 +181,7 @@ void getColorSchemeBG(BGImage* image, int n, int k, vector<colorRGB>& colorVecA,
       mid.s += incS * i;
       mid.v += incV * i;
       
-      cerr << i << ": " << mid << endl;
+      //cerr << i << ": " << mid << endl;
       
       colorRGB midRGB;
       midRGB.setRGB(mid);
