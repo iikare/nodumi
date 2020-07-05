@@ -139,6 +139,46 @@ note mfile::findCurrentNote() {
   return notes[0];
 }
 
+int mfile::findChordY(int idx) {
+  if (idx < 0 || idx > noteCount) {
+    cerr << "warn: invalid call to findChordY() with index " << idx << endl;
+  }
+  
+  int offset = 1;
+  int y = notes[idx].y;
+  int matchCount = 1;
+  double epsilon = 0.0001;
+
+  while (offset < 10) {
+    // handle negative case
+    if (idx - offset > 0) {
+      if (notes[idx].track == notes[idx - offset].track) {
+        if (fabs(notes[idx].x - notes[idx - offset].x) < epsilon) {
+          y += notes[idx - offset].y;
+          matchCount++;
+        }
+      }
+    }
+    // handle positive case
+    if (idx + offset < noteCount) {
+      if (notes[idx].track == notes[idx + offset].track) {
+        if (fabs(notes[idx].x - notes[idx + offset].x) < epsilon) {
+          y += notes[idx + offset].y;
+          matchCount++;
+        }
+      }
+    }
+    offset++;
+  }
+
+  if (matchCount > 1) {
+    //cerr << "note " << idx << " is in a chord with " << matchCount << " notes" << endl;
+    //cerr << "^ has y " << round(y / matchCount) << endl;
+  }
+
+  return round(y / matchCount);
+}
+
 int mfile::findCurrentTempo() {
   double firstX = -notes[0].x / timeScale;
   //cerr<< firstX << endl;
@@ -217,7 +257,10 @@ void mfile::load(string file) {
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
         notes[idx].time = midifile[i][j].seconds;
-        
+
+        if (idx != 0 && notes[idx].x < notes[idx - 1].x) {
+          cerr << "warn: note with index " << idx << " is misaligned (" << notes[idx - 1].x << " -> " << notes[idx].x << ")" << endl;
+        } 
         idx++;
       }
     }

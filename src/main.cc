@@ -93,6 +93,8 @@ int main(int argc, char* argv[]) {
   uint32_t tick = SDL_GetTicks();
   uint32_t fps = 0;
   uint32_t fCount = 0;
+  int totalFPS = 0;
+  int seconds = 0;
   bool showFPS = false;
 
   // new file controller
@@ -454,13 +456,32 @@ int main(int argc, char* argv[]) {
           // get current note
           renderNote = notes[i];
           mouseOnNote = false;
-          
+
           // calculate note coordinates 
           x = main.getWidth()/2 + renderNote.x;
           y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(renderNote.y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           
           // prevent notes from disappearing at high scaling
           width = renderNote.duration < 1 ? 1 : renderNote.duration;
+
+          colorRGB colorOn(0, 0 ,0);
+          colorRGB colorOff(0, 0 ,0);
+          colorRGB colorFinal(0, 0 ,0);
+
+          switch (colorMode) {
+            case 1: // part
+              colorOn = noteColorB[renderNote.track]; 
+              colorOff = noteColorA[renderNote.track]; 
+              break;
+            case 2: // velocity
+              colorOn = noteColorF[renderNote.velocity % 127]; 
+              colorOff = noteColorE[renderNote.track % 127]; 
+              break;
+            case 3: // tonic
+              colorOn = noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]; 
+              colorOff = noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]; 
+              break;
+          }
 
           switch (displayMode) {
             case 1: // standard mode
@@ -504,36 +525,14 @@ int main(int argc, char* argv[]) {
                   noteOn = !noteOn;
                 }
 
+                // determine color based on note status
+                noteOn ? colorFinal = colorOn : colorFinal = colorOff;
+
                 // rendering of the note itself 
                 for (int j = 0; j < width; j++) {
                   for (int k = 0; k < noteHeight; k++) {
                     if (x + j > 0 && x + j < main.getWidth()) {
-                      switch (colorMode) {
-                        case 1: // part
-                          if (noteOn) {
-                            main.setPixelRGB(x + j, y + k, noteColorB[renderNote.track]);
-                          }
-                          else {
-                            main.setPixelRGB(x + j, y + k, noteColorA[renderNote.track]);
-                          }
-                          break;
-                        case 2: // velocity
-                          if (noteOn) {
-                            main.setPixelRGB(x + j, y + k, noteColorF[renderNote.velocity % 127]);
-                          }
-                          else {
-                            main.setPixelRGB(x + j, y + k, noteColorE[renderNote.velocity % 127]);
-                          }
-                          break;
-                        case 3: // tonic
-                          if (noteOn) { 
-                            main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                          }
-                          else {
-                            main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                          }
-                          break;
-                      }
+                      main.setPixelRGB(x + j, y + k, colorFinal);
                     }
                   }
                 }
@@ -547,44 +546,23 @@ int main(int argc, char* argv[]) {
                 // stop rendering line at last note
                 break;
               }
-              else {
-                // get average y value of chord
-                int offset = 1;   
-                int avgY = 0;
-                int avgNextY = 0;
-
-                avgY = renderNote.y - MIN_NOTE_IDX;
-                
-                // get average of current y
-                while (renderNote.x == notes[i + offset].x) {
-                  if (renderNote.track == notes[i + offset].track) {
-                    avgY += notes[i + offset].y - MIN_NOTE_IDX;
-                  }
-                  offset++;
-                }
-  
-                // preserve original offset
-                int sOff = offset;
-                avgNextY = notes[i + offset + 1].y - MIN_NOTE_IDX;
-
-                // get average of next Y
-                while (notes[i + offset].x == notes[i + offset + 1].x) {
-                  if (notes[i + offset].track == notes[i + offset + 1].track) {
-                    avgNextY += notes[i + offset + 1].y - MIN_NOTE_IDX;
-                  }
-                  offset++;
-                }
-
-
-                avgY = avgY/sOff + MIN_NOTE_IDX;
-                avgNextY = avgNextY/offset + MIN_NOTE_IDX;
-
-                int nextX = main.getWidth()/2 + notes[i + offset].x;
-                int nextY = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(avgNextY - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+              // render only if the line is visible
+              else if (x < main.getWidth() && x > 0) {
+                int idxNext = i;
                 x = main.getWidth()/2 + renderNote.x;
-                y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(avgY - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+                y = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(input->findChordY(i) - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+                
+                while (idxNext < noteLimit && renderNote.x == notes[idxNext].x) {
+                  idxNext++;
+                }
+
+                int nextX = main.getWidth()/2 + notes[idxNext].x;
+                int nextY = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(input->findChordY(idxNext) - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+
                 deltaX = nextX - x;
                 deltaY = nextY - y;
+
+                //cerr << "y, nextY " << y << ", " << nextY << endl;
 
                 // check if note is currently playing
                 if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
@@ -594,73 +572,45 @@ int main(int argc, char* argv[]) {
                   noteOn = false;
                 }
                 
-                // render only if the line is visible
-                if (x < main.getWidth() && nextX > 0) {
-                  cout << "X, Y" << deltaX << ", " << deltaY << endl;
-                  for (int j = 0; j < deltaX; j++) {
-                    for (int k = min(nextY, y); k < max(nextY, y) + 4; k++) {
-                      int distLine = getDistance(x + j, y + j * static_cast<double>(deltaY)/deltaX, x + j, k);
-                      if (distLine < 2) {
-                        if (x + j > 0 && x + j < main.getWidth()) {
-                          switch (colorMode) {
-                            case 1: // part
-                              if (noteOn) {
-                                main.setPixelRGB(x + j, y + k, noteColorB[renderNote.track]);
-                              }
-                              else {
-                                main.setPixelRGB(x + j, y + k, noteColorA[renderNote.track]);
-                              }
-                              break;
-                            case 2: // velocity
-                              if (noteOn) {
-                                main.setPixelRGB(x + j, y + k, noteColorF[renderNote.velocity % 127]);
-                              }
-                              else {
-                                main.setPixelRGB(x + j, y + k, noteColorE[renderNote.velocity % 127]);
-                              }
-                              break;
-                            case 3: // tonic
-                              if (noteOn) { 
-                                main.setPixelRGB(x + j, y + k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                              }
-                              else {
-                                main.setPixelRGB(x + j, y + k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                              }
-                              break;
-                          }
-                        }
-                      }
+                // determine color based on note status
+                noteOn ? colorFinal = colorOn : colorFinal = colorOff;
+                
+                //cout << "X, Y" << deltaX << ", " << deltaY << endl;
+                for (int j = 0; j < deltaX; j++) {
+                  for (int k = min(nextY, y); k < max(nextY, y) + 4; k++) {
+                    if (getDistance(x + j, k, x + j, y + j * static_cast<double>(deltaY)/deltaX) < 2) {
+                      main.setPixelRGB(x + j, k, colorFinal);
                     }
                   }
                 }
               }
               break;
             case 3: // balls
-              int radius = 3 * log(width) < 1 ? 1 : 3 * log(width);
-              
-              // perform note / cursor collision detection
-              if (main.cursorVisible && !colorSelect.render &&
-                  getDistance(main.getMouseXY(), x, y) < radius) {
-                mouseOnNote = true;
-
-                // set the note location variables to be used on right click
-                clickNoteX = x;
-                clickNoteY = y;
-                clickNoteWidth = radius;
-                clickNoteHeight = radius;
-                clickNoteNumber = (renderNote.y - MIN_NOTE_IDX);
-                clickNoteTonic = (renderNote.y - MIN_NOTE_IDX) % 12;
-                clickNoteTrack = renderNote.track;
-                // check if note is currently playing
-                if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
-                  clickNoteOn = true;
-                }
-                else {
-                  clickNoteOn = false;
-                }
-              } 
-          
               if (x < main.getWidth() && x > - width) {
+                int radius = 3 * log(width) < 1 ? 1 : 3 * log(width);
+                
+                // perform note / cursor collision detection
+                if (main.cursorVisible && !colorSelect.render &&
+                    getDistance(main.getMouseXY(), x, y) < radius) {
+                  mouseOnNote = true;
+
+                  // set the note location variables to be used on right click
+                  clickNoteX = x;
+                  clickNoteY = y;
+                  clickNoteWidth = radius;
+                  clickNoteHeight = radius;
+                  clickNoteNumber = (renderNote.y - MIN_NOTE_IDX);
+                  clickNoteTonic = (renderNote.y - MIN_NOTE_IDX) % 12;
+                  clickNoteTrack = renderNote.track;
+                  // check if note is currently playing
+                  if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
+                    clickNoteOn = true;
+                  }
+                  else {
+                    clickNoteOn = false;
+                  }
+                } 
+          
                 if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - width) {
                   noteOn = true;
                 }
@@ -673,36 +623,14 @@ int main(int argc, char* argv[]) {
                   noteOn = !noteOn;
                 }    
                 
+                // determine color based on note status
+                noteOn ? colorFinal = colorOn : colorFinal = colorOff;
+                
                 for (int j = x - radius; j < x + radius; j++) {
                   for (int k = y - radius; k < y + radius; k++) {
                     if (getDistance(x, y, j, k) <= radius) {
                       if (j > 0 && j < main.getWidth()) {
-                        switch (colorMode) {
-                          case 1: // part
-                            if (noteOn) {
-                              main.setPixelRGB(j, k, noteColorB[renderNote.track]);
-                            }
-                            else {
-                              main.setPixelRGB(j, k, noteColorA[renderNote.track]);
-                            }
-                            break;
-                          case 2: // velocity
-                            if (noteOn) {
-                              main.setPixelRGB(j, k, noteColorF[renderNote.velocity % 127]);
-                            }
-                            else {
-                              main.setPixelRGB(j, k, noteColorE[renderNote.velocity % 127]);
-                            }
-                            break;
-                          case 3: // tonic
-                            if (noteOn) { 
-                              main.setPixelRGB(j, k, noteColorD[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                            }
-                            else {
-                              main.setPixelRGB(j, k, noteColorC[(renderNote.y - MIN_NOTE_IDX + tonic) % 12]);
-                            }
-                            break;
-                        }
+                        main.setPixelRGB(j, k, colorFinal);
                       }
                     }
                   }
@@ -1728,6 +1656,9 @@ int main(int argc, char* argv[]) {
               flipMenu.render = false;
               moveMenu.render = false;
               tintMenu.render = false;
+              
+              rightMenu.render = false;
+              tintMenu.render = false;
 
               break;
           }
@@ -2164,6 +2095,12 @@ int main(int argc, char* argv[]) {
       tick = SDL_GetTicks();
       fps = fCount;
       fCount = 0;
+
+      seconds++;
+      if (seconds > 2) {
+        totalFPS += fps;
+        cerr << "average FPS over " << seconds << " seconds: " << static_cast<double>(totalFPS)/(seconds - 2) << endl; 
+      }
     }  
     if (showFPS) {
       main.renderText(main.getWidth() - 22, 0, to_string(fps));

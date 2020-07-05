@@ -52,6 +52,7 @@ class mfile {
 
     note findCurrentNote();
     int findCurrentTempo();
+    int findChordY(int idx);
 
     void shiftX(double shiftX);
     void shiftTime(double timeInc);
