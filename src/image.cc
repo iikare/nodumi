@@ -16,7 +16,7 @@ using std::cerr;
 using std::endl;
 using std::swap;
 
-BGImage::BGImage() : buffer(0), image(0), oImage(0),  x(0), y(0), width(0), height(0), xOff(0), yOff(0), xOrig(0), yOrig(0), scaleRatio(1), oWidth(0), oHeight(0) {} 
+BGImage::BGImage() : buffer(0), image(0), oImage(0),  x(0), y(0), width(0), height(0), xOff(0), yOff(0), xOrig(0), yOrig(0), scaleRatio(1), tint(1), oWidth(0), oHeight(0) {} 
 
 BGImage::~BGImage() {
 }
@@ -189,4 +189,17 @@ void BGImage::flip(bool dir) {
 void BGImage::centerImage(int cX, int cY) {
  x = cX/2 - width/2;
  y = cY/2 - height/2 - MAIN_MENU_HEIGHT/2;
+}
+
+void BGImage::changeTint(double amt) {
+  if (!amt) {
+    // reset tint
+    amt = 1.0 / tint;
+  }
+
+  tint *= amt;
+
+  for (unsigned int i = 0; i < image.size(); i++) {
+    image[i] = min(image[i] * amt, 255.0);
+  }
 }

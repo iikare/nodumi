@@ -171,6 +171,9 @@ int main(int argc, char* argv[]) {
   vector<string> flipMenuContents = {"Horizontal", "Vertical"};
   menu flipMenu(main.getSize(), flipMenuContents, false, -100,-100);
 
+  vector<string> tintMenuContents = {"Reset Tint", "Increase Tint", "Decrease Tint"};
+  menu tintMenu(main.getSize(), tintMenuContents, false, -100,-100);
+  
   
   colorMenu colorSelect(0, 0, menuColor);
 
@@ -997,6 +1000,27 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    // render tint menu
+    if (tintMenu.render && rightMenu.render) {
+      tintMenu.findActiveElement(main.getMouseXY());
+      for (int x = tintMenu.getX(); x < tintMenu.getX() + tintMenu.getWidth() ; x++) {
+        for (int y = tintMenu.getY(); y < tintMenu.getY() + tintMenu.getHeight(); y++) {
+          main.setPixelRGB(x, y, menuColor);
+          
+          if (hoverOnBox(x, y, tintMenu.getBox(tintMenu.getActiveElement()))) {
+            main.setPixelRGB(x, y, menuColorClick);
+          }
+          
+          if (((y - tintMenu.getY()) % ITEM_HEIGHT == 0 || x == tintMenu.getX()) && y != tintMenu.getY()) {
+            main.setPixelRGB(x, y, menuLineColor);
+          }
+        }
+      }
+      for (int i = 0; i < tintMenu.getSize(); i++) {
+        main.renderText(tintMenu.getItemX(i), tintMenu.getItemY(i), tintMenu.getContent(i));
+      }
+    }
+
     if (colorSelect.render) {
       if(colorSelect.squareClick) {
         colorSelect.setSPointXY(main.getMouseXY());
@@ -1344,6 +1368,7 @@ int main(int argc, char* argv[]) {
         scaleMenu.findActiveElement(main.getMouseXY());
         moveMenu.findActiveElement(main.getMouseXY());
         flipMenu.findActiveElement(main.getMouseXY());
+        tintMenu.findActiveElement(main.getMouseXY());
         fileMenu.findActiveElement(main.getMouseXY());
         editMenu.findActiveElement(main.getMouseXY());
         viewMenu.findActiveElement(main.getMouseXY());
@@ -1613,7 +1638,10 @@ int main(int argc, char* argv[]) {
               if (rightMenu.getActiveElement() == -1 &&  flipMenu.getActiveElement() == -1) {
                 flipMenu.render = false;
               } 
-              if (!scaleMenu.render && !moveMenu.render && !flipMenu.render && !colorSelect.render && viewMenu.getActiveElement() == -1) {
+              if (rightMenu.getActiveElement() == -1 &&  tintMenu.getActiveElement() == -1) {
+                tintMenu.render = false;
+              } 
+              if (!scaleMenu.render && !moveMenu.render && !flipMenu.render && !tintMenu.render && !colorSelect.render && viewMenu.getActiveElement() == -1) {
                 rightMenu.render = false;
               }
               if (!hoverOnBox(main.getMouseXY(), colorSelect.getBoundingBox())) {
@@ -1645,6 +1673,7 @@ int main(int argc, char* argv[]) {
                 scaleMenu.render = !scaleMenu.render;
                 flipMenu.render = false;
                 moveMenu.render = false;
+                tintMenu.render = false;
               }
               break;
             case 1: // change part color (note) open move menu (bg image)
@@ -1664,6 +1693,7 @@ int main(int argc, char* argv[]) {
                 moveMenu.render = !moveMenu.render;
                 flipMenu.render = false;
                 scaleMenu.render = false;
+                tintMenu.render = false;
               }
               break;
             case 2: // set tonic (note) flip menu (bg image)
@@ -1678,9 +1708,18 @@ int main(int argc, char* argv[]) {
                 flipMenu.render = !flipMenu.render;
                 moveMenu.render = false;
                 scaleMenu.render = false;
+                tintMenu.render = false;
               }
               break;
             case 3: // remove bg image
+              updateBG = true;
+              
+              tintMenu.render = !tintMenu.render;
+              scaleMenu.render = false;
+              flipMenu.render = false;
+              moveMenu.render = false;
+              break;
+            case 4:
               updateBG = true;
               bgI->clear();
 
@@ -1688,6 +1727,7 @@ int main(int argc, char* argv[]) {
               scaleMenu.render = false;
               flipMenu.render = false;
               moveMenu.render = false;
+              tintMenu.render = false;
 
               break;
           }
@@ -1763,6 +1803,33 @@ int main(int argc, char* argv[]) {
               if (flipMenu.render) {
                 updateBG = true;
                 bgI->flip(false);
+              }
+              break;
+          }
+        }  
+
+        //handle tint menu actions
+        if (tintMenu.render || !tintMenu.getActiveElement()) {
+          switch (tintMenu.getActiveElement()) {
+            case -1: // clicked outside menu bounds
+              // handled inside parent menu
+              break;
+            case 0: // remove tint
+              if (tintMenu.render) {
+                updateBG = true;
+                bgI->changeTint(0);
+              }
+              break;
+            case 1: // increase tint
+              if (tintMenu.render) {
+                updateBG = true;
+                bgI->changeTint(1.05);
+              }
+              break;
+            case 2: // decrease tint
+              if (tintMenu.render) {
+                updateBG = true;
+                bgI->changeTint(0.95);
               }
               break;
           }
@@ -2041,7 +2108,7 @@ int main(int argc, char* argv[]) {
           //cerr << "right clicked on the background!" << endl;
         }
         else if (bgRender && hoverOnBox(main.getMouseXY(), bgI->getBox())) {
-          vector<string> IRight = {"Scale Image", "Move Image", "Flip Image", "Remove Image"};
+          vector<string> IRight = {"Scale Image", "Move Image", "Flip Image", "Tint Image", "Remove Image"};
           rightMenu.update(IRight);
  
           // find coordinate to draw right click menu
@@ -2055,6 +2122,7 @@ int main(int argc, char* argv[]) {
           scaleMenu.setXY(rightMenu.getX() + rightMenu.getWidth(), rightMenu.getItemY(0));
           moveMenu.setXY(rightMenu.getX() + rightMenu.getWidth(), rightMenu.getItemY(1));
           flipMenu.setXY(rightMenu.getX() + rightMenu.getWidth(), rightMenu.getItemY(2));
+          tintMenu.setXY(rightMenu.getX() + rightMenu.getWidth(), rightMenu.getItemY(3));
           
           rightMenu.render = true;
           colorSelect.render = false;

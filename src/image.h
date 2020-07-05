@@ -16,11 +16,12 @@ class BGImage {
   public:
     BGImage();
     ~BGImage();
-    
+      
     void loadPNG(string path);
     void scale(double ratio);
     vector<pixel> getKMeansSample();
     void flip(bool dir);
+    void changeTint(double amt);
     void clear();
     void resetPosition() { x = 0; y = 0; }
     void resetScale() { scale(1/scaleRatio); }
@@ -53,6 +54,7 @@ class BGImage {
     int xOrig;
     int yOrig;
     double scaleRatio;
+    double tint;
     int oWidth;
     int oHeight;
 };
