@@ -565,9 +565,7 @@ int main(int argc, char* argv[]) {
                 deltaX = nextX - x;
                 deltaY = nextY - y;
 
-                double dYdX = static_cast<double>(deltaY)/deltaX;
-                
-                  //cerr << "y, nextY " << y << ", " << nextY << endl;
+                //cerr << "y, nextY " << y << ", " << nextY << endl;
 
                 // check if note is currently playing
                 if (x <= main.getWidth()/2 && x >= main.getWidth()/2 - deltaX) {
@@ -583,17 +581,9 @@ int main(int argc, char* argv[]) {
                 //cerr << "X, Y" << deltaX << ", " << deltaY << endl;
                 
                 // render line 
-                for (int j = 0; j < deltaX; j++) {
-                  int k = y + j * dYdX;
-                  int klim = input->getTimeScale() > 0.01 ? (abs(dYdX) > 1 ? abs(dYdX) : 1) : 1;
-                  for (int m = -1; m <= 1; m++) {
-                    for (int n = -klim; n <= klim; n++) {
-                      if (x + j + m < main.getWidth() && x + j + m > 0) {
-                        main.setPixelRGB(x + j + m, k + n, colorFinal); 
-                      }
-                    }
-                  }
-                }
+                main.drawLine(x-2, y-2, nextX-2, nextY-2, colorFinal);
+                main.drawLine(x-1, y-1, nextX-1, nextY-1, colorFinal);
+                main.drawLine(x, y, nextX, nextY, colorFinal);
               }
               break;
             case 3: // balls

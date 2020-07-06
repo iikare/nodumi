@@ -290,6 +290,29 @@ void window::fillBG(colorRGB col) {
   fill(buffer, buffer + WIDTH * HEIGHT, color); 
 }
 
+void window::drawLine(int x0, int y0, int x1, int y1, colorRGB col) {
+   int dx =  abs(x1-x0), sx = x0<x1 ? 1 : -1;
+   int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1; 
+   int err = dx+dy, e2;
+ 
+   while (true) {
+      setPixelRGB(x0, y0, col);
+      if (x0 == x1 && y0 == y1) {
+        break;
+      }
+      e2 = 2*err;
+
+      if (e2 >= dy) {
+        err += dy;
+        x0 += sx;
+      } 
+      if (e2 <= dx) {
+        err += dx;
+        y0 += sy;
+      }
+   }
+}
+
 void window::update() {
   SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(uint32_t));
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);

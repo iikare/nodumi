@@ -41,6 +41,8 @@ class window {
 
     void renderText(int x, int y, string text, colorRGB col = {0, 0, 0});
     void fillBG(colorRGB col);
+
+    void drawLine(int x0, int y0, int x1, int y1, colorRGB col);
      
     void setPixelRGB(const int& x, const int& y, const uint8_t& r, const uint8_t& g, const uint8_t& b);
     void setPixelRGB(const int& x, const int& y, const colorRGB& col);
@@ -48,6 +50,7 @@ class window {
     void setPixelRGBO(int x, int y);
     void setPixelHSV(int x, int y, colorHSV col);
     void setPixelHSV(int x, int y, double h, double s, double v);
+
     colorRGB getPixelRGB(int x, int y);
     
     void update();
