@@ -32,7 +32,7 @@ using std::thread;
 using std::ref;
 
 int main(int argc, char* argv[]) {
-
+  
   if (argc !=2) {
     cerr << "error: invalid usage - specify a input file!" << endl;
     exit(1);
@@ -580,9 +580,7 @@ int main(int argc, char* argv[]) {
                 
                 //cerr << "X, Y" << deltaX << ", " << deltaY << endl;
                 
-                // render line 
-                main.drawLine(x-2, y-2, nextX-2, nextY-2, colorFinal);
-                main.drawLine(x-1, y-1, nextX-1, nextY-1, colorFinal);
+                // render line
                 main.drawLine(x, y, nextX, nextY, colorFinal);
               }
               break;
@@ -655,14 +653,14 @@ int main(int argc, char* argv[]) {
           }
           else {
             // shift normally as per tempo, or until end, whichever comes first
-            //if (lastNote.x + lastNote.duration > 0) {
-            if ((shiftTime * input->getTimeScale())/TIME_MODIFIER < lastNote.x + lastNote.duration) {
-              input->shiftTime(shiftTime * input->getTimeScale());
-            }
-            else {
-              input->shiftTime((lastNote.x + lastNote.duration) * TIME_MODIFIER);
-            }
-           // }
+            thread([&] {
+              if ((shiftTime * input->getTimeScale())/TIME_MODIFIER < lastNote.x + lastNote.duration) {
+                input->shiftTime(shiftTime * input->getTimeScale());
+              }
+              else {
+                input->shiftTime((lastNote.x + lastNote.duration) * TIME_MODIFIER);
+              }
+            }).detach();
           }
         }
       }
@@ -2106,6 +2104,8 @@ int main(int argc, char* argv[]) {
     if (showFPS) {
       main.renderText(main.getWidth() - 22, 0, to_string(fps));
     }
+    
+    // render to screen
     main.update();
  
     if (run || livePlay || oneTimeFlag) {

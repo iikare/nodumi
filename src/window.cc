@@ -291,26 +291,62 @@ void window::fillBG(colorRGB col) {
 }
 
 void window::drawLine(int x0, int y0, int x1, int y1, colorRGB col) {
-   int dx =  abs(x1-x0), sx = x0<x1 ? 1 : -1;
-   int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1; 
-   int err = dx+dy, e2;
- 
-   while (true) {
-      setPixelRGB(x0, y0, col);
-      if (x0 == x1 && y0 == y1) {
-        break;
-      }
-      e2 = 2*err;
+  bool steep = abs(y1 - y0) > abs(x1 - x0);
 
-      if (e2 >= dy) {
-        err += dy;
-        x0 += sx;
-      } 
-      if (e2 <= dx) {
-        err += dx;
-        y0 += sy;
+  if (steep) {
+    swap(x0, y0);
+    swap(x1, y1);
+  }
+  if (x0 > x1) {
+    swap(x0, x1);
+    swap(y0, y1);
+  }
+
+  int dX = x1 - x0;
+  int dY = y1 - y0;
+  double dYdX = 0;
+  if (!dX) {
+    dYdX = 1.0;
+  }
+  else {
+    dYdX = static_cast<double>(dY)/dX;
+  }
+
+  double relativeY = y0;
+  double alpha = 1;
+  double alpha2 = 1;
+
+  if (steep) {
+    for (int x = x0; x <= x1; x++) {
+      if (relativeY < getWidth() && relativeY > 0) {
+        alpha = relativeY - floor(relativeY);
+        alpha2 = static_cast<int>(254.0 * (1 - alpha)) + 1;
+        alpha = static_cast<int>(254.0 *  alpha) + 1;
+        
+        setPixelRGBA(static_cast<int>(relativeY), x, col, alpha);
+        
+        if (relativeY > 1) {
+          setPixelRGBA(static_cast<int>(relativeY) - 1, x, col, alpha2);
+        }
+        
+        relativeY += dYdX;
       }
-   }
+    }
+  }
+  else {
+    for (int x = x0; x <= x1; x++) {
+      if (x < getWidth() && x > 0) {
+        alpha = relativeY - floor(relativeY);
+        alpha2 = static_cast<int>(254.0 * (1 - alpha)) + 1;
+        alpha = static_cast<int>(254.0 *  alpha) + 1;
+        
+        setPixelRGBA(x, static_cast<int>(relativeY), col, alpha);
+        setPixelRGBA(x, static_cast<int>(relativeY) - 1, col, alpha2);
+        
+        relativeY += dYdX;
+      }
+    }
+  }
 }
 
 void window::update() {
