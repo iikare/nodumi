@@ -13,9 +13,12 @@ SRC = src
 
 NAME = viewer
 
+.PHONY: makedir
 
-all: $(NAME)
+all: makedir $(NAME)
 
+makedir:
+	mkdir -p $(DIR)
 
 $(NAME): $(addprefix $(DIR)/, $(OBJS))
 	$(CC) $(CFLAGS) $(LFLAGS) -o $(NAME) $(addprefix $(DIR)/, $(OBJS)) 

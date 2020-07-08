@@ -222,8 +222,8 @@ int main(int argc, char* argv[]) {
   bool updateBG = true;
 
   // debug bg
-  bgI->loadPNG("tests/large.png");
-  bgRender = true;
+  //bgI->loadPNG("tests/large.png");
+  //bgRender = true;
 
   // event controller
   SDL_Event event;
