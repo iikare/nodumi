@@ -13,17 +13,13 @@ SRC = src
 
 NAME = viewer
 
-.PHONY: makedir
+all: $(NAME)
 
-all: makedir $(NAME)
-
-makedir:
-	mkdir -p $(DIR)
-
-$(NAME): $(addprefix $(DIR)/, $(OBJS))
+$(NAME): $(addprefix $(DIR)/, $(OBJS)) | $(@D)
 	$(CC) $(CFLAGS) $(LFLAGS) -o $(NAME) $(addprefix $(DIR)/, $(OBJS)) 
 
 $(DIR)/main.o: ./src/main.cc
+	mkdir -p $(dir $@)	
 	$(CC) $(CFLAGS) -c ./src/main.cc  -o build/main.o
 
 $(DIR)/note.o: ./src/note.cc ./src/note.h
@@ -81,4 +77,4 @@ $(DIR)/picopng.o: ./dpd/picoPNG/picopng.cpp ./dpd/picoPNG/picopng.h
 	$(CC) $(CFLAGS) -c -w ./dpd/picoPNG/picopng.cpp -o build/picopng.o
 
 clean: 
-	rm -f $(NAME) *.o *.gch build/*
+	rm -rf $(NAME) *.o *.gch build
