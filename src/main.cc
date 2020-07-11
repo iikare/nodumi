@@ -2057,7 +2057,7 @@ int main(int argc, char* argv[]) {
           rightMenu.render = true;
           colorSelect.render = false;
           rightImage = true;
-
+          
           //cerr << "right clicked on an image!" << endl;
         }
         else { 
