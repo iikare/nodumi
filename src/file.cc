@@ -47,7 +47,7 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
     return;
   }
    
-  //define control chars
+  //define control chars (0x01111100)
   char separator = '|';
 
   // file format begins with first byte '|' (0x01111100)
