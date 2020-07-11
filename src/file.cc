@@ -46,7 +46,7 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
     cerr<< "warn: unable to save file at path " << path <<endl;
     return;
   }
-  
+   
   //define control chars
   char separator = '|';
 
@@ -189,6 +189,7 @@ void saveFile(string path, mfile* file, const vector<colorRGB>& colorVecA, const
   }  
 
   // end save file
+  delete[] notes;
   output.close(); 
 }
 

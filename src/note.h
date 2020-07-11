@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include "../dpd/midifile/MidiFile.h"
-#include "misc.h"
+#include "color.h"
 
 using namespace smf;
 using std::string;

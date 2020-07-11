@@ -74,11 +74,10 @@ bool window::init() {
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(windowA);
+    TTF_Quit();
     SDL_Quit();
     return false;
   }
-
-
 
   // text rendering items
   messageX = new deque<int>;

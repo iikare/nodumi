@@ -19,7 +19,7 @@ using std::bind;
 using std::min;
 
 void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB) {
-
+  
   // check zero n
   if (!n) {
     cerr << "error: call to getColorScheme with n = " << n << endl;
