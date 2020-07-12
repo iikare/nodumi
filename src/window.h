@@ -1,5 +1,5 @@
-#ifndef SCREEN_H
-#define SCREEN_H
+#ifndef WINDOW_H
+#define WINDOW_H
 
 #include <iostream>
 #include <string>
@@ -8,7 +8,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include "note.h"
-#include "window.h"
+#include "misc.h"
 #include "color.h"
 #include "box.h"
 

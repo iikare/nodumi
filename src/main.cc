@@ -532,6 +532,8 @@ int main(int argc, char* argv[]) {
                 for (int j = 0; j < width; j++) {
                   for (int k = 0; k < noteHeight; k++) {
                     if (x + j > 0 && x + j < main.getWidth()) {
+                      // TODO: make this an option
+                      //main.setPixelRGBA(x + j, y + k, colorFinal, 55 + 200 * (1 - abs(renderNote.x) / (main.getWidth()/2)));
                       main.setPixelRGB(x + j, y + k, colorFinal);
                     }
                   }
@@ -1334,7 +1336,7 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 1: // open file
-		          filenameC = osdialog_file(OSDIALOG_OPEN, ".", nullptr, filetypes);
+              filenameC = osdialog_file(OSDIALOG_OPEN, ".", nullptr, filetypes);
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
@@ -1343,7 +1345,7 @@ int main(int argc, char* argv[]) {
               }
               break;
             case 2: // open image
-		          filenameC = osdialog_file(OSDIALOG_OPEN, ".", nullptr, imagetypes);
+              filenameC = osdialog_file(OSDIALOG_OPEN, ".", nullptr, imagetypes);
               
               if (filenameC != nullptr) {
                 bgPath = static_cast<string>(filenameC);
