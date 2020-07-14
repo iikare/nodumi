@@ -143,6 +143,11 @@ int mfile::findChordY(int idx) {
   if (idx < 0 || idx > noteCount) {
     cerr << "warn: invalid call to findChordY() with index " << idx << endl;
   }
+
+  // break on end of track note
+  if (idx + 1 < noteCount && notes[idx].track != notes[idx + 1].track) {
+    return notes[idx].y;
+  }
   
   int offset = 1;
   int y = notes[idx].y;
