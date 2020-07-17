@@ -563,7 +563,12 @@ int main(int argc, char* argv[]) {
 
                 int nextX = main.getWidth()/2 + notes[idxNext].x;
                 int nextY = (main.getHeight() - round((main.getHeight() - areaTop) * static_cast<double>(input->findChordY(idxNext) - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
-
+                
+                if (nextX - x > 20 * width) {
+                  nextX = x + width;
+                  nextY = y;
+                }
+                  
                 deltaX = nextX - x;
                 deltaY = nextY - y;
 
@@ -579,7 +584,16 @@ int main(int argc, char* argv[]) {
                 
                 // determine color based on note status
                 noteOn ? colorFinal = colorOn : colorFinal = colorOff;
-                
+                int radius = 3 * log(width) < 1 ? 1 : 3 * log(width);
+
+                // make selectable 
+                if (noteOn) { 
+                  radius *= 1 - static_cast<double>(main.getWidth()/2 - x)/width;
+                  main.drawCircle(main.getWidth()/2, y + (main.getWidth()/2 - x) * static_cast<double>(deltaY)/deltaX, 1 + radius, colorFinal);
+                }
+                else if (x > main.getWidth()/2) {
+                  main.drawCircle(x, y, 1 + radius,colorFinal);
+                } 
                 //cerr << "X, Y" << deltaX << ", " << deltaY << endl;
                 
                 // render line

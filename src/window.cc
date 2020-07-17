@@ -348,6 +348,24 @@ void window::drawLine(int x0, int y0, int x1, int y1, colorRGB col) {
   }
 }
 
+void window::drawCircle(int x, int y, double r, colorRGB col) {
+  double x0 = -r, y0 = 0, err = 2 - 2 * r; 
+  do {
+    setPixelRGB(x - x0, y + y0, col);
+    setPixelRGB(x - y0, y - x0, col);
+    setPixelRGB(x + x0, y - y0, col);
+    setPixelRGB(x + y0, y + x0, col);
+    r = err;
+    if (r <= y0) {
+      err += ++y0 * 2 + 1;
+    }
+    if (r > x0 || err > y0) {
+      err += ++x0 * 2 + 1;
+    }
+  }
+  while (x0 < 0);
+}
+
 void window::update() {
   SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(uint32_t));
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);

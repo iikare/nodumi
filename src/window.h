@@ -43,7 +43,8 @@ class window {
     void fillBG(colorRGB col);
 
     void drawLine(int x0, int y0, int x1, int y1, colorRGB col);
-     
+    void drawCircle(int x, int y, double r, colorRGB col); 
+
     void setPixelRGB(const int& x, const int& y, const uint8_t& r, const uint8_t& g, const uint8_t& b);
     void setPixelRGB(const int& x, const int& y, const colorRGB& col);
     void setPixelRGBA(int x, int y, const colorRGB& col, unsigned char alpha);
