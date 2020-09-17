@@ -4,7 +4,9 @@
 #include <iostream>
 #include <string>
 #include <deque>
+#include <GL/glew.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include "note.h"
@@ -60,6 +62,14 @@ class window {
   private:
     void renderTextToTexture(int x, int y, string text, colorRGB col);
     
+    // openGL variables
+    GLuint vBuf, vao, vbo, ebo, vertexShader, fragmentShader, shaderProgram;
+    GLint posAttrib, colAttrib, uniColor;
+    float* verts;
+    GLuint* elems;
+    SDL_GLContext context;
+
+
     string title;
     SDL_Window* windowA;
     SDL_Renderer* renderer;

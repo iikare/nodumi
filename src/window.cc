@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <GL/glew.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include "window.h"
@@ -13,8 +15,10 @@ using std::fill;
 using std::max;
 using std::min;
 
-window::window(string title) : 
-  cursorVisible(false), windowA(nullptr), renderer(nullptr), texture(nullptr),
+window::window(string title) :
+  cursorVisible(false),
+  vBuf(0), vao(0), vbo(0), ebo(0), verts(nullptr), elems(nullptr), 
+  windowA(nullptr), renderer(nullptr), texture(nullptr),
   windowX(0), windowY(0), windowXY({0, 0}), messageX(0), messageY(0), messageText(0), messageCol(0), tTexture(nullptr), tSurface(nullptr), clip({0, 0, 0, 0}), clipX(0), clipY(0),
   buffer(nullptr), buffer2(nullptr),  menuFont(nullptr), fontSize(0),
   lastMouseX(0), lastMouseY(0), mouseX(0), mouseY(0) {
@@ -26,14 +30,14 @@ bool window::init() {
     cerr << "error: failed to initialize SDL" << endl;
     return false;
   } 
-
-  windowA = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+  windowA = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+      WIDTH, HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
   if (!windowA) {
     SDL_Quit();
     return false;
   }
-
+ 
   renderer = SDL_CreateRenderer(windowA, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
   if (!renderer) {
@@ -367,6 +371,7 @@ void window::drawCircle(int x, int y, double r, colorRGB col) {
 }
 
 void window::update() {
+
   SDL_UpdateTexture(texture, nullptr, buffer, WIDTH * sizeof(uint32_t));
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
@@ -382,8 +387,7 @@ void window::update() {
   }
   
   SDL_RenderPresent(renderer);
-
-  SDL_RenderClear(renderer);
+ // SDL_RenderClear(renderer);
 }
 
 void window::clearBuffer() {

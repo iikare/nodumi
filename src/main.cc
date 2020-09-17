@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
   }
   filecheck.close();
 
-  window main = window(static_cast<string>("mviewer ") +static_cast<string>(VERSION));
+  window main = window(static_cast<string>("kelumi ") +static_cast<string>(VERSION));
 
   if (!main.init()) {
     cerr << "error: failed to initialize window" << endl;
