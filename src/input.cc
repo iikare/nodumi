@@ -14,18 +14,23 @@ midiInput::~midiInput() {
 }
 
 void midiInput::openPort(int port) {
-  midiIn->closePort();
+  if (ctr.getLiveState()) {
+    midiIn->closePort();
 
-  numPort = midiIn->getPortCount();
-  if (port >= numPort) {
-    log3(LL_WARN, "unable to open port number", port);
-    return;
+    numPort = midiIn->getPortCount();
+    if (port >= numPort) {
+      log3(LL_WARN, "unable to open port number", port);
+      return;
+    }
+
+    midiIn->openPort(port);
+    midiIn->ignoreTypes(false, false, false);
+    
+    log3(LL_INFO, "opened port ", port);
   }
-
-  midiIn->openPort(port);
-  midiIn->ignoreTypes(false, false, false);
-  
-  log3(LL_INFO, "opened port ", port);
+  else {
+    logII(LL_WARN, "cannot open port in normal mode");
+  }
 }
 
 vector<string> midiInput::getPorts() {
@@ -79,7 +84,7 @@ void midiInput::convertEvents() {
       if (msgQueue[i + 2] != 0) { // if note on
         note tmpNote;
         tmpNote.track = 1; // by default
-        tmpNote.x = 0;
+        tmpNote.x = ctr.livePlayOffset;
         tmpNote.y = static_cast<int>(msgQueue[i + 1]);
         tmpNote.velocity = static_cast<int>(msgQueue[i + 2]);
         tmpNote.isOn = true;
@@ -87,7 +92,7 @@ void midiInput::convertEvents() {
         // if this is the note on event, duration is undefined
         tmpNote.duration = -1;
         
-        noteStream.notes[noteCount] = tmpNote;
+        noteStream.notes.push_back(tmpNote);
         noteCount++;
         numOn++;
         i += 2;
@@ -117,7 +122,7 @@ void midiInput::updatePosition() {
       break;
     }
     if (noteStream.notes[j].isOn) {
-      noteStream.notes[j].duration = noteStream.notes[j].x;
+      noteStream.notes[j].duration = ctr.livePlayOffset - noteStream.notes[j].x;
       i++;
     }
   }

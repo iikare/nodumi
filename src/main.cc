@@ -171,6 +171,7 @@ int main (int argc, char* argv[]) {
     
     if (ctr.getLiveState()) {
       timeOffset = ctr.livePlayOffset;
+      ctr.liveInput.update();
       run = false;
     }
 
@@ -221,7 +222,8 @@ int main (int argc, char* argv[]) {
             
           bool noteOn = false;
 
-          if (timeOffset >= ctr.notes->at(i).x && timeOffset < ctr.notes->at(i).x + ctr.notes->at(i).duration) {
+          if (ctr.notes->at(i).isOn ||
+             (timeOffset >= ctr.notes->at(i).x && timeOffset < ctr.notes->at(i).x + ctr.notes->at(i).duration)) {
             noteOn = true;
           }
           if (pointInBox(GetMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !menuctr.mouseOnMenu()) {
@@ -577,9 +579,11 @@ int main (int argc, char* argv[]) {
             case 3:
               if (midiMenu.getContent(3) == "Enable Live Play") {
                 midiMenu.setContent("Disable Live Play", 3);
+                zoomLevel *= 3;
               }
               else if (midiMenu.getContent(3) == "Disable Live Play") {
                 midiMenu.setContent("Enable Live Play", 3);
+                zoomLevel *= 1.0/3.0;
               }
               ctr.toggleLivePlay();
               break;
