@@ -1,11 +1,15 @@
-#ifndef MENU_H
-#define MENU_H
+#pragma once
 
 #include <string>
 #include <vector>
+#include <raylib.h>
+#include "misc.h"
+#include "data.h"
 
 using std::string;
 using std::vector;
+
+class menuController;
 
 class menuItem {
   public:
@@ -23,7 +27,6 @@ class menuItem {
     void setWidth(int nWidth);
     void setHeight(int nHeight);
 
-
   private:
     int x;
     int y;
@@ -34,8 +37,7 @@ class menuItem {
 
 class menu {
   public:
-    menu(point XY, vector<string> itemNames, bool mainMenu, int menuX = 0, int menuY = 0);
-    ~menu();
+    menu(point XY, vector<string> itemNames, menu* parentMenu, int menuType, int menuX = 0, int menuY = 0);
 
     int getX() { return x; }
     int getY() { return y; }
@@ -44,23 +46,39 @@ class menu {
     int getSize() { return itemCount; }
     int getItemX(int idx); 
     int getItemY(int idx); 
-    string getContent(int idx);
-
     int getActiveElement();
+    string getContent(int idx);
     rect getBox(int idx);
+    rect getSquare();
+    colorRGB getColor();
 
     void setXY(int nX, int nY);
     void setContent(string nContent, int idx);
     void setActiveElement(int idx);
-
+    void setSquare();
+    void setAngle();
+    void setColor(colorRGB col);
+    
     void findActiveElement(point xy);
 
     void update(vector<string> itemNames);
+    
+    void addChildMenu(menu* child);
+    void hideChildMenu();
+    bool childOpen();
+    bool parentOpen();
+
+    bool clickCircle(int circleType);
+
+    void draw();
 
     bool render;
 
+    int mainSize;
+    menu* parent;
+
+    friend class menuController;
   private:
-    bool isMainMenu;
     int x;
     int y;
     int width;
@@ -68,11 +86,19 @@ class menu {
     int itemCount;
     int mainX;
     int mainY;
-    int activeElement; 
-    menuItem* items;
+    int activeElement;
+    int type;
+    int pX = 0;
+    int pY = 0;
+    double angle = 0;
+    vector<menuItem> items;
+    vector<menu*> childMenu;
 };
 
-
-
-
-#endif
+enum menuTypes {
+  TYPE_MAIN,
+  TYPE_SUB,
+  TYPE_RIGHT,
+  TYPE_RIGHTSUB,
+  TYPE_COLOR
+};

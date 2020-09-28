@@ -1,3 +1,5 @@
+srcold/
+
 build/
 tests/
 .clangd/

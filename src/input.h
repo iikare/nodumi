@@ -1,27 +1,29 @@
-#ifndef INPUT_H
-#define INPUT_H
+#pragma once
 
 #include <vector>
 #include <string>
 #include "../dpd/rtmidi/RtMidi.h"
 #include "note.h"
+#include "midi.h"
+#include "log.h"
 
 using std::vector;
 using std::string;
+using std::to_string;
 
-class MidiInput {
+class midiInput {
   public:
-    MidiInput();
-    ~MidiInput();
+    midiInput();
+    ~midiInput();
 
     void openPort(int port);
     void update();
     
-    note* getNotes() { return noteStream->getNotes(); }
     int getNoteCount() { return noteCount; }
     vector<string> getPorts();
 
-    mfile* noteStream;
+    midi noteStream;
+
   private:
     void convertEvents();
     void updatePosition();
@@ -36,5 +38,3 @@ class MidiInput {
     double timestamp;
 
 };
-
-#endif

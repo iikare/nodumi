@@ -3,7 +3,6 @@
 #include <cmath>
 #include "color.h"
 #include "misc.h"
-#include "box.h"
 
 using std::min;
 using std::max;
@@ -14,10 +13,6 @@ using std::ostream;
 colorRGB::colorRGB() : r(0), g(0), b(0) {}
 
 colorRGB::colorRGB(double red, double green, double blue) : r(red), g(green), b(blue) {}
-
-void colorRGB::operator = (const colorHSV& col) {\
-  setRGB(col);
-}
 
 ostream& operator << (ostream& out, colorRGB color) {
   out << "{" << color.r << ", " << color.g << ", " << color.b << "} (RGB)";
@@ -33,69 +28,14 @@ void colorRGB::setRGB(double red, double green, double blue) {
 void colorRGB::setRGB (colorHSV hsv) {
   // implementation of HSV->RGB algorithm
   
-  double chroma = hsv.s * hsv.v;
-  double m = hsv.v - chroma;
-  double x = chroma * (1 - fabs(fmod((hsv.h / 60), 2) - 1));
-
-  if (hsv.h >= 0 && hsv.h <= 60) {
-    setRGB(chroma + m, x + m, m);
-  }
-  else if (hsv.h > 60 && hsv.h <= 120) {
-    setRGB(x + m, chroma + m, m);
-  }
-  else if (hsv.h > 120 && hsv.h <= 180) {
-    setRGB(m, chroma + m, x + m);
-  }
-  else if (hsv.h > 180 && hsv.h <= 240) {
-    setRGB(m, x + m, chroma + m);
-  }
-  else if (hsv.h > 240 && hsv.h <= 300) {
-    setRGB(x + m, m, chroma + m);
-  }
-  else if (hsv.h > 300 && hsv.h <= 360) {
-    setRGB(chroma + m, m, x + m);
-  }
-  else {
-    setRGB(m, m, m);
-  }
+  *this = HSVtoRGB(hsv);
 }
 
 colorHSV colorRGB::getHSV () {
   // implementation of RGB->HSV algorithm
   
-  double value = max({r, g, b});
-  double minv = min({r, g, b});
-  double chroma =  value - minv;
-  double hue = 0;
-  double saturation = chroma / value;
-
-  // nonzero hue if nonzero chroma
-  if (chroma != 0) {
-    if (r == value) {
-      // red is max
-      hue = fmod(((g - b) / chroma), 6.0 ) * 60;
-    }
-    else if (g == value) {
-      // green is max
-      hue = (((b - r) / chroma) + 2) * 60;
-    }
-    else if (b == value) {
-      // blue is min
-      hue = (((r - g) / chroma) + 4) * 60;
-    }
-  }
-  
-  colorHSV col (hue, saturation, value);
-  return col;
+  return RGBtoHSV(*this); 
 }
-
-void colorRGB::increaseValue(int valInc) {
-  colorHSV tmp = getHSV();
-  tmp.v = min(360.0, tmp.v + valInc);
-  setRGB(tmp);
-}
-
-
 
 colorHSV::colorHSV() : h(0), s(0), v(0) {}
 
@@ -129,120 +69,4 @@ void colorHSV::setHSV(double hue, double sat, double val) {
   h = hue;
   s = sat;
   v = val;
-}
-
-colorMenu::colorMenu() : render(false), squareClick(false), circleClick(false), clickBG(false),  x(0), y(0),
-                         width(0), height(0),
-                         cX(0), cY(0), innerRadius(0), outerRadius(0), offset(0), pAngle(0), pX(0),
-                         pY(0), col({0, 0, 0}), colhsv({0, 0, 0}), area({0, 0, 0, 0}),
-                         areaSquare({0, 0, 0, 0}), areaCircle({0, 0, 0, 0}) {}
-
-colorMenu::colorMenu(int iX, int iY, colorRGB color) : render(false), squareClick(false),
-                     circleClick(false), clickBG(false), x(iX), y(iY),
-                     width(COLOR_WIDTH), height(COLOR_HEIGHT), cX(iX + COLOR_WIDTH/2),
-                     cY(iY + COLOR_HEIGHT/2), col(color), area({0, 0, 0, 0}),
-                     areaSquare({0, 0, 0, 0}), areaCircle({0, 0, 0, 0}) {
-
-  innerRadius = min(COLOR_WIDTH, COLOR_HEIGHT) * 0.4;
-  outerRadius = innerRadius + 6;
-  offset = ceil(innerRadius / sqrt(2));
-
-  colhsv = color.getHSV();
-}
-
-void colorMenu::findAngleFromColor() {
-  pAngle = colhsv.h;
-
-  double vratio = (1 - colhsv.v/static_cast<double>(255));
-
-  // value scales with positive x
-  sX = getSquareX() + getSquareSize() * colhsv.s;
-  // value scales with positive y
-  sY = getSquareY() + static_cast<double>(getSquareSize()) * vratio;
-  pX = getCenterX() + cos(pAngle * M_PI/180.0) * ((innerRadius + outerRadius)/2);
-  pY = getCenterY() - sin(pAngle * M_PI/180.0) * ((innerRadius + outerRadius)/2);
-  ciX = pX;
-  ciY = pY;
-}
-
-void colorMenu::findHSVFromSquare(bool findHue){
-
-  if (findHue) {
-    pAngle = atan2(ciY - getCenterY(), getCenterX() - ciX) * 180.0/M_PI + 180;
-    colhsv.h = pAngle;
-  
-    //cerr << "the angle is: " << pAngle << endl;
-  }
-  else {
-    double sratio = static_cast<double>(sX - getSquareX())/getSquareSize();
-    double vratio = 1 - static_cast<double>(sY - getSquareY())/getSquareSize();
-    colhsv.s = sratio;
-    colhsv.v = 255 * vratio;
-    
-    //cerr << vratio << ", " << 1.0 - colhsv.s << endl;
-  }
-  col.setRGB(colhsv);
-
-}
-
-void colorMenu::setSPointXY(point XY) {
-  // allow setting point from anywhere, but restrict output
-  // to the square boundaries only
-  if (XY.x > getSquareX() + getSquareSize()) {
-    sX = getSquareX() + getSquareSize();
-  }
-  else if (XY.x < getSquareX()) {
-    sX = getSquareX();
-  }
-  else { 
-    sX = XY.x;
-  }
-  
-  if (XY.y > getSquareY() + getSquareSize()) {
-    sY = getSquareY() + getSquareSize();
-  }
-  else if (XY.y < getSquareY()) {
-    sY = getSquareY();
-  }
-  else { 
-    sY = XY.y;
-  }
-}
-
-void colorMenu::setCPointXY(point XY) {
-  ciX = XY.x;
-  ciY = XY.y;
-}
-
-void colorMenu::setColor(colorRGB color) {
-  col = color;
-  colhsv = color.getHSV();
-}
-
-rect colorMenu::getBoundingBox() {
-  area.x = getX();
-  area.y = getY();
-  area.width = getWidth();
-  area.height = getHeight();
-  
-  return area;
-}
-
-rect colorMenu::getBoundingBoxCircle() {
-  // stores center point and inner / outer radius
-  areaCircle.x = getCenterX();
-  areaCircle.y = getCenterY();
-  areaCircle.width = getInner();
-  areaCircle.height = getOuter();
-
-  return areaCircle;
-}
-
-rect colorMenu::getBoundingBoxSquare() {
-  areaSquare.x = getSquareX();
-  areaSquare.y = getSquareY();
-  areaSquare.width = getSquareSize();
-  areaSquare.height = getSquareSize();
- 
-  return areaSquare;
 }

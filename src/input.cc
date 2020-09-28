@@ -1,47 +1,34 @@
-#include <vector>
-#include <string>
-#include <iostream>
-#include "../dpd/rtmidi/RtMidi.h"
 #include "input.h"
-#include "note.h"
+#include "data.h"
 
-using std::to_string;
-using std::vector;
-using std::string;
-using std::cerr;
-using std::endl;
-
-MidiInput::MidiInput() : noteStream(nullptr), midiIn(nullptr), msgQueue(0), numPort(0), noteCount(0), numOn(0), timestamp(0) {
+midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), noteCount(0), numOn(0), timestamp(0) {
   midiIn = new RtMidiIn();
-
-  // eventually will be converted to dynamic vector
-  noteStream = new mfile(10000);
+  logII(LL_CRIT, "owo");
   if (midiIn == nullptr) {
-    cerr << "warn: could not initialize midi input" << endl;
+    logII(LL_WARN, "unable to initialize midi input");
   }
 }
 
-MidiInput::~MidiInput() {
+midiInput::~midiInput() {
   delete midiIn;
-  delete noteStream;
 }
 
-void MidiInput::openPort(int port) {
+void midiInput::openPort(int port) {
   midiIn->closePort();
 
   numPort = midiIn->getPortCount();
   if (port >= numPort) {
-    cerr << "warn: unable to open port number " << port << endl;
+    log3(LL_WARN, "unable to open port number", port);
     return;
   }
 
   midiIn->openPort(port);
   midiIn->ignoreTypes(false, false, false);
   
-  cerr << "info: opened port " << port << endl;
+  log3(LL_INFO, "opened port ", port);
 }
 
-vector<string> MidiInput::getPorts() {
+vector<string> midiInput::getPorts() {
   vector<string> ports;
   numPort = midiIn->getPortCount();
   for (int i = 0; i < numPort; i++) {
@@ -64,7 +51,7 @@ vector<string> MidiInput::getPorts() {
   return ports;
 }
 
-bool MidiInput::updateQueue() {
+bool midiInput::updateQueue() {
   timestamp = midiIn->getMessage(&msgQueue);
   for (long unsigned int i = 0; i < msgQueue.size(); i++) {
     if ((int)msgQueue[i] != 248 && (int)msgQueue[i] != 254){ 
@@ -81,12 +68,12 @@ bool MidiInput::updateQueue() {
   return false;
 }
 
-void MidiInput::convertEvents() {
+void midiInput::convertEvents() {
   //-timestamp * 100 * noteStream->getTimeScale()
   for (long unsigned int i = 0; i < msgQueue.size(); i++) { 
     if (msgQueue[i] == 0b11111000) { // 248: clock signal
       //cerr << "shift by " << timestamp*100 << endl;
-      noteStream->shiftX(-timestamp * 100 * noteStream->getTimeScale());
+      ctr.livePlayOffset += timestamp * 100;
     }
     else if (msgQueue[i] == 0b10010000) { // 144: note on/off
       if (msgQueue[i + 2] != 0) { // if note on
@@ -100,19 +87,19 @@ void MidiInput::convertEvents() {
         // if this is the note on event, duration is undefined
         tmpNote.duration = -1;
         
-        noteStream->notes[noteCount] = tmpNote;
+        noteStream.notes[noteCount] = tmpNote;
         noteCount++;
         numOn++;
         i += 2;
         
         //cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
         
-        noteStream->noteCount = noteCount;
+        noteStream.noteCount = noteCount;
       }
       else {
         int idx = findNoteIndex(static_cast<int>(msgQueue[i + 1]));
-        noteStream->notes[idx].isOn = false;
-        note tmpNote = noteStream->notes[idx];
+        noteStream.notes[idx].isOn = false;
+        //note tmpNote = noteStream.notes[idx];
 
         numOn--;
 
@@ -122,30 +109,30 @@ void MidiInput::convertEvents() {
   }
 }
 
-void MidiInput::updatePosition() {
+void midiInput::updatePosition() {
   int i = 0;
   for (int j = noteCount - 1; j >= 0; j--) {
     if (i >= numOn) {
       // all on notes shifted
       break;
     }
-    if (noteStream->notes[j].isOn) {
-      noteStream->notes[j].duration = -noteStream->notes[j].x;
+    if (noteStream.notes[j].isOn) {
+      noteStream.notes[j].duration = noteStream.notes[j].x;
       i++;
     }
   }
 }
 
-int MidiInput::findNoteIndex(int key) {
+int midiInput::findNoteIndex(int key) {
   for (int i = noteCount - 1; i >= 0; i--) {
-    if (noteStream->notes[i].y == key) {
+    if (noteStream.notes[i].y == key) {
       return i;
     }
   }
   return 0;
 }
 
-void MidiInput::update() {
+void midiInput::update() {
   if (midiIn->isPortOpen()) {
     while (updateQueue()) {
       convertEvents();
@@ -154,6 +141,6 @@ void MidiInput::update() {
   }
   else {
     // shift even when midi input is disconnected
-    noteStream->shiftX(0.0167 * 100 * noteStream->getTimeScale());
+    ctr.livePlayOffset += GetFrameTime();
   }
 }

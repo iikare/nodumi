@@ -1,5 +1,4 @@
-#ifndef BOX_H
-#define BOX_H
+#pragma once
 
 struct rect {
   rect(int a, int b, int c, int d) { x = a; y = b; width = c; height = d; }
@@ -13,5 +12,3 @@ struct point {
   int x;
   int y;
 };
-
-#endif

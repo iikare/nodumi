@@ -1,54 +1,86 @@
 #include <algorithm>
-#include <iostream>
-#include <string>
-#include <cmath>
-#include "note.h"
 #include "misc.h"
+#include "data.h"
+#include "log.h"
 
 using std::min;
 using std::max;
-using std::cerr;
-using std::endl;
-using std::isnan;
-using std::string;
-using std::to_string;
 
-bool hoverOnBox(point mouse, rect box) {
-  return hoverOnBox(mouse.x, mouse.y, box.x, box.y, box.width, box.height);
+double getDistance(int x1, int y1, int x2, int y2) {
+  double deltaX = abs(x1 - x2);
+  double deltaY = abs(y1 - y2);
+  return sqrt(pow(deltaX, 2) + pow(deltaY, 2));
 }
 
-bool hoverOnBox(int mouseX, int mouseY, rect box) {
-  return hoverOnBox(mouseX, mouseY, box.x, box.y, box.width, box.height);
+colorHSV RGBtoHSV(const colorRGB& rgb) {
+  colorHSV output;
+
+  int r = rgb.r;
+  int g = rgb.g;
+  int b = rgb.b;
+
+  double value = max({r, g, b});
+  double minv = min({r, g, b});
+  double chroma =  value - minv;
+  double hue = 0;
+  double saturation = chroma / value;
+
+  // nonzero hue if nonzero chroma
+  if (chroma != 0) {
+    if (r == value) {
+      // red is max
+      hue = fmod(((g - b) / chroma), 6.0 ) * 60;
+    }
+    else if (g == value) {
+      // green is max
+      hue = (((b - r) / chroma) + 2) * 60;
+    }
+    else if (b == value) {
+      // blue is min
+      hue = (((r - g) / chroma) + 4) * 60;
+    }
+  }
+  
+  output.setHSV(hue, saturation, value);
+  return output;
 }
 
-bool hoverOnBox(point mouse, int noteX, 
-                 int noteY, int noteWidth, int noteHeight) {
-  return hoverOnBox(mouse.x, mouse.y, noteX, noteY, noteWidth, noteHeight);
-}
+colorRGB HSVtoRGB(const colorHSV& hsv) {
+  colorRGB output;
+  double chroma = hsv.s * hsv.v;
+  double m = hsv.v - chroma;
+  double x = chroma * (1 - fabs(fmod((hsv.h / 60), 2) - 1));
 
-bool hoverOnBox(point mouse, int noteX, 
-                 int noteY, int size) {
-  return hoverOnBox(mouse.x, mouse.y, noteX, noteY, size, size);
-}
-
-bool hoverOnBox(int mouseX, int mouseY, int noteX, 
-                 int noteY, int size) {
-  return hoverOnBox(mouseX, mouseY, noteX, noteY, size, size);
-}
-
-bool hoverOnBox(int mouseX, int mouseY, int noteX, 
-                 int noteY, int noteWidth, int noteHeight) {
-  if (mouseX >= noteX && mouseX <= noteX + noteWidth &&
-      mouseY >= noteY && mouseY <= noteY + noteHeight) {
-    return true;
+  if (hsv.h >= 0 && hsv.h <= 60) {
+    output.setRGB(chroma + m, x + m, m);
+  }
+  else if (hsv.h > 60 && hsv.h <= 120) {
+    output.setRGB(x + m, chroma + m, m);
+  }
+  else if (hsv.h > 120 && hsv.h <= 180) {
+    output.setRGB(m, chroma + m, x + m);
+  }
+  else if (hsv.h > 180 && hsv.h <= 240) {
+    output.setRGB(m, x + m, chroma + m);
+  }
+  else if (hsv.h > 240 && hsv.h <= 300) {
+    output.setRGB(x + m, m, chroma + m);
+  }
+  else if (hsv.h > 300 && hsv.h <= 360) {
+    output.setRGB(chroma + m, m, x + m);
   }
   else {
-    return false;
+    output.setRGB(m, m, m);
   }
+  return output;
 }
-void getMenuLocation(point mainDim, point mouseXY, 
-                     int& rcX, int& rcY, const int rcW, const int rcH) {
-  return getMenuLocation(mainDim.x, mainDim.y, mouseXY.x, mouseXY.y, rcX, rcY, rcW, rcH);
+
+bool pointInBox(Vector2 mouse, rect box) {
+  if (mouse.x >= box.x && mouse.x < box.x + box.width &&
+      mouse.y >= box.y && mouse.y < box.y + box.height) {
+    return true;
+  }
+  return false;
 }
 
 void getMenuLocation(int mainW, int mainH, int cnX, int cnY, 
@@ -87,77 +119,6 @@ void getMenuLocation(int mainW, int mainH, int cnX, int cnY,
     // the menu can start at the note Y value
     rcX = cnX;
   }
-}
-
-string getSongPercent (double pos, double total) {
-  string untruncText = to_string(100 * pos / total);
-  double position = 100 * pos / total;
-
-  string result = "100.00%";
-  
-  if (pos == 0) {
-    return "0.00%";
-  }
-  if (untruncText[0] == 1) {
-    result = untruncText.substr(0,6);
-  }
-  else if (pos == 0) {
-    result = untruncText.substr(0,4);
-  }
-  else if (position > 0 && position < 10) {
-    result = untruncText.substr(0,4);
-  }
-  else {
-    result = untruncText.substr(0,5);
-  }
-  result += "%";
-  return result;
-}
-
-string getSongTime(double pos, double total, double tTime) {
-  string result;
-  double realTime = tTime * pos / total;
-
-  if (pos == 0) {
-    realTime = 0;
-  }
-
-  result += toMinutes(realTime);
-  result += " / ";
-  result += toMinutes(tTime);
-  return result;
-}
-
-string toMinutes(double seconds) {
-  string result;
-
-  int hours = seconds / 3600;
-  int min = seconds / 60;
-  int sec = static_cast<int>(round(seconds)) % 60;
-
-  if (hours != 0) {
-    string hrStr = to_string(hours);
-    if (hours < 10) {
-      hrStr = "0" + hrStr;
-    }
-    result += hrStr;
-    result += ":";
-  }
-  
-  string minStr = to_string(min);
-  if (min < 10 && hours != 0) {
-    minStr = "0" + minStr;
-  }
-  result += minStr;
-  result += ":";
-  
-  string secStr = to_string(sec);
-  if (sec < 10) {
-    secStr = "0" + secStr;
-  }
-  result += secStr;
-
-  return result;
 }
 
 void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, int rcY, int xBuf, int yBuf) {
@@ -228,50 +189,6 @@ void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, i
   }
 }
 
-double getDistance(colorRGB a, colorRGB b) {
-  return sqrt(pow(a.r - b.r, 2) + pow(a.g - b.g , 2) + pow(a.b - b.b, 2));
-}
-
-double getDistance(int x1, int y1, int x2, int y2) {
-  double deltaX = abs(x1 - x2);
-  double deltaY = abs(y1 - y2);
-  return sqrt(pow(deltaX, 2) + pow(deltaY, 2));
-}
-
-double getDistance(point a, int x2, int y2) {
-  return getDistance(a.x, a.y, x2, y2);
-}
-
-double getDistance(point a, point b) {
-  return getDistance(a.x, a.y, b.x, b.y);
-}
-
-colorRGB getHueByAngle(int x1, int y1, int x2, int y2) {
-  // {x2, y2} iis the center point
-  double deltaX = x2 - x1;
-  double deltaY = y1 - y2;
-  double angle = atan2(deltaY, deltaX) * 180.0/M_PI + 180;
-
-  if (round(angle) == 0) {
-    angle = 360;
-  }
-
-  colorHSV hsv (angle, 1, 255);
-  colorRGB result;
-  result.setRGB(hsv);
-
-  return result;
-}
-
-bool pointInCircle(point mouse, rect circle) {
-  // set distance bounds
-  int inner = circle.width;
-  int outer = circle.height;
-  double dist = getDistance(mouse.x, mouse.y, circle.x, circle.y);
-
-  return dist > inner && dist < outer;
-}
-
 string getNoteInfo(int noteTrack, int notePos) {
   string result = "";
   int key = notePos % 12;
@@ -322,30 +239,70 @@ string getNoteInfo(int noteTrack, int notePos) {
   return result;
 }
 
-colorRGB getWeightedAverage(colorRGB col1, colorRGB col2, unsigned char weight) {
-  colorRGB result;
+string getSongPercent (double pos, double total) {
+  string untruncText = to_string(100 * pos / total);
+  double position = 100 * pos / total;
+
+  string result = "100.00%";
   
-  double weightRatio = weight / 255.0;
-
-  result.r = ((1 - weightRatio) * col1.r + weightRatio * col2.r);
-  result.g = ((1 - weightRatio) * col1.g + weightRatio * col2.g);
-  result.b = ((1 - weightRatio) * col1.b + weightRatio * col2.b);
-
+  if (pos == 0) {
+    return "0.00%";
+  }
+  if (untruncText[0] == 1) {
+    result = untruncText.substr(0,6);
+  }
+  else if (pos == 0) {
+    result = untruncText.substr(0,4);
+  }
+  else if (position > 0 && position < 10) {
+    result = untruncText.substr(0,4);
+  }
+  else {
+    result = untruncText.substr(0,5);
+  }
+  result += "%";
   return result;
 }
 
-colorRGB getOverlayColor(colorRGB baseColor) {
-  colorHSV tmp(baseColor.getHSV());
-  double val = tmp.v / 255.0;
-  if (val < 0 ) {
-    cerr << "OH NO VAL NEGATIVE" << val << endl;
+string getSongTime(double pos, double total) {
+  string result;
+  
+  result += toMinutes(floor(pos / 500.0));
+  result += " / ";
+  result += toMinutes(floor(total/500.0));
+  return result;
+}
+
+string toMinutes(double seconds) {
+  string result;
+
+  int hours = seconds / 3600;
+  int min = seconds / 60;
+  int sec = static_cast<int>(round(seconds)) % 60;
+
+  if (hours != 0) {
+    string hrStr = to_string(hours);
+    if (hours < 10) {
+      hrStr = "0" + hrStr;
+    }
+    result += hrStr;
+    result += ":";
   }
   
-  // map value according to function
-  tmp.v = 255 * pow(val, 0.5);
-  colorRGB result;
-  result.setRGB(tmp);
+  string minStr = to_string(min);
+  if (min < 10 && hours != 0) {
+    minStr = "0" + minStr;
+  }
+  result += minStr;
+  result += ":";
+  
+  string secStr = to_string(sec);
+  if (sec < 10) {
+    secStr = "0" + secStr;
+  }
+  result += secStr;
 
   return result;
 }
+
 
