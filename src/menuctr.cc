@@ -21,13 +21,18 @@ void menuController::hideAll() {
   }
 }
 
-bool menuController::mouseOnMenu() {
+void menuController::updateMouse() {
   for (unsigned int i = 0; i < menuSet.size(); i++) {
     if (menuSet[i]->render == true) {
       if (pointInBox(GetMousePosition(), (rect){menuSet[i]->x, menuSet[i]->y, menuSet[i]->width, menuSet[i]->height})) {
-        return true;
+        mouseMenu = true;
+        return;
       }
     }
   }
-  return false;
+  mouseMenu = false;
+}
+
+bool menuController::mouseOnMenu() {
+  return mouseMenu;
 }

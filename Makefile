@@ -1,8 +1,8 @@
 CC = g++
 
-CFLAGS = --std=c++17 -Wall -Wextra -g -fuse-ld=gold -D__LINUX_ALSA__ -D__UNIX_JACK__ -D__RTMIDI_DEBUG__ -fpermissive
+CFLAGS = --std=c++17 -Wall -Wextra -g -fuse-ld=gold
 CFLAGSOSD = --std=c99 -w -fpermissive -g -fuse-ld=gold $(shell pkg-config --cflags gtk+-3.0)
-CFLAGSRTM = $(CFLAGS) -w 
+CFLAGSRTM = $(CFLAGS) -w -D__LINUX_ALSA__ -D__UNIX_JACK__ -D__RTMIDI_DEBUG__
 
 LFLAGS = -lraylib -lasound -lpthread -ljack $(shell pkg-config --libs gtk+-3.0)
 
@@ -29,6 +29,9 @@ OBJSRTM = $(patsubst $(RTMDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSRTM))
 
 all: $(NAME)
 
+re: clean
+	make -j $(shell nproc)
+
 $(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) | $(@D)
 	$(CC) $(CFLAGS) $(LFLAGS) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM)
 
@@ -45,7 +48,7 @@ $(OBJSRTM): $(BUILDDIR)/%.o: $(RTMDIR)/%.cpp
 	$(CC) $(CFLAGSRTM) -o $@ -c $< 
 
 clean:
-	rm -r build/* $(NAME)
+	rm -rf build/* $(NAME)
 
 .PHONY: all clean
 

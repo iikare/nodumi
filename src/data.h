@@ -22,5 +22,12 @@ enum colorSelections {
   SELECT_NONE
 };
 
+enum displayModes {
+  DISPLAY_LINE,
+  DISPLAY_BAR,
+  DISPLAY_BALL,
+  DISPLAY_BALLLINE
+};
+
 extern controller ctr;
 extern Font font;

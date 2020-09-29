@@ -31,3 +31,8 @@ void drawCircleLines(int x, int y, float r, colorRGB col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   DrawCircleLines(x, y, r, color);
 }
+
+void drawRing(Vector2 center, float iRad, float oRad, colorRGB col) {
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
+  DrawRing(center, iRad, oRad, 0.0f, 360.0f, 1 + oRad, color);
+}

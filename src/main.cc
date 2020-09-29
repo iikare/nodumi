@@ -65,6 +65,8 @@ int main (int argc, char* argv[]) {
   bool colorCircle = false;
   int songTimeType = 0;
   bool showFPS = false;
+  int displayMode = DISPLAY_BAR;
+  float nowLineX = ctr.getWidth()/2.0f;
 
   string FPSText = "";
   
@@ -160,11 +162,13 @@ int main (int argc, char* argv[]) {
 
     ctr.load(filename);
   }
-
+  
   while (ctr.getProgramState()) {
 
     if (newFile) {
       newFile = false;
+      run = false;
+      timeOffset = 0;
 
       ctr.load(filename);
     }
@@ -188,24 +192,31 @@ int main (int argc, char* argv[]) {
     BeginDrawing();
       clearBackground(ctr.bgColor);
       if (nowLine) {
-        if (pointInBox(GetMousePosition(), {ctr.getWidth()/2 - 3, ITEM_HEIGHT, 6, ctr.getHeight() - ITEM_HEIGHT}) &&
+        if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ITEM_HEIGHT, 6, ctr.getHeight() - ITEM_HEIGHT}) &&
             !menuctr.mouseOnMenu()) {
-            drawLineEx(ctr.getWidth()/2, ITEM_HEIGHT, ctr.getWidth()/2, ctr.getHeight(), 1, ctr.bgNow);
+            drawLineEx(nowLineX, ITEM_HEIGHT, nowLineX, ctr.getHeight(), 1, ctr.bgNow);
         }
         else {
-          drawLineEx(ctr.getWidth()/2, ITEM_HEIGHT, ctr.getWidth()/2, ctr.getHeight(), 0.5, ctr.bgNow);
+          drawLineEx(nowLineX, ITEM_HEIGHT, nowLineX, ctr.getHeight(), 0.5, ctr.bgNow);
         }
       }
       for (int i = 0; i < ctr.getNoteCount(); i++) {
-
-        double cX = ctr.getWidth() / 2 + (ctr.notes->at(i).x - timeOffset) * zoomLevel;
-        double cY = (ctr.getHeight() - (ctr.getHeight() - ctr.menuHeight) * 
-                  static_cast<double>(ctr.notes->at(i).y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3));
-        double cW = ctr.notes->at(i).duration * zoomLevel < 1 ? 1 : ctr.notes->at(i).duration * zoomLevel;
-        double cH = (ctr.getHeight() - ctr.menuHeight) / 88;
-        
         int colorID = 0;
+        bool noteOn = false;
+        
+        const auto updateClickIndex = [&] {
+          noteOn ? clickOnTmp = true : clickOnTmp = false;
+          noteOn = !noteOn;
+          clickTmp = i;
+        };
 
+        float cX = nowLineX + (ctr.notes->at(i).x - timeOffset) * zoomLevel;
+        float cY = (ctr.getHeight() - (ctr.getHeight() - ctr.menuHeight) * 
+                  static_cast<double>(ctr.notes->at(i).y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3));
+        float cW = ctr.notes->at(i).duration * zoomLevel < 1 ? 1 : ctr.notes->at(i).duration * zoomLevel;
+        float cH = (ctr.getHeight() - ctr.menuHeight) / 88;
+        
+        
         switch (colorMode) {
           case COLOR_PART:
             colorID = ctr.notes->at(i).track;
@@ -217,27 +228,103 @@ int main (int argc, char* argv[]) {
             colorID = (ctr.notes->at(i).y - MIN_NOTE_IDX) % 12;
             break;
         }
+        
+        switch (displayMode) {
+          case DISPLAY_BAR:
+            if (cX + cW > 0 && cX < ctr.getWidth()) {
+                
 
-        if (cX + cW > 0 && cX < ctr.getWidth()) {
-            
-          bool noteOn = false;
+              if (ctr.notes->at(i).isOn ||
+                 (timeOffset >= ctr.notes->at(i).x && timeOffset < ctr.notes->at(i).x + ctr.notes->at(i).duration)) {
+                noteOn = true;
+              }
+              if (pointInBox(GetMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !menuctr.mouseOnMenu()) {
+                updateClickIndex();
+              }
 
-          if (ctr.notes->at(i).isOn ||
-             (timeOffset >= ctr.notes->at(i).x && timeOffset < ctr.notes->at(i).x + ctr.notes->at(i).duration)) {
-            noteOn = true;
-          }
-          if (pointInBox(GetMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !menuctr.mouseOnMenu()) {
-            noteOn ? clickOnTmp = true : clickOnTmp = false;
-            noteOn = !noteOn;
-            clickTmp = i;
-          }
-          
-          if (noteOn) {
-            drawRectangle(cX, cY, cW, cH, colorSetOn->at(colorID));
-          }
-          else {
-            drawRectangle(cX, cY, cW, cH, colorSetOff->at(colorID));
-          }
+
+
+              
+              if (noteOn) {
+                drawRectangle(cX, cY, cW, cH, colorSetOn->at(colorID));
+              }
+              else {
+                drawRectangle(cX, cY, cW, cH, colorSetOff->at(colorID));
+              }
+            }
+            break;
+          case DISPLAY_BALL:
+            {
+              float radius = 1 + 3 * log(cW);
+              float ballY = cY + 2;
+              if (cX + cW + radius > 0 && cX - radius < ctr.getWidth()) {
+
+                  if (cX < nowLineX - cW) {
+                    radius *= 0.3;
+                  }
+                if (ctr.notes->at(i).isOn ||
+                   (timeOffset >= ctr.notes->at(i).x && timeOffset < ctr.notes->at(i).x + ctr.notes->at(i).duration)) {
+                  noteOn = true;
+                  radius *= (0.3f + 0.7f * (1.0f - float(timeOffset - ctr.notes->at(i).x) / ctr.notes->at(i).duration));
+                }
+                if (!menuctr.mouseOnMenu()) {
+                  int realX = 0;
+                  if (cX > nowLineX) {
+                    realX = cX;
+                  }
+                  else if (cX + cW < nowLineX) {
+                    realX = cX + cW;
+                  }
+                  else {
+                    realX = nowLineX;
+                  }
+                  if (getDistance(GetMouseX(), GetMouseY(), realX, ballY) < radius) {
+                    updateClickIndex();
+                  }
+                  else if (realX == nowLineX && (getDistance(GetMouseX(), GetMouseY(), cX, ballY) < radius ||
+                           pointInBox(GetMousePosition(), (rect) {int(cX), int(ballY) - 2, max(int(nowLineX - cX), 0), 4}))) {
+                    updateClickIndex();
+                  }
+                }
+                
+                
+                if (noteOn) {
+                  if (cX >= nowLineX) {
+                    drawRing({cX, ballY}, radius - 2, radius, colorSetOn->at(colorID));
+                  }
+                  else if (cX + cW < nowLineX) {
+                    drawRing({cX + cW, ballY}, radius - 2, radius, colorSetOn->at(colorID));
+                  }
+                  else if (cX < nowLineX) {
+                    drawRing({cX, ballY}, radius - 2, radius, colorSetOn->at(colorID));
+                    drawRing({nowLineX, ballY}, radius - 2, radius, colorSetOn->at(colorID));
+                    if (nowLineX - cX > 2 * radius) {
+                      drawLineEx(cX + radius, ballY + 1, nowLineX - radius, ballY + 1, 2, colorSetOn->at(colorID));
+                    }
+                  }
+                }
+                else {
+                  if (cX < nowLineX && cX + cW > nowLineX) {
+                    drawRing({cX, ballY}, radius - 2, radius, colorSetOff->at(colorID));
+                    drawRing({nowLineX, ballY}, radius - 2, radius, colorSetOff->at(colorID));
+                    if (nowLineX - cX > 2 * radius) {
+                      drawLineEx(cX + radius, ballY + 1, nowLineX - radius, ballY + 1, 2, colorSetOff->at(colorID));
+                    }
+                  }
+                  else if (cX < nowLineX) {
+                    drawRing({cX + cW, ballY}, radius - 2, radius, colorSetOff->at(colorID));
+                  }
+                  else {
+                    drawRing({cX, ballY}, radius - 2, radius, colorSetOff->at(colorID));
+                  }
+                }
+              }
+            }
+            break;
+          case DISPLAY_LINE:
+            break;
+          case DISPLAY_BALLLINE:
+            break;
         }
       }
 
@@ -431,12 +518,16 @@ int main (int argc, char* argv[]) {
           }
           switch(displayMenu.getActiveElement()) {
             case 0:
+              displayMode = DISPLAY_BAR;
               break;
             case 1:
+              displayMode = DISPLAY_LINE;
               break;
             case 2:
+              displayMode = DISPLAY_BALLLINE;
               break;
             case 3:
+              displayMode = DISPLAY_BALL;
               break;
             case 4:
               break;
@@ -781,7 +872,7 @@ int main (int argc, char* argv[]) {
         int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
 
         if (clickNote != -1) {
-          rightX = round(ctr.getWidth() / 2 + (ctr.notes->at(clickNote).x - timeOffset) * zoomLevel);
+          rightX = round(nowLineX + (ctr.notes->at(clickNote).x - timeOffset) * zoomLevel);
           rightY = (ctr.getHeight() - round((ctr.getHeight() - ctr.menuHeight) * 
                     static_cast<double>(ctr.notes->at(clickNote).y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
         }
@@ -809,7 +900,7 @@ int main (int argc, char* argv[]) {
           }
         }
         else {
-          if (pointInBox(GetMousePosition(), {ctr.getWidth()/2 - 3, ITEM_HEIGHT, 6, ctr.getHeight() - ITEM_HEIGHT})) {
+          if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ITEM_HEIGHT, 6, ctr.getHeight() - ITEM_HEIGHT})) {
             selectType = SELECT_LINE;
             rightMenuContents[1] = "Change Line Color";
             colorSelect.setColor(ctr.bgNow);
@@ -829,7 +920,8 @@ int main (int argc, char* argv[]) {
         rightMenu.render = true;
       }
     }
-
+    
+    menuctr.updateMouse();
     ctr.updateKeyState();
   }
 

@@ -11,6 +11,7 @@ class menuController {
   public:
     menuController() {
       mainMenuOffset = 0;
+      mouseMenu = false;
       menuSet = {};
     }
     
@@ -20,10 +21,13 @@ class menuController {
     void hideAll();
 
     bool mouseOnMenu();
+
+    void updateMouse();
     
     int getOffset() { return mainMenuOffset; }
   private:
     int mainMenuOffset;
+    bool mouseMenu;
     vector<menu*> menuSet;
     
 };
