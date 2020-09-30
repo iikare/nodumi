@@ -210,9 +210,17 @@ int main (int argc, char* argv[]) {
           clickTmp = i;
         };
 
-        float cX = nowLineX + (ctr.notes->at(i).x - timeOffset) * zoomLevel;
-        float cY = (ctr.getHeight() - (ctr.getHeight() - ctr.menuHeight) * 
-                  static_cast<double>(ctr.notes->at(i).y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3));
+        const auto convertSSX = [&] (int value) {
+          return nowLineX + (value - timeOffset) * zoomLevel;
+        };
+
+        const auto convertSSY = [&] (int value) {
+          return (ctr.getHeight() - (ctr.getHeight() - ctr.menuHeight) *
+                  static_cast<float>(value - MIN_NOTE_IDX + 2) / (NOTE_RANGE + 3));
+        };
+
+        float cX = convertSSX(ctr.notes->at(i).x);
+        float cY = convertSSY(ctr.notes->at(i).y);
         float cW = ctr.notes->at(i).duration * zoomLevel < 1 ? 1 : ctr.notes->at(i).duration * zoomLevel;
         float cH = (ctr.getHeight() - ctr.menuHeight) / 88;
         
@@ -242,9 +250,6 @@ int main (int argc, char* argv[]) {
                 updateClickIndex();
               }
 
-
-
-              
               if (noteOn) {
                 drawRectangle(cX, cY, cW, cH, colorSetOn->at(colorID));
               }
@@ -322,6 +327,16 @@ int main (int argc, char* argv[]) {
             }
             break;
           case DISPLAY_LINE:
+            {
+              if (ctr.notes->at(i).isChordRoot()) {
+                if (IsKeyPressed(KEY_K)) { 
+                logII(LL_CRIT, to_string(ctr.notes->at(i).getChordSize()) + " " +
+                               to_string(ctr.notes->at(i).getNextChordRoot()->getChordSize()));
+                }
+                drawLineEx(cX, cY, convertSSX(ctr.notes->at(i).getNextChordRoot()->x), 
+                           convertSSY(ctr.notes->at(i).getNextChordRoot()->y), 2, colorSetOff->at(colorID));
+              }
+            }
             break;
           case DISPLAY_BALLLINE:
             break;

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "../dpd/midifile/MidiFile.h"
 #include "note.h"
+#include "track.h"
 #include "log.h"
 
 using namespace smf;
@@ -19,6 +20,7 @@ class midi {
     midi() {
       notes = {};
       tempoMap = {};
+      tracks = {};
       trackCount = 0;
       noteCount = 0;
       lastTick = 0;
@@ -33,6 +35,7 @@ class midi {
     friend class controller;
   private:
     vector<pair<double, int>> tempoMap;
+    vector<trackController> tracks;
 
     int getTrackCount() { return trackCount; }
     int getNoteCount() { return noteCount; }

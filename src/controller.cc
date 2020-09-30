@@ -7,6 +7,9 @@ void controller::updateKeyState() {
 }
 
 void controller::toggleLivePlay() {
+  if (setTrackOn.size() < 1) {
+    getColorScheme(2, setTrackOn, setTrackOff);
+  }
   livePlayState = !livePlayState;
   if (livePlayState) {
     notes = &liveInput.noteStream.notes;

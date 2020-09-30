@@ -11,6 +11,7 @@ void midi::load(string file) {
   }
   notes.clear();
   tempoMap.clear();
+  tracks.clear();
   noteCount = 0;
   trackCount = 0;
 
@@ -19,6 +20,7 @@ void midi::load(string file) {
   midifile.doTimeAnalysis();
   
   trackCount = midifile.getTrackCount();
+  tracks.resize(trackCount);
 
   vector<pair<double, int>> trackInfo;
 
@@ -54,18 +56,21 @@ void midi::load(string file) {
         notes[idx].x  = midifile[i][j].seconds * 500;
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
-        notes[idx].time = midifile[i][j].seconds;
 
         lastTick = max(lastTick, notes[idx].x + notes[idx].duration);
 
-        if (idx != 0 && notes[idx].x < notes[idx - 1].x) {
-          logII(LL_WARN, "note with index " + to_string(idx) + " is misaligned (" +
-                to_string(notes[idx - 1].x) + " -> " + to_string(notes[idx].x) + ")");
-        } 
+        tracks.at(notes[idx].track).insert(idx, &notes.at(idx));
+
         idx++;
       }
     }
   }
+
+  for (unsigned int i =0; i < tracks.size(); i++) {
+    logII(LL_WARN, tracks[i].getNoteCount());
+    tracks[i].getNote(i);
+  }
+
 
   idx = 0;
  

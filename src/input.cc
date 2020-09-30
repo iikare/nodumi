@@ -82,7 +82,7 @@ void midiInput::convertEvents() {
     else if (msgQueue[i] == 0b10010000) { // 144: note on/off
       if (msgQueue[i + 2] != 0) { // if note on
         note tmpNote;
-        tmpNote.track = 1; // by default
+        tmpNote.track = 0; // by default
         tmpNote.x = ctr.livePlayOffset;
         tmpNote.y = static_cast<int>(msgQueue[i + 1]);
         tmpNote.velocity = static_cast<int>(msgQueue[i + 2]);
@@ -91,6 +91,8 @@ void midiInput::convertEvents() {
         // if this is the note on event, duration is undefined
         tmpNote.duration = -1;
         
+        noteStream.tracks[0].insert(noteCount, &tmpNote); 
+
         noteStream.notes.push_back(tmpNote);
         noteCount++;
         numOn++;
