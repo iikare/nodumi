@@ -91,9 +91,8 @@ void midiInput::convertEvents() {
         // if this is the note on event, duration is undefined
         tmpNote.duration = -1;
         
-        noteStream.tracks[0].insert(noteCount, &tmpNote); 
-
         noteStream.notes.push_back(tmpNote);
+        noteStream.tracks[0].insert(noteCount, &noteStream.notes.at(noteCount)); 
         noteCount++;
         numOn++;
         i += 2;

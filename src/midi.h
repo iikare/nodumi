@@ -21,6 +21,7 @@ class midi {
       notes = {};
       tempoMap = {};
       tracks = {};
+      tracks.resize(1);
       trackCount = 0;
       noteCount = 0;
       lastTick = 0;
