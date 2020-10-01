@@ -40,6 +40,7 @@ void trackController::insert(int idx, note* newNote) {
 
   noteIdxMap.insert(pair<int, note*>(idx, newNote));
   noteCount++;
+  noteSum+= newNote->y;
 }
 
 note* trackController::getNote(int idx) {

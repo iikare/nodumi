@@ -51,7 +51,7 @@ int controller::getTempo(int idx) {
 
 void controller::load(string filename) {
   file.load(filename);
-  getColorScheme(file.getTrackCount(), setTrackOn, setTrackOff);
+  getColorScheme(file.getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
 }
 
 void controller::setCloseFlag() {

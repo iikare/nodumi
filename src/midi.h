@@ -21,6 +21,7 @@ class midi {
       notes = {};
       tempoMap = {};
       tracks = {};
+      trackHeightMap = {};
       tracks.resize(1);
       trackCount = 0;
       noteCount = 0;
@@ -37,6 +38,7 @@ class midi {
   private:
     vector<pair<double, int>> tempoMap;
     vector<trackController> tracks;
+    vector<pair<int, double>> trackHeightMap;
 
     int getTrackCount() { return trackCount; }
     int getNoteCount() { return noteCount; }

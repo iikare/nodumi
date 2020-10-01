@@ -76,12 +76,6 @@ void midi::load(string file) {
     }
   }
 
-  for (unsigned int i = 0; i < tracks.size(); i++) {
-    logII(LL_WARN, tracks[i].getNoteCount());
-    tracks[i].getNote(i);
-  }
-
-
   idx = 0;
  
   midifile.joinTracks();
@@ -99,6 +93,21 @@ void midi::load(string file) {
       idx++;
     }
   }
+
+  for (unsigned int i = 0; i < tracks.size(); i++) {
+    trackHeightMap.push_back(make_pair(i, tracks[i].getAverageY()));
+  }
+  
+  sort(trackHeightMap.begin(), trackHeightMap.end(), [](const pair<int,int> &left, const pair<int,int> &right) {
+    return left.second < right.second;
+  });
+  
+  for (unsigned int i = 0; i < trackHeightMap.size(); i++) {
+    cerr << trackHeightMap[i].first << endl;
+    cerr << trackHeightMap[i].second << endl;
+  }
+
+  cerr << "ee" << trackHeightMap.size() << endl;
 
   lastTick = notes[getNoteCount() - 1].x + notes[getNoteCount() - 1].duration;
 }

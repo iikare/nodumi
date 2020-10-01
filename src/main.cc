@@ -38,6 +38,7 @@ int main (int argc, char* argv[]) {
    * * * * *
    */ 
   
+  SetTraceLogLevel(LOG_NONE);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   InitWindow(mWidth, mHeight, (string("kelumi ") + string(mVersion)).c_str());
   SetTargetFPS(60);
@@ -344,8 +345,8 @@ int main (int argc, char* argv[]) {
                   if (fabs((convertSSX(linePositions[i]) - GetMouseX()) *
                          ((convertSSY(linePositions[i + 3]) - convertSSY(linePositions[i + 1])) / 
                           (convertSSX(linePositions[i + 2]) - convertSSX(linePositions[i]))- GetMouseY())) < 5) {  
-                    noteOn = true;
-                    //updateClickIndex();
+                    //noteOn = true;
+                    updateClickIndex();
                   }
 
                   if (convertSSX(linePositions[i]) < nowLineX && convertSSX(linePositions[i + 2]) > nowLineX) {

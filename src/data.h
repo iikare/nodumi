@@ -4,7 +4,7 @@
 #include "controller.h"
 
 #define mWidth 1280
-#define mHeight 720
+#define mHeight 740
 #define mVersion "1.0a"
 #define MIN_NOTE_IDX 21
 #define MAX_NOTE_IDX 108

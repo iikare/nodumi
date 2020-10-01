@@ -13,9 +13,15 @@ using std::swap;
 using std::cerr;
 using std::endl;
 using std::bind;
+using std::pair;
 using std::min;
 
 void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB) {
+  vector<pair<int, double>> tmp;
+  getColorScheme(n, colorVecA, colorVecB, tmp);
+}
+
+void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, vector<pair<int, double>>& weight) {
   
   // check zero n
   if (!n) {
@@ -31,8 +37,11 @@ void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorV
 
   int increment = 360.0/n;
 
+    colorVecA.resize(n);
+    colorVecB.resize(n);
   colorVecA.clear();
   colorVecB.clear();
+
   
   for (int i = 0; i < n; i++) {
     off.h = fmod((off.h + increment),360.0);
@@ -43,6 +52,13 @@ void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorV
     colorVecA.push_back(offRGB);
     colorVecB.push_back(onRGB);
   }
+
+  if (weight.size() != 0) {
+    for (unsigned int i = 0; i < weight.size(); i++) {
+      swap(colorVecA[i], colorVecA[weight[i].first]);
+      swap(colorVecB[i], colorVecB[weight[i].first]);
+    }
+  } 
 }
 
 void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>* on, vector<colorRGB>* off){
