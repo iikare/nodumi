@@ -22,6 +22,7 @@ void midi::load(string file) {
   notes.clear();
   tempoMap.clear();
   tracks.clear();
+  trackHeightMap.clear();
   noteCount = 0;
   trackCount = 0;
 
@@ -102,12 +103,5 @@ void midi::load(string file) {
     return left.second < right.second;
   });
   
-  for (unsigned int i = 0; i < trackHeightMap.size(); i++) {
-    cerr << trackHeightMap[i].first << endl;
-    cerr << trackHeightMap[i].second << endl;
-  }
-
-  cerr << "ee" << trackHeightMap.size() << endl;
-
   lastTick = notes[getNoteCount() - 1].x + notes[getNoteCount() - 1].duration;
 }

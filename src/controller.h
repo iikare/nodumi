@@ -64,8 +64,11 @@ class controller {
     colorRGB bgMenuShade = colorRGB(155, 155, 155);
     colorRGB bgMenuLine = colorRGB(22, 22, 22);
     colorRGB bgColor = bgDark;
+    colorRGB bgSheet = colorRGB(255, 252, 242);
 
     const int menuHeight = 20;
+    const int sheetHeight = 140;
+    int barHeight = 0;
 
     int livePlayOffset;
     

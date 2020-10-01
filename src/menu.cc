@@ -258,8 +258,8 @@ void menu::setSquare() {
   const float circleY = y + COLOR_HEIGHT/2.0f;
   
   if (type == TYPE_COLOR) {
-    pX = max(min(ctr.getMousePosition().x - circleX + squareDim/2.0, double(squareDim)), 0.0);
-    pY = max(min(ctr.getMousePosition().y - circleY + squareDim/2.0, double(squareDim)), 0.0);
+    pX = round(max(min(ctr.getMousePosition().x - circleX + squareDim/2.0, double(squareDim)), 0.0));
+    pY = round(max(min(ctr.getMousePosition().y - circleY + squareDim/2.0, double(squareDim)), 0.0));
   }
 }
 
@@ -323,16 +323,16 @@ void menu::setColor(colorRGB col) {
   
   if (col.r == 0 && col.g == 0 && col.b == 0) {
     angle = 0;
-    pX = 0;
-    pY = squareDim;
+    //pX = 0;
+    pY = squareDim + 1;
     return;
   }
 
   colorHSV colHSV = RGBtoHSV(col);
   
   angle = colHSV.h;
-  pX = colHSV.s * squareDim;
-  pY = (1.0 - colHSV.v/255.0f) * squareDim;
+  pX = round(colHSV.s * squareDim);
+  pY = (1.0 - min(1.0, colHSV.v/255.0)) * (squareDim + 1);
 
 }
 
@@ -344,8 +344,8 @@ colorRGB menu::getColor() {
   colorHSV col;
   
   col.h = angle;
-  col.s = pX/squareDim;
-  col.v = 255 - pY/squareDim * 255;
+  col.s = (pX/squareDim);
+  col.v = round((255 - (pY)/squareDim * 255));
 
   return HSVtoRGB(col);
 }
@@ -426,6 +426,8 @@ void menu::draw() {
       
       drawRectangle(x + COLOR_WIDTH - 36, y + COLOR_HEIGHT - 36, 36, 36, getColor());
 
+      int yOffset = MeasureTextEx(font, colorToHex(getColor()).c_str(), font.baseSize, 0.5).y;
+      drawTextEx(font, colorToHex(getColor()).c_str(), x + 4, y + COLOR_HEIGHT - yOffset - 2, ctr.bgDark);
     }
   }
   else {

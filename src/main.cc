@@ -54,7 +54,7 @@ int main (int argc, char* argv[]) {
   // scaling settings
   double zoomLevel = 0.125;
   double timeOffset = 0;
-  const double shiftC = 2;
+  const double shiftC = 2.5;
 
   // play settings
   bool run = false;
@@ -64,6 +64,7 @@ int main (int argc, char* argv[]) {
   bool colorMove = false;
   bool colorSquare = false;
   bool colorCircle = false;
+  bool sheetMusicDisplay = false;
   int songTimeType = 0;
   bool showFPS = false;
   int displayMode = DISPLAY_BAR;
@@ -99,7 +100,7 @@ int main (int argc, char* argv[]) {
   menu fileMenu(ctr.getSize(), fileMenuContents, nullptr, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&fileMenu);
    
-  vector<string> editMenuContents = {"Edit", "Preferences"};
+  vector<string> editMenuContents = {"Edit", "Enable Sheet Music", "Preferences"};
   menu editMenu(ctr.getSize(), editMenuContents, nullptr, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&editMenu);
   
@@ -180,8 +181,6 @@ int main (int argc, char* argv[]) {
       run = false;
     }
 
-
-
     // fix FPS count bug
     GetFPS();
 
@@ -193,12 +192,12 @@ int main (int argc, char* argv[]) {
     BeginDrawing();
       clearBackground(ctr.bgColor);
       if (nowLine) {
-        if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ITEM_HEIGHT, 6, ctr.getHeight() - ITEM_HEIGHT}) &&
+        if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
             !menuctr.mouseOnMenu()) {
-            drawLineEx(nowLineX, ITEM_HEIGHT, nowLineX, ctr.getHeight(), 1, ctr.bgNow);
+            drawLineEx(nowLineX, ctr.barHeight, nowLineX, ctr.getHeight(), 1, ctr.bgNow);
         }
         else {
-          drawLineEx(nowLineX, ITEM_HEIGHT, nowLineX, ctr.getHeight(), 0.5, ctr.bgNow);
+          drawLineEx(nowLineX, ctr.barHeight, nowLineX, ctr.getHeight(), 0.5, ctr.bgNow);
         }
       }
       for (int i = 0; i < ctr.getNoteCount(); i++) {
@@ -217,7 +216,7 @@ int main (int argc, char* argv[]) {
         };
 
         const auto convertSSY = [&] (int value) {
-          return (ctr.getHeight() - (ctr.getHeight() - ctr.menuHeight) *
+          return (ctr.getHeight() - (ctr.getHeight() - ctr.barHeight) *
                   static_cast<float>(value - MIN_NOTE_IDX + 2) / (NOTE_RANGE + 3));
         };
 
@@ -371,7 +370,11 @@ int main (int argc, char* argv[]) {
       }
 
       // menu bar rendering
-      drawRectangle(0, 0, ctr.getWidth(), ITEM_HEIGHT, ctr.bgMenu);  
+      drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
+
+      if (sheetMusicDisplay) {
+        drawRectangle(0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight, ctr.bgSheet);  
+      }
 
       // option actions
       if (songTimeType == 1) {
@@ -413,19 +416,31 @@ int main (int argc, char* argv[]) {
       if (colorCircle) {
         colorSelect.setAngle();
       }
-      if (clickNote != -1) {
+      switch (selectType) {
+        case SELECT_NOTE:
         if (clickOn) {
           ctr.setTrackOn[ctr.notes->at(clickNote).track] = colorSelect.getColor();
         }
         else {
           ctr.setTrackOff[ctr.notes->at(clickNote).track] = colorSelect.getColor();
         }
+          break;
+        case SELECT_BG:
+          
+        ctr.bgColor = colorSelect.getColor();
+          break;
+        case SELECT_LINE:
+        ctr.bgNow = colorSelect.getColor();
+          break;
+        case SELECT_SHEET:
+        ctr.bgSheet = colorSelect.getColor();
+          break;
+      }
+      if (clickNote != -1) {
       }
       else if (selectType == SELECT_BG) {
-        ctr.bgColor = colorSelect.getColor();
       }
       else if (selectType == SELECT_LINE){
-        ctr.bgNow = colorSelect.getColor();
       }
     }
     
@@ -536,6 +551,14 @@ int main (int argc, char* argv[]) {
           }
           switch(editMenu.getActiveElement()) {
             case 1:
+              if (editMenu.getContent(1) == "Disable Sheet Music") {
+                editMenu.setContent("Enable Sheet Music", 1);
+              }
+              else if (editMenu.getContent(1) == "Enable Sheet Music") {
+                editMenu.setContent("Disable Sheet Music", 1);
+              }
+              sheetMusicDisplay = !sheetMusicDisplay;
+              sheetMusicDisplay ? ctr.barHeight = ctr.menuHeight + ctr.sheetHeight : ctr.barHeight = ctr.menuHeight;
               break;
             case 2:
               break;
@@ -929,6 +952,7 @@ int main (int argc, char* argv[]) {
         colorSelect.setXY(colorX, colorY);
 
         if (clickNote != -1) {
+          selectType = SELECT_NOTE;
           rightMenuContents[1] = "Change Part Color";
           rightMenu.update(rightMenuContents);
           rightMenu.setContent(getNoteInfo(ctr.notes->at(clickNote).track, ctr.notes->at(clickNote).y - MIN_NOTE_IDX), 0);
@@ -942,7 +966,11 @@ int main (int argc, char* argv[]) {
           }
         }
         else {
-          if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ITEM_HEIGHT, 6, ctr.getHeight() - ITEM_HEIGHT})) {
+          if (sheetMusicDisplay && pointInBox(GetMousePosition(), (rect){0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight})) {
+            selectType = SELECT_SHEET;
+            colorSelect.setColor(ctr.bgSheet);
+          }
+          else if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight})) {
             selectType = SELECT_LINE;
             rightMenuContents[1] = "Change Line Color";
             colorSelect.setColor(ctr.bgNow);

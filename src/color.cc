@@ -31,6 +31,10 @@ void colorRGB::setRGB (colorHSV hsv) {
   *this = HSVtoRGB(hsv);
 }
 
+bool colorRGB::operator == (const colorRGB& col) {
+  return (int)r == (int)col.r && (int)g == (int)col.g && (int)b == (int)col.b;
+}
+
 colorHSV colorRGB::getHSV () {
   // implementation of RGB->HSV algorithm
   

@@ -10,7 +10,7 @@
 #define MAX_NOTE_IDX 108
 #define NOTE_RANGE 88
 #define ITEM_HEIGHT 20
-#define ITEM_WIDTH 100
+#define ITEM_WIDTH 110
 #define MENU_MARGIN 10
 #define MAIN_MENU_HEIGHT 19
 #define COLOR_WIDTH 200
@@ -19,6 +19,8 @@
 enum colorSelections {
   SELECT_BG,
   SELECT_LINE,
+  SELECT_NOTE,
+  SELECT_SHEET,
   SELECT_NONE
 };
 

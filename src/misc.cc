@@ -1,10 +1,13 @@
 #include <algorithm>
+#include <iomanip>
+#include <sstream>
 #include "misc.h"
 #include "data.h"
 #include "log.h"
 
 using std::min;
 using std::max;
+using std::stringstream;
 
 double getDistance(int x1, int y1, int x2, int y2) {
   double deltaX = abs(x1 - x2);
@@ -367,4 +370,13 @@ vector<int> getLinePositions(note* now, note* next) {
   }
 
   return linePos;
+}
+
+string colorToHex(colorRGB col) {
+  stringstream result;
+  result << "#"; 
+  result << std::hex << std::setw(6) << std::setfill('0') << ((int)col.r << 16 | (int)col.g << 8 |(int) col.b << 0);
+  string s = result.str(); 
+  std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+  return s;
 }

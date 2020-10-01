@@ -29,6 +29,8 @@ class colorRGB {
     colorRGB(double red, double green, double blue);
 
     colorHSV getHSV();
+    
+    bool operator == (const colorRGB& col);
 
     void setRGB(double red, double green, double blue);
     void setRGB(colorHSV hsv);

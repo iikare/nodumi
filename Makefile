@@ -1,6 +1,6 @@
 CC = g++
 
-CFLAGS = --std=c++17 -Wall -Wextra -g -fuse-ld=gold -D__LINUX_ALSA__ -D__UNIX_JACK__ -D__RTMIDI_DEBUG__
+CFLAGS = --std=c++17 -Wall -Wextra -g -fuse-ld=gold -D__LINUX_ALSA__ -D__UNIX_JACK__
 CFLAGSOSD = --std=c99 -w -fpermissive -g -fuse-ld=gold $(shell pkg-config --cflags gtk+-3.0)
 CFLAGSRTM = $(CFLAGS) -w
 
