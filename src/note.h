@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+
+using std::vector;
+
 class note {
   public:
     note() {
@@ -17,7 +21,8 @@ class note {
 
     note* getNextNote();
     note* getNextChordRoot();
-    
+    int getChordSize();
+
     bool isChordRoot();
     
     int track;
@@ -28,8 +33,8 @@ class note {
     bool isOn;
 
     friend class trackController;
+    friend vector<int> getLinePositions(note* now, note* next);
 
-    int getChordSize();
   private:
   
     note* prev;

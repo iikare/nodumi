@@ -41,6 +41,7 @@ class midi {
     int getTrackCount() { return trackCount; }
     int getNoteCount() { return noteCount; }
     int getLastTick() { return lastTick; }
+    int getTempo(int idx);
     
     int trackCount;
     int noteCount;

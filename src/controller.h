@@ -38,6 +38,7 @@ class controller {
     int getTrackCount();
     int getNoteCount();
     int getLastTick();
+    int getTempo(int idx);
 
     int getWidth() { return GetScreenWidth(); }
     int getHeight() { return GetScreenHeight(); }

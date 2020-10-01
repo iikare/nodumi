@@ -30,7 +30,12 @@ note* note::getNextChordRoot() {
   // case 2: note is chord member
   else {
     while (!isChordRoot()) {
-      p = p->prev;
+      if (p->prev != nullptr) {
+        p = p->prev;
+      }
+      else {
+        return this;
+      }
     }
     return p->next;
   }

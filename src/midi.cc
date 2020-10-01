@@ -3,6 +3,16 @@
 
 using std::max;
 
+int midi::getTempo(int idx) {
+  int tempo = 120;
+  for (unsigned int i = 0; i < tempoMap.size(); i++) {
+    if (notes[idx].x > tempoMap[i].first && notes[idx].x < tempoMap[i + 1].first) {
+      return tempoMap[i].second;
+    }
+  }
+  return tempo;
+}
+
 void midi::load(string file) {
   MidiFile midifile;
   if (!midifile.read(file.c_str())) {
@@ -66,7 +76,7 @@ void midi::load(string file) {
     }
   }
 
-  for (unsigned int i =0; i < tracks.size(); i++) {
+  for (unsigned int i = 0; i < tracks.size(); i++) {
     logII(LL_WARN, tracks[i].getNoteCount());
     tracks[i].getNote(i);
   }

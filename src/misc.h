@@ -1,10 +1,13 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <raylib.h>
 #include "color.h"
+#include "note.h"
 #include "box.h"
 
+using std::vector;
 using std::string;
 using std::to_string;
 
@@ -23,3 +26,4 @@ string getNoteInfo(int noteTrack, int notePos);
 string getSongPercent (double pos, double total);
 string getSongTime(double pos,  double total);
 string toMinutes(double seconds);
+

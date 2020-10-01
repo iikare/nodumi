@@ -201,6 +201,7 @@ int main (int argc, char* argv[]) {
         }
       }
       for (int i = 0; i < ctr.getNoteCount(); i++) {
+        
         int colorID = 0;
         bool noteOn = false;
         
@@ -327,17 +328,42 @@ int main (int argc, char* argv[]) {
             }
             break;
           case DISPLAY_LINE:
-            {
+            if (zoomLevel < 0.001 && i % int(1.0/(100 * zoomLevel))) {
+              continue;
+            }
+            if (convertSSX(ctr.notes->at(i).getNextChordRoot()->x) > 0 && cX < ctr.getWidth()) {
               if (ctr.notes->at(i).isChordRoot()) {
+                vector<int> linePositions = getLinePositions(&ctr.notes->at(i), ctr.notes->at(i).getNextChordRoot());
                 if (IsKeyPressed(KEY_K)) { 
-                logII(LL_CRIT, to_string(ctr.notes->at(i).getChordSize()) + " " +
-                               to_string(ctr.notes->at(i).getNextChordRoot()->getChordSize()));
+                  cerr << double(ctr.notes->at(i).x + ctr.notes->at(i).duration - ctr.notes->at(i).getNextChordRoot()->x) << endl;
+                  for (unsigned int i = 0; i < linePositions.size(); i++) {
+                    //logII(LL_CRIT, linePositions[i]);
+                  }
                 }
-                drawLineEx(cX, cY, convertSSX(ctr.notes->at(i).getNextChordRoot()->x), 
-                           convertSSY(ctr.notes->at(i).getNextChordRoot()->y), 2, colorSetOff->at(colorID));
+                for (unsigned int i = 0; i < linePositions.size(); i+=4) {
+                  if (fabs((convertSSX(linePositions[i]) - GetMouseX()) *
+                         ((convertSSY(linePositions[i + 3]) - convertSSY(linePositions[i + 1])) / 
+                          (convertSSX(linePositions[i + 2]) - convertSSX(linePositions[i]))- GetMouseY())) < 5) {  
+                    noteOn = true;
+                    //updateClickIndex();
+                  }
+
+                  if (convertSSX(linePositions[i]) < nowLineX && convertSSX(linePositions[i + 2]) > nowLineX) {
+                    drawLineEx(convertSSX(linePositions[i]), convertSSY(linePositions[i + 1]),
+                               convertSSX(linePositions[i + 2]), convertSSY(linePositions[i + 3]), 
+                               2, colorSetOn->at(colorID));
+                  }
+                  else {
+                    drawLineEx(convertSSX(linePositions[i]), convertSSY(linePositions[i + 1]),
+                               convertSSX(linePositions[i + 2]), convertSSY(linePositions[i + 3]), 
+                               2, colorSetOff->at(colorID));
+                  }
+                }
+
               }
             }
             break;
+
           case DISPLAY_BALLLINE:
             break;
         }

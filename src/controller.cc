@@ -25,17 +25,28 @@ int controller::getTrackCount() {
   }
   return file.getTrackCount();
 }
+
 int controller::getNoteCount() {
   if (livePlayState) {
     return liveInput.getNoteCount();
   }
   return file.getNoteCount();
 }
+
 int controller::getLastTick() {
   if (livePlayState) {
     return 0;
   }
   return file.getLastTick();
+}
+
+int controller::getTempo(int idx) {
+  if (livePlayState) {
+    return 120;
+  }
+  else {
+    return file.getTempo(idx);
+  }
 }
 
 void controller::load(string filename) {
