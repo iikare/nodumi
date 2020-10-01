@@ -61,13 +61,16 @@ int main (int argc, char* argv[]) {
 
   // view settings
   bool nowLine = true;
+  bool showFPS = false;
   bool colorMove = false;
   bool colorSquare = false;
   bool colorCircle = false;
   bool sheetMusicDisplay = false;
+  
   int songTimeType = 0;
-  bool showFPS = false;
+  int tonicOffset = 0;
   int displayMode = DISPLAY_BAR;
+  
   float nowLineX = ctr.getWidth()/2.0f;
 
   string FPSText = "";
@@ -234,7 +237,7 @@ int main (int argc, char* argv[]) {
             colorID = ctr.notes->at(i).velocity;
             break;
           case COLOR_TONIC:
-            colorID = (ctr.notes->at(i).y - MIN_NOTE_IDX) % 12;
+            colorID = (ctr.notes->at(i).y - MIN_NOTE_IDX + tonicOffset) % 12 ;
             break;
         }
         
@@ -896,7 +899,7 @@ int main (int argc, char* argv[]) {
           }
           switch(rightMenu.getActiveElement()) {
             case 0:
-              if (rightMenu.getSize() == 2) {
+              if (rightMenu.getSize() == 1) {
                 if (rightMenu.childOpen() && colorSelect.render == false) {
                   rightMenu.hideChildMenu();
                 }
@@ -916,6 +919,7 @@ int main (int argc, char* argv[]) {
               }
               break;
             case 2:
+              tonicOffset = (ctr.notes->at(clickNote).y - MIN_NOTE_IDX + tonicOffset) % 12;
               break;
           }
           break;
@@ -983,7 +987,7 @@ int main (int argc, char* argv[]) {
           }
           rightMenu.setContent("", 0);
           auto f = rightMenuContents.begin() + 1;
-          auto e = rightMenuContents.end();
+          auto e = rightMenuContents.end() - 1;
           vector<string> newRight(f, e);
           rightMenu.update(newRight);
         }
