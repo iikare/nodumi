@@ -341,14 +341,15 @@ int main (int argc, char* argv[]) {
                   }
                 }
                 for (unsigned int i = 0; i < linePositions.size(); i+=4) {
-                  if (fabs((convertSSX(linePositions[i]) - GetMouseX()) *
-                         ((convertSSY(linePositions[i + 3]) - convertSSY(linePositions[i + 1])) / 
-                          (convertSSX(linePositions[i + 2]) - convertSSX(linePositions[i]))- GetMouseY())) < 5) {  
-                    //noteOn = true;
+                  if (convertSSX(linePositions[i]) <= nowLineX && convertSSX(linePositions[i + 2]) > nowLineX) {
+                    noteOn = true;
+                  }
+                  if (pointInBox(GetMousePosition(), pointToRect({(int)convertSSX(linePositions[i]),
+                                 (int)convertSSY(linePositions[i+1])}, {(int)convertSSX(linePositions[i + 2]),
+                                 (int)convertSSY(linePositions[i + 3])}))) {
                     updateClickIndex();
                   }
-
-                  if (convertSSX(linePositions[i]) < nowLineX && convertSSX(linePositions[i + 2]) > nowLineX) {
+                  if (noteOn) {
                     drawLineEx(convertSSX(linePositions[i]), convertSSY(linePositions[i + 1]),
                                convertSSX(linePositions[i + 2]), convertSSY(linePositions[i + 3]), 
                                2, colorSetOn->at(colorID));

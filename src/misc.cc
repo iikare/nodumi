@@ -380,3 +380,15 @@ string colorToHex(colorRGB col) {
   std::transform(s.begin(), s.end(), s.begin(), ::toupper);
   return s;
 }
+
+rect pointToRect(point a, point b) {
+  rect result = {0, 0, 0, 0};
+  
+  result.x = a.x - 2;
+  result.y = min(a.y, b.y) - 4;
+  result.width = b.x - a.x + 4;
+  result.height = abs(b.y - a.y) + 8;
+
+  return result;
+}
+
