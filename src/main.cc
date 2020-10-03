@@ -102,6 +102,7 @@ int main (int argc, char* argv[]) {
   Texture2D treble = LoadTexture("bin/textures/treble.png");
   Texture2D brace = LoadTexture("bin/textures/brace.png");
   Texture2D bass = LoadTexture("bin/textures/bass.png");
+  Texture2D quarter = LoadTexture("bin/textures/quarter.png");
   //SetTextureFilter(bass, FILTER_ANISOTROPIC_16X);
 
   // menu objects
@@ -189,9 +190,6 @@ int main (int argc, char* argv[]) {
       ctr.liveInput.update();
       run = false;
     }
-
-    
-    cerr << ctr.file.sheetData.getKeySignature(timeOffset).getKey() << endl;
 
     // fix FPS count bug
     GetFPS();
@@ -406,8 +404,10 @@ int main (int argc, char* argv[]) {
 
       // sheet music layout
       if (sheetMusicDisplay) {
+        // bg
         drawRectangle(0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight, ctr.bgSheet);  
-        
+
+        // stave lines
         for (int i = 0; i < 2; i++) {
           for (int j = 0; j < 5; j++) {
             drawLineEx(30, ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth,
@@ -415,33 +415,38 @@ int main (int argc, char* argv[]) {
           }
         }
         
+        // end lines
         drawLineEx(30, ctr.menuHeight + ctr.barMargin, 30,
                    ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
         drawLineEx(ctr.getWidth() - 30, ctr.menuHeight + ctr.barMargin, ctr.getWidth() - 30,
                    ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
 
+        // static sprites
         DrawTextureEx(brace, {18.0f, float(ctr.menuHeight + ctr.barMargin)}, 0, 1.0f, {0, 0, 0, 255});
-       // DrawTextureEx(brace, {17.0f, 49.0f}, 0, 0.065f, {0, 0, 0, 255});
-        DrawTextureEx(treble, {40.0f, ctr.menuHeight + 15.0f}, 0, 1.0f, {0, 0, 0, 255});
+        DrawTextureEx(treble, {40.0f, ctr.menuHeight + 35.0f}, 0, 1.0f, {0, 0, 0, 255});
         DrawTextureEx(bass, {40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 1)}, 0, 1.0f, {0, 0, 0, 255});
+        
+        // tempo
+        drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))).c_str(), 80, ctr.barMargin - 3, ctr.bgDark);
+        DrawTextureEx(quarter, {70, ctr.barMargin - 6.0f}, 0, 0.5f, {0, 0, 0, 255});
       }
       
 
       // option actions
       if (songTimeType == 1) {
         if (sheetMusicDisplay) {
-          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTick()).c_str(), 6, 26 + ctr.barHeight, ctr.bgLight);
+          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str(), 6, 26 + ctr.barHeight, ctr.bgLight);
         }
         else {
-          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgLight);
+          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str(), 6, 26, ctr.bgLight);
         }
       }
       else if (songTimeType == 2) {
         if (sheetMusicDisplay) {
-          drawTextEx(font, getSongTime(timeOffset, ctr.getLastTick()).c_str(), 6, 26 + ctr.barHeight, ctr.bgLight);
+          drawTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str(), 6, 26 + ctr.barHeight, ctr.bgLight);
         }
         else {
-          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgLight);
+          drawTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str(), 6, 26, ctr.bgLight);
         }
       }
 
@@ -460,11 +465,11 @@ int main (int argc, char* argv[]) {
 
     // key actions
     if (run) {
-      if (timeOffset + GetFrameTime() * 500< ctr.getLastTick()) {
+      if (timeOffset + GetFrameTime() * 500< ctr.getLastTime()) {
         timeOffset += GetFrameTime() * 500;
       }
       else {
-        timeOffset = ctr.getLastTick();
+        timeOffset = ctr.getLastTime();
         run = false;
       }
     }
@@ -541,19 +546,19 @@ int main (int argc, char* argv[]) {
     }
     if (IsKeyDown(KEY_RIGHT)) {
       if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
-        if (timeOffset + shiftC * 60 < ctr.getLastTick()) {
+        if (timeOffset + shiftC * 60 < ctr.getLastTime()) {
           timeOffset += shiftC * 60;
         }
-        else if (timeOffset < ctr.getLastTick()) {
-          timeOffset = ctr.getLastTick();
+        else if (timeOffset < ctr.getLastTime()) {
+          timeOffset = ctr.getLastTime();
         }
       }
       else {
-        if (timeOffset + shiftC * 6 < ctr.getLastTick()) {
+        if (timeOffset + shiftC * 6 < ctr.getLastTime()) {
           timeOffset += shiftC * 6;
         }
         else {
-          timeOffset = ctr.getLastTick();
+          timeOffset = ctr.getLastTime();
         }
       }
     }
@@ -561,7 +566,7 @@ int main (int argc, char* argv[]) {
       timeOffset = 0;
     }
     if (IsKeyDown(KEY_END)) {
-      timeOffset = ctr.getLastTick();
+      timeOffset = ctr.getLastTime();
     }
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       switch(fileMenu.getActiveElement()) {

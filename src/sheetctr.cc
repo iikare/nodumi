@@ -90,3 +90,8 @@ keySig sheetController::getKeySignature(int offset) {
   }
   return keySignature;
 }
+
+void sheetController::reset() {
+  timeSignatureMap.clear();
+  keySignatureMap.clear();
+}

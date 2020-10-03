@@ -17,6 +17,8 @@ class sheetController {
       keySignatureMap = {};
     }
 
+    void reset();
+
     void addTimeSignature(int position, timeSig timeSignature);
     void addKeySignature(int position, keySig keySignature);
 
@@ -24,6 +26,8 @@ class sheetController {
     keySig getKeySignature(int offset);
     
     keySig eventToKeySignature(int keySigType, bool isMinor);
+
+    friend class midi;
 
   private:
     vector<pair<int, timeSig>> timeSignatureMap;

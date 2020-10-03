@@ -37,7 +37,7 @@ class controller {
 
     int getTrackCount();
     int getNoteCount();
-    int getLastTick();
+    int getLastTime();
     int getTempo(int idx);
 
     int getWidth() { return GetScreenWidth(); }
@@ -67,12 +67,12 @@ class controller {
     colorRGB bgSheet = colorRGB(255, 252, 242);
 
     const int menuHeight = 20;
-    const int sheetHeight = 160;
+    const int sheetHeight = 200;
     int barHeight = 0;
 
-    int barWidth = 10;
-    int barSpacing = 80;
-    int barMargin = 29;
+    const int barWidth = 10;
+    const int barSpacing = 80;
+    const int barMargin = 49;
 
     int livePlayOffset;
     

@@ -25,10 +25,17 @@ class midi {
       tracks = {};
       trackHeightMap = {};
       lineVerts = {};
+      measureMap = {};
+      sheetData.reset();
+
       tracks.resize(1);
+      
       trackCount = 0;
       noteCount = 0;
+      lastTime = 0;
       lastTick = 0;
+
+      tpq = 0;
     }
 
     void load(string file);
@@ -45,10 +52,11 @@ class midi {
     vector<trackController> tracks;
     vector<pair<int, double>> trackHeightMap;
     vector<int> lineVerts;
+    vector<int> measureMap;
 
     int getTrackCount() { return trackCount; }
     int getNoteCount() { return noteCount; }
-    int getLastTick() { return lastTick; }
+    int getLastTime() { return lastTime; }
     int getTempo(int offset);
     
     void buildLineMap();
@@ -57,7 +65,10 @@ class midi {
     int trackCount;
     int noteCount;
 
-    double lastTick;
+    double lastTime;
+    int lastTick;
+
+    int tpq;
  
 
 };

@@ -8,6 +8,8 @@ class note {
   public:
     note() {
       number = -1;
+      tick = 0;
+      tickDuration = 0;
       track = 0;
       duration = 0;
       x = 0;
@@ -27,6 +29,8 @@ class note {
     bool isChordRoot();
     
     int number;
+    int tick;
+    int tickDuration;
     int track;
     double duration;
     double x;

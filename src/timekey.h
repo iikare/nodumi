@@ -5,11 +5,13 @@ class timeSig {
     timeSig() {
       top = 0;
       bottom = 1;
+      qpm = 4;
     }
 
     timeSig(int t, int b) {
       top = t;
       bottom = b;
+      qpm = 4.0 * static_cast<double>(t)/b;
     }
 
     timeSig(const timeSig& other) {
@@ -21,8 +23,14 @@ class timeSig {
       return top == other.top && bottom == other.bottom;
     }
     
+    void operator= (const timeSig& other) {
+      top = other.top;
+      bottom = other.bottom;
+    }
+    
     int top;
     int bottom;
+    double qpm;
 };
 
 enum keySignature {

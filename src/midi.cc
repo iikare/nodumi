@@ -8,6 +8,12 @@ using std::max;
 
 int midi::getTempo(int offset) {
   int tempo = 120;
+  if (tempoMap.size() != 0 && offset == 0) {
+    return tempoMap[0].second;
+  }
+  if (offset > tempoMap[tempoMap.size() - 1].first) {
+    return tempoMap[tempoMap.size() - 1].second;
+  }
   for (unsigned int i = 0; i < tempoMap.size(); i++) {
     if (offset > tempoMap[i].first && offset < tempoMap[i + 1].first) {
       return tempoMap[i].second;
@@ -16,19 +22,37 @@ int midi::getTempo(int offset) {
   return tempo;
 }
 
+void midi::buildLineMap() {
+  vector<int> tmpVerts;
+  for (unsigned int i = 0; i < notes.size(); i++) {
+    if (notes[i].isChordRoot()) {
+      tmpVerts = getLinePositions(&notes[i], notes[i].getNextChordRoot());
+      lineVerts.insert(lineVerts.end(), tmpVerts.begin(), tmpVerts.end());
+    }
+  }
+  
+  //logII(LL_CRIT, getNoteCount());
+  //logII(LL_CRIT, lineVerts.size());
+}
+
 void midi::load(string file) {
   MidiFile midifile;
   if (!midifile.read(file.c_str())) {
     logII(LL_WARN, "unable to open MIDI");
     return;
   }
+
   notes.clear();
   tempoMap.clear();
   tracks.clear();
   trackHeightMap.clear();
   lineVerts.clear();
+  measureMap.clear();
+  sheetData.reset();
+
   noteCount = 0;
   trackCount = 0;
+  tpq = 0;
 
   midifile.linkNotePairs();
  
@@ -36,6 +60,10 @@ void midi::load(string file) {
   
   trackCount = midifile.getTrackCount();
   tracks.resize(trackCount);
+
+  tpq = midifile.getTicksPerQuarterNote();
+  lastTime = midifile.getFileDurationInSeconds() * 500;
+  lastTick = midifile.getFileDurationInTicks();
 
   vector<pair<double, int>> trackInfo;
 
@@ -67,13 +95,15 @@ void midi::load(string file) {
     for (int j = 0; j < midifile.getEventCount(i); j++) {
       if (midifile[i][j].isNoteOn()) {
         notes[idx].number = idx;
+        notes[idx].tick = midifile[i][j].tick;
+        notes[idx].tickDuration = midifile[i][j].getTickDuration();
         notes[idx].track = i;
         notes[idx].duration = midifile[i][j].getDurationInSeconds() * 500;
         notes[idx].x  = midifile[i][j].seconds * 500;
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
 
-        lastTick = max(lastTick, notes[idx].x + notes[idx].duration);
+        //cerr << midifile.getTimeInSeconds(notes[idx].tick) << " " << midifile[i][j].seconds << endl;
 
         tracks.at(notes[idx].track).insert(idx, &notes.at(idx));
 
@@ -82,35 +112,29 @@ void midi::load(string file) {
     }
   }
 
-  idx = 0;
- 
   midifile.joinTracks();
   midifile.sortTracks();
   
-  int lastIdx = 0;
-
   for (int i = 0; i < midifile.getEventCount(0); i++) {
 
     if (midifile[0][i].isTempo()) {
-      tempoMap.push_back(make_pair(notes[lastIdx].x, midifile[0][i].getTempoBPM()));
+      tempoMap.push_back(make_pair(midifile[0][i].seconds * 500, midifile[0][i].getTempoBPM()));
     }
-      if (midifile[0][i].isTimeSignature()) {
-        //log3(LL_INFO, "time sig at event", j);
-        //cerr << (int)midifile[0][i][3] << " " << pow(2, (int) midifile[0][i][4])<< endl;
-        sheetData.addTimeSignature(notes[idx].x, {(int)midifile[0][i][3], (int)midifile[0][i][4]});
-      }
-      if (midifile[0][i].isKeySignature()) {
-        //log3(LL_INFO, "key sig at event", i);
-        //cerr << (int)midifile[0][i][1] << " " << (int)midifile[0][i][3] << " " << (int)midifile[0][i][4] <<  endl;
-        sheetData.addKeySignature(notes[idx].x, sheetData.eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4]));
-      }
-
-    if (midifile[0][i].isNoteOn()) {
-      lastIdx = idx;
-      idx++;
+    if (midifile[0][i].isTimeSignature()) {
+      //log3(LL_INFO, "time sig at event", j);
+      //cerr << (int)midifile[0][i][3] << " " << pow(2, (int) midifile[0][i][4])<< endl;
+      sheetData.addTimeSignature(midifile[0][i].seconds * 500, {(int)midifile[0][i][3], (int)midifile[0][i][4]});
     }
+    if (midifile[0][i].isKeySignature()) {
+      //log3(LL_INFO, "key sig at event", i);
+      //cerr << (int)midifile[0][i][1] << " " << (int)midifile[0][i][3] << " " << (int)midifile[0][i][4] <<  endl;
+      //cerr << midifile[0][i].seconds * 500 << endl;;
+      sheetData.addKeySignature(midifile[0][i].seconds * 500, 
+                                sheetData.eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4]));
+      }
   }
 
+  // build track height map
   for (unsigned int i = 0; i < tracks.size(); i++) {
     trackHeightMap.push_back(make_pair(i, tracks[i].getAverageY()));
   }
@@ -118,26 +142,24 @@ void midi::load(string file) {
   sort(trackHeightMap.begin(), trackHeightMap.end(), [](const pair<int,int> &left, const pair<int,int> &right) {
     return left.second < right.second;
   });
+ 
+  // build measure map
+  int cTick = 0;
+  timeSig cTimeSig;
+  while (cTick < lastTick) {
+    cTimeSig = sheetData.getTimeSignature(midifile.getTimeInSeconds(cTick) * 500);
+    cTick += cTimeSig.qpm * tpq;
+    measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
+  }
+  measureMap.pop_back();
+  measureMap.push_back(lastTime);
   
-  lastTick = notes[getNoteCount() - 1].x + notes[getNoteCount() - 1].duration;
-    
+  // build line vertex map
   buildLineMap();
+
+  //lastTime = notes[getNoteCount() - 1].x + notes[getNoteCount() - 1].duration;
+  //logII(LL_CRIT, (midifile.getFileDurationInTicks()) / (tpq * 4) + 1);
+  //logII(LL_CRIT, measureMap.size());
+    
 }
 
-void midi::buildLineMap() {
-  vector<int> tmpVerts;
-  for (unsigned int i = 0; i < notes.size(); i++) {
-    if (notes[i].isChordRoot()) {
-      tmpVerts = getLinePositions(&notes[i], notes[i].getNextChordRoot());
-      lineVerts.insert(lineVerts.end(), tmpVerts.begin(), tmpVerts.end());
-    }
-  }
-  for (unsigned int i = 0; i < lineVerts.size(); i += 5) {
-    if (lineVerts[i] > getNoteCount()) {
-      logII(LL_CRIT, "lineVerts v. noteCount: " + to_string(lineVerts[i]) + " " + to_string(getNoteCount()));
-    }
-  }
-  
-  //logII(LL_CRIT, getNoteCount());
-  //logII(LL_CRIT, lineVerts.size());
-}

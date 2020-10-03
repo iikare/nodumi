@@ -33,11 +33,11 @@ int controller::getNoteCount() {
   return file.getNoteCount();
 }
 
-int controller::getLastTick() {
+int controller::getLastTime() {
   if (livePlayState) {
     return 0;
   }
-  return file.getLastTick();
+  return file.getLastTime();
 }
 
 int controller::getTempo(int idx) {
