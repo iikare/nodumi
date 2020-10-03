@@ -190,6 +190,9 @@ int main (int argc, char* argv[]) {
       run = false;
     }
 
+    
+    cerr << ctr.file.sheetData.getKeySignature(timeOffset).getKey() << endl;
+
     // fix FPS count bug
     GetFPS();
 
@@ -427,7 +430,7 @@ int main (int argc, char* argv[]) {
       // option actions
       if (songTimeType == 1) {
         if (sheetMusicDisplay) {
-          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgDark);
+          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTick()).c_str(), 6, 26 + ctr.barHeight, ctr.bgLight);
         }
         else {
           drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgLight);
@@ -435,7 +438,7 @@ int main (int argc, char* argv[]) {
       }
       else if (songTimeType == 2) {
         if (sheetMusicDisplay) {
-          drawTextEx(font, getSongTime(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgDark);
+          drawTextEx(font, getSongTime(timeOffset, ctr.getLastTick()).c_str(), 6, 26 + ctr.barHeight, ctr.bgLight);
         }
         else {
           drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgLight);

@@ -6,6 +6,8 @@
 #include "../dpd/midifile/MidiFile.h"
 #include "note.h"
 #include "track.h"
+#include "timekey.h"
+#include "sheetctr.h"
 #include "log.h"
 
 using namespace smf;
@@ -34,6 +36,7 @@ class midi {
     vector<int>* getLineVerts() { return &lineVerts; }
 
     vector<note> notes;
+    sheetController sheetData;
 
     friend class midiInput;
     friend class controller;
@@ -46,7 +49,7 @@ class midi {
     int getTrackCount() { return trackCount; }
     int getNoteCount() { return noteCount; }
     int getLastTick() { return lastTick; }
-    int getTempo(int idx);
+    int getTempo(int offset);
     
     void buildLineMap();
 

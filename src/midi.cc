@@ -1,13 +1,15 @@
 #include <algorithm>
 #include "midi.h"
 #include "misc.h"
+#include "data.h"
+#include "sheetctr.h"
 
 using std::max;
 
-int midi::getTempo(int idx) {
+int midi::getTempo(int offset) {
   int tempo = 120;
   for (unsigned int i = 0; i < tempoMap.size(); i++) {
-    if (notes[idx].x > tempoMap[i].first && notes[idx].x < tempoMap[i + 1].first) {
+    if (offset > tempoMap[i].first && offset < tempoMap[i + 1].first) {
       return tempoMap[i].second;
     }
   }
@@ -92,6 +94,17 @@ void midi::load(string file) {
     if (midifile[0][i].isTempo()) {
       tempoMap.push_back(make_pair(notes[lastIdx].x, midifile[0][i].getTempoBPM()));
     }
+      if (midifile[0][i].isTimeSignature()) {
+        //log3(LL_INFO, "time sig at event", j);
+        //cerr << (int)midifile[0][i][3] << " " << pow(2, (int) midifile[0][i][4])<< endl;
+        sheetData.addTimeSignature(notes[idx].x, {(int)midifile[0][i][3], (int)midifile[0][i][4]});
+      }
+      if (midifile[0][i].isKeySignature()) {
+        //log3(LL_INFO, "key sig at event", i);
+        //cerr << (int)midifile[0][i][1] << " " << (int)midifile[0][i][3] << " " << (int)midifile[0][i][4] <<  endl;
+        sheetData.addKeySignature(notes[idx].x, sheetData.eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4]));
+      }
+
     if (midifile[0][i].isNoteOn()) {
       lastIdx = idx;
       idx++;
@@ -124,6 +137,7 @@ void midi::buildLineMap() {
       logII(LL_CRIT, "lineVerts v. noteCount: " + to_string(lineVerts[i]) + " " + to_string(getNoteCount()));
     }
   }
-  logII(LL_CRIT, getNoteCount());
-  logII(LL_CRIT, lineVerts.size());
+  
+  //logII(LL_CRIT, getNoteCount());
+  //logII(LL_CRIT, lineVerts.size());
 }
