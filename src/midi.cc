@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "midi.h"
+#include "misc.h"
 
 using std::max;
 
@@ -23,6 +24,7 @@ void midi::load(string file) {
   tempoMap.clear();
   tracks.clear();
   trackHeightMap.clear();
+  lineVerts.clear();
   noteCount = 0;
   trackCount = 0;
 
@@ -62,6 +64,7 @@ void midi::load(string file) {
     int i = trackInfo[track].second;
     for (int j = 0; j < midifile.getEventCount(i); j++) {
       if (midifile[i][j].isNoteOn()) {
+        notes[idx].number = idx;
         notes[idx].track = i;
         notes[idx].duration = midifile[i][j].getDurationInSeconds() * 500;
         notes[idx].x  = midifile[i][j].seconds * 500;
@@ -104,4 +107,23 @@ void midi::load(string file) {
   });
   
   lastTick = notes[getNoteCount() - 1].x + notes[getNoteCount() - 1].duration;
+    
+  buildLineMap();
+}
+
+void midi::buildLineMap() {
+  vector<int> tmpVerts;
+  for (unsigned int i = 0; i < notes.size(); i++) {
+    if (notes[i].isChordRoot()) {
+      tmpVerts = getLinePositions(&notes[i], notes[i].getNextChordRoot());
+      lineVerts.insert(lineVerts.end(), tmpVerts.begin(), tmpVerts.end());
+    }
+  }
+  for (unsigned int i = 0; i < lineVerts.size(); i += 5) {
+    if (lineVerts[i] > getNoteCount()) {
+      logII(LL_CRIT, "lineVerts v. noteCount: " + to_string(lineVerts[i]) + " " + to_string(getNoteCount()));
+    }
+  }
+  logII(LL_CRIT, getNoteCount());
+  logII(LL_CRIT, lineVerts.size());
 }

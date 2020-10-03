@@ -22,6 +22,7 @@ class midi {
       tempoMap = {};
       tracks = {};
       trackHeightMap = {};
+      lineVerts = {};
       tracks.resize(1);
       trackCount = 0;
       noteCount = 0;
@@ -29,7 +30,8 @@ class midi {
     }
 
     void load(string file);
-
+    
+    vector<int>* getLineVerts() { return &lineVerts; }
 
     vector<note> notes;
 
@@ -39,12 +41,16 @@ class midi {
     vector<pair<double, int>> tempoMap;
     vector<trackController> tracks;
     vector<pair<int, double>> trackHeightMap;
+    vector<int> lineVerts;
 
     int getTrackCount() { return trackCount; }
     int getNoteCount() { return noteCount; }
     int getLastTick() { return lastTick; }
     int getTempo(int idx);
     
+    void buildLineMap();
+
+
     int trackCount;
     int noteCount;
 

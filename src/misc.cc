@@ -315,7 +315,14 @@ vector<int> getLinePositions(note* now, note* next) {
   note* pNext = next;
   bool pushLine = false;
 
+  if (!pNext) {
+    logII(LL_CRIT, "pNext is nullptr");
+    return {};
+  }
+
   auto pushVerts = [&] {
+      linePos.push_back(now->number);
+      
       linePos.push_back(pNow->x);
       linePos.push_back(pNow->y);
       
@@ -330,9 +337,9 @@ vector<int> getLinePositions(note* now, note* next) {
   };
 
   // only link spatially near notes
-    if (now->x + 2 * now->duration < next->x) {
-      pushLine = true;
-    }
+  if (now->x + 2 * now->duration < next->x) {
+    pushLine = true;
+  }
 
 
   if (now->getChordSize() == next->getChordSize()) {

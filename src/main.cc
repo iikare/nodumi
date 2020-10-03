@@ -98,6 +98,12 @@ int main (int argc, char* argv[]) {
   // menu controller
   menuController menuctr = menuController();
 
+  // sheet music data
+  Texture2D treble = LoadTexture("bin/textures/treble.png");
+  Texture2D brace = LoadTexture("bin/textures/brace.png");
+  Texture2D bass = LoadTexture("bin/textures/bass.png");
+  //SetTextureFilter(bass, FILTER_ANISOTROPIC_16X);
+
   // menu objects
   vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Exit"};
   menu fileMenu(ctr.getSize(), fileMenuContents, nullptr, TYPE_MAIN, menuctr.getOffset(), 0);
@@ -203,6 +209,8 @@ int main (int argc, char* argv[]) {
           drawLineEx(nowLineX, ctr.barHeight, nowLineX, ctr.getHeight(), 0.5, ctr.bgNow);
         }
       }
+
+      // note handling
       for (int i = 0; i < ctr.getNoteCount(); i++) {
         
         int colorID = 0;
@@ -222,7 +230,7 @@ int main (int argc, char* argv[]) {
           return (ctr.getHeight() - (ctr.getHeight() - ctr.barHeight) *
                   static_cast<float>(value - MIN_NOTE_IDX + 2) / (NOTE_RANGE + 3));
         };
-
+        
         float cX = convertSSX(ctr.notes->at(i).x);
         float cY = convertSSY(ctr.notes->at(i).y);
         float cW = ctr.notes->at(i).duration * zoomLevel < 1 ? 1 : ctr.notes->at(i).duration * zoomLevel;
@@ -331,39 +339,56 @@ int main (int argc, char* argv[]) {
             }
             break;
           case DISPLAY_LINE:
-            if (zoomLevel < 0.001 && i % int(1.0/(100 * zoomLevel))) {
-              continue;
-            }
-            if (convertSSX(ctr.notes->at(i).getNextChordRoot()->x) > 0 && cX < ctr.getWidth()) {
-              if (ctr.notes->at(i).isChordRoot()) {
-                vector<int> linePositions = getLinePositions(&ctr.notes->at(i), ctr.notes->at(i).getNextChordRoot());
-                if (IsKeyPressed(KEY_K)) { 
-                  cerr << double(ctr.notes->at(i).x + ctr.notes->at(i).duration - ctr.notes->at(i).getNextChordRoot()->x) << endl;
-                  for (unsigned int i = 0; i < linePositions.size(); i++) {
-                    //logII(LL_CRIT, linePositions[i]);
+            {
+              vector<int>* linePositions;
+              if (i == 0 && !ctr.getLiveState()) {
+                linePositions = ctr.file.getLineVerts();
+              }
+              else if (ctr.getLiveState()) {
+                vector<int> linePosRaw = getLinePositions(&ctr.notes->at(i), ctr.notes->at(i).getNextChordRoot());
+                linePositions = &linePosRaw;
+              }
+              else { 
+                break;
+              }
+              if (!ctr.getLiveState() || (convertSSX(ctr.notes->at(i).getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
+                if (ctr.notes->at(i).isChordRoot()) {
+                  //cerr << i << endl;
+                  for (unsigned int j = 0; j < linePositions->size(); j += 5) {
+                    switch (colorMode) {
+                      case COLOR_PART:
+                        colorID = ctr.notes->at(linePositions->at(j)).track;
+                        break;
+                      case COLOR_VELOCITY:
+                        colorID = ctr.notes->at(linePositions->at(j)).velocity;
+                        break;
+                      case COLOR_TONIC:
+                        colorID = (ctr.notes->at(linePositions->at(j)).y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+                        break;
+                    }
+                    if (convertSSX(linePositions->at(j + 1)) <= nowLineX && convertSSX(linePositions->at(j + 3)) > nowLineX) {
+                      noteOn = true;
+                    }
+                    else {
+                      noteOn = false;
+                    }
+                    if (pointInBox(GetMousePosition(), pointToRect({(int)convertSSX(linePositions->at(j + 1)),
+                                   (int)convertSSY(linePositions->at(j + 2))}, {(int)convertSSX(linePositions->at(j + 3)),
+                                   (int)convertSSY(linePositions->at(j + 4))}))) {
+                      updateClickIndex();
+                    }
+                    if (noteOn) {
+                      drawLineEx(convertSSX(linePositions->at(j + 1)), convertSSY(linePositions->at(j + 2)),
+                                 convertSSX(linePositions->at(j + 3)), convertSSY(linePositions->at(j + 4)), 
+                                 2, colorSetOn->at(colorID));
+                    }
+                    else {
+                      drawLineEx(convertSSX(linePositions->at(j + 1)), convertSSY(linePositions->at(j + 2)),
+                                 convertSSX(linePositions->at(j + 3)), convertSSY(linePositions->at(j + 4)), 
+                                 2, colorSetOff->at(colorID));
+                    }
                   }
                 }
-                for (unsigned int i = 0; i < linePositions.size(); i+=4) {
-                  if (convertSSX(linePositions[i]) <= nowLineX && convertSSX(linePositions[i + 2]) > nowLineX) {
-                    noteOn = true;
-                  }
-                  if (pointInBox(GetMousePosition(), pointToRect({(int)convertSSX(linePositions[i]),
-                                 (int)convertSSY(linePositions[i+1])}, {(int)convertSSX(linePositions[i + 2]),
-                                 (int)convertSSY(linePositions[i + 3])}))) {
-                    updateClickIndex();
-                  }
-                  if (noteOn) {
-                    drawLineEx(convertSSX(linePositions[i]), convertSSY(linePositions[i + 1]),
-                               convertSSX(linePositions[i + 2]), convertSSY(linePositions[i + 3]), 
-                               2, colorSetOn->at(colorID));
-                  }
-                  else {
-                    drawLineEx(convertSSX(linePositions[i]), convertSSY(linePositions[i + 1]),
-                               convertSSX(linePositions[i + 2]), convertSSY(linePositions[i + 3]), 
-                               2, colorSetOff->at(colorID));
-                  }
-                }
-
               }
             }
             break;
@@ -376,17 +401,45 @@ int main (int argc, char* argv[]) {
       // menu bar rendering
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
 
+      // sheet music layout
       if (sheetMusicDisplay) {
         drawRectangle(0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight, ctr.bgSheet);  
+        
+        for (int i = 0; i < 2; i++) {
+          for (int j = 0; j < 5; j++) {
+            drawLineEx(30, ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth,
+                       ctr.getWidth() - 30, ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth, 1, ctr.bgDark);
+          }
+        }
+        
+        drawLineEx(30, ctr.menuHeight + ctr.barMargin, 30,
+                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
+        drawLineEx(ctr.getWidth() - 30, ctr.menuHeight + ctr.barMargin, ctr.getWidth() - 30,
+                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
+
+        DrawTextureEx(brace, {18.0f, float(ctr.menuHeight + ctr.barMargin)}, 0, 1.0f, {0, 0, 0, 255});
+       // DrawTextureEx(brace, {17.0f, 49.0f}, 0, 0.065f, {0, 0, 0, 255});
+        DrawTextureEx(treble, {40.0f, ctr.menuHeight + 15.0f}, 0, 1.0f, {0, 0, 0, 255});
+        DrawTextureEx(bass, {40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 1)}, 0, 1.0f, {0, 0, 0, 255});
       }
+      
 
       // option actions
       if (songTimeType == 1) {
+        if (sheetMusicDisplay) {
+          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgDark);
+        }
+        else {
           drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgLight);
+        }
       }
       else if (songTimeType == 2) {
-          drawTextEx(font, 
-         getSongTime(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgLight);
+        if (sheetMusicDisplay) {
+          drawTextEx(font, getSongTime(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgDark);
+        }
+        else {
+          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTick()).c_str(), 6, 26, ctr.bgLight);
+        }
       }
 
       if (showFPS) {

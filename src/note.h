@@ -7,6 +7,7 @@ using std::vector;
 class note {
   public:
     note() {
+      number = -1;
       track = 0;
       duration = 0;
       x = 0;
@@ -25,6 +26,7 @@ class note {
 
     bool isChordRoot();
     
+    int number;
     int track;
     double duration;
     double x;
