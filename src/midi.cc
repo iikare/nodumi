@@ -123,7 +123,7 @@ void midi::load(string file) {
     if (midifile[0][i].isTimeSignature()) {
       //log3(LL_INFO, "time sig at event", j);
       //cerr << (int)midifile[0][i][3] << " " << pow(2, (int) midifile[0][i][4])<< endl;
-      sheetData.addTimeSignature(midifile[0][i].seconds * 500, {(int)midifile[0][i][3], (int)midifile[0][i][4]});
+      sheetData.addTimeSignature(midifile[0][i].seconds * 500, {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4])});
     }
     if (midifile[0][i].isKeySignature()) {
       //log3(LL_INFO, "key sig at event", i);
@@ -145,15 +145,41 @@ void midi::load(string file) {
  
   // build measure map
   int cTick = 0;
-  timeSig cTimeSig;
-  while (cTick < lastTick) {
-    cTimeSig = sheetData.getTimeSignature(midifile.getTimeInSeconds(cTick) * 500);
+  timeSig cTimeSig = sheetData.timeSignatureMap[0].second;
+  idx = 0;
+
+  for (unsigned int i = 0; i < sheetData.timeSignatureMap.size(); i++) {
+    cerr << sheetData.timeSignatureMap[i].second.top << " " << sheetData.timeSignatureMap[i].second.bottom;
+    cerr << ": " << sheetData.timeSignatureMap[i].first << endl;//<< " " << sheetData.timeSignatureMap[i].second.bottom << endl;
+  }
+  
+  while (idx < (int)sheetData.timeSignatureMap.size()) {
+
+  //  cerr << cTimeSig.top << " " << cTimeSig.bottom << endl;
     cTick += cTimeSig.qpm * tpq;
-    measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
+    if (cTick < sheetData.timeSignatureMap[idx].first) {
+      measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
+    }
+    else {
+      measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
+      if (idx + 1 != (int)sheetData.timeSignatureMap.size()) {
+        cTimeSig = sheetData.timeSignatureMap[idx++].second;
+      }
+      else {
+        while (cTick < lastTick) {
+          cTick += cTimeSig.qpm * tpq;
+          measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
+        }
+        break;
+      }
+    }
+    cerr << cTick << endl;
   }
   measureMap.pop_back();
   measureMap.push_back(lastTime);
-  
+ 
+
+
   // build line vertex map
   buildLineMap();
 

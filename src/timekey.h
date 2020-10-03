@@ -3,7 +3,7 @@
 class timeSig {
   public:
     timeSig() {
-      top = 0;
+      top = 1;
       bottom = 1;
       qpm = 4;
     }
@@ -11,12 +11,13 @@ class timeSig {
     timeSig(int t, int b) {
       top = t;
       bottom = b;
-      qpm = 4.0 * static_cast<double>(t)/b;
+      qpm = 4.0 * static_cast<double>(t)/static_cast<double>(b);
     }
 
     timeSig(const timeSig& other) {
       top = other.top;
       bottom = other.bottom;
+      qpm = other.qpm;
     }
 
     bool operator== (const timeSig& other) {
@@ -26,6 +27,7 @@ class timeSig {
     void operator= (const timeSig& other) {
       top = other.top;
       bottom = other.bottom;
+      qpm = other.qpm;
     }
     
     int top;
