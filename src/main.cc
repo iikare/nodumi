@@ -105,6 +105,16 @@ int main (int argc, char* argv[]) {
   Texture2D quarter = LoadTexture("bin/textures/quarter.png");
   //SetTextureFilter(bass, FILTER_ANISOTROPIC_16X);
 
+  // screen space conversion functions
+  const auto convertSSX = [&] (int value) {
+    return nowLineX + (value - timeOffset) * zoomLevel;
+  };
+
+  const auto convertSSY = [&] (int value) {
+    return (ctr.getHeight() - (ctr.getHeight() - ctr.barHeight) *
+            static_cast<float>(value - MIN_NOTE_IDX + 2) / (NOTE_RANGE + 3));
+  };
+
   // menu objects
   vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Exit"};
   menu fileMenu(ctr.getSize(), fileMenuContents, nullptr, TYPE_MAIN, menuctr.getOffset(), 0);
@@ -201,6 +211,18 @@ int main (int argc, char* argv[]) {
     
     BeginDrawing();
       clearBackground(ctr.bgColor);
+
+      for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
+        if (convertSSX(ctr.file.measureMap[i]) > 0) {
+          if (convertSSX(ctr.file.measureMap[i]) > ctr.getWidth()) {
+
+          }
+          drawLineEx(convertSSX(ctr.file.measureMap[i]), ctr.barHeight,
+                     convertSSX(ctr.file.measureMap[i]), ctr.getHeight(), 0.5, ctr.bgMeasure);
+        }
+      }
+
+
       if (nowLine) {
         if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
             !menuctr.mouseOnMenu()) {
@@ -223,14 +245,6 @@ int main (int argc, char* argv[]) {
           clickTmp = i;
         };
 
-        const auto convertSSX = [&] (int value) {
-          return nowLineX + (value - timeOffset) * zoomLevel;
-        };
-
-        const auto convertSSY = [&] (int value) {
-          return (ctr.getHeight() - (ctr.getHeight() - ctr.barHeight) *
-                  static_cast<float>(value - MIN_NOTE_IDX + 2) / (NOTE_RANGE + 3));
-        };
         
         float cX = convertSSX(ctr.notes->at(i).x);
         float cY = convertSSY(ctr.notes->at(i).y);

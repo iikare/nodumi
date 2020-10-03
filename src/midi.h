@@ -44,6 +44,7 @@ class midi {
 
     vector<note> notes;
     sheetController sheetData;
+    vector<int> measureMap;
 
     friend class midiInput;
     friend class controller;
@@ -52,7 +53,6 @@ class midi {
     vector<trackController> tracks;
     vector<pair<int, double>> trackHeightMap;
     vector<int> lineVerts;
-    vector<int> measureMap;
 
     int getTrackCount() { return trackCount; }
     int getNoteCount() { return noteCount; }
