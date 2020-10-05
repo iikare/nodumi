@@ -153,31 +153,28 @@ void midi::load(string file) {
     cerr << ": " << sheetData.timeSignatureMap[i].first << endl;//<< " " << sheetData.timeSignatureMap[i].second.bottom << endl;
   }
   
+  
+  measureMap.push_back(0);
   while (idx < (int)sheetData.timeSignatureMap.size()) {
 
   //  cerr << cTimeSig.top << " " << cTimeSig.bottom << endl;
-    cTick += cTimeSig.qpm * tpq;
-    if (cTick < sheetData.timeSignatureMap[idx].first) {
+    if (idx + 1 != (int)sheetData.timeSignatureMap.size()) {
+      cTick += cTimeSig.qpm * tpq;
+      if (midifile.getTimeInSeconds(cTick) * 500  >= sheetData.timeSignatureMap[idx + 1].first) {
+        cTimeSig = sheetData.timeSignatureMap[++idx].second;
+      }
       measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
     }
     else {
-      measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
-      if (idx + 1 != (int)sheetData.timeSignatureMap.size()) {
-        cTimeSig = sheetData.timeSignatureMap[idx++].second;
+      while (cTick < lastTick) {
+        cTick += cTimeSig.qpm * tpq;
+        
+        measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
       }
-      else {
-        while (cTick < lastTick) {
-          cTick += cTimeSig.qpm * tpq;
-          measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
-        }
-        break;
-      }
+      break;
     }
-    cerr << cTick << endl;
   }
-  measureMap.pop_back();
-  measureMap.push_back(lastTime);
- 
+  measureMap.pop_back(); 
 
 
   // build line vertex map

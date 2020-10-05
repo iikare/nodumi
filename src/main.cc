@@ -211,14 +211,22 @@ int main (int argc, char* argv[]) {
     
     BeginDrawing();
       clearBackground(ctr.bgColor);
+      
+      int lastMeasureNum = 0;
+      int measureSpacing = MeasureTextEx(font, to_string(ctr.file.measureMap.size() - 1).c_str(), font.baseSize, 0.5).x;
 
       for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
-        if (convertSSX(ctr.file.measureMap[i]) > 0) {
+        if (convertSSX(ctr.file.measureMap[i]) + measureSpacing + 4 > 0) {
           if (convertSSX(ctr.file.measureMap[i]) > ctr.getWidth()) {
 
           }
           drawLineEx(convertSSX(ctr.file.measureMap[i]), ctr.barHeight,
                      convertSSX(ctr.file.measureMap[i]), ctr.getHeight(), 0.5, ctr.bgMeasure);
+          
+          if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum]) + measureSpacing + 10 < convertSSX(ctr.file.measureMap[i])) {
+             drawTextEx(font, to_string(i).c_str(), convertSSX(ctr.file.measureMap[i]) + 4, ctr.menuHeight + 4, ctr.bgLight);
+             lastMeasureNum = i;
+          }
         }
       }
 
