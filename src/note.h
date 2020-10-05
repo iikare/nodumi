@@ -8,6 +8,7 @@ class note {
   public:
     note() {
       number = -1;
+      size = 0x00000000;
       tick = 0;
       tickDuration = 0;
       track = 0;
@@ -27,8 +28,11 @@ class note {
     int getChordSize();
 
     bool isChordRoot();
+
+    void findSize(int tpq);
     
     int number;
+    int size; 
     int tick;
     int tickDuration;
     int track;

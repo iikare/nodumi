@@ -103,6 +103,8 @@ void midi::load(string file) {
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
 
+        notes[idx].findSize(tpq);
+
         //cerr << midifile.getTimeInSeconds(notes[idx].tick) << " " << midifile[i][j].seconds << endl;
 
         tracks.at(notes[idx].track).insert(idx, &notes.at(idx));
@@ -160,7 +162,7 @@ void midi::load(string file) {
   //  cerr << cTimeSig.top << " " << cTimeSig.bottom << endl;
     if (idx + 1 != (int)sheetData.timeSignatureMap.size()) {
       cTick += cTimeSig.qpm * tpq;
-      if (midifile.getTimeInSeconds(cTick) * 500  >= sheetData.timeSignatureMap[idx + 1].first) {
+      if (midifile.getTimeInSeconds(cTick) * 500>= sheetData.timeSignatureMap[idx + 1].first) {
         cTimeSig = sheetData.timeSignatureMap[++idx].second;
       }
       measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
@@ -175,7 +177,6 @@ void midi::load(string file) {
     }
   }
   measureMap.pop_back(); 
-
 
   // build line vertex map
   buildLineMap();

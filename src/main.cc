@@ -114,6 +114,9 @@ int main (int argc, char* argv[]) {
     return (ctr.getHeight() - (ctr.getHeight() - ctr.barHeight) *
             static_cast<float>(value - MIN_NOTE_IDX + 2) / (NOTE_RANGE + 3));
   };
+  const auto convertSheetX = [&] (int value) {
+    return (value - timeOffset) * 0.125;
+  };
 
   // menu objects
   vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Exit"};
@@ -224,8 +227,13 @@ int main (int argc, char* argv[]) {
                      convertSSX(ctr.file.measureMap[i]), ctr.getHeight(), 0.5, ctr.bgMeasure);
           
           if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum]) + measureSpacing + 10 < convertSSX(ctr.file.measureMap[i])) {
-             drawTextEx(font, to_string(i).c_str(), convertSSX(ctr.file.measureMap[i]) + 4, ctr.menuHeight + 4, ctr.bgLight);
-             lastMeasureNum = i;
+            if (sheetMusicDisplay) {
+              drawTextEx(font, to_string(i).c_str(), convertSSX(ctr.file.measureMap[i]) + 4, ctr.barHeight + 4, ctr.bgLight);
+            }
+            else {
+              drawTextEx(font, to_string(i).c_str(), convertSSX(ctr.file.measureMap[i]) + 4, ctr.menuHeight + 4, ctr.bgLight);
+            }
+            lastMeasureNum = i;
           }
         }
       }
@@ -451,6 +459,16 @@ int main (int argc, char* argv[]) {
         // tempo
         drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))).c_str(), 80, ctr.barMargin - 3, ctr.bgDark);
         DrawTextureEx(quarter, {70, ctr.barMargin - 6.0f}, 0, 0.5f, {0, 0, 0, 255});
+
+        for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
+          if (convertSheetX(ctr.file.measureMap[i]) > ctr.getWidth() - 30) {
+            break;
+          }
+          if (convertSheetX(ctr.file.measureMap[i]) > 90) {
+            drawLineEx(convertSheetX(ctr.file.measureMap[i]), ctr.menuHeight + ctr.barMargin,
+                       convertSheetX(ctr.file.measureMap[i]), ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgDark);
+          }
+        }
       }
       
 
