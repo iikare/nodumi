@@ -115,7 +115,7 @@ int main (int argc, char* argv[]) {
             static_cast<float>(value - MIN_NOTE_IDX + 2) / (NOTE_RANGE + 3));
   };
   const auto convertSheetX = [&] (int value) {
-    return (value - timeOffset) * 0.125;
+    return (value ) * 0.125;
   };
 
   // menu objects
@@ -219,19 +219,19 @@ int main (int argc, char* argv[]) {
       int measureSpacing = MeasureTextEx(font, to_string(ctr.file.measureMap.size() - 1).c_str(), font.baseSize, 0.5).x;
 
       for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
-        if (convertSSX(ctr.file.measureMap[i]) + measureSpacing + 4 > 0) {
-          if (convertSSX(ctr.file.measureMap[i]) > ctr.getWidth()) {
+        if (convertSSX(ctr.file.measureMap[i].getLocation()) + measureSpacing + 4 > 0) {
+          if (convertSSX(ctr.file.measureMap[i].getLocation()) > ctr.getWidth()) {
 
           }
-          drawLineEx(convertSSX(ctr.file.measureMap[i]), ctr.barHeight,
-                     convertSSX(ctr.file.measureMap[i]), ctr.getHeight(), 0.5, ctr.bgMeasure);
+          drawLineEx(convertSSX(ctr.file.measureMap[i].getLocation()), ctr.barHeight,
+                     convertSSX(ctr.file.measureMap[i].getLocation()), ctr.getHeight(), 0.5, ctr.bgMeasure);
           
-          if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum]) + measureSpacing + 10 < convertSSX(ctr.file.measureMap[i])) {
+          if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 < convertSSX(ctr.file.measureMap[i].getLocation())) {
             if (sheetMusicDisplay) {
-              drawTextEx(font, to_string(i).c_str(), convertSSX(ctr.file.measureMap[i]) + 4, ctr.barHeight + 4, ctr.bgLight);
+              drawTextEx(font, to_string(i).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4, ctr.barHeight + 4, ctr.bgLight);
             }
             else {
-              drawTextEx(font, to_string(i).c_str(), convertSSX(ctr.file.measureMap[i]) + 4, ctr.menuHeight + 4, ctr.bgLight);
+              drawTextEx(font, to_string(i).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4, ctr.menuHeight + 4, ctr.bgLight);
             }
             lastMeasureNum = i;
           }
@@ -340,6 +340,7 @@ int main (int argc, char* argv[]) {
                   if (cX >= nowLineX) {
                     drawRing({cX, ballY}, radius - 2, radius, colorSetOn->at(colorID));
                   }
+  
                   else if (cX + cW < nowLineX) {
                     drawRing({cX + cW, ballY}, radius - 2, radius, colorSetOn->at(colorID));
                   }
@@ -459,15 +460,15 @@ int main (int argc, char* argv[]) {
         // tempo
         drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))).c_str(), 80, ctr.barMargin - 3, ctr.bgDark);
         DrawTextureEx(quarter, {70, ctr.barMargin - 6.0f}, 0, 0.5f, {0, 0, 0, 255});
-
+        
+        int loc = 0;
         for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
-          if (convertSheetX(ctr.file.measureMap[i]) > ctr.getWidth() - 30) {
+          if (convertSheetX(ctr.file.measureMap[i].getLocation()) > ctr.getWidth() - 30) {
             break;
           }
-          if (convertSheetX(ctr.file.measureMap[i]) > 90) {
-            drawLineEx(convertSheetX(ctr.file.measureMap[i]), ctr.menuHeight + ctr.barMargin,
-                       convertSheetX(ctr.file.measureMap[i]), ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgDark);
-          }
+          loc += ctr.file.measureMap[i].getLength() * 8;
+            drawLineEx(convertSheetX(loc), ctr.menuHeight + ctr.barMargin,
+                       convertSheetX(loc), ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgDark);
         }
       }
       

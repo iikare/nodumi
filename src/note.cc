@@ -66,35 +66,18 @@ int note::getChordSize() {
   }
 }
 
-void note::findSize(int tpq) {
-  /* 
-   * 0x 00000000 00000000 00000000 00000000
-   *                             | ||||||||__ 64th
-   *                             | |||||||___ 32nd
-   *                             | ||||||____ 16th
-   *                             | |||||_____ 8th
-   *                             | ||||______ quarter
-   *                             | |||_______ half
-   *                             | ||________ whole
-   *                             | |_________ null
-   *                             |___________ counter for whole notes
-   */
-  size = 0;
-  double remainder = 1.05727 * fmod(tickDuration, tpq * 4);
-  bool largeNoteFlag = tickDuration > tpq * 4;
-  for (int i = 0; i < 7; i++) {
-      std::cerr << remainder << " ";
-      std::cerr << tickDuration << " ";
-    if (round(remainder) == 0) {
-      break;
+void note::findSize(vector<int>& noteChart) {
+  if (tickDuration > noteChart[0]) {
+    size = NOTE_LARGE;
+  }
+  else {
+    for (unsigned int i = 0; i < noteChart.size(); i++) {
+      if (noteChart[i] > tickDuration && noteChart[i + 1] < tickDuration) {
+        size = i + 1; // map to note enum 
+      }  
     }
-    if (fmod(remainder, tpq * 4 * pow(2, -i)) < remainder) {
-      remainder -= tpq * 4 * pow(2, -i);
-      size = (1 << (6 - i)) | size;
+    if (tickDuration < noteChart[noteChart.size() - 1]) {
+      size = NOTE_128;
     }
   }
-  if (largeNoteFlag) {
-    // deal with very large notes
-  }
-  std::cerr << "size = " << std::bitset<32>(size) << std::endl;
 }

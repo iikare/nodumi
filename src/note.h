@@ -12,6 +12,7 @@ class note {
       tick = 0;
       tickDuration = 0;
       track = 0;
+      measure = 0;
       duration = 0;
       x = 0;
       y = 0;
@@ -29,13 +30,14 @@ class note {
 
     bool isChordRoot();
 
-    void findSize(int tpq);
+    void findSize(vector<int>& noteChart);
     
     int number;
     int size; 
     int tick;
     int tickDuration;
     int track;
+    int measure;
     double duration;
     double x;
     int y;
@@ -51,4 +53,17 @@ class note {
     note* next;
     note* chordNext;
 
+};
+
+enum noteSize {
+  NOTE_LARGE,
+  NOTE_WHOLE,
+  NOTE_HALF,
+  NOTE_QUARTER,
+  NOTE_8,
+  NOTE_16,
+  NOTE_32,
+  NOTE_64,
+  NOTE_128,
+  NOTE_NONE
 };

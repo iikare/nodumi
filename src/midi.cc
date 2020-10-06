@@ -35,6 +35,30 @@ void midi::buildLineMap() {
   //logII(LL_CRIT, lineVerts.size());
 }
 
+void midi::buildTickMap() {
+  if (!tpq) {
+    logII(LL_CRIT, "invalid MIDI");
+    return;
+  }
+  
+  for (int i = 0; i < 8; i++) {
+    tickMap.push_back(tpq * 4 * pow(2, -i));
+  }
+}
+
+void midi::findMeasure(note& idxNote) {
+  // requires a built measure map
+  for (unsigned int i = 0; i < measureMap.size(); i++) {
+    if (measureMap[i].location < idxNote.x && measureMap[i + 1].location > idxNote.x) {
+      idxNote.measure = i;
+      measureMap[i].notes.push_back(&idxNote);
+      return;
+    }
+  }
+  idxNote.measure = -1;
+  return;
+}
+
 void midi::load(string file) {
   MidiFile midifile;
   if (!midifile.read(file.c_str())) {
@@ -48,6 +72,7 @@ void midi::load(string file) {
   trackHeightMap.clear();
   lineVerts.clear();
   measureMap.clear();
+  tickMap.clear();
   sheetData.reset();
 
   noteCount = 0;
@@ -64,6 +89,8 @@ void midi::load(string file) {
   tpq = midifile.getTicksPerQuarterNote();
   lastTime = midifile.getFileDurationInSeconds() * 500;
   lastTick = midifile.getFileDurationInTicks();
+
+  buildTickMap();
 
   vector<pair<double, int>> trackInfo;
 
@@ -103,7 +130,7 @@ void midi::load(string file) {
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
 
-        notes[idx].findSize(tpq);
+        notes[idx].findSize(tickMap);
 
         //cerr << midifile.getTimeInSeconds(notes[idx].tick) << " " << midifile[i][j].seconds << endl;
 
@@ -177,6 +204,17 @@ void midi::load(string file) {
     }
   }
   measureMap.pop_back(); 
+
+  // assign measures to notes
+  for (unsigned int i = 0; i < notes.size(); i++) {
+    findMeasure(notes[i]);
+  }
+  // then find length of measure from notes
+  for (unsigned int i = 0; i < measureMap.size(); i++) {
+    measureMap[i].findLength();
+    cerr << measureMap[i].length << endl;
+  }
+
 
   // build line vertex map
   buildLineMap();

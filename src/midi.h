@@ -8,6 +8,7 @@
 #include "track.h"
 #include "timekey.h"
 #include "sheetctr.h"
+#include "measure.h"
 #include "log.h"
 
 using namespace smf;
@@ -26,6 +27,7 @@ class midi {
       trackHeightMap = {};
       lineVerts = {};
       measureMap = {};
+      tickMap = {};
       sheetData.reset();
 
       tracks.resize(1);
@@ -44,7 +46,7 @@ class midi {
 
     vector<note> notes;
     sheetController sheetData;
-    vector<int> measureMap;
+    vector<measureController> measureMap;
 
     friend class midiInput;
     friend class controller;
@@ -53,6 +55,7 @@ class midi {
     vector<trackController> tracks;
     vector<pair<int, double>> trackHeightMap;
     vector<int> lineVerts;
+    vector<int> tickMap;
 
     int getTrackCount() { return trackCount; }
     int getNoteCount() { return noteCount; }
@@ -60,6 +63,9 @@ class midi {
     int getTempo(int offset);
     
     void buildLineMap();
+    void buildTickMap();
+
+    void findMeasure(note& idxNote);
 
 
     int trackCount;

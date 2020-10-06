@@ -15,6 +15,7 @@
 #define MAIN_MENU_HEIGHT 19
 #define COLOR_WIDTH 200
 #define COLOR_HEIGHT 200
+#define SHEET_NOTEWIDTH 40
 
 enum colorSelections {
   SELECT_BG,
