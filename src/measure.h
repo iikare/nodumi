@@ -10,11 +10,17 @@ class measureController {
     measureController() {
       location = -1;
       length = 0;
+      parentMeasure = 0;
+      displayX = 0;
+      displayLength = 0;
       notes = {};
     }
     measureController(double loc) {
       location = loc;
       length = 0;
+      parentMeasure = 0;
+      displayX = 0;
+      displayLength = 0;
       notes = {};
     }
   
@@ -23,10 +29,16 @@ class measureController {
     double getLocation() { return location; }
     int getLength() { return length; }
 
+    int getDisplayLocation() { return displayX; }
+    int getDisplayLength() { return displayLength; }
+
     friend class midi;
   private:
     double location;
     int length;
+    int parentMeasure;
+    int displayX;
+    int displayLength;
     vector<note*> notes;
 
 };

@@ -11,6 +11,7 @@
 #include "data.h"
 #include "wrap.h"
 #include "color.h"
+#include "define.h"
 #include "menuctr.h"
 #include "controller.h"
 #include "../dpd/osdialog/osdialog.h"
@@ -115,7 +116,7 @@ int main (int argc, char* argv[]) {
             static_cast<float>(value - MIN_NOTE_IDX + 2) / (NOTE_RANGE + 3));
   };
   const auto convertSheetX = [&] (int value) {
-    return (value ) * 0.125;
+    return (value) + 80;
   };
 
   // menu objects
@@ -461,14 +462,12 @@ int main (int argc, char* argv[]) {
         drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))).c_str(), 80, ctr.barMargin - 3, ctr.bgDark);
         DrawTextureEx(quarter, {70, ctr.barMargin - 6.0f}, 0, 0.5f, {0, 0, 0, 255});
         
-        int loc = 0;
         for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
-          if (convertSheetX(ctr.file.measureMap[i].getLocation()) > ctr.getWidth() - 30) {
+          if (convertSheetX(ctr.file.measureMap[i].getDisplayLocation()) > ctr.getWidth() - 30) {
             break;
           }
-          loc += ctr.file.measureMap[i].getLength() * 8;
-            drawLineEx(convertSheetX(loc), ctr.menuHeight + ctr.barMargin,
-                       convertSheetX(loc), ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgDark);
+            drawLineEx(convertSheetX(ctr.file.measureMap[i].getDisplayLocation()), ctr.menuHeight + ctr.barMargin,
+                       convertSheetX(ctr.file.measureMap[i].getDisplayLocation()), ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgDark);
         }
       }
       

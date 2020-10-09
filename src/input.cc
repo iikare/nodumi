@@ -1,5 +1,7 @@
 #include "input.h"
 #include "data.h"
+#include "controller.h"
+#include "define.h"
 
 midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), noteCount(0), numOn(0), timestamp(0) {
   midiIn = new RtMidiIn();

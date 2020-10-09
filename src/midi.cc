@@ -3,6 +3,7 @@
 #include "misc.h"
 #include "data.h"
 #include "sheetctr.h"
+#include "define.h"
 
 using std::max;
 
@@ -209,12 +210,54 @@ void midi::load(string file) {
   for (unsigned int i = 0; i < notes.size(); i++) {
     findMeasure(notes[i]);
   }
+
   // then find length of measure from notes
+  int adjustedLength = 0;
   for (unsigned int i = 0; i < measureMap.size(); i++) {
     measureMap[i].findLength();
-    cerr << measureMap[i].length << endl;
+    measureMap[i].displayX += adjustedLength;
+    adjustedLength += measureMap[i].getLength();
+
+    cerr << measureMap[i].length << " " << measureMap[i].displayX <<  endl;
   }
 
+  // then wrap measures to segments and resize measures to fit
+  int lastMeasureBreak = 0;
+  if (measureMap[measureMap.size() - 1].getDisplayLocation() < ctr.getSheetSize()) {
+    // handle few measures case
+    
+    int extraSpace = ctr.getSheetSize() -
+                     (measureMap[measureMap.size() - 1].getDisplayLocation() + measureMap[measureMap.size() - 1].getLength());
+    double expandRatio = 1.0 + static_cast<double>(extraSpace) / ctr.getSheetSize();
+    cerr << expandRatio << endl;
+
+    for (unsigned int i = 0; i < measureMap.size(); i++) {
+      measureMap[i].parentMeasure = 0;
+      if (i != 0) { 
+        measureMap[i].displayX = measureMap[i - 1].displayX + measureMap[i - 1].length;
+      }
+      measureMap[i].length *= expandRatio;
+    }
+  }
+  else {
+    for (unsigned int i = 0; i < measureMap.size(); i++) {
+      if (measureMap[i].getDisplayLocation() + measureMap[i].getLength() - measureMap[lastMeasureBreak].getDisplayLocation() > 
+          ctr.getSheetSize()) {
+        int extraSpace = ctr.getSheetSize() -
+                         (measureMap[i].getDisplayLocation() - measureMap[lastMeasureBreak].getDisplayLocation());
+        double expandRatio = 1.0 + static_cast<double>(extraSpace) / ctr.getSheetSize();
+        for (unsigned int j = lastMeasureBreak + 1; j <= i - 1; j++) {
+          measureMap[j].parentMeasure = lastMeasureBreak;
+          //if (int(j) != lastMeasureBreak) { 
+            measureMap[j].displayX = measureMap[j - 1].displayX + measureMap[j - 1].length;
+          //}
+          measureMap[j].length *= expandRatio;
+        }
+        lastMeasureBreak = i - 1;
+          cerr << expandRatio << endl;
+      }
+    }
+  }
 
   // build line vertex map
   buildLineMap();

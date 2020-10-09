@@ -5,6 +5,7 @@
 #include <raylib.h>
 #include "midi.h"
 #include "misc.h"
+#include "data.h"
 #include "input.h"
 #include "color.h"
 #include "colorgen.h"
@@ -44,6 +45,8 @@ class controller {
     int getHeight() { return GetScreenHeight(); }
     point getSize() { return {GetScreenWidth(), GetScreenHeight()}; }
     point getMousePosition() { return (point){ GetMouseX(), GetMouseY()}; }
+
+    int getSheetSize() { return getWidth() - SHEET_LMARGIN - SHEET_RMARGIN; }
 
     midi file;
     midiInput liveInput;
