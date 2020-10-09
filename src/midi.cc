@@ -222,24 +222,22 @@ void midi::load(string file) {
   }
 
   // then wrap measures to segments and resize measures to fit
-  int lastMeasureBreak = 0;
-  if (measureMap[measureMap.size() - 1].getDisplayLocation() < ctr.getSheetSize()) {
-    // handle few measures case
+  cerr << measureMap[measureMap.size() - 1].getDisplayLocation() << endl;
+  if (measureMap[measureMap.size() - 1].getDisplayLocation() + measureMap[measureMap.size() - 1].getLength() <
+      ctr.getSheetSize()) {
+    // handle single page case
     
-    int extraSpace = ctr.getSheetSize() -
-                     (measureMap[measureMap.size() - 1].getDisplayLocation() + measureMap[measureMap.size() - 1].getLength());
-    double expandRatio = 1.0 + static_cast<double>(extraSpace) / ctr.getSheetSize();
+    double expandRatio = static_cast<double>(ctr.getSheetSize()) / (measureMap[measureMap.size() - 1].getDisplayLocation() + measureMap[measureMap.size() - 1].getLength());
     cerr << expandRatio << endl;
 
     for (unsigned int i = 0; i < measureMap.size(); i++) {
       measureMap[i].parentMeasure = 0;
-      if (i != 0) { 
-        measureMap[i].displayX = measureMap[i - 1].displayX + measureMap[i - 1].length;
-      }
-      measureMap[i].length *= expandRatio;
+      measureMap[i].displayX *= expandRatio;
+      measureMap[i].displayLength = measureMap[i].getLength() * expandRatio;
     }
   }
   else {
+    int lastMeasureBreak = 0;
     for (unsigned int i = 0; i < measureMap.size(); i++) {
       if (measureMap[i].getDisplayLocation() + measureMap[i].getLength() - measureMap[lastMeasureBreak].getDisplayLocation() > 
           ctr.getSheetSize()) {
@@ -248,10 +246,8 @@ void midi::load(string file) {
         double expandRatio = 1.0 + static_cast<double>(extraSpace) / ctr.getSheetSize();
         for (unsigned int j = lastMeasureBreak + 1; j <= i - 1; j++) {
           measureMap[j].parentMeasure = lastMeasureBreak;
-          //if (int(j) != lastMeasureBreak) { 
-            measureMap[j].displayX = measureMap[j - 1].displayX + measureMap[j - 1].length;
-          //}
-          measureMap[j].length *= expandRatio;
+          measureMap[j].displayX *= expandRatio;
+          measureMap[i].displayLength = measureMap[i].getLength() * expandRatio;
         }
         lastMeasureBreak = i - 1;
           cerr << expandRatio << endl;
