@@ -8,7 +8,7 @@ using std::endl;
 using std::string;
 using std::to_string;
 
-void logOutput (int level, string msg, double value, string file, int line) {
+void logOutput (int level, const string& msg, double value, const string& file, int line) {
   if (value - static_cast<int>(value) < 0.0001) {
     logOutput(level, msg + ": " + to_string(static_cast<int>(value)), file, line);
   }
@@ -17,7 +17,7 @@ void logOutput (int level, string msg, double value, string file, int line) {
   }
 }
 
-void logOutput(int level, double msg, string file, int line) {
+void logOutput(int level, double msg, const string& file, int line) {
   if (msg - static_cast<int>(msg) < 0.00000001) {
     logOutput(level, to_string(static_cast<int>(msg)), file, line);
   }
@@ -26,7 +26,7 @@ void logOutput(int level, double msg, string file, int line) {
   }
 }
 
-void logOutput(int level, string msg, string file, int line) {
+void logOutput(int level, const string& msg, string file, int line) {
   string lvmsg = "";
   if (level == LL_INFO) {
     lvmsg = "INFO: ";
@@ -40,7 +40,7 @@ void logOutput(int level, string msg, string file, int line) {
   else {
     lvmsg = "undefined error level: ";
   }
-
+  
   for (unsigned int i = 0; i < file.length(); i++) {
     if (file[file.length() - i] == '/') {
       file = file.substr(file.length() - i + 1, file.length());

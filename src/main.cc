@@ -227,12 +227,15 @@ int main (int argc, char* argv[]) {
           drawLineEx(convertSSX(ctr.file.measureMap[i].getLocation()), ctr.barHeight,
                      convertSSX(ctr.file.measureMap[i].getLocation()), ctr.getHeight(), 0.5, ctr.bgMeasure);
           
-          if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 < convertSSX(ctr.file.measureMap[i].getLocation())) {
+          if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 <
+                    convertSSX(ctr.file.measureMap[i].getLocation())) {
             if (sheetMusicDisplay) {
-              drawTextEx(font, to_string(i).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4, ctr.barHeight + 4, ctr.bgLight);
+              drawTextEx(font, to_string(i + 1).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4,
+                         ctr.menuHeight + ctr.barHeight + 4, ctr.bgLight);
             }
             else {
-              drawTextEx(font, to_string(i).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4, ctr.menuHeight + 4, ctr.bgLight);
+              drawTextEx(font, to_string(i + 1).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4,
+                         ctr.menuHeight + 4, ctr.bgLight);
             }
             lastMeasureNum = i;
           }
@@ -459,16 +462,48 @@ int main (int argc, char* argv[]) {
         DrawTextureEx(bass, {40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 1)}, 0, 1.0f, {0, 0, 0, 255});
         
         // tempo
-        drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))).c_str(), 80, ctr.barMargin - 3, ctr.bgDark);
+        drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))).c_str(), SHEET_LMARGIN, ctr.barMargin - 3, ctr.bgDark);
         DrawTextureEx(quarter, {70, ctr.barMargin - 6.0f}, 0, 0.5f, {0, 0, 0, 255});
-        
-        for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
-          if (convertSheetX(ctr.file.measureMap[i].getDisplayLocation()) > ctr.getWidth() - 30) {
+       
+        int nowMeasure = ctr.file.findMeasure(timeOffset);
+        int lastMeasure = nowMeasure;
+
+        while (ctr.file.findParentMeasure(nowMeasure) == ctr.file.findParentMeasure(lastMeasure)) {
+          if (lastMeasure >= (int)ctr.file.measureMap.size()) {
+            lastMeasure = ctr.file.measureMap.size() - 1;
             break;
           }
-            drawLineEx(convertSheetX(ctr.file.measureMap[i].getDisplayLocation()), ctr.menuHeight + ctr.barMargin,
-                       convertSheetX(ctr.file.measureMap[i].getDisplayLocation()), ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgDark);
+          else if (ctr.file.findParentMeasure(nowMeasure) == ctr.file.findParentMeasure(lastMeasure + 1)) {
+            lastMeasure++;
+          }
+          else {
+            break;
+          }
         }
+
+        drawTextEx(font, to_string(ctr.file.measureMap[nowMeasure].getParent() + 1).c_str(),
+                   SHEET_LMARGIN, ctr.menuHeight + ctr.barMargin - 3, ctr.bgDark);
+
+        cerr << nowMeasure << " " << lastMeasure << " " << ctr.file.findParentMeasure(nowMeasure) << " " << ctr.file.measureMap[nowMeasure].getDisplayLocation() << endl;
+
+        for (int i = ctr.file.findParentMeasure(nowMeasure); i <= lastMeasure; i++) {
+          if (convertSheetX(ctr.file.measureMap[i].getDisplayLocation()) > ctr.getWidth() - SHEET_RMARGIN) {
+           // break;
+          }
+
+          int lineX = ctr.file.measureMap[i].getDisplayLocation() - 
+                0;//ctr.file.measureMap[ctr.file.measureMap[i].getParent()].getDisplayLocation(); 
+
+          drawLineEx(convertSheetX(lineX), ctr.menuHeight + ctr.barMargin,
+                     convertSheetX(lineX), ctr.menuHeight + ctr.barHeight -
+                     ctr.barMargin - 3, 0.5, ctr.bgDark);
+        }
+        
+        int sheetNowLineX = double(timeOffset + ctr.file.measureMap[ctr.file.measureMap[nowMeasure].getParent()].getLocation())
+                            + SHEET_LMARGIN;
+        drawLineEx(sheetNowLineX, ctr.menuHeight + ctr.barMargin, sheetNowLineX,
+                   ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgNow);
+
       }
       
 

@@ -16,6 +16,6 @@ enum logLevel {
   LL_CRIT
 };
 
-void logOutput(int level, double msg, string file, int line);
-void logOutput (int level, string msg, string file, int line);
-void logOutput (int level, string msg, double value, string file, int line);
+void logOutput(int level, double msg, const string& file, int line);
+void logOutput (int level, const string& msg, string file, int line);
+void logOutput (int level, const string& msg, double value, const string& file, int line);

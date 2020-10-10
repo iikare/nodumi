@@ -43,6 +43,8 @@ class midi {
     void load(string file);
     
     vector<int>* getLineVerts() { return &lineVerts; }
+    int findMeasure(int offset);
+    int findParentMeasure(int measure);
 
     vector<note> notes;
     sheetController sheetData;

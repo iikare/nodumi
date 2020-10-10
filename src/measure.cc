@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "measure.h"
 #include "data.h"
+#include "log.h"
 
 using std::find;
  
@@ -15,4 +16,5 @@ void measureController::findLength() {
     }
   }
   length = (uniquePositions + 2) * SHEET_NOTEWIDTH;
+  logII(LL_CRIT, uniquePositions);
 }

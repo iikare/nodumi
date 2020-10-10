@@ -49,7 +49,12 @@ void midi::buildTickMap() {
 
 void midi::findMeasure(note& idxNote) {
   // requires a built measure map
-  for (unsigned int i = 0; i < measureMap.size(); i++) {
+  if (measureMap[measureMap.size() - 1].location < idxNote.x) {
+   idxNote.measure = measureMap.size() - 1;
+   measureMap[measureMap.size() - 1].notes.push_back(&idxNote);
+   return;
+  }
+  for (unsigned int i = 0; i <= measureMap.size(); i++) {
     if (measureMap[i].location < idxNote.x && measureMap[i + 1].location > idxNote.x) {
       idxNote.measure = i;
       measureMap[i].notes.push_back(&idxNote);
@@ -58,6 +63,30 @@ void midi::findMeasure(note& idxNote) {
   }
   idxNote.measure = -1;
   return;
+}
+
+int midi::findMeasure(int offset) {
+  if (!offset ) { return 0; }
+  if (measureMap[measureMap.size() - 1].location < offset) {
+    return measureMap.size();
+  } 
+  // requires a built measure map
+  for (unsigned int i = 0; i < measureMap.size(); i++) {
+    if (measureMap[i].location < offset && measureMap[i + 1].location >= offset) {
+      return i + 1;
+    }
+  }
+  return -1;
+}
+
+int midi::findParentMeasure(int measure) {
+  if (measure < 0 || measure > static_cast<int>(measureMap.size())) {
+    return -1;
+  }
+  else if (!measure) {
+    return 1;
+  }
+  return measureMap[measure - 1].parentMeasure + 1;
 }
 
 void midi::load(string file) {
@@ -218,17 +247,17 @@ void midi::load(string file) {
     measureMap[i].displayX += adjustedLength;
     adjustedLength += measureMap[i].getLength();
 
-    cerr << measureMap[i].length << " " << measureMap[i].displayX <<  endl;
+    //cerr << i << ": " << measureMap[i].length << " " << measureMap[i].displayX - measureMap[measureMap[i].parentMeasure].displayX <<  endl;
   }
 
   // then wrap measures to segments and resize measures to fit
-  cerr << measureMap[measureMap.size() - 1].getDisplayLocation() << endl;
+//  cerr << measureMap[measureMap.size() - 1].getDisplayLocation() << endl;
   if (measureMap[measureMap.size() - 1].getDisplayLocation() + measureMap[measureMap.size() - 1].getLength() <
       ctr.getSheetSize()) {
     // handle single page case
     
     double expandRatio = static_cast<double>(ctr.getSheetSize()) / (measureMap[measureMap.size() - 1].getDisplayLocation() + measureMap[measureMap.size() - 1].getLength());
-    cerr << expandRatio << endl;
+    //cerr << expandRatio << endl;
 
     for (unsigned int i = 0; i < measureMap.size(); i++) {
       measureMap[i].parentMeasure = 0;
@@ -238,21 +267,40 @@ void midi::load(string file) {
   }
   else {
     int lastMeasureBreak = 0;
-    for (unsigned int i = 0; i < measureMap.size(); i++) {
+    for (int i = 0; i <= (int)measureMap.size(); i++) {
       if (measureMap[i].getDisplayLocation() + measureMap[i].getLength() - measureMap[lastMeasureBreak].getDisplayLocation() > 
-          ctr.getSheetSize()) {
+          ctr.getSheetSize() || i == (int)measureMap.size()) {
+        
+        // TODO: move this
         int extraSpace = ctr.getSheetSize() -
                          (measureMap[i].getDisplayLocation() - measureMap[lastMeasureBreak].getDisplayLocation());
         double expandRatio = 1.0 + static_cast<double>(extraSpace) / ctr.getSheetSize();
-        for (unsigned int j = lastMeasureBreak + 1; j <= i - 1; j++) {
+        
+        int measureLimit = (i == (int)measureMap.size() ? i : i - 2);
+
+
+
+        for (int j = lastMeasureBreak; j <= measureLimit; j++) {
           measureMap[j].parentMeasure = lastMeasureBreak;
+         
+          // TODO: move this
           measureMap[j].displayX *= expandRatio;
-          measureMap[i].displayLength = measureMap[i].getLength() * expandRatio;
+          measureMap[j].displayLength = measureMap[j].getLength() * expandRatio;
+          
         }
         lastMeasureBreak = i - 1;
-          cerr << expandRatio << endl;
+         // cerr << expandRatio << endl;
       }
     }
+  }
+
+  for (int i = (int)measureMap.size() - 1; i >= 0; i--) {
+    measureMap[i].displayX -= measureMap[measureMap[i].parentMeasure].displayX;
+
+    // TODO: move extra space scaling over here
+          cerr << i + 1 << ": "
+               << measureMap[i].parentMeasure + 1<< " | "
+               << measureMap[i].length << " " << measureMap[i].displayX << endl;
   }
 
   // build line vertex map

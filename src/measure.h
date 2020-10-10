@@ -31,6 +31,7 @@ class measureController {
 
     int getDisplayLocation() { return displayX; }
     int getDisplayLength() { return displayLength; }
+    int getParent() { return parentMeasure; }
 
     friend class midi;
   private:
