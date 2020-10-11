@@ -27,6 +27,7 @@ class midi {
       trackHeightMap = {};
       lineVerts = {};
       measureMap = {};
+      measureTickMap = {};
       tickMap = {};
       sheetData.reset();
 
@@ -49,6 +50,7 @@ class midi {
     vector<note> notes;
     sheetController sheetData;
     vector<measureController> measureMap;
+    vector<measureController> measureTickMap;
 
     friend class midiInput;
     friend class controller;

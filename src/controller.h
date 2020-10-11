@@ -31,6 +31,7 @@ class controller {
     void toggleLivePlay();
     void setCloseFlag();
     void load(string filename);
+    void loadTextures();
 
     bool getProgramState() { return programState; }
     bool getPlayState() { return playState; }
@@ -79,6 +80,11 @@ class controller {
     const int barMargin = 49;
 
     int livePlayOffset;
+  
+    Texture2D quarter;
+    Texture2D treble;
+    Texture2D brace;
+    Texture2D bass;
 
     
     

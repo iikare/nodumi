@@ -1,16 +1,18 @@
 #include "sheetctr.h"
 
-void sheetController::addTimeSignature(int position, timeSig timeSignature) {
+void sheetController::addTimeSignature(int position, int tick, timeSig timeSignature) {
   if (timeSignatureMap.size() != 0 && timeSignatureMap[timeSignatureMap.size()-1].second == timeSignature) {
     return;
   }
+  timeSignature.setTick(tick);
   timeSignatureMap.push_back(make_pair(position, timeSignature));
 }
 
-void sheetController::addKeySignature(int position, keySig keySignature) {
+void sheetController::addKeySignature(int position, int tick, keySig keySignature) {
   if (keySignatureMap.size() != 0 && keySignatureMap[keySignatureMap.size()-1].second == keySignature) {
     return;
   }
+  keySignature.setTick(tick);
   keySignatureMap.push_back(make_pair(position, keySignature));
 }
 
@@ -66,13 +68,13 @@ keySig sheetController::eventToKeySignature(int keySigType, bool isMinor) {
   }
 
 
-  keySig finalKey = keySig(keyType, isMinor);
+  keySig finalKey = keySig(keyType, isMinor, -1);
 
   return finalKey;
 }
 
 timeSig sheetController::getTimeSignature(int offset) {
-  timeSig timeSignature = {0, 1};
+  timeSig timeSignature = {0, -1, 1};
   for (unsigned int i = 0; i < timeSignatureMap.size(); i++) {
     if (offset > timeSignatureMap[i].first && offset < timeSignatureMap[i + 1].first) {
       return timeSignatureMap[i].second;
@@ -82,7 +84,7 @@ timeSig sheetController::getTimeSignature(int offset) {
 }
 
 keySig sheetController::getKeySignature(int offset) {
-  keySig keySignature = {0, 1};
+  keySig keySignature = {0, 1, -1};
   for (unsigned int i = 0; i < keySignatureMap.size(); i++) {
     if (offset > keySignatureMap[i].first && offset < keySignatureMap[i + 1].first) {
       return keySignatureMap[i].second;
@@ -94,4 +96,13 @@ keySig sheetController::getKeySignature(int offset) {
 void sheetController::reset() {
   timeSignatureMap.clear();
   keySignatureMap.clear();
+}
+
+void sheetController::linkKeySignatures() {
+  for (unsigned int i = 0; i < keySignatureMap.size(); i++) {
+    if (i == 0) {
+      continue;
+    }
+    keySignatureMap[i].second.setPrev(&keySignatureMap[i].second);
+  }
 }

@@ -49,18 +49,21 @@ void midi::buildTickMap() {
 
 void midi::findMeasure(note& idxNote) {
   // requires a built measure map
-  if (measureMap[measureMap.size() - 1].location < idxNote.x) {
+  if (measureMap[measureMap.size() - 1].location <= idxNote.x) {
    idxNote.measure = measureMap.size() - 1;
    measureMap[measureMap.size() - 1].notes.push_back(&idxNote);
+
+  logII(LL_CRIT, idxNote.number);
    return;
   }
   for (unsigned int i = 0; i <= measureMap.size(); i++) {
-    if (measureMap[i].location < idxNote.x && measureMap[i + 1].location > idxNote.x) {
+    if (measureMap[i].location <= idxNote.x && measureMap[i + 1].location > idxNote.x) {
       idxNote.measure = i;
       measureMap[i].notes.push_back(&idxNote);
       return;
     }
   }
+  logII(LL_CRIT, idxNote.number);
   idxNote.measure = -1;
   return;
 }
@@ -102,6 +105,7 @@ void midi::load(string file) {
   trackHeightMap.clear();
   lineVerts.clear();
   measureMap.clear();
+  measureTickMap.clear();
   tickMap.clear();
   sheetData.reset();
 
@@ -182,16 +186,20 @@ void midi::load(string file) {
     if (midifile[0][i].isTimeSignature()) {
       //log3(LL_INFO, "time sig at event", j);
       //cerr << (int)midifile[0][i][3] << " " << pow(2, (int) midifile[0][i][4])<< endl;
-      sheetData.addTimeSignature(midifile[0][i].seconds * 500, {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4])});
+      sheetData.addTimeSignature(midifile[0][i].seconds * 500, midifile[0][i].tick,
+                                 {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4]), -1});
     }
     if (midifile[0][i].isKeySignature()) {
       //log3(LL_INFO, "key sig at event", i);
       //cerr << (int)midifile[0][i][1] << " " << (int)midifile[0][i][3] << " " << (int)midifile[0][i][4] <<  endl;
       //cerr << midifile[0][i].seconds * 500 << endl;;
-      sheetData.addKeySignature(midifile[0][i].seconds * 500, 
+      sheetData.addKeySignature(midifile[0][i].seconds * 500, midifile[0][i].tick, 
                                 sheetData.eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4]));
       }
   }
+
+  // link keysigs
+  sheetData.linkKeySignatures();
 
   // build track height map
   for (unsigned int i = 0; i < tracks.size(); i++) {
@@ -213,7 +221,7 @@ void midi::load(string file) {
   }
   
   
-  measureMap.push_back(0);
+  measureMap.push_back(measureController(0, 0, cTimeSig.qpm * tpq));
   while (idx < (int)sheetData.timeSignatureMap.size()) {
 
   //  cerr << cTimeSig.top << " " << cTimeSig.bottom << endl;
@@ -222,13 +230,13 @@ void midi::load(string file) {
       if (midifile.getTimeInSeconds(cTick) * 500>= sheetData.timeSignatureMap[idx + 1].first) {
         cTimeSig = sheetData.timeSignatureMap[++idx].second;
       }
-      measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
+      measureMap.push_back(measureController(midifile.getTimeInSeconds(cTick) * 500, cTick, cTimeSig.qpm * tpq));
     }
     else {
       while (cTick < lastTick) {
         cTick += cTimeSig.qpm * tpq;
         
-        measureMap.push_back(midifile.getTimeInSeconds(cTick) * 500);
+        measureMap.push_back(measureController(midifile.getTimeInSeconds(cTick) * 500, cTick, cTimeSig.qpm * tpq));
       }
       break;
     }
@@ -237,7 +245,23 @@ void midi::load(string file) {
 
   // assign measures to notes
   for (unsigned int i = 0; i < notes.size(); i++) {
-    findMeasure(notes[i]);
+      findMeasure(notes[i]);
+      //cerr << notes[i].measure << endl;
+  }
+
+  // assign measures to time signatures
+  for (unsigned int i = 0; i < sheetData.timeSignatureMap.size(); i++) {
+    int measure = findMeasure(sheetData.timeSignatureMap[i].first);
+    sheetData.timeSignatureMap[i].second.setMeasure(measure);
+    measureMap[measure].timeSignatures.push_back(&sheetData.timeSignatureMap[i].second);
+  }
+
+  // assign measures to key signatures
+  for (unsigned int i = 0; i < sheetData.keySignatureMap.size(); i++) {
+    int measure = findMeasure(sheetData.keySignatureMap[i].first);
+    sheetData.keySignatureMap[i].second.setMeasure(measure);
+    measureMap[measure].keySignatures.push_back(&sheetData.keySignatureMap[i].second);
+    //cerr << sheetData.keySignatureMap[i].second.measure << endl;
   }
 
   // then find length of measure from notes
@@ -297,7 +321,8 @@ void midi::load(string file) {
         }
         int extraSpace = ctr.getSheetSize() - measureMap[i + j - 1].getDisplayLocation();
         double expandRatio = 1.0 + static_cast<double>(extraSpace) / ctr.getSheetSize();
-        cerr << expandRatio << endl;
+        //cerr << expandRatio << endl;
+        
         for (int k = i; k < i + j; k++) {
           measureMap[k].displayX *= expandRatio;
           measureMap[k].displayLength = measureMap[k].getLength() * expandRatio;

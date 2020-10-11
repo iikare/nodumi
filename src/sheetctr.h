@@ -19,8 +19,10 @@ class sheetController {
 
     void reset();
 
-    void addTimeSignature(int position, timeSig timeSignature);
-    void addKeySignature(int position, keySig keySignature);
+    void addTimeSignature(int position, int tick, timeSig timeSignature);
+    void addKeySignature(int position, int tick, keySig keySignature);
+
+    void linkKeySignatures();
 
     timeSig getTimeSignature(int offset);
     keySig getKeySignature(int offset);

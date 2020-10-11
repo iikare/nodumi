@@ -44,6 +44,7 @@ int main (int argc, char* argv[]) {
   InitWindow(mWidth, mHeight, (string("kelumi ") + string(mVersion)).c_str());
   SetTargetFPS(60);
   font = LoadFontEx("bin/fonts/yklight.ttf", 14, 0, 250);
+  ctr.loadTextures();
   
   /*
    * * * * * * * 
@@ -100,10 +101,6 @@ int main (int argc, char* argv[]) {
   menuController menuctr = menuController();
 
   // sheet music data
-  Texture2D treble = LoadTexture("bin/textures/treble.png");
-  Texture2D brace = LoadTexture("bin/textures/brace.png");
-  Texture2D bass = LoadTexture("bin/textures/bass.png");
-  Texture2D quarter = LoadTexture("bin/textures/quarter.png");
   //SetTextureFilter(bass, FILTER_ANISOTROPIC_16X);
 
   // screen space conversion functions
@@ -457,14 +454,14 @@ int main (int argc, char* argv[]) {
                    ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
 
         // static sprites
-        DrawTextureEx(brace, {18.0f, float(ctr.menuHeight + ctr.barMargin)}, 0, 1.0f, {0, 0, 0, 255});
-        DrawTextureEx(treble, {40.0f, ctr.menuHeight + 35.0f}, 0, 1.0f, {0, 0, 0, 255});
-        DrawTextureEx(bass, {40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 1)}, 0, 1.0f, {0, 0, 0, 255});
+        DrawTextureEx(ctr.brace, {18.0f, float(ctr.menuHeight + ctr.barMargin)}, 0, 1.0f, {0, 0, 0, 255});
+        DrawTextureEx(ctr.treble, {40.0f, ctr.menuHeight + 35.0f}, 0, 1.0f, {0, 0, 0, 255});
+        DrawTextureEx(ctr.bass, {40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 1)}, 0, 1.0f, {0, 0, 0, 255});
         
         // tempo
         drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))).c_str(),
                    SHEET_LMARGIN + 20, ctr.barMargin - 17, ctr.bgDark);
-        DrawTextureEx(quarter, {SHEET_LMARGIN + 10, ctr.barMargin - 20.0f}, 0, 0.5f, {0, 0, 0, 255});
+        DrawTextureEx(ctr.quarter, {SHEET_LMARGIN + 10, ctr.barMargin - 20.0f}, 0, 0.5f, {0, 0, 0, 255});
        
         int nowMeasure = ctr.file.findMeasure(timeOffset);
         int lastMeasure = nowMeasure;
@@ -496,9 +493,8 @@ int main (int argc, char* argv[]) {
         cerr << nowMeasure << " " << lastMeasure << " " << ctr.file.findParentMeasure(nowMeasure) << " " << ctr.file.measureMap[nowMeasure].getDisplayLocation() << endl;
 
         for (int i = ctr.file.findParentMeasure(nowMeasure); i <= lastMeasure; i++) {
-          if (convertSheetX(ctr.file.measureMap[i].getDisplayLocation()) > ctr.getWidth() - SHEET_RMARGIN) {
-           // break;
-          }
+          ctr.file.measureMap[i - 1].draw();
+
 
           int lineX = ctr.file.measureMap[i].getDisplayLocation() - 
                 0;//ctr.file.measureMap[ctr.file.measureMap[i].getParent()].getDisplayLocation(); 

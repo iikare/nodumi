@@ -54,6 +54,14 @@ void controller::load(string filename) {
   getColorScheme(file.getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
 }
 
+void controller::loadTextures() {
+    quarter = LoadTexture("bin/textures/quarter.png");
+    treble = LoadTexture("bin/textures/treble.png");
+    brace = LoadTexture("bin/textures/brace.png");
+    bass = LoadTexture("bin/textures/bass.png");
+}
+
+
 void controller::setCloseFlag() {
   programState = false;
 }
