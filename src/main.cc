@@ -462,15 +462,19 @@ int main (int argc, char* argv[]) {
         DrawTextureEx(bass, {40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 1)}, 0, 1.0f, {0, 0, 0, 255});
         
         // tempo
-        drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))).c_str(), SHEET_LMARGIN, ctr.barMargin - 3, ctr.bgDark);
-        DrawTextureEx(quarter, {70, ctr.barMargin - 6.0f}, 0, 0.5f, {0, 0, 0, 255});
+        drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))).c_str(),
+                   SHEET_LMARGIN + 20, ctr.barMargin - 17, ctr.bgDark);
+        DrawTextureEx(quarter, {SHEET_LMARGIN + 10, ctr.barMargin - 20.0f}, 0, 0.5f, {0, 0, 0, 255});
        
         int nowMeasure = ctr.file.findMeasure(timeOffset);
         int lastMeasure = nowMeasure;
-
+        bool useLastTime = false;
+        
+        // find end of sheet page
         while (ctr.file.findParentMeasure(nowMeasure) == ctr.file.findParentMeasure(lastMeasure)) {
           if (lastMeasure >= (int)ctr.file.measureMap.size()) {
-            lastMeasure = ctr.file.measureMap.size() - 1;
+            lastMeasure = ctr.file.measureMap.size();
+            useLastTime = true;
             break;
           }
           else if (ctr.file.findParentMeasure(nowMeasure) == ctr.file.findParentMeasure(lastMeasure + 1)) {
@@ -481,8 +485,13 @@ int main (int argc, char* argv[]) {
           }
         }
 
-        drawTextEx(font, to_string(ctr.file.measureMap[nowMeasure].getParent() + 1).c_str(),
-                   SHEET_LMARGIN, ctr.menuHeight + ctr.barMargin - 3, ctr.bgDark);
+        int pageEndLocation = (useLastTime ? ctr.getLastTime() : ctr.file.measureMap[lastMeasure].getLocation());
+        
+        // draw current parent measure number 
+        int parentWidth = MeasureTextEx(font, to_string(ctr.file.measureMap[max(0, nowMeasure - 1)].getParent() + 1).c_str(),
+                                        font.baseSize, 0.5).x;
+        drawTextEx(font, to_string(ctr.file.measureMap[max(0, nowMeasure - 1)].getParent() + 1),
+                   SHEET_LMARGIN - parentWidth / 2 + 1, ctr.menuHeight + ctr.barMargin - 17, ctr.bgDark);
 
         cerr << nowMeasure << " " << lastMeasure << " " << ctr.file.findParentMeasure(nowMeasure) << " " << ctr.file.measureMap[nowMeasure].getDisplayLocation() << endl;
 
@@ -499,8 +508,13 @@ int main (int argc, char* argv[]) {
                      ctr.barMargin - 3, 0.5, ctr.bgDark);
         }
         
-        int sheetNowLineX = double(timeOffset + ctr.file.measureMap[ctr.file.measureMap[nowMeasure].getParent()].getLocation())
-                            + SHEET_LMARGIN;
+        cerr << ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation() << " " 
+             << pageEndLocation << " " << timeOffset << endl;
+
+        int sheetNowLineX = SHEET_LMARGIN + ctr.getSheetSize() * 
+            ((timeOffset - ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation()) /
+             (pageEndLocation - ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation()));
+        
         drawLineEx(sheetNowLineX, ctr.menuHeight + ctr.barMargin, sheetNowLineX,
                    ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgNow);
 

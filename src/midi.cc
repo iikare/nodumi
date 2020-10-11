@@ -198,7 +198,7 @@ void midi::load(string file) {
     trackHeightMap.push_back(make_pair(i, tracks[i].getAverageY()));
   }
   
-  sort(trackHeightMap.begin(), trackHeightMap.end(), [](const pair<int,int> &left, const pair<int,int> &right) {
+  sort(trackHeightMap.begin(), trackHeightMap.end(), [](const pair<int, double> &left, const pair<int, double> &right) {
     return left.second < right.second;
   });
  
@@ -246,20 +246,17 @@ void midi::load(string file) {
     measureMap[i].findLength();
     measureMap[i].displayX += adjustedLength;
     adjustedLength += measureMap[i].getLength();
-
-    //cerr << i << ": " << measureMap[i].length << " " << measureMap[i].displayX - measureMap[measureMap[i].parentMeasure].displayX <<  endl;
   }
 
   // then wrap measures to segments and resize measures to fit
-//  cerr << measureMap[measureMap.size() - 1].getDisplayLocation() << endl;
-  if (measureMap[measureMap.size() - 1].getDisplayLocation() + measureMap[measureMap.size() - 1].getLength() <
-      ctr.getSheetSize()) {
-    // handle single page case
-    
-    double expandRatio = static_cast<double>(ctr.getSheetSize()) / (measureMap[measureMap.size() - 1].getDisplayLocation() + measureMap[measureMap.size() - 1].getLength());
-    //cerr << expandRatio << endl;
+  bool isSinglePage = measureMap[measureMap.size() - 1].getDisplayLocation() + measureMap[measureMap.size() - 1].getLength() <
+                      ctr.getSheetSize();
+  if (isSinglePage) {
+    // handle single page case 
+    double expandRatio = static_cast<double>(ctr.getSheetSize()) / (measureMap[measureMap.size() - 1].getDisplayLocation() +
+                         measureMap[measureMap.size() - 1].getLength());
 
-    for (unsigned int i = 0; i < measureMap.size(); i++) {
+    for (unsigned int i = 0; i <= measureMap.size(); i++) {
       measureMap[i].parentMeasure = 0;
       measureMap[i].displayX *= expandRatio;
       measureMap[i].displayLength = measureMap[i].getLength() * expandRatio;
@@ -269,39 +266,46 @@ void midi::load(string file) {
     int lastMeasureBreak = 0;
     for (int i = 0; i <= (int)measureMap.size(); i++) {
       if (measureMap[i].getDisplayLocation() + measureMap[i].getLength() - measureMap[lastMeasureBreak].getDisplayLocation() > 
-          ctr.getSheetSize() || i == (int)measureMap.size()) {
-        
-        // TODO: move this
-        int extraSpace = ctr.getSheetSize() -
-                         (measureMap[i].getDisplayLocation() - measureMap[lastMeasureBreak].getDisplayLocation());
-        double expandRatio = 1.0 + static_cast<double>(extraSpace) / ctr.getSheetSize();
+          ctr.getSheetSize() || i >= (int)measureMap.size()) {
         
         int measureLimit = (i == (int)measureMap.size() ? i : i - 2);
 
-
-
         for (int j = lastMeasureBreak; j <= measureLimit; j++) {
           measureMap[j].parentMeasure = lastMeasureBreak;
-         
-          // TODO: move this
-          measureMap[j].displayX *= expandRatio;
-          measureMap[j].displayLength = measureMap[j].getLength() * expandRatio;
-          
         }
         lastMeasureBreak = i - 1;
-         // cerr << expandRatio << endl;
+      }
+    }
+  }
+  
+  // scale to screen space
+  for (int i = (int)measureMap.size(); i >= 0; i--) {
+    measureMap[i].displayX -= measureMap[measureMap[i].parentMeasure].displayX;
+  }
+  
+  // expand multi page measures
+  if (!isSinglePage) {
+
+    for (int i = 0; i < (int)measureMap.size(); i++) {
+      if (measureMap[i].getDisplayLocation() == 0) {
+        int j = 1;
+        while (measureMap[i + j].getDisplayLocation() != 0) {
+          if (i + j == (int)measureMap.size()) {
+            break;
+          }
+          j++;
+        }
+        int extraSpace = ctr.getSheetSize() - measureMap[i + j - 1].getDisplayLocation();
+        double expandRatio = 1.0 + static_cast<double>(extraSpace) / ctr.getSheetSize();
+        cerr << expandRatio << endl;
+        for (int k = i; k < i + j; k++) {
+          measureMap[k].displayX *= expandRatio;
+          measureMap[k].displayLength = measureMap[k].getLength() * expandRatio;
+        }
       }
     }
   }
 
-  for (int i = (int)measureMap.size() - 1; i >= 0; i--) {
-    measureMap[i].displayX -= measureMap[measureMap[i].parentMeasure].displayX;
-
-    // TODO: move extra space scaling over here
-          cerr << i + 1 << ": "
-               << measureMap[i].parentMeasure + 1<< " | "
-               << measureMap[i].length << " " << measureMap[i].displayX << endl;
-  }
 
   // build line vertex map
   buildLineMap();
