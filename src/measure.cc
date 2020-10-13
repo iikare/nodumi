@@ -7,34 +7,105 @@
 #include "wrap.h"
 
 using std::find;
+using std::sort;
  
 
 void measureController::findLength() {
   //cerr << timeSignatures.size() << " " << keySignatures.size()<< endl;
 
-  int uniquePositions = 0;
   for (unsigned int i = 0; i < timeSignatures.size(); i++) {
-    uniquePositions += timeSignatures[i]->getSize();
+    //cerr << timeSignatures[i]->getSize() << endl;
+    allEvents.push_back(UMO(timeSignatures[i], timeSignatures[i]->getSize()));
   }
   for (unsigned int i = 0; i < keySignatures.size(); i++) {
-    uniquePositions += keySignatures[i]->getSize();  
-   cerr<<keySignatures[i]->getSize() << endl; 
+    //cerr << keySignatures[i]->getSize() << endl;
+    allEvents.push_back(UMO(keySignatures[i], keySignatures[i]->getSize()));
   }
   
   vector<double> pos;
   for (unsigned int i = 0; i < notes.size(); i++) {
     if (find(pos.begin(), pos.end(), notes[i]->tick) == pos.end()) {
       pos.push_back(notes[i]->tick);
-      uniquePositions++;
+      allEvents.push_back(UMO(notes[i], 1));
+    }
+    else {
+      int idx = 0;
+      for (unsigned int j = 0; j < allEvents.size(); j++) {
+        if (allEvents[j].getTick() == notes[i]->tick && allEvents[j].getType() == UMO_NOTE) {
+          idx = j;
+          break;
+        }
+      }
+      allEvents[idx].addNote(notes[i]);
     }
   }
-  length = (uniquePositions + 2) * SHEET_NOTEWIDTH;
+  length = (getUMOWidth() + 2) * SHEET_NOTEWIDTH;
+  cerr << " " << getUMOWidth() << endl;
+  cerr << allEvents.size() << getUMOEvents() << " " << notes.size() << " " << timeSignatures.size() << " " << keySignatures.size() << endl;
+  sort(allEvents.begin(), allEvents.end(), [](const UMO& left, const UMO& right) {
+    if (left.getTick() != right.getTick()) {
+      return left.getTick() < right.getTick();
+    }
+    else if (left.getType() == UMO_TIME && right.getType() != UMO_TIME) {
+      return true;
+    }
+    else if (left.getType() != UMO_TIME && right.getType() == UMO_TIME) {
+      return false;
+    }
+    else if (left.getType() == UMO_KEY && right.getType() != UMO_KEY) {
+      return true;
+    }
+    else if (left.getType() != UMO_KEY && right.getType() == UMO_KEY) {
+      return false;
+    }   
+    return true; 
+
+  });
   //logII(LL_CRIT, uniquePositions);
 }
 
 void measureController::draw() {
-  cerr << notes.size() << endl;
-  for (unsigned int i = 0; i < notes.size(); i++) {
-    DrawTextureEx(ctr.quarter, {float(15*i + SHEET_LMARGIN + displayX + 20),i + ctr.barMargin + 15.0f}, 0, 1.0f, {0, 0, 0, 255});
+  double cSpaceIdx= 0.35;
+  for (unsigned int i = 0; i < allEvents.size(); i++) {
+    double relativePosition = (allEvents[i].getTick() - tick) / static_cast<double>(tickLength);
+
+    switch(allEvents[i].getType()) {
+      case UMO_NOTE:
+        DrawTextureEx(ctr.quarter, {float(cSpaceIdx * SHEET_NOTEWIDTH + SHEET_LMARGIN + displayX), 
+                      i*10 + ctr.barMargin + 15.0f}, 0, 1.0f, {0, 0, 0, 255});
+        break;
+      case UMO_TIME:
+        drawTextEx(ctr.fontMusic, to_string(static_cast<timeSig*>(allEvents[i].getRawEvent())->top),
+                   SHEET_LMARGIN + displayX + SHEET_NOTEWIDTH * cSpaceIdx, ctr.barMargin + 19, ctr.bgDark);
+        drawTextEx(ctr.fontMusic, to_string(static_cast<timeSig*>(allEvents[i].getRawEvent())->bottom),
+                   SHEET_LMARGIN + displayX + SHEET_NOTEWIDTH * cSpaceIdx, ctr.barMargin + 39, ctr.bgDark);
+        drawTextEx(ctr.fontMusic, to_string(static_cast<timeSig*>(allEvents[i].getRawEvent())->top),
+                   SHEET_LMARGIN + displayX + SHEET_NOTEWIDTH * cSpaceIdx, ctr.barSpacing + ctr.barMargin + 19, ctr.bgDark);
+        drawTextEx(ctr.fontMusic, to_string(static_cast<timeSig*>(allEvents[i].getRawEvent())->bottom),
+                   SHEET_LMARGIN + displayX + SHEET_NOTEWIDTH * cSpaceIdx, ctr.barSpacing + ctr.barMargin + 39, ctr.bgDark);
+        break;
+      case UMO_KEY:
+        drawTextEx(ctr.fontMusic, to_string(static_cast<keySig*>(allEvents[i].getRawEvent())->getKey()),
+                   SHEET_LMARGIN + displayX + SHEET_NOTEWIDTH * cSpaceIdx, ctr.barSpacing + ctr.barMargin + 39, ctr.bgDark);
+    }
+   
+    cSpaceIdx += allEvents[i].getSize();
+    cerr << cSpaceIdx << " " << relativePosition << endl; 
   }
+}
+
+int measureController::getUMOWidth() {
+  int w = 0;
+  for (unsigned int i = 0; i < allEvents.size(); i++) {
+    w += allEvents[i].getSize();
+  }
+  return w;
+}
+
+int measureController::getUMOEvents() {
+  int ev = 0;
+  for (unsigned int i = 0; i < allEvents.size(); i++) {
+    ev += allEvents[i].getNumEvents();
+  }
+  return ev;
 }

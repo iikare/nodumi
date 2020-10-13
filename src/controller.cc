@@ -59,6 +59,8 @@ void controller::loadTextures() {
     treble = LoadTexture("bin/textures/treble.png");
     brace = LoadTexture("bin/textures/brace.png");
     bass = LoadTexture("bin/textures/bass.png");
+    
+    fontMusic = LoadFontEx("bin/fonts/petaluma.otf", 24, 0, 548);
 }
 
 

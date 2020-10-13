@@ -86,6 +86,8 @@ class controller {
     Texture2D brace;
     Texture2D bass;
 
+    Font fontMusic;
+
     
     
   private:

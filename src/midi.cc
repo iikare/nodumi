@@ -52,8 +52,6 @@ void midi::findMeasure(note& idxNote) {
   if (measureMap[measureMap.size() - 1].location <= idxNote.x) {
    idxNote.measure = measureMap.size() - 1;
    measureMap[measureMap.size() - 1].notes.push_back(&idxNote);
-
-  logII(LL_CRIT, idxNote.number);
    return;
   }
   for (unsigned int i = 0; i <= measureMap.size(); i++) {
@@ -245,8 +243,10 @@ void midi::load(string file) {
 
   // assign measures to notes
   for (unsigned int i = 0; i < notes.size(); i++) {
+    if (notes[i].isChordRoot()) {
       findMeasure(notes[i]);
       //cerr << notes[i].measure << endl;
+    }
   }
 
   // assign measures to time signatures
@@ -261,7 +261,7 @@ void midi::load(string file) {
     int measure = findMeasure(sheetData.keySignatureMap[i].first);
     sheetData.keySignatureMap[i].second.setMeasure(measure);
     measureMap[measure].keySignatures.push_back(&sheetData.keySignatureMap[i].second);
-    //cerr << sheetData.keySignatureMap[i].second.measure << endl;
+    ////cerr << sheetData.keySignatureMap[i].second.getSize() << " " << sheetData.keySignatureMap[i].second.measure << endl;
   }
 
   // then find length of measure from notes

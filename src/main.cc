@@ -459,7 +459,7 @@ int main (int argc, char* argv[]) {
         DrawTextureEx(ctr.bass, {40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 1)}, 0, 1.0f, {0, 0, 0, 255});
         
         // tempo
-        drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))).c_str(),
+        drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))),
                    SHEET_LMARGIN + 20, ctr.barMargin - 17, ctr.bgDark);
         DrawTextureEx(ctr.quarter, {SHEET_LMARGIN + 10, ctr.barMargin - 20.0f}, 0, 0.5f, {0, 0, 0, 255});
        
@@ -490,10 +490,12 @@ int main (int argc, char* argv[]) {
         drawTextEx(font, to_string(ctr.file.measureMap[max(0, nowMeasure - 1)].getParent() + 1),
                    SHEET_LMARGIN - parentWidth / 2 + 1, ctr.menuHeight + ctr.barMargin - 17, ctr.bgDark);
 
-        cerr << nowMeasure << " " << lastMeasure << " " << ctr.file.findParentMeasure(nowMeasure) << " " << ctr.file.measureMap[nowMeasure].getDisplayLocation() << endl;
+        //cerr << nowMeasure << " " << lastMeasure << " " << ctr.file.findParentMeasure(nowMeasure) << " " << ctr.file.measureMap[nowMeasure].getDisplayLocation() << endl;
 
         for (int i = ctr.file.findParentMeasure(nowMeasure); i <= lastMeasure; i++) {
+            cerr << endl;
           ctr.file.measureMap[i - 1].draw();
+            cerr << endl;
 
 
           int lineX = ctr.file.measureMap[i].getDisplayLocation() - 
@@ -504,8 +506,8 @@ int main (int argc, char* argv[]) {
                      ctr.barMargin - 3, 0.5, ctr.bgDark);
         }
         
-        cerr << ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation() << " " 
-             << pageEndLocation << " " << timeOffset << endl;
+        //cerr << ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation() << " " 
+        //     << pageEndLocation << " " << timeOffset << endl;
 
         int sheetNowLineX = SHEET_LMARGIN + ctr.getSheetSize() * 
             ((timeOffset - ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation()) /
