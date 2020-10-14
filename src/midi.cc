@@ -282,6 +282,7 @@ void midi::load(string file) {
 
     for (unsigned int i = 0; i <= measureMap.size(); i++) {
       measureMap[i].parentMeasure = 0;
+      measureMap[i].expandRatio = expandRatio;
       measureMap[i].displayX *= expandRatio;
       measureMap[i].displayLength = measureMap[i].getLength() * expandRatio;
     }
@@ -324,6 +325,7 @@ void midi::load(string file) {
         //cerr << expandRatio << endl;
         
         for (int k = i; k < i + j; k++) {
+          measureMap[k].expandRatio = expandRatio;
           measureMap[k].displayX *= expandRatio;
           measureMap[k].displayLength = measureMap[k].getLength() * expandRatio;
         }

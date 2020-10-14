@@ -10,6 +10,7 @@ using std::vector;
 class measureController {
   public:
     measureController() {
+      expandRatio = 1;
       location = -1;
       length = 0;
       tick = -1;
@@ -23,6 +24,7 @@ class measureController {
       allEvents = {};
     }
     measureController(double loc, int tk, int tkl) {
+      expandRatio = 1;
       location = loc;
       length = 0;
       tick = tk;
@@ -51,7 +53,9 @@ class measureController {
   private:
     int getUMOWidth();
     int getUMOEvents();
+    int getSheetY(int noteY);
 
+    double expandRatio;
     double location;
     int length;
     int tick;

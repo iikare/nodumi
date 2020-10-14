@@ -55,7 +55,18 @@ void controller::load(string filename) {
 }
 
 void controller::loadTextures() {
-    quarter = LoadTexture("bin/textures/quarter.png");
+    quarter = LoadTexture("bin/textures/noteQ.png");
+    half = LoadTexture("bin/textures/noteH.png");
+    whole = LoadTexture("bin/textures/noteW.png");
+    flag = LoadTexture("bin/textures/flag.png");
+
+    sharp = LoadTexture("bin/textures/sharp.png");
+    flat = LoadTexture("bin/textures/flat.png");
+    natural = LoadTexture("bin/textures/natural.png");
+
+    restQ = LoadTexture("bin/textures/restQ.png");
+    restE = LoadTexture("bin/textures/restE.png");
+    
     treble = LoadTexture("bin/textures/treble.png");
     brace = LoadTexture("bin/textures/brace.png");
     bass = LoadTexture("bin/textures/bass.png");
