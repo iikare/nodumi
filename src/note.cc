@@ -2,6 +2,8 @@
 #include <bitset>
 #include <cmath>
 #include "note.h"
+#include "data.h"
+#include "log.h"
 
 using std::pow;
 
@@ -48,7 +50,7 @@ note* note::getNextChordRoot() {
 }
 
 bool note::isChordRoot() {
-  return !(this->next == nullptr);
+  return !(this->next == nullptr) || isLastOnTrack;
 }
 
 int note::getChordSize() {
@@ -80,4 +82,9 @@ void note::findSize(vector<int>& noteChart) {
       size = NOTE_128;
     }
   }
+}
+
+void note::findSheetY() {
+  int mappedPos = y - MIN_NOTE_IDX;
+  logII(LL_CRIT, mappedPos);  
 }

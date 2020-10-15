@@ -104,6 +104,9 @@ class keySig {
     }
 
     int getKey() {
+      return key;
+      
+      // junk
       if (!isMinor) {
         return key;
       }

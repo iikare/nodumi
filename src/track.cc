@@ -54,3 +54,11 @@ note* trackController::getNote(int idx) {
   }
   return noteptr;
 }
+
+note* trackController::getLastNote() {
+  return noteIdxMap[noteIdxMap.size() - 1];
+}
+
+void trackController::fixLastNote() {
+  getLastNote()->isLastOnTrack = true;
+}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "timekey.h"
 
 using std::vector;
 
@@ -18,19 +19,25 @@ class note {
       y = 0;
       velocity = 0;
       isOn = false;
+      isLastOnTrack = false;
       prev = nullptr;
       next = nullptr;
       chordNext = nullptr;
+      key = nullptr;
 
     }
 
     note* getNextNote();
     note* getNextChordRoot();
     int getChordSize();
+    
+    void setKeySig(keySig* ks) { key = ks; }
+    keySig* getKeySig() { return key; };
 
     bool isChordRoot();
 
     void findSize(vector<int>& noteChart);
+    void findSheetY();
     
     int number;
     int size; 
@@ -43,6 +50,7 @@ class note {
     int y;
     int velocity;
     bool isOn;
+    bool isLastOnTrack;
 
     friend class trackController;
     friend vector<int> getLinePositions(note* now, note* next);
@@ -52,6 +60,8 @@ class note {
     note* prev;
     note* next;
     note* chordNext;
+
+    keySig* key;
 
 };
 

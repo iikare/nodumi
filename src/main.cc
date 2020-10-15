@@ -109,8 +109,8 @@ int main (int argc, char* argv[]) {
   };
 
   const auto convertSSY = [&] (int value) {
-    return (ctr.getHeight() - (ctr.getHeight() - ctr.barHeight) *
-            static_cast<float>(value - MIN_NOTE_IDX + 2) / (NOTE_RANGE + 3));
+    return (ctr.getHeight() - (ctr.getHeight() - (ctr.menuHeight + ctr.barHeight)) *
+            static_cast<float>(value - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 4));
   };
   const auto convertSheetX = [&] (int value) {
     return (value) + 80;
@@ -493,9 +493,9 @@ int main (int argc, char* argv[]) {
         //cerr << nowMeasure << " " << lastMeasure << " " << ctr.file.findParentMeasure(nowMeasure) << " " << ctr.file.measureMap[nowMeasure].getDisplayLocation() << endl;
 
         for (int i = ctr.file.findParentMeasure(nowMeasure); i <= lastMeasure; i++) {
-            cerr << endl;
+            //cerr << endl;
           ctr.file.measureMap[i - 1].draw();
-            cerr << endl;
+            //cerr << endl;
 
 
           int lineX = ctr.file.measureMap[i].getDisplayLocation() - 
@@ -570,29 +570,22 @@ int main (int argc, char* argv[]) {
       }
       switch (selectType) {
         case SELECT_NOTE:
-        if (clickOn) {
-          ctr.setTrackOn[ctr.notes->at(clickNote).track] = colorSelect.getColor();
-        }
-        else {
-          ctr.setTrackOff[ctr.notes->at(clickNote).track] = colorSelect.getColor();
-        }
+          if (clickOn) {
+            ctr.setTrackOn[ctr.notes->at(clickNote).track] = colorSelect.getColor();
+          }
+          else {
+            ctr.setTrackOff[ctr.notes->at(clickNote).track] = colorSelect.getColor();
+          }
           break;
         case SELECT_BG:
-          
-        ctr.bgColor = colorSelect.getColor();
+          ctr.bgColor = colorSelect.getColor();
           break;
         case SELECT_LINE:
-        ctr.bgNow = colorSelect.getColor();
+          ctr.bgNow = colorSelect.getColor();
           break;
         case SELECT_SHEET:
-        ctr.bgSheet = colorSelect.getColor();
+          ctr.bgSheet = colorSelect.getColor();
           break;
-      }
-      if (clickNote != -1) {
-      }
-      else if (selectType == SELECT_BG) {
-      }
-      else if (selectType == SELECT_LINE){
       }
     }
     

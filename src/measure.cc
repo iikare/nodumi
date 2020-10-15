@@ -41,7 +41,7 @@ void measureController::findLength() {
   }
   length = (getUMOWidth() + 1) * SHEET_NOTEWIDTH;
   //cerr << " " << getUMOWidth() << endl;
-  //cerr << allEvents.size() << getUMOEvents() << " " << notes.size() << " " << timeSignatures.size() << " " << keySignatures.size() << endl;
+  cerr << allEvents.size()  <<" " << getUMOEvents() << " " << notes.size() << " " << timeSignatures.size() << " " << keySignatures.size() << endl;
   sort(allEvents.begin(), allEvents.end(), [](const UMO& left, const UMO& right) {
     if (left.getTick() != right.getTick()) {
       return left.getTick() < right.getTick();
@@ -81,6 +81,7 @@ void measureController::draw() {
             DrawTextureEx(ctr.flag, {noteHeadX + 10, noteHeadY - 25}, 0, 1.0f, {0, 0, 0, 255});
         
             drawLineEx(noteHeadX + 10, noteHeadY + 4, noteHeadX + 10, noteHeadY - 25, 1.5, ctr.bgDark);
+            //cerr << chord->at(j)->getKeySig()->getKey() << endl;
           }
         }
         break;
@@ -121,7 +122,7 @@ int measureController::getUMOEvents() {
 }
 
 int measureController::getSheetY(int noteY) {
-  int distC = 44 - (noteY - MIN_NOTE_IDX);
-  cerr << distC<< endl;
+  int distC = (noteY - MIN_NOTE_IDX + 9) / 12;
+  //cerr << distC<< endl;
   return ctr.barMargin + ctr.barSpacing / 2 + 5 * distC;
 }

@@ -70,6 +70,7 @@ class midi {
     void buildTickMap();
 
     void findMeasure(note& idxNote);
+    void findKeySig(note& idxNote);
 
 
     int trackCount;

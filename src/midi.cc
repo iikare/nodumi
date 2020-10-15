@@ -66,6 +66,19 @@ void midi::findMeasure(note& idxNote) {
   return;
 }
 
+void midi::findKeySig(note& idxNote) {
+  if (idxNote.x >= sheetData.keySignatureMap[sheetData.keySignatureMap.size() - 1].first) {
+    idxNote.setKeySig(&(sheetData.keySignatureMap[sheetData.keySignatureMap.size() - 1].second));
+    return;
+  }
+  for (unsigned int i = 0; i < sheetData.keySignatureMap.size(); i++) {
+    if (sheetData.keySignatureMap[i].first <= idxNote.x && sheetData.keySignatureMap[i + 1].first > idxNote.x) {
+      idxNote.setKeySig(&(sheetData.keySignatureMap[i].second));
+      return;
+    }
+  }
+}
+
 int midi::findMeasure(int offset) {
   if (!offset ) { return 0; }
   if (measureMap[measureMap.size() - 1].location < offset) {
@@ -199,8 +212,11 @@ void midi::load(string file) {
   // link keysigs
   sheetData.linkKeySignatures();
 
-  // build track height map
   for (unsigned int i = 0; i < tracks.size(); i++) {
+    // assign chord to last note of each track
+    tracks[i].fixLastNote();
+
+    // build track height map
     trackHeightMap.push_back(make_pair(i, tracks[i].getAverageY()));
   }
   
@@ -241,12 +257,16 @@ void midi::load(string file) {
   }
   measureMap.pop_back(); 
 
-  // assign measures to notes
+  // assign measures and key signatures to notes
   for (unsigned int i = 0; i < notes.size(); i++) {
     if (notes[i].isChordRoot()) {
       findMeasure(notes[i]);
       //cerr << notes[i].measure << endl;
     }
+    findKeySig(notes[i]);
+
+    // get sheet position of note
+    notes[i].findSheetY();
   }
 
   // assign measures to time signatures
