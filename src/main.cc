@@ -210,17 +210,25 @@ int main (int argc, char* argv[]) {
       int measureSpacing = MeasureTextEx(font, to_string(ctr.file.measureMap.size() - 1).c_str(), font.baseSize, 0.5).x;
 
       for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
+        float measureLineWidth = 0.5;
+        int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
         if (convertSSX(ctr.file.measureMap[i].getLocation()) + measureSpacing + 4 > 0) {
-          if (convertSSX(ctr.file.measureMap[i].getLocation()) > ctr.getWidth()) {
-
+          double measureLineX = convertSSX(ctr.file.measureMap[i].getLocation());
+          if (pointInBox(GetMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - ctr.barHeight}) && !menuctr.mouseOnMenu()) {
+            measureLineWidth = 1; 
           }
-          drawLineEx(convertSSX(ctr.file.measureMap[i].getLocation()), ctr.barHeight,
-                     convertSSX(ctr.file.measureMap[i].getLocation()), ctr.getHeight(), 0.5, ctr.bgMeasure);
-          
+         
+          if (nowLineX != convertSSX(ctr.file.measureMap[i].getLocation())) {  
+            drawLineEx(convertSSX(ctr.file.measureMap[i].getLocation()), ctr.menuHeight,
+                       convertSSX(ctr.file.measureMap[i].getLocation()), ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
+          }
+
+
+
           if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 <
                     convertSSX(ctr.file.measureMap[i].getLocation())) {
-            int measureLineYLoc = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.barHeight : 0); 
-            drawTextEx(font, to_string(i + 1).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4, measureLineYLoc, ctr.bgLight);
+            int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight : 0);
+            drawTextEx(font, to_string(i + 1).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4, measureTextY, ctr.bgLight);
             lastMeasureNum = i;
           }
         }
@@ -230,10 +238,11 @@ int main (int argc, char* argv[]) {
 
       if (nowLine) {
         float nowLineWidth = 0.5;
-        if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && !menuctr.mouseOnMenu()) {
+        int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
+        if (pointInBox(GetMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) && !menuctr.mouseOnMenu()) {
           nowLineWidth = 1;
         }
-        drawLineEx(nowLineX, ctr.barHeight, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow);
+        drawLineEx(nowLineX, nowLineY, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow);
       }
 
       // note handling
@@ -514,6 +523,9 @@ int main (int argc, char* argv[]) {
           break;
         case SELECT_LINE:
           ctr.bgNow = colorSelect.getColor();
+          break;
+        case SELECT_MEASURE:
+          ctr.bgMeasure = colorSelect.getColor();
           break;
         case SELECT_SHEET:
           ctr.bgSheet = colorSelect.getColor();
@@ -1054,9 +1066,25 @@ int main (int argc, char* argv[]) {
             colorSelect.setColor(ctr.bgNow);
           }
           else {
-            selectType = SELECT_BG;
-            rightMenuContents[1] = "Change Color";
-            colorSelect.setColor(ctr.bgColor);
+            bool measureSelected = false;
+            for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
+              double measureLineX = convertSSX(ctr.file.measureMap[i].getLocation());
+              if (pointInBox(GetMousePosition(), {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && !menuctr.mouseOnMenu()) {
+                measureSelected = true;
+                break; 
+              }
+            }
+            
+            if (measureSelected) {
+              selectType = SELECT_MEASURE;
+              rightMenuContents[1] = "Change Line Color";
+              colorSelect.setColor(ctr.bgMeasure);
+            }
+            else {
+              selectType = SELECT_BG;
+              rightMenuContents[1] = "Change Color";
+              colorSelect.setColor(ctr.bgColor);
+            }
           }
           rightMenu.setContent("", 0);
           auto f = rightMenuContents.begin() + 1;
