@@ -218,7 +218,7 @@ int main (int argc, char* argv[]) {
             measureLineWidth = 1; 
           }
          
-          if (nowLineX != convertSSX(ctr.file.measureMap[i].getLocation())) {  
+          if (fabs(nowLineX - convertSSX(ctr.file.measureMap[i].getLocation())) > 3) {  
             drawLineEx(convertSSX(ctr.file.measureMap[i].getLocation()), ctr.menuHeight,
                        convertSSX(ctr.file.measureMap[i].getLocation()), ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
           }
@@ -227,7 +227,7 @@ int main (int argc, char* argv[]) {
 
           if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 <
                     convertSSX(ctr.file.measureMap[i].getLocation())) {
-            int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight : 0);
+            int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
             drawTextEx(font, to_string(i + 1).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4, measureTextY, ctr.bgLight);
             lastMeasureNum = i;
           }
