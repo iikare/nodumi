@@ -1,7 +1,7 @@
 #pragma once
 
 #define mWidth 1280
-#define mHeight 740
+#define mHeight 720
 #define mVersion "1.0a"
 #define MIN_NOTE_IDX 21
 #define MAX_NOTE_IDX 108
@@ -16,17 +16,3 @@
 #define SHEET_RMARGIN 30
 #define SHEET_LMARGIN 80
 
-enum colorSelections {
-  SELECT_BG,
-  SELECT_LINE,
-  SELECT_NOTE,
-  SELECT_SHEET,
-  SELECT_NONE
-};
-
-enum displayModes {
-  DISPLAY_LINE,
-  DISPLAY_BAR,
-  DISPLAY_BALL,
-  DISPLAY_BALLLINE
-};

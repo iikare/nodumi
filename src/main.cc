@@ -5,7 +5,9 @@
 #include <thread>
 #include <algorithm>
 #include <raylib.h>
+#include "enum.h"
 #include "box.h"
+#include "log.h"
 #include "misc.h"
 #include "menu.h"
 #include "data.h"
@@ -33,25 +35,19 @@ Font font;
 
 int main (int argc, char* argv[]) {
 
-  /*
-   * * * * * 
-   * SETUP *
-   * * * * *
-   */ 
-  
+ 
+  // basic window setup
+
   SetTraceLogLevel(LOG_NONE);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
-  InitWindow(mWidth, mHeight, (string("kelumi ") + string(mVersion)).c_str());
+  InitWindow(mWidth, mHeight, (string("nodumi ") + string(mVersion)).c_str());
   SetTargetFPS(60);
+  SetExitKey(KEY_F7);
   font = LoadFontEx("bin/fonts/yklight.ttf", 14, 0, 250);
   ctr.loadTextures();
   
-  /*
-   * * * * * * * 
-   * VARIABLES *
-   * * * * * * *
-   */  
-  
+ 
+  // program-wide variables 
 
   // scaling settings
   double zoomLevel = 0.125;
@@ -69,7 +65,7 @@ int main (int argc, char* argv[]) {
   bool colorCircle = false;
   bool sheetMusicDisplay = false;
   
-  int songTimeType = 0;
+  int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
   int displayMode = DISPLAY_BAR;
   
@@ -111,9 +107,6 @@ int main (int argc, char* argv[]) {
   const auto convertSSY = [&] (int value) {
     return (ctr.getHeight() - (ctr.getHeight() - (ctr.menuHeight + ctr.barHeight)) *
             static_cast<float>(value - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 4));
-  };
-  const auto convertSheetX = [&] (int value) {
-    return (value) + 80;
   };
 
   // menu objects
@@ -226,28 +219,21 @@ int main (int argc, char* argv[]) {
           
           if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 <
                     convertSSX(ctr.file.measureMap[i].getLocation())) {
-            if (sheetMusicDisplay) {
-              drawTextEx(font, to_string(i + 1).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4,
-                         ctr.menuHeight + ctr.barHeight + 4, ctr.bgLight);
-            }
-            else {
-              drawTextEx(font, to_string(i + 1).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4,
-                         ctr.menuHeight + 4, ctr.bgLight);
-            }
+            int measureLineYLoc = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.barHeight : 0); 
+            drawTextEx(font, to_string(i + 1).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4, measureLineYLoc, ctr.bgLight);
             lastMeasureNum = i;
           }
         }
       }
 
 
+
       if (nowLine) {
-        if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
-            !menuctr.mouseOnMenu()) {
-            drawLineEx(nowLineX, ctr.barHeight, nowLineX, ctr.getHeight(), 1, ctr.bgNow);
+        float nowLineWidth = 0.5;
+        if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && !menuctr.mouseOnMenu()) {
+          nowLineWidth = 1;
         }
-        else {
-          drawLineEx(nowLineX, ctr.barHeight, nowLineX, ctr.getHeight(), 0.5, ctr.bgNow);
-        }
+        drawLineEx(nowLineX, ctr.barHeight, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow);
       }
 
       // note handling
@@ -458,73 +444,15 @@ int main (int argc, char* argv[]) {
                    //ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
 
         // static sprites
-        DrawTextureEx(ctr.brace, {18.0f, float(ctr.menuHeight + ctr.barMargin)}, 0, 1.0f, {0, 0, 0, 255});
+        DrawTextureEx(ctr.brace, {18.0f, float(ctr.menuHeight + ctr.barMargin) + 2}, 0, 1.0f, {0, 0, 0, 255});
         DrawTextureEx(ctr.treble, {40.0f, ctr.menuHeight + 35.0f}, 0, 1.0f, {0, 0, 0, 255});
         DrawTextureEx(ctr.bass, {40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 1)}, 0, 1.0f, {0, 0, 0, 255});
         
-        //// tempo
-        //drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))),
-                   //SHEET_LMARGIN + 20, ctr.barMargin - 17, ctr.bgDark);
-        //DrawTextureEx(ctr.quarter, {SHEET_LMARGIN + 10, ctr.barMargin - 20.0f}, 0, 0.5f, {0, 0, 0, 255});
-       
-        //int nowMeasure = ctr.file.findMeasure(timeOffset);
-        //int lastMeasure = nowMeasure;
-        //bool useLastTime = false;
-        
-        //// find end of sheet page
-        //while (ctr.file.findParentMeasure(nowMeasure) == ctr.file.findParentMeasure(lastMeasure)) {
-          //if (lastMeasure >= (int)ctr.file.measureMap.size()) {
-            //lastMeasure = ctr.file.measureMap.size();
-            //useLastTime = true;
-            //break;
-          //}
-          //else if (ctr.file.findParentMeasure(nowMeasure) == ctr.file.findParentMeasure(lastMeasure + 1)) {
-            //lastMeasure++;
-          //}
-          //else {
-            //break;
-          //}
-        //}
-
-        //int pageEndLocation = (useLastTime ? ctr.getLastTime() : ctr.file.measureMap[lastMeasure].getLocation());
-        
-        //// draw current parent measure number 
-        //int parentWidth = MeasureTextEx(font, to_string(ctr.file.measureMap[max(0, nowMeasure - 1)].getParent() + 1).c_str(),
-                                        //font.baseSize, 0.5).x;
-        //drawTextEx(font, to_string(ctr.file.measureMap[max(0, nowMeasure - 1)].getParent() + 1),
-                   //SHEET_LMARGIN - parentWidth / 2 + 1, ctr.menuHeight + ctr.barMargin - 17, ctr.bgDark);
-
-        ////cerr << nowMeasure << " " << lastMeasure << " " << ctr.file.findParentMeasure(nowMeasure) << " " << ctr.file.measureMap[nowMeasure].getDisplayLocation() << endl;
-
-        //for (int i = ctr.file.findParentMeasure(nowMeasure); i <= lastMeasure; i++) {
-            ////cerr << endl;
-          //ctr.file.measureMap[i - 1].draw();
-            ////cerr << endl;
-
-
-          //int lineX = ctr.file.measureMap[i].getDisplayLocation() - 
-                //0;//ctr.file.measureMap[ctr.file.measureMap[i].getParent()].getDisplayLocation(); 
-
-          //drawLineEx(convertSheetX(lineX), ctr.menuHeight + ctr.barMargin,
-                     //convertSheetX(lineX), ctr.menuHeight + ctr.barHeight -
-                     //ctr.barMargin - 3, 0.5, ctr.bgDark);
-        //}
-        
-        ////cerr << ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation() << " " 
-        ////     << pageEndLocation << " " << timeOffset << endl;
-
-        //int sheetNowLineX = SHEET_LMARGIN + ctr.getSheetSize() * 
-            //((timeOffset - ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation()) /
-             //(pageEndLocation - ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation()));
-        
-        //drawLineEx(sheetNowLineX, ctr.menuHeight + ctr.barMargin, sheetNowLineX,
-                   //ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgNow);
-
       }
       
 
       // option actions
-      if (songTimeType == 1) {
+      if (songTimeType == SONGTIME_RELATIVE) {
         if (sheetMusicDisplay) {
           drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str(), 6, 26 + ctr.barHeight, ctr.bgLight);
         }
@@ -532,7 +460,7 @@ int main (int argc, char* argv[]) {
           drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str(), 6, 26, ctr.bgLight);
         }
       }
-      else if (songTimeType == 2) {
+      else if (songTimeType == SONGTIME_ABSOLUTE) {
         if (sheetMusicDisplay) {
           drawTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str(), 6, 26 + ctr.barHeight, ctr.bgLight);
         }
@@ -762,11 +690,11 @@ int main (int argc, char* argv[]) {
           }
           switch(songMenu.getActiveElement()) {
             case 0:
-              songTimeType = 1;
+              songTimeType = SONGTIME_RELATIVE;
               viewMenu.setContent("Hide Song Time", 2);
               break;
             case 1:
-              songTimeType = 2;
+              songTimeType = SONGTIME_ABSOLUTE;
               viewMenu.setContent("Hide Song Time", 2);
               break;
             case 2:
@@ -811,7 +739,7 @@ int main (int argc, char* argv[]) {
               else {
                 if (viewMenu.getContent(2) == "Hide Song Time") {
                   viewMenu.setContent("Display Song Time:", 2);  
-                  songTimeType = 0;
+                  songTimeType = SONGTIME_NONE;
                 }
                 else {
                   songMenu.render = !songMenu.render;
@@ -1143,6 +1071,9 @@ int main (int argc, char* argv[]) {
     
     menuctr.updateMouse();
     ctr.updateKeyState();
+    
+    // displays index of last clicked note  
+    //logQ(clickNote);
   }
 
   osdialog_filters_free(filetypes); 

@@ -13,7 +13,7 @@ SRCDIR = src
 BUILDDIR = build
 BINDIR = bin
 
-NAME =  $(addprefix $(BINDIR)/, kelumi)
+NAME =  $(addprefix $(BINDIR)/, nodumi)
 
 SRCS = $(wildcard $(SRCDIR)/*.cc)
 OBJS = $(patsubst $(SRCDIR)/%.cc, $(BUILDDIR)/%.o, $(SRCS))

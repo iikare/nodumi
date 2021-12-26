@@ -3,7 +3,6 @@
 #include <vector>
 #include "note.h"
 #include "timekey.h"
-#include "unimo.h"
 
 using std::vector;
 
@@ -21,7 +20,6 @@ class measureController {
       notes = {};
       timeSignatures = {};
       keySignatures = {};
-      allEvents = {};
     }
     measureController(double loc, int tk, int tkl) {
       expandRatio = 1;
@@ -35,11 +33,10 @@ class measureController {
       notes = {};
       timeSignatures = {};
       keySignatures = {};
-      allEvents = {};
     }
   
-    void findLength();
-    void draw();
+    //void findLength();
+    //void draw();
     
     double getLocation() { return location; }
     int getLength() { return length; }
@@ -51,9 +48,6 @@ class measureController {
 
     friend class midi;
   private:
-    int getUMOWidth();
-    int getUMOEvents();
-    int getSheetY(int noteY);
 
     double expandRatio;
     double location;
@@ -66,6 +60,5 @@ class measureController {
     vector<note*> notes;
     vector<timeSig*> timeSignatures;
     vector<keySig*> keySignatures;
-    vector<UMO> allEvents;
 
 };
