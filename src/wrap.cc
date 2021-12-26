@@ -8,9 +8,9 @@ void clearBackground(colorRGB col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   ClearBackground(color);
 }
-void drawRectangle(int x, int y, int w, int h, colorRGB col) {
+void drawRectangle(float x, float y, float w, float h, colorRGB col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
-  DrawRectangle(x, y, w, h, color);
+  DrawRectangleV({x, y}, {w, h}, color);
 }
 void drawLineEx(int xi, int yi, int xf, int yf, float thick, colorRGB col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};

@@ -1,33 +1,9 @@
-#include <iostream>
-#include <iomanip>
 #include <string>
 #include "log.h"
 
-using std::cerr;
-using std::endl;
 using std::string;
-using std::to_string;
 
-void logOutput (int level, const string& msg, double value, const string& file, int line) {
-  if (value - static_cast<int>(value) < 0.0001) {
-    logOutput(level, msg + ": " + to_string(static_cast<int>(value)), file, line);
-  }
-  else {
-    logOutput(level, msg + ": " + to_string(value), file, line);
-  }
-}
-
-void logOutput(int level, double msg, const string& file, int line) {
-  if (msg - static_cast<int>(msg) < 0.00000001) {
-    logOutput(level, to_string(static_cast<int>(msg)), file, line);
-  }
-  else {
-    logOutput(level, to_string(msg), file, line);
-  }
-}
-
-void logOutput(int level, const string& msg, string file, int line) {
-  string lvmsg = "";
+void logProcess(const logLevel& level, string&lvmsg, string& file) {
   if (level == LL_INFO) {
     lvmsg = "INFO: ";
   }
@@ -37,15 +13,16 @@ void logOutput(int level, const string& msg, string file, int line) {
   else if (level == LL_CRIT) {
     lvmsg = "CRITICAL ERROR: ";
   }
+  else if (level == LL_DEBUG) {
+    lvmsg = "DEBUG: ";
+  }
   else {
     lvmsg = "undefined error level: ";
   }
-  
+
   for (unsigned int i = 0; i < file.length(); i++) {
     if (file[file.length() - i] == '/') {
       file = file.substr(file.length() - i + 1, file.length());
     }
   }
-
-  cerr << lvmsg << msg << " → " << file << ":" << line << endl;
 }

@@ -99,6 +99,9 @@ void sheetController::reset() {
 }
 
 void sheetController::linkKeySignatures() {
+  if (keySignatureMap.size() == 0) {
+    return;
+  }
   for (unsigned int i = 0; i < keySignatureMap.size(); i++) {
     if (i == 0) {
       continue;

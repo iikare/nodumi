@@ -352,7 +352,7 @@ colorRGB menu::getColor() {
 
 void menu::draw() {
   findActiveElement(ctr.getMousePosition());
-   if (type == TYPE_MAIN) {
+  if (type == TYPE_MAIN) {
     if (render) {
       drawRectangle(x, y, mainSize, ITEM_HEIGHT, ctr.bgMenuShade);
       drawRectangle(x, getItemY(1), width, height - ITEM_HEIGHT, ctr.bgMenu);
@@ -404,7 +404,7 @@ void menu::draw() {
         DrawLineEx({circleX, circleY},
                    {float(circleX + circleRatio * COLOR_WIDTH * cos(rad)),
                    float(circleY + circleRatio * COLOR_WIDTH * sin(rad))},
-                   2.0f, ColorFromHSV({float(360 - i), 1, 1}));
+                   2.0f, ColorFromHSV(float(360 - i), 1, 1));
       }
     
       drawCircle(circleX, circleY, (circleRatio - circleWidth) * COLOR_WIDTH, ctr.bgMenu);
@@ -413,16 +413,16 @@ void menu::draw() {
 
       for (int sqX = -squareDim/2.0; sqX < squareDim/2.0; sqX++) {
         for (int sqY = -squareDim/2.0; sqY < squareDim/2.0; sqY++) {
-          DrawPixel(circleX + sqX, circleY + sqY, ColorFromHSV({float(angle),
-                    0.5f + float(sqX / squareDim), 0.5f + float(-sqY / squareDim)}));
+          DrawPixel(circleX + sqX, circleY + sqY, ColorFromHSV(float(angle),
+                    0.5f + float(sqX / squareDim), 0.5f + float(-sqY / squareDim)));
         }
       }
       DrawRing({float(circleX - squareDim/2.0 + pX), float(circleY - squareDim/2.0 + pY)}, 
-               0.0f, 5.0f, 0.0f, 360.0f, 2, ColorFromHSV({float(fmod(angle, 360.0)), 0.3f, 1.0f})); 
+               0.0f, 5.0f, 0.0f, 360.0f, 2, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f)); 
       
       DrawRing({float(circleX + (circleRatio - circleWidth/2.0) * COLOR_WIDTH * cos(angle * M_PI/180.0)),
                 float(circleY - (circleRatio - circleWidth/2.0) * COLOR_HEIGHT * sin(angle * M_PI/180.0))},
-                0.0f, 5.0f, 0.0f, 360.0f, 2, ColorFromHSV({float(fmod(angle, 360.0)), 0.3f, 1.0f})); 
+                0.0f, 5.0f, 0.0f, 360.0f, 2, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f)); 
       
       drawRectangle(x + COLOR_WIDTH - 36, y + COLOR_HEIGHT - 36, 36, 36, getColor());
 

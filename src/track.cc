@@ -9,12 +9,11 @@ using std::endl;
 
 void trackController::insert(int idx, note* newNote) {
   if (newNote == nullptr) {
-    log3(LL_CRIT, "empty note passed to trackController::insert with index", idx);
+    logW(LL_CRIT, "empty note passed to trackController::insert with index", idx);
     return;
   }
   if (tail != nullptr && tail->x > newNote->x) {
-    logII(LL_WARN, "mismatched note on track" + to_string(newNote->track) + " (" + 
-          to_string(tail->x) + " → " + to_string(newNote->x) + ")");
+    logW(LL_WARN, "mismatched note on track", newNote->track," (", tail->x, " → ", newNote->x, ")");
   }
   if (head == nullptr) {
     head = newNote;
@@ -56,9 +55,15 @@ note* trackController::getNote(int idx) {
 }
 
 note* trackController::getLastNote() {
+  if (noteIdxMap.size() == 0) {
+    return nullptr;
+  }
   return noteIdxMap[noteIdxMap.size() - 1];
 }
 
 void trackController::fixLastNote() {
+  if (!getLastNote()) {
+    return;
+  }
   getLastNote()->isLastOnTrack = true;
 }

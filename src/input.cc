@@ -6,7 +6,7 @@
 midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), noteCount(0), numOn(0), timestamp(0) {
   midiIn = new RtMidiIn();
   if (midiIn == nullptr) {
-    logII(LL_WARN, "unable to initialize midi input");
+    logW(LL_WARN, "unable to initialize midi input");
   }
 }
 
@@ -20,17 +20,17 @@ void midiInput::openPort(int port) {
 
     numPort = midiIn->getPortCount();
     if (port >= numPort) {
-      log3(LL_WARN, "unable to open port number", port);
+      logW(LL_WARN, "unable to open port number", port);
       return;
     }
 
     midiIn->openPort(port);
     midiIn->ignoreTypes(false, false, false);
     
-    log3(LL_INFO, "opened port ", port);
+    logW(LL_INFO, "opened port ", port);
   }
   else {
-    logII(LL_WARN, "cannot open port in normal mode");
+    logW(LL_WARN, "cannot open port in normal mode");
   }
 }
 

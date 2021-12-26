@@ -5,6 +5,19 @@
 
 using std::vector;
 
+enum accidentalTypes{
+  ACC_NATURAL,
+  ACC_SHARP,
+  ACC_FLAT,
+  ACC_NONE
+};
+
+struct sheetNote {
+  sheetNote() { accidentalType = ACC_NONE; keyIndex = 0; }
+  int accidentalType;
+  int keyIndex;
+};
+
 class note {
   public:
     note() {
@@ -24,7 +37,7 @@ class note {
       next = nullptr;
       chordNext = nullptr;
       key = nullptr;
-
+      sheetView = sheetNote();
     }
 
     note* getNextNote();
@@ -37,7 +50,7 @@ class note {
     bool isChordRoot();
 
     void findSize(vector<int>& noteChart);
-    void findSheetY();
+    void findSheetParameters();
     
     int number;
     int size; 
@@ -51,6 +64,8 @@ class note {
     int velocity;
     bool isOn;
     bool isLastOnTrack;
+
+    sheetNote sheetView;
 
     friend class trackController;
     friend vector<int> getLinePositions(note* now, note* next);

@@ -179,7 +179,7 @@ int main (int argc, char* argv[]) {
     ifstream filecheck;
     filecheck.open(filename);
     if (!filecheck || (ext != "mid" && ext != "mki")) {
-      logII(LL_WARN, "invalid filename: " + filename);
+      logW(LL_WARN, "invalid filename: " + filename);
     }
     filecheck.close();
 
@@ -436,6 +436,10 @@ int main (int argc, char* argv[]) {
 
       // sheet music layout
       if (sheetMusicDisplay) {
+        
+        // needs refactoring 
+        
+
         // bg
         drawRectangle(0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight, ctr.bgSheet);  
 
@@ -447,74 +451,74 @@ int main (int argc, char* argv[]) {
           }
         }
         
-        // end lines
+        //// end lines
         drawLineEx(30, ctr.menuHeight + ctr.barMargin, 30,
                    ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
-        drawLineEx(ctr.getWidth() - 30, ctr.menuHeight + ctr.barMargin, ctr.getWidth() - 30,
-                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
+        //drawLineEx(ctr.getWidth() - 30, ctr.menuHeight + ctr.barMargin, ctr.getWidth() - 30,
+                   //ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
 
         // static sprites
         DrawTextureEx(ctr.brace, {18.0f, float(ctr.menuHeight + ctr.barMargin)}, 0, 1.0f, {0, 0, 0, 255});
         DrawTextureEx(ctr.treble, {40.0f, ctr.menuHeight + 35.0f}, 0, 1.0f, {0, 0, 0, 255});
         DrawTextureEx(ctr.bass, {40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 1)}, 0, 1.0f, {0, 0, 0, 255});
         
-        // tempo
-        drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))),
-                   SHEET_LMARGIN + 20, ctr.barMargin - 17, ctr.bgDark);
-        DrawTextureEx(ctr.quarter, {SHEET_LMARGIN + 10, ctr.barMargin - 20.0f}, 0, 0.5f, {0, 0, 0, 255});
+        //// tempo
+        //drawTextEx(font, ("= " + to_string(ctr.getTempo(timeOffset))),
+                   //SHEET_LMARGIN + 20, ctr.barMargin - 17, ctr.bgDark);
+        //DrawTextureEx(ctr.quarter, {SHEET_LMARGIN + 10, ctr.barMargin - 20.0f}, 0, 0.5f, {0, 0, 0, 255});
        
-        int nowMeasure = ctr.file.findMeasure(timeOffset);
-        int lastMeasure = nowMeasure;
-        bool useLastTime = false;
+        //int nowMeasure = ctr.file.findMeasure(timeOffset);
+        //int lastMeasure = nowMeasure;
+        //bool useLastTime = false;
         
-        // find end of sheet page
-        while (ctr.file.findParentMeasure(nowMeasure) == ctr.file.findParentMeasure(lastMeasure)) {
-          if (lastMeasure >= (int)ctr.file.measureMap.size()) {
-            lastMeasure = ctr.file.measureMap.size();
-            useLastTime = true;
-            break;
-          }
-          else if (ctr.file.findParentMeasure(nowMeasure) == ctr.file.findParentMeasure(lastMeasure + 1)) {
-            lastMeasure++;
-          }
-          else {
-            break;
-          }
-        }
+        //// find end of sheet page
+        //while (ctr.file.findParentMeasure(nowMeasure) == ctr.file.findParentMeasure(lastMeasure)) {
+          //if (lastMeasure >= (int)ctr.file.measureMap.size()) {
+            //lastMeasure = ctr.file.measureMap.size();
+            //useLastTime = true;
+            //break;
+          //}
+          //else if (ctr.file.findParentMeasure(nowMeasure) == ctr.file.findParentMeasure(lastMeasure + 1)) {
+            //lastMeasure++;
+          //}
+          //else {
+            //break;
+          //}
+        //}
 
-        int pageEndLocation = (useLastTime ? ctr.getLastTime() : ctr.file.measureMap[lastMeasure].getLocation());
+        //int pageEndLocation = (useLastTime ? ctr.getLastTime() : ctr.file.measureMap[lastMeasure].getLocation());
         
-        // draw current parent measure number 
-        int parentWidth = MeasureTextEx(font, to_string(ctr.file.measureMap[max(0, nowMeasure - 1)].getParent() + 1).c_str(),
-                                        font.baseSize, 0.5).x;
-        drawTextEx(font, to_string(ctr.file.measureMap[max(0, nowMeasure - 1)].getParent() + 1),
-                   SHEET_LMARGIN - parentWidth / 2 + 1, ctr.menuHeight + ctr.barMargin - 17, ctr.bgDark);
+        //// draw current parent measure number 
+        //int parentWidth = MeasureTextEx(font, to_string(ctr.file.measureMap[max(0, nowMeasure - 1)].getParent() + 1).c_str(),
+                                        //font.baseSize, 0.5).x;
+        //drawTextEx(font, to_string(ctr.file.measureMap[max(0, nowMeasure - 1)].getParent() + 1),
+                   //SHEET_LMARGIN - parentWidth / 2 + 1, ctr.menuHeight + ctr.barMargin - 17, ctr.bgDark);
 
-        //cerr << nowMeasure << " " << lastMeasure << " " << ctr.file.findParentMeasure(nowMeasure) << " " << ctr.file.measureMap[nowMeasure].getDisplayLocation() << endl;
+        ////cerr << nowMeasure << " " << lastMeasure << " " << ctr.file.findParentMeasure(nowMeasure) << " " << ctr.file.measureMap[nowMeasure].getDisplayLocation() << endl;
 
-        for (int i = ctr.file.findParentMeasure(nowMeasure); i <= lastMeasure; i++) {
-            //cerr << endl;
-          ctr.file.measureMap[i - 1].draw();
-            //cerr << endl;
+        //for (int i = ctr.file.findParentMeasure(nowMeasure); i <= lastMeasure; i++) {
+            ////cerr << endl;
+          //ctr.file.measureMap[i - 1].draw();
+            ////cerr << endl;
 
 
-          int lineX = ctr.file.measureMap[i].getDisplayLocation() - 
-                0;//ctr.file.measureMap[ctr.file.measureMap[i].getParent()].getDisplayLocation(); 
+          //int lineX = ctr.file.measureMap[i].getDisplayLocation() - 
+                //0;//ctr.file.measureMap[ctr.file.measureMap[i].getParent()].getDisplayLocation(); 
 
-          drawLineEx(convertSheetX(lineX), ctr.menuHeight + ctr.barMargin,
-                     convertSheetX(lineX), ctr.menuHeight + ctr.barHeight -
-                     ctr.barMargin - 3, 0.5, ctr.bgDark);
-        }
+          //drawLineEx(convertSheetX(lineX), ctr.menuHeight + ctr.barMargin,
+                     //convertSheetX(lineX), ctr.menuHeight + ctr.barHeight -
+                     //ctr.barMargin - 3, 0.5, ctr.bgDark);
+        //}
         
-        //cerr << ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation() << " " 
-        //     << pageEndLocation << " " << timeOffset << endl;
+        ////cerr << ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation() << " " 
+        ////     << pageEndLocation << " " << timeOffset << endl;
 
-        int sheetNowLineX = SHEET_LMARGIN + ctr.getSheetSize() * 
-            ((timeOffset - ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation()) /
-             (pageEndLocation - ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation()));
+        //int sheetNowLineX = SHEET_LMARGIN + ctr.getSheetSize() * 
+            //((timeOffset - ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation()) /
+             //(pageEndLocation - ctr.file.measureMap[ctr.file.measureMap[max(0, nowMeasure - 1)].getParent()].getLocation()));
         
-        drawLineEx(sheetNowLineX, ctr.menuHeight + ctr.barMargin, sheetNowLineX,
-                   ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgNow);
+        //drawLineEx(sheetNowLineX, ctr.menuHeight + ctr.barMargin, sheetNowLineX,
+                   //ctr.menuHeight + ctr.barHeight - ctr.barMargin - 3, 0.5, ctr.bgNow);
 
       }
       

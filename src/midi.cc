@@ -38,7 +38,7 @@ void midi::buildLineMap() {
 
 void midi::buildTickMap() {
   if (!tpq) {
-    logII(LL_CRIT, "invalid MIDI");
+    logW(LL_CRIT, "invalid MIDI file");
     return;
   }
   
@@ -61,12 +61,15 @@ void midi::findMeasure(note& idxNote) {
       return;
     }
   }
-  logII(LL_CRIT, idxNote.number);
+  logQ(idxNote.number);
   idxNote.measure = -1;
   return;
 }
 
 void midi::findKeySig(note& idxNote) {
+  if (sheetData.keySignatureMap.size() == 0) {
+    return;
+  }
   if (idxNote.x >= sheetData.keySignatureMap[sheetData.keySignatureMap.size() - 1].first) {
     idxNote.setKeySig(&(sheetData.keySignatureMap[sheetData.keySignatureMap.size() - 1].second));
     return;
@@ -106,7 +109,7 @@ int midi::findParentMeasure(int measure) {
 void midi::load(string file) {
   MidiFile midifile;
   if (!midifile.read(file.c_str())) {
-    logII(LL_WARN, "unable to open MIDI");
+    logW(LL_WARN, "unable to open MIDI");
     return;
   }
 
@@ -153,7 +156,7 @@ void midi::load(string file) {
   }
 
   if (noteCount == 0) {
-    logII(LL_WARN, "zero length file");
+    logW(LL_WARN, "zero length MIDI file");
     return;
   }
 
@@ -266,7 +269,7 @@ void midi::load(string file) {
     findKeySig(notes[i]);
 
     // get sheet position of note
-    notes[i].findSheetY();
+    notes[i].findSheetParameters();
   }
 
   // assign measures to time signatures

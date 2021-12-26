@@ -317,7 +317,7 @@ vector<int> getLinePositions(note* now, note* next) {
 
   if (!pNext) {
     if (!(pNow->isLastOnTrack)) {
-      logII(LL_CRIT, "pNext is nullptr");
+      logW(LL_WARN, "pNext is nullptr");
     }
     return {};
   }

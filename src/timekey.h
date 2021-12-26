@@ -48,7 +48,6 @@ class timeSig {
 };
 
 enum keySignature {
-  KEYSIG_CFLAT,
   KEYSIG_C,
   KEYSIG_CSHARP,
   KEYSIG_DFLAT,
@@ -63,6 +62,7 @@ enum keySignature {
   KEYSIG_A,
   KEYSIG_BFLAT,
   KEYSIG_B,
+  KEYSIG_CFLAT,
   KEYSIG_NONE
 };
 
@@ -70,24 +70,28 @@ class keySig {
   public:
     keySig() {
       isMinor = false;
-      key = KEYSIG_C;
+      key = KEYSIG_NONE;
       accidentals = 0;
+      startingIndex = -1;
       measure = -1;
       tick = -1;
       prev = nullptr;
 
       findAccidentalsFromKey();
+      findStartingIndex();
     }
 
     keySig(int k, bool m, int tk) {
       key = k;
       accidentals = 0;
+      startingIndex = -1;
       isMinor = m;
       measure = -1;
       tick = tk;
       prev = nullptr;
       
       findAccidentalsFromKey();
+      findStartingIndex();
     }
 
     keySig(const keySig& other) {
@@ -96,7 +100,9 @@ class keySig {
       measure = other.measure;
       tick = other.tick;
       prev = other.prev;
+      
       findAccidentalsFromKey();
+      findStartingIndex();
     }
 
     bool operator== (const keySig& other) {
@@ -121,15 +127,19 @@ class keySig {
 
     keySig* getPrev() { return prev; }
 
-    void findAccidentalsFromKey();
     int getSize();
+    int getStartingIndex() { return startingIndex; }
 
     bool isMinor;
     int measure;
     int tick;
   private:
+    void findAccidentalsFromKey();
+    void findStartingIndex();
+
     int key;
     int accidentals;
+    int startingIndex;
     keySig* prev;
 
     int toMajorKey(int minorKey) {

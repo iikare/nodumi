@@ -3,7 +3,7 @@
 
 void UMO::addNote(note* nNote) {
   if (getType() != UMO_NOTE) {
-    logII(LL_WARN, "attempt to add note to non-note UMO");
+    logW(LL_WARN, "attempt to add note to non-note UMO");
     return;
   }
   n.push_back(nNote);

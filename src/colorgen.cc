@@ -25,7 +25,7 @@ void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorV
   
   // check zero n
   if (!n) {
-    log3(LL_WARN, "call to getColorScheme with n", n);
+    logW(LL_WARN, "call to getColorScheme with n", n);
   }
 
   // generate color scheme
