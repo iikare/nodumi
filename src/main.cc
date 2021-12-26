@@ -218,7 +218,7 @@ int main (int argc, char* argv[]) {
             measureLineWidth = 1; 
           }
          
-          if (fabs(nowLineX - convertSSX(ctr.file.measureMap[i].getLocation())) > 3) {  
+          if (!nowLine || fabs(nowLineX - convertSSX(ctr.file.measureMap[i].getLocation())) > 3) {  
             drawLineEx(convertSSX(ctr.file.measureMap[i].getLocation()), ctr.menuHeight,
                        convertSSX(ctr.file.measureMap[i].getLocation()), ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
           }
