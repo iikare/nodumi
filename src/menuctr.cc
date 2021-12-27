@@ -1,4 +1,5 @@
 #include "menuctr.h"
+#include "enum.h"
 #include "misc.h"
 
 void menuController::registerMenu(menu* newMenu) {

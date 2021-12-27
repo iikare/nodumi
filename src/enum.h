@@ -1,0 +1,32 @@
+#pragma once
+
+
+enum colorType {
+  SELECT_BG,
+  SELECT_LINE,
+  SELECT_NOTE,
+  SELECT_SHEET,
+  SELECT_MEASURE,
+  SELECT_NONE
+};
+
+enum displayType {
+  DISPLAY_LINE,
+  DISPLAY_BAR,
+  DISPLAY_BALL,
+  DISPLAY_BALLLINE
+};
+
+enum menuType {
+  TYPE_MAIN,
+  TYPE_SUB,
+  TYPE_RIGHT,
+  TYPE_RIGHTSUB,
+  TYPE_COLOR
+};
+
+enum songTimeType {
+  SONGTIME_RELATIVE,
+  SONGTIME_ABSOLUTE,
+  SONGTIME_NONE
+};

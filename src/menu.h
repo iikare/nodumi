@@ -98,11 +98,3 @@ class menu {
     vector<menuItem> items;
     vector<menu*> childMenu;
 };
-
-enum menuTypes {
-  TYPE_MAIN,
-  TYPE_SUB,
-  TYPE_RIGHT,
-  TYPE_RIGHTSUB,
-  TYPE_COLOR
-};

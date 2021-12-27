@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include "enum.h"
 #include "misc.h"
 #include "menu.h"
 #include "data.h"
