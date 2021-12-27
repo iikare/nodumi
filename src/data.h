@@ -2,7 +2,7 @@
 
 #define mWidth 1280
 #define mHeight 740
-#define mVersion "1.0a"
+#define mVersion "0.01a"
 #define MIN_NOTE_IDX 21
 #define MAX_NOTE_IDX 108
 #define NOTE_RANGE 88
@@ -15,4 +15,5 @@
 #define SHEET_NOTEWIDTH 20
 #define SHEET_RMARGIN 30
 #define SHEET_LMARGIN 80
+#define TEXT_SPACING 0
 

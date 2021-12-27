@@ -32,6 +32,7 @@ class controller {
     void setCloseFlag();
     void load(string filename);
     void loadTextures();
+    void unloadTextures(); 
 
     bool getProgramState() { return programState; }
     bool getPlayState() { return playState; }

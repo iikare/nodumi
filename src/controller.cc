@@ -74,6 +74,22 @@ void controller::loadTextures() {
     fontMusic = LoadFontEx("bin/fonts/petaluma.otf", 24, 0, 548);
 }
 
+void controller::unloadTextures() {
+
+  UnloadTexture(quarter);
+  UnloadTexture(half);
+  UnloadTexture(whole);
+  UnloadTexture(flag);
+
+  UnloadTexture(sharp);
+  UnloadTexture(flat);
+  UnloadTexture(natural);
+  UnloadTexture(restQ);
+  UnloadTexture(restE);
+  UnloadTexture(treble);
+  UnloadTexture(brace);
+  UnloadTexture(bass);
+}
 
 void controller::setCloseFlag() {
   programState = false;

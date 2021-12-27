@@ -109,6 +109,9 @@ int main (int argc, char* argv[]) {
             static_cast<float>(value - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 4));
   };
 
+  // menu variables
+  Vector2 songTimePosition = {6.0f, 26.0f};
+
   // menu objects
   vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Exit"};
   menu fileMenu(ctr.getSize(), fileMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
@@ -202,6 +205,13 @@ int main (int argc, char* argv[]) {
     // preprocess variables
     clickTmp = -1;
 
+    // update menu variables
+    if (sheetMusicDisplay) {
+      songTimePosition.y = 26.0f + ctr.barHeight;
+    }
+    else {
+      songTimePosition.y = 26.0f;
+    }
     // main render loop
     
     BeginDrawing();
@@ -213,23 +223,46 @@ int main (int argc, char* argv[]) {
       for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
         float measureLineWidth = 0.5;
         int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
-        if (convertSSX(ctr.file.measureMap[i].getLocation()) + measureSpacing + 4 > 0) {
-          double measureLineX = convertSSX(ctr.file.measureMap[i].getLocation());
+        double measureLineX = convertSSX(ctr.file.measureMap[i].getLocation());
+        if (measureLineX + measureSpacing + 4 > 0) {
           if (pointInBox(GetMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - ctr.barHeight}) && !menuctr.mouseOnMenu()) {
             measureLineWidth = 1; 
           }
          
-          if (!nowLine || fabs(nowLineX - convertSSX(ctr.file.measureMap[i].getLocation())) > 3) {  
-            drawLineEx(convertSSX(ctr.file.measureMap[i].getLocation()), ctr.menuHeight,
-                       convertSSX(ctr.file.measureMap[i].getLocation()), ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
+          if (!nowLine || fabs(nowLineX - measureLineX) > 3) {  
+            drawLineEx(measureLineX, ctr.menuHeight,
+                       measureLineX, ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
           }
 
 
 
           if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 <
-                    convertSSX(ctr.file.measureMap[i].getLocation())) {
+                    measureLineX) {
+            
+            // measure number / song time collision detection
+            Vector2 songTimeSize; 
+            switch (songTimeType) {
+              case SONGTIME_ABSOLUTE:
+               songTimeSize = measureTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str());
+               break;
+              case SONGTIME_RELATIVE: 
+               songTimeSize = measureTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str());
+               break;
+            }
+            
+            int measureLineTextAlpha = 255;
+
+            if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songTimeSize.x) {
+              measureLineTextAlpha = max(0.0,min(255.0, 255.0 *(1-( songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
+              if (i == 1) { 
+                //logQ(measureLineTextAlpha); 
+                logQ(255* (1-( songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10));
+              }
+            }
+
+
             int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
-            drawTextEx(font, to_string(i + 1).c_str(), convertSSX(ctr.file.measureMap[i].getLocation()) + 4, measureTextY, ctr.bgLight);
+            drawTextEx(font, to_string(i + 1).c_str(), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
             lastMeasureNum = i;
           }
         }
@@ -463,21 +496,13 @@ int main (int argc, char* argv[]) {
       
 
       // option actions
-      if (songTimeType == SONGTIME_RELATIVE) {
-        if (sheetMusicDisplay) {
-          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str(), 6, 26 + ctr.barHeight, ctr.bgLight);
-        }
-        else {
-          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str(), 6, 26, ctr.bgLight);
-        }
-      }
-      else if (songTimeType == SONGTIME_ABSOLUTE) {
-        if (sheetMusicDisplay) {
-          drawTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str(), 6, 26 + ctr.barHeight, ctr.bgLight);
-        }
-        else {
-          drawTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str(), 6, 26, ctr.bgLight);
-        }
+      switch (songTimeType) {
+        case SONGTIME_RELATIVE:
+          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str(), songTimePosition, ctr.bgLight);
+          break;
+        case SONGTIME_ABSOLUTE:
+          drawTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str(), songTimePosition, ctr.bgLight);
+          break;
       }
 
       if (showFPS) {
@@ -1111,6 +1136,8 @@ int main (int argc, char* argv[]) {
 
 
   }
+
+  ctr.unloadTextures();
 
   osdialog_filters_free(filetypes); 
   osdialog_filters_free(savetypes); 
