@@ -15,3 +15,5 @@ void drawTextEx(Font ft, string msg, int x, int y, colorRGB col);
 void drawCircle(int x, int y, float r, colorRGB col);  
 void drawCircleLines(int x, int y, float r, colorRGB col); 
 void drawRing(Vector2 center, float iRad, float oRad, colorRGB col);
+void drawRing(Vector2 center, float iRad, float oRad, colorRGB col, float alpha);
+void drawGradientLineH(Vector2 a, Vector2 b, float thick, colorRGB col, float alphaA, float alphaB);

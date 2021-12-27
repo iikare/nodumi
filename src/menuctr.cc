@@ -36,3 +36,13 @@ void menuController::updateMouse() {
 bool menuController::mouseOnMenu() {
   return mouseMenu;
 }
+
+void menuController::updateRenderStatus() {
+  for (auto i : menuSet) {
+    if (i->parent) {
+      if (!i->parent->render) {
+        i->render = false;
+      }
+    }
+  }
+}

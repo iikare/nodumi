@@ -301,6 +301,7 @@ int main (int argc, char* argv[]) {
           case DISPLAY_BALL:
             {
               float radius = 1 + 3 * log(cW);
+              float maxRad = radius;
               float ballY = cY + 2;
               if (cX + cW + radius > 0 && cX - radius < ctr.getWidth()) {
 
@@ -342,16 +343,16 @@ int main (int argc, char* argv[]) {
                     drawRing({cX + cW, ballY}, radius - 2, radius, colorSetOn->at(colorID));
                   }
                   else if (cX < nowLineX) {
-                    drawRing({cX, ballY}, radius - 2, radius, colorSetOn->at(colorID));
+                    drawRing({cX, ballY}, radius - 2, radius, colorSetOn->at(colorID), 255*radius/maxRad);
                     drawRing({nowLineX, ballY}, radius - 2, radius, colorSetOn->at(colorID));
                     if (nowLineX - cX > 2 * radius) {
-                      drawLineEx(cX + radius, ballY + 1, nowLineX - radius, ballY + 1, 2, colorSetOn->at(colorID));
+                      drawGradientLineH({cX + radius, ballY + 1}, {nowLineX - radius + 1, ballY + 1}, 2, colorSetOn->at(colorID), 255, 255*radius/maxRad);
                     }
                   }
                 }
                 else {
                   if (cX < nowLineX && cX + cW > nowLineX) {
-                    drawRing({cX, ballY}, radius - 2, radius, colorSetOff->at(colorID));
+                    drawRing({cX, ballY}, radius - 2, radius, colorSetOff->at(colorID), 255*radius/maxRad);
                     drawRing({nowLineX, ballY}, radius - 2, radius, colorSetOff->at(colorID));
                     if (nowLineX - cX > 2 * radius) {
                       drawLineEx(cX + radius, ballY + 1, nowLineX - radius, ballY + 1, 2, colorSetOff->at(colorID));
@@ -1100,6 +1101,7 @@ int main (int argc, char* argv[]) {
     }
     
     menuctr.updateMouse();
+    menuctr.updateRenderStatus();
     ctr.updateKeyState();
     
     // displays index of last clicked note  

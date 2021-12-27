@@ -23,6 +23,7 @@ class menuController {
     bool mouseOnMenu();
 
     void updateMouse();
+    void updateRenderStatus();
     
     int getOffset() { return mainMenuOffset; }
   private:

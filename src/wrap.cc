@@ -32,7 +32,20 @@ void drawCircleLines(int x, int y, float r, colorRGB col) {
   DrawCircleLines(x, y, r, color);
 }
 
-void drawRing(Vector2 center, float iRad, float oRad, colorRGB col) {
-  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
+void drawRing(Vector2 center, float iRad, float oRad, colorRGB col, float alpha) {
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, 
+                        (unsigned char)col.b, (unsigned char)alpha};
   DrawRing(center, iRad, oRad, 0.0f, 360.0f, 1 + oRad, color);
+}
+void drawRing(Vector2 center, float iRad, float oRad, colorRGB col) {
+  drawRing(center, iRad, oRad, col, 255);
+
+}
+
+void drawGradientLineH(Vector2 a, Vector2 b, float thick, colorRGB col, float alphaA, float alphaB) {
+  Color colorA = (Color){(unsigned char)col.r, (unsigned char)col.g, 
+                         (unsigned char)col.b, (unsigned char)(alphaA)};
+  Color colorB = (Color){(unsigned char)col.r, (unsigned char)col.g, 
+                         (unsigned char)col.b, (unsigned char)alphaB};
+  DrawRectangleGradientH(a.x, a.y-thick/2.0 , b.x-a.x, thick , colorB, colorA);
 }
