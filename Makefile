@@ -6,6 +6,8 @@ CFLAGSRTM = $(CFLAGS) -w
 
 LFLAGS = -lraylib -lasound -lpthread -ljack $(shell pkg-config --libs gtk+-3.0)
 
+PREREQ_DIR=@mkdir -p $(@D)
+
 MFDIR = dpd/midifile
 OSDDIR = dpd/osdialog
 RTMDIR = dpd/rtmidi
@@ -33,18 +35,23 @@ re: clean
 	$(MAKE)
 
 $(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) | $(@D)
+	$(PREREQ_DIR)
 	$(CC) $(CFLAGS) $(LFLAGS) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM)
 
 $(OBJS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
+	$(PREREQ_DIR)
 	$(CC) $(CFLAGS) -o $@ -c $< 
 
 $(OBJSMF): $(BUILDDIR)/%.o: $(MFDIR)/%.cpp
+	$(PREREQ_DIR)
 	$(CC) $(CFLAGS) -o $@ -c $< 
 
 $(OBJSOSD): $(BUILDDIR)/%.o: $(OSDDIR)/%.c
+	$(PREREQ_DIR)
 	$(CC) $(CFLAGSOSD) -o $@ -c $< 
 
 $(OBJSRTM): $(BUILDDIR)/%.o: $(RTMDIR)/%.cpp
+	$(PREREQ_DIR)
 	$(CC) $(CFLAGSRTM) -o $@ -c $< 
 
 clean:
