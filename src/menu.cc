@@ -250,6 +250,20 @@ bool menu::parentOpen() {
   return false;
 }
 
+vector<int> menu::findOpenChildMenu() {
+  vector<int> result;
+
+  for (unsigned int i = 0; i < childMenu.size(); i++) {
+    if (childMenu[i]->render) {
+      result.push_back(childMenu[i]->parentIndex);
+      //logQ("child index is", childMenu[i]->parentIndex);
+    }
+  }
+
+  return result;
+}
+
+
 void menu::setSquare() {
 
   const float circleRatio = 0.425;
@@ -365,6 +379,14 @@ void menu::draw() {
           drawRectangle(getItemX(getActiveElement()), getItemY(getActiveElement()), ITEM_WIDTH, ITEM_HEIGHT, ctr.bgMenuShade);
         }
       }
+
+      
+      vector<int> openChildren = findOpenChildMenu();
+
+      for (unsigned int i = 0; i < openChildren.size(); i++) {
+        drawRectangle(getItemX(openChildren[i]), getItemY(openChildren[i]), ITEM_WIDTH, ITEM_HEIGHT, ctr.bgMenuShade);
+      }
+      
       for (int i = 1; i < itemCount; i++) {
         drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 1, 0.5, ctr.bgMenuLine);
       }
@@ -437,7 +459,7 @@ void menu::draw() {
       if (getActiveElement() != -1) {
         drawRectangle(getItemX(getActiveElement()), getItemY(getActiveElement()), ITEM_WIDTH, ITEM_HEIGHT, ctr.bgMenuShade);
       }
-
+      
       bool rightFlag = false;
       if (type == TYPE_RIGHT) {
         rightFlag = true;

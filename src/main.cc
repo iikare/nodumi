@@ -163,11 +163,7 @@ int main (int argc, char* argv[]) {
   menu colorSelect(ctr.getSize(), colorSelectContents, TYPE_COLOR, -100,-100, &rightMenu, 1); 
   menuctr.registerMenu(&colorSelect);
   
-  /* 
-   * * * * * 
-   * LOGIC *
-   * * * * * 
-   */
+  // main program logic
 
   if (argc == 2) {
     string filename = argv[1];
@@ -1080,6 +1076,7 @@ int main (int argc, char* argv[]) {
               }
             }
             
+            
             if (measureSelected) {
               selectType = SELECT_MEASURE;
               rightMenuContents[1] = "Change Line Color";
@@ -1107,6 +1104,10 @@ int main (int argc, char* argv[]) {
     
     // displays index of last clicked note  
     //logQ(clickNote);
+    
+    //logQ(formatVector(viewMenu.findOpenChildMenu()));
+
+
   }
 
   osdialog_filters_free(filetypes); 

@@ -69,6 +69,8 @@ class menu {
     bool childOpen();
     bool parentOpen();
 
+    vector<int> findOpenChildMenu();
+
     bool clickCircle(int circleType);
 
     void draw();
