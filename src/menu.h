@@ -38,7 +38,7 @@ class menuItem {
 
 class menu {
   public:
-    menu(point XY, vector<string> itemNames, menu* parentMenu, int menuType, int menuX = 0, int menuY = 0);
+    menu(point XY, vector<string> itemNames, int menuType, int menuX = 0, int menuY = 0, menu* parentMenu = nullptr, int parentPos = -1);
 
     int getX() { return x; }
     int getY() { return y; }
@@ -77,6 +77,7 @@ class menu {
 
     int mainSize;
     menu* parent;
+    int parentIndex;
 
     friend class menuController;
   private:

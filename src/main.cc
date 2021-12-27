@@ -111,51 +111,56 @@ int main (int argc, char* argv[]) {
 
   // menu objects
   vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Exit"};
-  menu fileMenu(ctr.getSize(), fileMenuContents, nullptr, TYPE_MAIN, menuctr.getOffset(), 0);
+  menu fileMenu(ctr.getSize(), fileMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&fileMenu);
    
   vector<string> editMenuContents = {"Edit", "Enable Sheet Music", "Preferences"};
-  menu editMenu(ctr.getSize(), editMenuContents, nullptr, TYPE_MAIN, menuctr.getOffset(), 0);
+  menu editMenu(ctr.getSize(), editMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&editMenu);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Display Song Time:", "Hide Now Line", "Show Background", "Show FPS"};
-  menu viewMenu(ctr.getSize(), viewMenuContents, nullptr, TYPE_MAIN, menuctr.getOffset(), 0);
+  menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&viewMenu);
   
   vector<string> displayMenuContents = {"Standard", "Line", "Line (Circle)", "Ball"};
-  menu displayMenu(ctr.getSize(), displayMenuContents, &viewMenu, TYPE_SUB, viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1));
+  menu displayMenu(ctr.getSize(), displayMenuContents, TYPE_SUB, 
+                   viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
   menuctr.registerMenu(&displayMenu);
 
   vector<string> songMenuContents = {"Relative", "Absolute"};
-  menu songMenu(ctr.getSize(), songMenuContents, &viewMenu, TYPE_SUB, viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(2));
+  menu songMenu(ctr.getSize(), songMenuContents, TYPE_SUB, 
+                viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(2), &viewMenu, 2);
   menuctr.registerMenu(&songMenu);
 
   vector<string> midiMenuContents = {"Midi", "Input", "Output", "Enable Live Play"};
-  menu midiMenu(ctr.getSize(), midiMenuContents, nullptr, TYPE_MAIN, menuctr.getOffset(), 0);
+  menu midiMenu(ctr.getSize(), midiMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&midiMenu);
 
   vector<string> inputMenuContents = {""};
-  menu inputMenu(ctr.getSize(), inputMenuContents, &midiMenu, TYPE_SUB, midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(1));
+  menu inputMenu(ctr.getSize(), inputMenuContents, TYPE_SUB, 
+                 midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(1), &midiMenu, 1);
   menuctr.registerMenu(&inputMenu);
 
   vector<string> colorMenuContents = {"Color", "Color By:", "Color Scheme:", "Swap Colors", "Invert Color Scheme"};
-  menu colorMenu(ctr.getSize(), colorMenuContents, nullptr, TYPE_MAIN, menuctr.getOffset(), 0);
+  menu colorMenu(ctr.getSize(), colorMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&colorMenu);
    
   vector<string> schemeMenuContents = {"Part", "Velocity", "Tonic"};
-  menu schemeMenu(ctr.getSize(), schemeMenuContents, &colorMenu, TYPE_SUB, colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(1));
+  menu schemeMenu(ctr.getSize(), schemeMenuContents, TYPE_SUB, 
+                  colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(1), &colorMenu, 1);
   menuctr.registerMenu(&schemeMenu);
 
   vector<string> paletteMenuContents = {"Default", "From Background"};
-  menu paletteMenu(ctr.getSize(), paletteMenuContents, &colorMenu, TYPE_SUB, colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(2));
+  menu paletteMenu(ctr.getSize(), paletteMenuContents, TYPE_SUB, 
+                   colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(2), &colorMenu, 2);
   menuctr.registerMenu(&paletteMenu);
   
   vector<string> rightMenuContents = {"Info", "Change Part Color", "Set Tonic"};
-  menu rightMenu(ctr.getSize(), rightMenuContents, nullptr, TYPE_RIGHT, -100,-100); 
+  menu rightMenu(ctr.getSize(), rightMenuContents, TYPE_RIGHT, -100,-100); 
   menuctr.registerMenu(&rightMenu);
   
   vector<string> colorSelectContents = {"Color Select"};
-  menu colorSelect(ctr.getSize(), colorSelectContents, &rightMenu, TYPE_COLOR, -100,-100); 
+  menu colorSelect(ctr.getSize(), colorSelectContents, TYPE_COLOR, -100,-100, &rightMenu, 1); 
   menuctr.registerMenu(&colorSelect);
   
   /* 

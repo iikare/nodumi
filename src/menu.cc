@@ -56,7 +56,7 @@ void menuItem::setHeight(int nHeight) {
   height = nHeight;
 }
 
-menu::menu(point XY, vector<string> itemNames, menu* parentMenu, int menuType, int menuX, int menuY) :
+menu::menu(point XY, vector<string> itemNames, int menuType, int menuX, int menuY, menu* parentMenu, int parentPos) :
            render(false), mainSize(ITEM_WIDTH), x(menuX), y(menuY), width(0), height(0),
            itemCount(itemNames.size()), mainX(XY.x), mainY(XY.y), activeElement(-1) {
   if (parentMenu != nullptr) {
@@ -76,6 +76,7 @@ menu::menu(point XY, vector<string> itemNames, menu* parentMenu, int menuType, i
   pX = 0;
   pY = 0;
   angle = 0;
+  parentIndex = parentPos;
 
   for (int i = 0; i < itemCount; i++) {
     items[i].setContent(itemNames[i]);
