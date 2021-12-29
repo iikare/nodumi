@@ -12,12 +12,13 @@ void controller::toggleLivePlay() {
   }
   livePlayState = !livePlayState;
   if (livePlayState) {
+    livePlayOffset = 0;
     notes = &liveInput.noteStream.notes;
   }
   else {
     // when turning off live input, revert to previously loaded file info
     // also, disable and clear the live input event queue
-    liveInput.closePort();
+    liveInput.resetInput();
     notes = &file.notes;
   }
 }

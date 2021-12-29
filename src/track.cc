@@ -42,6 +42,15 @@ void trackController::insert(int idx, note* newNote) {
   noteSum+= newNote->y;
 }
 
+void trackController::reset() {
+  head = nullptr;
+  tail = nullptr;
+  noteCount = 0;
+  noteSum = 0;
+  noteIdxMap.clear();
+  noteIdxMap = {};
+}
+
 note* trackController::getNote(int idx) {
   note* noteptr = nullptr;
   try {

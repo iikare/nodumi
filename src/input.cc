@@ -16,7 +16,7 @@ midiInput::~midiInput() {
 
 void midiInput::openPort(int port) {
   if (ctr.getLiveState()) {
-    midiIn->closePort();
+    resetInput();
 
     numPort = midiIn->getPortCount();
     if (port >= numPort) {
@@ -26,7 +26,8 @@ void midiInput::openPort(int port) {
 
     midiIn->openPort(port);
     midiIn->ignoreTypes(false, false, false);
-    
+    timestamp = midiIn->getMessage(&msgQueue);
+
     logW(LL_INFO, "opened port", port);
   }
   else {
@@ -34,9 +35,22 @@ void midiInput::openPort(int port) {
   }
 }
 
-void midiInput::closePort() {
+void midiInput::resetInput() {
+  ctr.livePlayOffset = 0;
   midiIn->closePort();
   msgQueue.clear();
+  timestamp = 0;
+  noteCount = 0;
+  numOn = 0;
+  
+  // TODO: implement midi reset handler
+  noteStream.notes.clear();
+  noteStream.measureMap.clear();
+  noteStream.measureTickMap.clear();
+
+  for (unsigned int i = 0; i < noteStream.tracks.size(); i++) {
+    noteStream.tracks[i].reset();
+  }
 }
 
 
@@ -85,7 +99,7 @@ void midiInput::convertEvents() {
   for (long unsigned int i = 0; i < msgQueue.size(); i++) { 
     if (msgQueue[i] == 0b11111000) { // 248: clock signal
       //cerr << "shift by " << timestamp*100 << endl;
-      ctr.livePlayOffset += timestamp * 100;
+      ctr.livePlayOffset += fmax(0, timestamp) * 100;
     }
     else if (msgQueue[i] == 0b10010000) { // 144: note on/off
       if (msgQueue[i + 2] != 0) { // if note on
@@ -98,7 +112,7 @@ void midiInput::convertEvents() {
         
         // if this is the note on event, duration is undefined
         tmpNote.duration = -1;
-        
+       
         noteStream.notes.push_back(tmpNote);
         noteStream.tracks[0].insert(noteCount, &noteStream.notes.at(noteCount)); 
         noteCount++;

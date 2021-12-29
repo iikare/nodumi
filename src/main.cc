@@ -87,6 +87,9 @@ int main (int argc, char* argv[]) {
   osdialog_filters* savetypes = osdialog_filters_parse("mki:mki");
   osdialog_filters* imagetypes = osdialog_filters_parse("png:png");
 
+  // data selector
+  midi& noteData = ctr.liveInput.noteStream;
+
   // right click variables
   int clickNote = -1;
   int clickTmp = -1;
@@ -197,6 +200,11 @@ int main (int argc, char* argv[]) {
       timeOffset = ctr.livePlayOffset;
       ctr.liveInput.update();
       run = false;
+
+      noteData = ctr.liveInput.noteStream;
+    }
+    else {
+      noteData = ctr.file; 
     }
 
     // fix FPS count bug
@@ -253,7 +261,8 @@ int main (int argc, char* argv[]) {
             int measureLineTextAlpha = 255;
 
             if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songTimeSize.x) {
-              measureLineTextAlpha = max(0.0,min(255.0, 255.0 *(1-( songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
+              measureLineTextAlpha = max(0.0,min(255.0, 
+                                                 255.0 * (1 -( songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
               if (i == 1) { 
                 //logQ(measureLineTextAlpha); 
                 logQ(255* (1-( songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10));
@@ -273,13 +282,16 @@ int main (int argc, char* argv[]) {
       if (nowLine) {
         float nowLineWidth = 0.5;
         int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
-        if (pointInBox(GetMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) && !menuctr.mouseOnMenu()) {
+        if (pointInBox(GetMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) && 
+            !menuctr.mouseOnMenu()) {
           nowLineWidth = 1;
         }
         drawLineEx(nowLineX, nowLineY, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow);
       }
 
-      // note handling
+      
+
+      // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
         
         int colorID = 0;
@@ -520,7 +532,7 @@ int main (int argc, char* argv[]) {
 
     // key actions
     if (run) {
-      if (timeOffset + GetFrameTime() * 500< ctr.getLastTime()) {
+      if (timeOffset + GetFrameTime() * 500 < ctr.getLastTime()) {
         timeOffset += GetFrameTime() * 500;
       }
       else {
@@ -1096,7 +1108,8 @@ int main (int argc, char* argv[]) {
             bool measureSelected = false;
             for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
               double measureLineX = convertSSX(ctr.file.measureMap[i].getLocation());
-              if (pointInBox(GetMousePosition(), {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && !menuctr.mouseOnMenu()) {
+              if (pointInBox(GetMousePosition(), {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
+                  !menuctr.mouseOnMenu()) {
                 measureSelected = true;
                 break; 
               }
