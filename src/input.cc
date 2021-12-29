@@ -27,12 +27,18 @@ void midiInput::openPort(int port) {
     midiIn->openPort(port);
     midiIn->ignoreTypes(false, false, false);
     
-    logW(LL_INFO, "opened port ", port);
+    logW(LL_INFO, "opened port", port);
   }
   else {
     logW(LL_WARN, "cannot open port in normal mode");
   }
 }
+
+void midiInput::closePort() {
+  midiIn->closePort();
+  msgQueue.clear();
+}
+
 
 vector<string> midiInput::getPorts() {
   vector<string> ports;

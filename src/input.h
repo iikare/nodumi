@@ -17,6 +17,7 @@ class midiInput {
     ~midiInput();
 
     void openPort(int port);
+    void closePort();
     void update();
     
     int getNoteCount() { return noteCount; }

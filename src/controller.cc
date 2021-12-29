@@ -15,6 +15,9 @@ void controller::toggleLivePlay() {
     notes = &liveInput.noteStream.notes;
   }
   else {
+    // when turning off live input, revert to previously loaded file info
+    // also, disable and clear the live input event queue
+    liveInput.closePort();
     notes = &file.notes;
   }
 }
