@@ -9,6 +9,7 @@
 #include "image.h"
 #include "input.h"
 #include "color.h"
+#include "output.h"
 #include "colorgen.h"
 
 using std::vector;
@@ -54,6 +55,7 @@ class controller {
 
     midi file;
     midiInput liveInput;
+    midiOutput output;
 
     imageController image;
 

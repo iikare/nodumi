@@ -5,6 +5,7 @@
 #include <thread>
 #include <algorithm>
 #include <raylib.h>
+#include "../dpd/osdialog/osdialog.h"
 #include "enum.h"
 #include "box.h"
 #include "log.h"
@@ -17,7 +18,6 @@
 #include "define.h"
 #include "menuctr.h"
 #include "controller.h"
-#include "../dpd/osdialog/osdialog.h"
 
 using std::cerr;
 using std::cout;
@@ -155,6 +155,11 @@ int main (int argc, char* argv[]) {
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(1), &midiMenu, 1);
   menuctr.registerMenu(&inputMenu);
 
+  vector<string> outputMenuContents = {""};
+  menu outputMenu(ctr.getSize(), outputMenuContents, TYPE_SUB, 
+                 midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(2), &midiMenu, 2);
+  menuctr.registerMenu(&outputMenu);
+  
   vector<string> colorMenuContents = {"Color", "Color By:", "Color Scheme:", "Swap Colors", "Invert Color Scheme"};
   menu colorMenu(ctr.getSize(), colorMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&colorMenu);
@@ -869,6 +874,19 @@ int main (int argc, char* argv[]) {
           ctr.liveInput.openPort(inputMenu.getActiveElement());
           break;
       }
+      switch(outputMenu.getActiveElement()) {
+        case -1:
+          if (!outputMenu.parentOpen() || outputMenu.parent->getActiveElement() == -1) {
+            outputMenu.render = false;
+          }
+          break;
+        default:
+          if (!outputMenu.render) {
+            break;
+          }
+          ctr.output.openPort(outputMenu.getActiveElement());
+          break;
+      }
       switch(midiMenu.getActiveElement()) {
         case -1:
           if (!midiMenu.childOpen()) {
@@ -884,7 +902,7 @@ int main (int argc, char* argv[]) {
           }
           switch(midiMenu.getActiveElement()) {
             case 1:
-              if (midiMenu.childOpen() && inputMenu.render == false) {
+              if (midiMenu.childOpen() && !inputMenu.render) {
                 midiMenu.hideChildMenu();
                 inputMenu.render = true;
               }
@@ -894,6 +912,14 @@ int main (int argc, char* argv[]) {
               }
               break;
             case 2:
+              if (midiMenu.childOpen() && !outputMenu.render) {
+                midiMenu.hideChildMenu();
+                outputMenu.render = true;
+              }
+              else {
+                outputMenu.update(ctr.output.getPorts());
+                outputMenu.render = !outputMenu.render;
+              }
               break;
             case 3:
               if (midiMenu.getContent(3) == "Enable Live Play") {
@@ -1051,6 +1077,8 @@ int main (int argc, char* argv[]) {
           if (!rightMenu.childOpen()) {
             rightMenu.render = false;
           }
+          else {
+          }            
           break;
         default:
           if (!rightMenu.render) {
@@ -1096,80 +1124,82 @@ int main (int argc, char* argv[]) {
       clickOn = clickOnTmp;
       menuctr.hideAll();
 
-      if (!pointInBox(GetMousePosition(), (rect){0, 0, ctr.getWidth(), 20})) {
-        
-        int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
-
-        if (clickNote != -1) {
-          rightX = round(nowLineX + (ctr.notes->at(clickNote).x - timeOffset) * zoomLevel);
-          rightY = (ctr.getHeight() - round((ctr.getHeight() - ctr.menuHeight) * 
-                    static_cast<double>(ctr.notes->at(clickNote).y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
-        }
-        
-        // find coordinate to draw right click menu
-        getMenuLocation(ctr.getWidth(), ctr.getHeight(), GetMouseX(), GetMouseY(),
-                            rightX, rightY, rightMenu.getWidth(), rightMenu.getHeight());
-        getColorSelectLocation(ctr.getWidth(), ctr.getHeight(), colorX, colorY,
-                               rightX, rightY, rightMenu.getWidth(),
-                               rightMenu.getHeight());
-        
-        colorSelect.setXY(colorX, colorY);
-
-        if (clickNote != -1) {
-          selectType = SELECT_NOTE;
-          rightMenuContents[1] = "Change Part Color";
-          rightMenu.update(rightMenuContents);
-          rightMenu.setContent(getNoteInfo(ctr.notes->at(clickNote).track, ctr.notes->at(clickNote).y - MIN_NOTE_IDX), 0);
+      if (!menuctr.mouseOnMenu()) {
+        if (!pointInBox(GetMousePosition(), (rect){0, 0, ctr.getWidth(), 20})) {
           
-          // set note color for color wheel
-          if (clickOn) {
-            colorSelect.setColor(ctr.setTrackOn[ctr.notes->at(clickNote).track]);
+          int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
+
+          if (clickNote != -1) {
+            rightX = round(nowLineX + (ctr.notes->at(clickNote).x - timeOffset) * zoomLevel);
+            rightY = (ctr.getHeight() - round((ctr.getHeight() - ctr.menuHeight) * 
+                      static_cast<double>(ctr.notes->at(clickNote).y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           }
-          else{
-            colorSelect.setColor(ctr.setTrackOff[ctr.notes->at(clickNote).track]);
-          }
-        }
-        else {
-          if (sheetMusicDisplay && pointInBox(GetMousePosition(), (rect){0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight})) {
-            selectType = SELECT_SHEET;
-            colorSelect.setColor(ctr.bgSheet);
-          }
-          else if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight})) {
-            selectType = SELECT_LINE;
-            rightMenuContents[1] = "Change Line Color";
-            colorSelect.setColor(ctr.bgNow);
+          
+          // find coordinate to draw right click menu
+          getMenuLocation(ctr.getWidth(), ctr.getHeight(), GetMouseX(), GetMouseY(),
+                              rightX, rightY, rightMenu.getWidth(), rightMenu.getHeight());
+          getColorSelectLocation(ctr.getWidth(), ctr.getHeight(), colorX, colorY,
+                                 rightX, rightY, rightMenu.getWidth(),
+                                 rightMenu.getHeight());
+          
+          colorSelect.setXY(colorX, colorY);
+
+          if (clickNote != -1) {
+            selectType = SELECT_NOTE;
+            rightMenuContents[1] = "Change Part Color";
+            rightMenu.update(rightMenuContents);
+            rightMenu.setContent(getNoteInfo(ctr.notes->at(clickNote).track, ctr.notes->at(clickNote).y - MIN_NOTE_IDX), 0);
+            
+            // set note color for color wheel
+            if (clickOn) {
+              colorSelect.setColor(ctr.setTrackOn[ctr.notes->at(clickNote).track]);
+            }
+            else{
+              colorSelect.setColor(ctr.setTrackOff[ctr.notes->at(clickNote).track]);
+            }
           }
           else {
-            bool measureSelected = false;
-            for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
-              double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
-              if (pointInBox(GetMousePosition(), {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
-                  !menuctr.mouseOnMenu()) {
-                measureSelected = true;
-                break; 
-              }
+            if (sheetMusicDisplay && pointInBox(GetMousePosition(), (rect){0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight})) {
+              selectType = SELECT_SHEET;
+              colorSelect.setColor(ctr.bgSheet);
             }
-            
-            
-            if (measureSelected) {
-              selectType = SELECT_MEASURE;
+            else if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight})) {
+              selectType = SELECT_LINE;
               rightMenuContents[1] = "Change Line Color";
-              colorSelect.setColor(ctr.bgMeasure);
+              colorSelect.setColor(ctr.bgNow);
             }
             else {
-              selectType = SELECT_BG;
-              rightMenuContents[1] = "Change Color";
-              colorSelect.setColor(ctr.bgColor);
+              bool measureSelected = false;
+              for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
+                double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
+                if (pointInBox(GetMousePosition(), {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
+                    !menuctr.mouseOnMenu()) {
+                  measureSelected = true;
+                  break; 
+                }
+              }
+              
+              
+              if (measureSelected) {
+                selectType = SELECT_MEASURE;
+                rightMenuContents[1] = "Change Line Color";
+                colorSelect.setColor(ctr.bgMeasure);
+              }
+              else {
+                selectType = SELECT_BG;
+                rightMenuContents[1] = "Change Color";
+                colorSelect.setColor(ctr.bgColor);
+              }
             }
+            rightMenu.setContent("", 0);
+            auto f = rightMenuContents.begin() + 1;
+            auto e = rightMenuContents.end() - 1;
+            vector<string> newRight(f, e);
+            rightMenu.update(newRight);
           }
-          rightMenu.setContent("", 0);
-          auto f = rightMenuContents.begin() + 1;
-          auto e = rightMenuContents.end() - 1;
-          vector<string> newRight(f, e);
-          rightMenu.update(newRight);
+          rightMenu.setXY(rightX, rightY);
+          rightMenu.render = true;
         }
-        rightMenu.setXY(rightX, rightY);
-        rightMenu.render = true;
       }
     }
     
@@ -1180,7 +1210,7 @@ int main (int argc, char* argv[]) {
     // displays index of last clicked note  
     //logQ(clickNote);
     
-    //logQ(formatVector(viewMenu.findOpenChildMenu()));
+    logQ(formatVector(midiMenu.findOpenChildMenu()));
 
 
   }

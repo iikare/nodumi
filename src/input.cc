@@ -32,8 +32,8 @@ void midiInput::openPort(int port, bool pauseEvent) {
     curPort = port;
     timestamp = midiIn->getMessage(&msgQueue);
 
-    if (1||!pauseEvent) {
-      logW(LL_INFO, "opened port", port);
+    if (!pauseEvent) {
+      logW(LL_INFO, "[IN] opened port", port);
     }
   }
   else {
@@ -73,22 +73,9 @@ vector<string> midiInput::getPorts() {
   numPort = midiIn->getPortCount();
   for (int i = 0; i < numPort; i++) {
     ports.push_back(midiIn->getPortName(i));
-
-    int sp = 0;
-    for (unsigned int j = 0; j < ports[i].length(); j++) {
-      // break after second space/colon
-      if (ports[i][j] == ' ' || ports[i][j] == ':') {
-        sp++;
-      }
-      if (sp == 2) {
-        ports[i] = ports[i].substr(0, j);
-        break;
-      }
-    }
-    ports[i].insert(0, to_string(i) + ": ");
   }
   
-  return ports;
+  return formatPortName(ports);
 }
 
 bool midiInput::updateQueue() {

@@ -31,3 +31,4 @@ string getSongPercent (double pos, double total);
 string getSongTime(double pos,  double total);
 string toMinutes(double seconds);
 
+vector<string>& formatPortName(vector<string>& ports);

@@ -4,4 +4,5 @@ build/
 tests/
 util/
 .clangd/
+.cache/
 *.json

@@ -401,3 +401,22 @@ rect pointToRect(point a, point b) {
   return result;
 }
 
+vector<string>& formatPortName(vector<string>& ports) {
+
+  for (unsigned int i = 0; i < ports.size(); i++) {
+    int sp = 0;
+    for (unsigned int j = 0; j < ports[i].length(); j++) {
+      // break after second space/colon
+      if (ports[i][j] == ' ' || ports[i][j] == ':') {
+        sp++;
+      }
+      if (sp == 2) {
+        ports[i] = ports[i].substr(0, j);
+        break;
+      }
+    }
+    ports[i].insert(0, to_string(i) + ": ");
+  }
+
+  return ports;
+}
