@@ -58,3 +58,17 @@ void drawGradientLineH(Vector2 a, Vector2 b, float thick, colorRGB col, float al
 Vector2 measureTextEx(Font ft, string msg) {
   return MeasureTextEx(ft, msg.c_str(), ft.baseSize, TEXT_SPACING);
 }
+
+char* openFileDialog(osdialog_file_action action, const char* cdir, const char* defName, osdialog_filters* filters) {
+ 
+  // prevent buffer overrun while osdialog blocks the main thread 
+  if (ctr.getLiveState()) {
+    ctr.liveInput.pauseInput();
+  }
+
+  return osdialog_file(action, cdir, defName, filters);
+  
+  if (ctr.getLiveState()) {
+    ctr.liveInput.resumeInput();
+  }
+}

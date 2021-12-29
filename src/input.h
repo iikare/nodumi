@@ -16,9 +16,11 @@ class midiInput {
     midiInput();
     ~midiInput();
 
-    void openPort(int port);
+    void openPort(int port, bool pauseEvent = false);
     void resetInput();
     void update();
+    void pauseInput();
+    void resumeInput();
     
     int getNoteCount() { return noteCount; }
     vector<string> getPorts();
@@ -34,6 +36,7 @@ class midiInput {
     RtMidiIn* midiIn;
     vector<unsigned char> msgQueue;
     int numPort;
+    int curPort;
     int noteCount;
     int numOn;
     double timestamp;

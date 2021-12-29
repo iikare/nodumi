@@ -3,7 +3,7 @@
 #include "controller.h"
 #include "define.h"
 
-midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), noteCount(0), numOn(0), timestamp(0) {
+midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
   midiIn = new RtMidiIn();
   if (midiIn == nullptr) {
     logW(LL_WARN, "unable to initialize midi input");
@@ -14,21 +14,27 @@ midiInput::~midiInput() {
   delete midiIn;
 }
 
-void midiInput::openPort(int port) {
+void midiInput::openPort(int port, bool pauseEvent) {
   if (ctr.getLiveState()) {
-    resetInput();
+    if (!pauseEvent) {
+      resetInput();
+    }
 
     numPort = midiIn->getPortCount();
-    if (port >= numPort) {
+    if (port < 0 || port >= numPort) {
       logW(LL_WARN, "unable to open port number", port);
       return;
     }
 
     midiIn->openPort(port);
     midiIn->ignoreTypes(false, false, false);
+
+    curPort = port;
     timestamp = midiIn->getMessage(&msgQueue);
 
-    logW(LL_INFO, "opened port", port);
+    if (1||!pauseEvent) {
+      logW(LL_INFO, "opened port", port);
+    }
   }
   else {
     logW(LL_WARN, "cannot open port in normal mode");
@@ -42,6 +48,7 @@ void midiInput::resetInput() {
   timestamp = 0;
   noteCount = 0;
   numOn = 0;
+  curPort = 0;
   
   // TODO: implement midi reset handler
   noteStream.notes.clear();
@@ -53,6 +60,13 @@ void midiInput::resetInput() {
   }
 }
 
+void midiInput::pauseInput() {
+  midiIn->closePort();
+}
+
+void midiInput::resumeInput() {
+  openPort(curPort, true);
+}
 
 vector<string> midiInput::getPorts() {
   vector<string> ports;

@@ -2,8 +2,10 @@
 
 #include <string>
 #include <raylib.h>
+#include "define.h"
 #include "color.h"
 #include "data.h"
+#include "../dpd/osdialog/osdialog.h"
 
 using std::string;
 
@@ -20,3 +22,5 @@ void drawRing(Vector2 center, float iRad, float oRad, colorRGB col, float alpha)
 void drawGradientLineH(Vector2 a, Vector2 b, float thick, colorRGB col, float alphaA, float alphaB);
 
 Vector2 measureTextEx(Font ft, string msg);
+
+char* openFileDialog(osdialog_file_action action, const char* cdir, const char* defName, osdialog_filters* filters);

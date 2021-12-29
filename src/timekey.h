@@ -26,15 +26,18 @@ class timeSig {
       tick = other.tick;
     }
 
+    timeSig& operator= (const timeSig& other) {
+      top = other.top;
+      bottom = other.bottom;
+      qpm = other.qpm;
+
+      return *this;
+    }
+   
     bool operator== (const timeSig& other) {
       return top == other.top && bottom == other.bottom;
     }
     
-    void operator= (const timeSig& other) {
-      top = other.top;
-      bottom = other.bottom;
-      qpm = other.qpm;
-    }
     
     void setMeasure(int m) { measure = m; }
     void setTick(int tk) { tick = tk; }
@@ -103,6 +106,19 @@ class keySig {
       
       findAccidentalsFromKey();
       findStartingIndex();
+    }
+
+    keySig& operator= (const keySig& other) {
+      isMinor = other.isMinor;
+      key = other.key;
+      measure = other.measure;
+      tick = other.tick;
+      prev = other.prev;
+      
+      findAccidentalsFromKey();
+      findStartingIndex();
+
+      return *this;
     }
 
     bool operator== (const keySig& other) {

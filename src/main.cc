@@ -12,6 +12,7 @@
 #include "menu.h"
 #include "data.h"
 #include "wrap.h"
+#include "image.h"
 #include "color.h"
 #include "define.h"
 #include "menuctr.h"
@@ -60,6 +61,7 @@ int main (int argc, char* argv[]) {
   // view settings
   bool nowLine = true;
   bool showFPS = false;
+  bool showImage = true;
   bool colorMove = false;
   bool colorSquare = false;
   bool colorCircle = false;
@@ -84,8 +86,13 @@ int main (int argc, char* argv[]) {
   char* filenameC = nullptr;
   string filename = "";
   osdialog_filters* filetypes = osdialog_filters_parse("midi:mid;mki:mki");
+  
+  bool newImage = false;
+  char* imagenameC = nullptr;
+  string imagename = "";
+  osdialog_filters* imagetypes = osdialog_filters_parse("png:png;jpeg:jpg;jpg:jpg");
+  
   osdialog_filters* savetypes = osdialog_filters_parse("mki:mki");
-  osdialog_filters* imagetypes = osdialog_filters_parse("png:png");
 
   // data selector
   midi& noteData = ctr.liveInput.noteStream;
@@ -124,7 +131,8 @@ int main (int argc, char* argv[]) {
   menu editMenu(ctr.getSize(), editMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&editMenu);
   
-  vector<string> viewMenuContents = {"View", "Display Mode:", "Display Song Time:", "Hide Now Line", "Show Background", "Show FPS"};
+  vector<string> viewMenuContents = {"View", "Display Mode:", "Display Song Time:", "Hide Now Line", 
+                                     "Hide Background", "Show FPS"};
   menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&viewMenu);
   
@@ -195,6 +203,11 @@ int main (int argc, char* argv[]) {
 
       ctr.load(filename);
     }
+
+    if (newImage) {
+      newImage = false;
+      ctr.image.load(imagename);
+    }
     
     if (ctr.getLiveState()) {
       timeOffset = ctr.livePlayOffset;
@@ -224,14 +237,19 @@ int main (int argc, char* argv[]) {
     
     BeginDrawing();
       clearBackground(ctr.bgColor);
-      
-      int lastMeasureNum = 0;
-      int measureSpacing = MeasureTextEx(font, to_string(ctr.file.measureMap.size() - 1).c_str(), font.baseSize, 0.5).x;
+     
 
-      for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
+      if (showImage) {
+        ctr.image.draw();
+      }
+
+      int lastMeasureNum = 0;
+      int measureSpacing = MeasureTextEx(font, to_string(noteData.measureMap.size() - 1).c_str(), font.baseSize, 0.5).x;
+
+      for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
         float measureLineWidth = 0.5;
         int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
-        double measureLineX = convertSSX(ctr.file.measureMap[i].getLocation());
+        double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
         if (measureLineX + measureSpacing + 4 > 0) {
           if (pointInBox(GetMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - ctr.barHeight}) && !menuctr.mouseOnMenu()) {
             measureLineWidth = 1; 
@@ -244,7 +262,7 @@ int main (int argc, char* argv[]) {
 
 
 
-          if (!i || convertSSX(ctr.file.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 <
+          if (!i || convertSSX(noteData.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 <
                     measureLineX) {
             
             // measure number / song time collision detection
@@ -417,7 +435,7 @@ int main (int argc, char* argv[]) {
             {
               vector<int>* linePositions;
               if (i == 0 && !ctr.getLiveState()) {
-                linePositions = ctr.file.getLineVerts();
+                linePositions = noteData.getLineVerts();
               }
               else if (ctr.getLiveState()) {
                 vector<int> linePosRaw = getLinePositions(&ctr.notes->at(i), ctr.notes->at(i).getNextChordRoot());
@@ -645,7 +663,7 @@ int main (int argc, char* argv[]) {
           }
           switch(fileMenu.getActiveElement()) {
             case 1:
-              filenameC = osdialog_file(OSDIALOG_OPEN, ".", nullptr, filetypes);
+              filenameC = openFileDialog(OSDIALOG_OPEN, ".", nullptr, filetypes);
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
@@ -655,6 +673,16 @@ int main (int argc, char* argv[]) {
               menuctr.hideAll();
               break;
             case 2:
+              imagenameC = openFileDialog(OSDIALOG_OPEN, ".", nullptr, imagetypes);
+              if (imagenameC != nullptr) {
+                imagename = static_cast<string>(imagenameC);
+                newImage = true;
+                
+                showImage = true; 
+                viewMenu.setContent("Hide Background", 4);
+              }
+
+              menuctr.hideAll();
               break;
             case 3:
               break;
@@ -807,6 +835,13 @@ int main (int argc, char* argv[]) {
               nowLine = !nowLine;
               break;
             case 4:
+              if (viewMenu.getContent(4) == "Show Background") {
+                viewMenu.setContent("Hide Background", 4);
+              }
+              else if (viewMenu.getContent(4) == "Hide Background") {
+                viewMenu.setContent("Show Background", 4);
+              }
+              showImage = !showImage;
               break;
             case 5:
               if (viewMenu.getContent(5) == "Show FPS") {
@@ -1106,8 +1141,8 @@ int main (int argc, char* argv[]) {
           }
           else {
             bool measureSelected = false;
-            for (unsigned int i = 0; i < ctr.file.measureMap.size(); i++) {
-              double measureLineX = convertSSX(ctr.file.measureMap[i].getLocation());
+            for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
+              double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
               if (pointInBox(GetMousePosition(), {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
                   !menuctr.mouseOnMenu()) {
                 measureSelected = true;
@@ -1151,6 +1186,7 @@ int main (int argc, char* argv[]) {
   }
 
   ctr.unloadTextures();
+  ctr.image.unload();
 
   osdialog_filters_free(filetypes); 
   osdialog_filters_free(savetypes); 

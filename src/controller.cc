@@ -54,6 +54,11 @@ int controller::getTempo(int idx) {
 }
 
 void controller::load(string filename) {
+
+  // TODO: implement type and filter based on type
+
+  
+  //logW(LL_INFO, "load midi:", filename);
   file.load(filename);
   getColorScheme(file.getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
 }

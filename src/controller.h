@@ -6,6 +6,7 @@
 #include "midi.h"
 #include "misc.h"
 #include "data.h"
+#include "image.h"
 #include "input.h"
 #include "color.h"
 #include "colorgen.h"
@@ -16,6 +17,7 @@ class controller {
   public:
     controller() {
       file = midi();
+      image = imageController();
       programState = true;
       playState = false;
       livePlayState = false;
@@ -52,6 +54,8 @@ class controller {
 
     midi file;
     midiInput liveInput;
+
+    imageController image;
 
     vector<note>* notes;
 
