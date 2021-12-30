@@ -902,22 +902,22 @@ int main (int argc, char* argv[]) {
           }
           switch(midiMenu.getActiveElement()) {
             case 1:
+              inputMenu.update(ctr.liveInput.getPorts());
               if (midiMenu.childOpen() && !inputMenu.render) {
                 midiMenu.hideChildMenu();
                 inputMenu.render = true;
               }
               else {
-                inputMenu.update(ctr.liveInput.getPorts());
                 inputMenu.render = !inputMenu.render;
               }
               break;
             case 2:
+              outputMenu.update(ctr.output.getPorts());
               if (midiMenu.childOpen() && !outputMenu.render) {
                 midiMenu.hideChildMenu();
                 outputMenu.render = true;
               }
               else {
-                outputMenu.update(ctr.output.getPorts());
                 outputMenu.render = !outputMenu.render;
               }
               break;
@@ -1210,7 +1210,8 @@ int main (int argc, char* argv[]) {
     // displays index of last clicked note  
     //logQ(clickNote);
     
-    logQ(formatVector(midiMenu.findOpenChildMenu()));
+    //logQ("in:", formatVector(inputMenuContents));
+    //logQ("out:", formatVector(outputMenuContents));
 
 
   }

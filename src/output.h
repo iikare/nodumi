@@ -18,6 +18,7 @@ class midiOutput {
 
     void openPort(int port);
     void update();
+    void sendMessage(vector<unsigned char>* msgQueue);
     
     vector<string> getPorts();
 

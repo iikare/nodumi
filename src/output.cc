@@ -38,3 +38,9 @@ vector<string> midiOutput::getPorts() {
   
   return formatPortName(ports);
 }
+
+void midiOutput::sendMessage(vector<unsigned char>* msgQueue) {
+  if (curPort != -1 && midiOut->isPortOpen()) {
+    midiOut->sendMessage(msgQueue);
+  }
+}
