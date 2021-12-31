@@ -22,7 +22,7 @@ void midiOutput::openPort(int port) {
 
   midiOut->closePort();
 
-  midiOut->openPort(port);
+  midiOut->openPort(port, midiOut->getPortName(port));
 
   curPort = port;
 

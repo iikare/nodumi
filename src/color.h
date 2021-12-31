@@ -41,9 +41,3 @@ class colorRGB {
     double g;
     double b;
 };
-
-enum colorModes {
-  COLOR_PART,
-  COLOR_VELOCITY,
-  COLOR_TONIC
-};

@@ -93,7 +93,7 @@ menu::menu(point XY, vector<string> itemNames, int menuType, int menuX, int menu
 
 int menu::getItemX(int idx) {
   if (idx >= itemCount || idx < 0) {
-    cerr << "warn: attempted to get menu itemX at nonexistent menu index " << idx << endl;
+    logW(LL_WARN, "attempted to get menu itemX at nonexistent menu index ",idx);
     return -1;
   }
   return items[idx].getX();
@@ -101,7 +101,7 @@ int menu::getItemX(int idx) {
 
 int menu::getItemY(int idx) {
   if (idx >= itemCount || idx < 0) {
-    cerr << "warn: attempted to get menu itemY at nonexistent menu index " << idx << endl;
+    logW(LL_WARN, "attempted to get menu itemY at nonexistent menu index",idx);
     return -1;
   }
   return items[idx].getY();
@@ -109,7 +109,7 @@ int menu::getItemY(int idx) {
 
 string menu::getContent(int idx) {
   if (idx >= itemCount || idx < 0) {
-    cerr << "warn: attempted to get menu item at nonexistent menu index " << idx << endl;
+    logW(LL_WARN, "attempted to get menu itemY at nonexistent menu index",idx);
     return "";
   }
   return items[idx].getContent();
@@ -121,7 +121,7 @@ int menu::getActiveElement() {
 
 void menu::setContent(string nContent, int idx) {
   if (idx >= itemCount || idx < 0) {
-    cerr << "warn: attempted to set menu item " << nContent << " at menu index " << idx << endl;
+    logW(LL_WARN, "attempted to set menu item", nContent, "at menu index", idx);
     return;
   }
   items[idx].setContent(nContent);
@@ -138,7 +138,7 @@ void menu::setXY(int nX, int nY) {
 
 void menu::setActiveElement(int idx) {
   if (idx >= itemCount || idx < 0) {
-    cerr << "warn: attempted to reference menu element at nonexistent menu index " << idx << endl;
+    logW(LL_WARN, "attempted to set menu item at nonexistent menu index",idx);
     return;
   }
   activeElement = idx;
@@ -213,8 +213,9 @@ rect menu::getBox(int idx) {
     return result;
   }
   if (idx > itemCount || idx < 0) {
-    cerr << "warn: invalid call to getBox()" << endl;
+    logW(LL_WARN, "invalid call to getBox() with index", idx);
     return result;
+
   }
   
   result.x = getItemX(idx);

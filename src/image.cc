@@ -37,6 +37,37 @@ void imageController::unload() {
 
 void imageController::draw() {
   if (isLoaded) {
-    DrawTextureEx(imgTex, {(float)position.x, (float)position.y}, rotation, scale, WHITE);
+    DrawTextureEx(imgTex, {(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, rotation, scale, WHITE);
   }
+}
+
+void imageController::updatePosition() {
+  if (canMove) {
+    float xBounds = min(max(0, (int)GetMousePosition().x), ctr.getWidth());
+    float yBounds = min(max(ctr.topHeight, (int)GetMousePosition().y), ctr.getHeight()); 
+
+    offset.x = xBounds - base.x;
+    offset.y = yBounds - base.y;
+
+    //offset.x = min(max(0, (int)GetMousePosition().x - base.x), ctr.getWidth());
+    //offset.y = min(max(ctr.barHeight, (int)GetMousePosition().y - base.y), ctr.getHeight());
+  }
+}
+
+
+void imageController::updateBasePosition() {
+  canMove = true;
+  
+  base.x = GetMousePosition().x;
+  base.y = GetMousePosition().y;
+}
+
+void imageController::finalizePosition() {
+  if (canMove) {
+    canMove = false;
+    position.x += offset.x;
+    position.y += offset.y;
+    offset = {0, 0};
+  }
+
 }

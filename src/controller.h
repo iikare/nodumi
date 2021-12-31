@@ -81,6 +81,7 @@ class controller {
     const int menuHeight = 20;
     const int sheetHeight = 200;
     int barHeight = 0;
+    int topHeight = 0;
 
     const int barWidth = 10;
     const int barSpacing = 80;

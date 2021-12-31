@@ -74,7 +74,9 @@ int main (int argc, char* argv[]) {
   float nowLineX = ctr.getWidth()/2.0f;
 
   string FPSText = "";
-  
+
+  enumChecker<hoverType> hoverType;
+
   // color variables
   int selectType = SELECT_NONE;
   int colorMode = COLOR_PART;
@@ -90,7 +92,7 @@ int main (int argc, char* argv[]) {
   bool newImage = false;
   char* imagenameC = nullptr;
   string imagename = "";
-  osdialog_filters* imagetypes = osdialog_filters_parse("png:png;jpeg:jpg;jpg:jpg");
+  osdialog_filters* imagetypes = osdialog_filters_parse("image:png,jpeg,jpg");
   
   osdialog_filters* savetypes = osdialog_filters_parse("mki:mki");
 
@@ -230,13 +232,16 @@ int main (int argc, char* argv[]) {
 
     // preprocess variables
     clickTmp = -1;
+    hoverType.clear();
 
     // update menu variables
     if (sheetMusicDisplay) {
       songTimePosition.y = 26.0f + ctr.barHeight;
+      ctr.topHeight = ctr.barHeight + ctr.menuHeight;
     }
     else {
       songTimePosition.y = 26.0f;
+      ctr.topHeight = ctr.menuHeight;
     }
     // main render loop
     
@@ -246,6 +251,11 @@ int main (int argc, char* argv[]) {
 
       if (showImage) {
         ctr.image.draw();
+        if (GetMousePosition().x > ctr.image.getX() && GetMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
+          if (GetMousePosition().y > ctr.image.getY() && GetMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
+            hoverType.add(HOVER_IMAGE); 
+          } 
+        }
       }
 
       int lastMeasureNum = 0;
@@ -256,8 +266,10 @@ int main (int argc, char* argv[]) {
         int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
         double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
         if (measureLineX + measureSpacing + 4 > 0) {
-          if (pointInBox(GetMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - ctr.barHeight}) && !menuctr.mouseOnMenu()) {
-            measureLineWidth = 1; 
+          if (pointInBox(GetMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - ctr.barHeight}) && 
+              !menuctr.mouseOnMenu()) {
+            measureLineWidth = 1;
+            hoverType.add(HOVER_MEASURE);
           }
          
           if (!nowLine || fabs(nowLineX - measureLineX) > 3) {  
@@ -308,6 +320,7 @@ int main (int argc, char* argv[]) {
         if (pointInBox(GetMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) && 
             !menuctr.mouseOnMenu()) {
           nowLineWidth = 1;
+          hoverType.add(HOVER_NOW);
         }
         drawLineEx(nowLineX, nowLineY, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow);
       }
@@ -324,6 +337,7 @@ int main (int argc, char* argv[]) {
           noteOn ? clickOnTmp = true : clickOnTmp = false;
           noteOn = !noteOn;
           clickTmp = i;
+          hoverType.add(HOVER_NOTE);
         };
 
         
@@ -414,7 +428,8 @@ int main (int argc, char* argv[]) {
                     drawRing({cX, ballY}, radius - 2, radius, colorSetOn->at(colorID), 255*radius/maxRad);
                     drawRing({nowLineX, ballY}, radius - 2, radius, colorSetOn->at(colorID));
                     if (nowLineX - cX > 2 * radius) {
-                      drawGradientLineH({cX + radius, ballY + 1}, {nowLineX - radius + 1, ballY + 1}, 2, colorSetOn->at(colorID), 255, 255*radius/maxRad);
+                      drawGradientLineH({cX + radius, ballY + 1}, {nowLineX - radius + 1, ballY + 1}, 
+                                        2, colorSetOn->at(colorID), 255, 255*radius/maxRad);
                     }
                   }
                 }
@@ -507,6 +522,9 @@ int main (int argc, char* argv[]) {
 
         // bg
         drawRectangle(0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight, ctr.bgSheet);  
+        if (pointInBox(GetMousePosition(), {0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight})) {
+          hoverType.add(HOVER_SHEET);
+        }
 
         // stave lines
         for (int i = 0; i < 2; i++) {
@@ -591,6 +609,11 @@ int main (int argc, char* argv[]) {
           break;
         case SELECT_SHEET:
           ctr.bgSheet = colorSelect.getColor();
+          break;
+        case SELECT_NONE:
+          break;
+        default:
+          selectType = SELECT_NONE;
           break;
       }
     }
@@ -1091,7 +1114,14 @@ int main (int argc, char* argv[]) {
                   rightMenu.hideChildMenu();
                 }
                 else {
-                  colorSelect.render = !colorSelect.render;
+                  if (rightMenu.getContent(1) == "Remove Image") {
+                    ctr.image.unload();
+                    colorSelect.render = false;
+                    logQ("attempted to remove image: size:");
+                  }
+                  else {
+                    colorSelect.render = !colorSelect.render;
+                  }
                 }
               } 
               break;
@@ -1101,7 +1131,14 @@ int main (int argc, char* argv[]) {
                   rightMenu.hideChildMenu();
                 }
                 else {
-                  colorSelect.render = !colorSelect.render;
+                  if (rightMenu.getContent(1) == "Remove Image") {
+                    ctr.image.unload();
+                    colorSelect.render = false;
+                  }
+                  else {
+                    colorSelect.render = !colorSelect.render;
+                  }
+                  //colorSelect.render = !colorSelect.render;
                 }
               }
               break;
@@ -1111,13 +1148,28 @@ int main (int argc, char* argv[]) {
           }
           break;
       }
+  
+      // TODO: add image moving capability
+      //logQ(clickOn);
+      //logQ(clickNote);
 
+      if (!hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET) && 
+          !hoverType.containsLastFrame(HOVER_MENU)) {
+        if (hoverType.contains(HOVER_IMAGE)) {
+          ctr.image.updateBasePosition();
+        }
+      }
 
     }
-    if (IsMouseButtonUp(MOUSE_LEFT_BUTTON)) {
+    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         colorMove = false;
         colorSquare = false;
         colorCircle = false;
+
+        ctr.image.finalizePosition();
+    }
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {    
+      ctr.image.updatePosition();
     }
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
       clickNote = clickTmp;
@@ -1185,6 +1237,15 @@ int main (int argc, char* argv[]) {
                 rightMenuContents[1] = "Change Line Color";
                 colorSelect.setColor(ctr.bgMeasure);
               }
+              else if (ctr.image.exists()) {
+                if (!hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET) && 
+                    !hoverType.containsLastFrame(HOVER_MENU)) {
+                  if (hoverType.contains(HOVER_IMAGE)) {
+                    selectType = SELECT_NONE; // no color change on image
+                    rightMenuContents[1] = "Remove Image";
+                  }
+                }
+              }
               else {
                 selectType = SELECT_BG;
                 rightMenuContents[1] = "Change Color";
@@ -1202,7 +1263,12 @@ int main (int argc, char* argv[]) {
         }
       }
     }
-    
+   
+    if (menuctr.mouseOnMenu() || pointInBox(GetMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
+      drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
+      hoverType.add(HOVER_MENU);
+    }
+
     menuctr.updateMouse();
     menuctr.updateRenderStatus();
     ctr.updateKeyState();
@@ -1213,7 +1279,7 @@ int main (int argc, char* argv[]) {
     //logQ("in:", formatVector(inputMenuContents));
     //logQ("out:", formatVector(outputMenuContents));
 
-
+    
   }
 
   ctr.unloadTextures();

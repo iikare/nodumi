@@ -26,7 +26,7 @@ void midiInput::openPort(int port, bool pauseEvent) {
       return;
     }
 
-    midiIn->openPort(port);
+    midiIn->openPort(port, midiIn->getPortName(port));
     midiIn->ignoreTypes(false, false, false);
 
     curPort = port;
