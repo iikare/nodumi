@@ -91,7 +91,8 @@ vector<colorRGB> imageController::getRawData() {
   if (isLoaded) {
     for (int x = 0; x < ctr.image.getWidth(); ++x) {
       for (int y = 0; y < ctr.image.getHeight(); ++y) {
-        logQ(colorRGB(GetImageColor(img, x, y)));  
+        //logQ(colorRGB(GetImageColor(img, x, y)));  
+        result.push_back(colorRGB(GetImageColor(img, x, y)));  
       }
     } 
   }

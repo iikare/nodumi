@@ -91,12 +91,11 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
     k = n;
   }
 
+  vector<colorRGB> colorData = ctr.image.getRawData(); 
 
   colorVecA.clear();
   colorVecB.clear();
   
-  vector<colorRGB> colorData = ctr.image.getRawData(); 
-
 
   int meanV = 0;
   vector<colorRGB> colorVecC = findKMeans(colorData, k, meanV);
