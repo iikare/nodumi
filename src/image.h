@@ -9,7 +9,7 @@ using std::string;
 class imageController {
   public:
     imageController() : img(),  imgTex(), isLoaded(false), canMove(false),
-                        position({0,0}), base({0,0}), offset({0,0}), rotation(0), scale(1) {};
+                        position({0,0}), base({0,0}), offset({0,0}), scale(1) {};
 
     void load(string path);
     void unload();
@@ -18,10 +18,10 @@ class imageController {
 
     bool exists() { return isLoaded; }
 
-    int getX() { return position.x; }
-    int getY() { return position.y; }
-    int getWidth() { return isLoaded ? img.width : -1; }
-    int getHeight() { return isLoaded ? img.height : -1; }
+    int getX() { return position.x + offset.x; }
+    int getY() { return position.y + offset.y; }
+    int getWidth() { return isLoaded ? img.width * scale : -1; }
+    int getHeight() { return isLoaded ? img.height * scale : -1; }
 
     
     void updatePosition();
@@ -39,7 +39,6 @@ class imageController {
     point position;
     point base;
     point offset;
-    float rotation;
     float scale;
     
 

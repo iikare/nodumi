@@ -20,7 +20,6 @@ void imageController::load(string path) {
   } 
 
   position = {0,0};
-  rotation = 0;
 
 
   imgTex = LoadTextureFromImage(img);
@@ -28,16 +27,22 @@ void imageController::load(string path) {
   isLoaded = true;
 }
 void imageController::unload() {
+  if (isLoaded) {
+    UnloadImage(img);
+    UnloadTexture(imgTex);
+    
+    position = {0, 0};
+    offset = {0, 0};
+    base = {0, 0};
+    scale = 1;
 
-  UnloadImage(img);
-  UnloadTexture(imgTex);
-
-  isLoaded = false;
+    isLoaded = false;
+  }
 }
 
 void imageController::draw() {
   if (isLoaded) {
-    DrawTextureEx(imgTex, {(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, rotation, scale, WHITE);
+    DrawTextureEx(imgTex, {(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, 0, scale, WHITE);
   }
 }
 

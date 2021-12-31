@@ -61,12 +61,33 @@ void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorV
   } 
 }
 
+void getColorSchemeImage(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB) {
+  vector<pair<int, double>> tmp;
+  getColorSchemeImage(n, colorVecA, colorVecB, tmp);
+}
+
+void getColorSchemeImage(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, vector<pair<int, double>>& weight) {
+
+  // check zero n
+  if (!n) {
+    logW(LL_WARN, "call to getColorSchemeImage with n:", 0);
+  }
+
+
+
+
+
+
+
+
+}
+
 void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>* on, vector<colorRGB>* off){
-  invertColor(bg);
-  invertColor(line);
+  bg.invert();
+  line.invert();
   for (unsigned int i = 0; i < on->size(); i++) {
-    invertColor(on->at(i));
-    invertColor(off->at(i));
+    (on->at(i)).invert();
+    (off->at(i)).invert();
   }
 }
 

@@ -35,6 +35,12 @@ bool colorRGB::operator == (const colorRGB& col) {
   return (int)r == (int)col.r && (int)g == (int)col.g && (int)b == (int)col.b;
 }
 
+void colorRGB::invert() {
+  r = 255 - r;
+  g = 255 - g;
+  b = 255 - b;
+}
+
 colorHSV colorRGB::getHSV () {
   // implementation of RGB->HSV algorithm
   
@@ -73,4 +79,10 @@ void colorHSV::setHSV(double hue, double sat, double val) {
   h = hue;
   s = sat;
   v = val;
+}
+
+void colorHSV::invert() {
+  h = 255 - h;
+  s = 255 - s;
+  v = 255 - v;
 }

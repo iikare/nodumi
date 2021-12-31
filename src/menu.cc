@@ -109,7 +109,7 @@ int menu::getItemY(int idx) {
 
 string menu::getContent(int idx) {
   if (idx >= itemCount || idx < 0) {
-    logW(LL_WARN, "attempted to get menu itemY at nonexistent menu index",idx);
+    logW(LL_WARN, "attempted to get menu content at nonexistent menu index", idx);
     return "";
   }
   return items[idx].getContent();

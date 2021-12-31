@@ -253,6 +253,7 @@ int main (int argc, char* argv[]) {
         ctr.image.draw();
         if (GetMousePosition().x > ctr.image.getX() && GetMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
           if (GetMousePosition().y > ctr.image.getY() && GetMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
+            //logQ(ctr.image.getWidth(), ctr.image.getHeight()); 
             hoverType.add(HOVER_IMAGE); 
           } 
         }
@@ -298,10 +299,6 @@ int main (int argc, char* argv[]) {
             if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songTimeSize.x) {
               measureLineTextAlpha = max(0.0,min(255.0, 
                                                  255.0 * (1 -( songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
-              if (i == 1) { 
-                //logQ(measureLineTextAlpha); 
-                logQ(255* (1-( songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10));
-              }
             }
 
 
@@ -1014,6 +1011,11 @@ int main (int argc, char* argv[]) {
               getColorScheme(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff);
               break;
             case 1:
+              if (ctr.image.exists()) {
+                getColorSchemeImage(128, ctr.setVelocityOn, ctr.setVelocityOff);
+                getColorSchemeImage(12, ctr.setTonicOn, ctr.setTonicOff);
+                getColorSchemeImage(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff);
+              }
               break;
 
           }
@@ -1114,10 +1116,10 @@ int main (int argc, char* argv[]) {
                   rightMenu.hideChildMenu();
                 }
                 else {
-                  if (rightMenu.getContent(1) == "Remove Image") {
+                  if (rightMenu.getContent(0) == "Remove Image") {
+                    //logQ("attempted to remove image: size:");
                     ctr.image.unload();
-                    colorSelect.render = false;
-                    logQ("attempted to remove image: size:");
+                    rightMenu.render = false;
                   }
                   else {
                     colorSelect.render = !colorSelect.render;
@@ -1131,14 +1133,7 @@ int main (int argc, char* argv[]) {
                   rightMenu.hideChildMenu();
                 }
                 else {
-                  if (rightMenu.getContent(1) == "Remove Image") {
-                    ctr.image.unload();
-                    colorSelect.render = false;
-                  }
-                  else {
-                    colorSelect.render = !colorSelect.render;
-                  }
-                  //colorSelect.render = !colorSelect.render;
+                  colorSelect.render = !colorSelect.render;
                 }
               }
               break;
@@ -1161,6 +1156,7 @@ int main (int argc, char* argv[]) {
       }
 
     }
+    //logQ("label", rightMenuContents[1], "v.", rightMenu.getContent(0));
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         colorMove = false;
         colorSquare = false;
@@ -1243,6 +1239,7 @@ int main (int argc, char* argv[]) {
                   if (hoverType.contains(HOVER_IMAGE)) {
                     selectType = SELECT_NONE; // no color change on image
                     rightMenuContents[1] = "Remove Image";
+                    //logQ("rightclicked on image");
                   }
                 }
               }
@@ -1255,6 +1252,8 @@ int main (int argc, char* argv[]) {
             rightMenu.setContent("", 0);
             auto f = rightMenuContents.begin() + 1;
             auto e = rightMenuContents.end() - 1;
+
+            //logQ(formatVector(rightMenuContents));
             vector<string> newRight(f, e);
             rightMenu.update(newRight);
           }
@@ -1263,7 +1262,7 @@ int main (int argc, char* argv[]) {
         }
       }
     }
-   
+    //logQ("hover image?:", hoverType.contains(HOVER_IMAGE)); 
     if (menuctr.mouseOnMenu() || pointInBox(GetMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
       hoverType.add(HOVER_MENU);

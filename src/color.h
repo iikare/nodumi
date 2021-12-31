@@ -13,6 +13,9 @@ class colorHSV {
 
     void setHSV(double hue, double sat, double val);
 
+    void invert();
+
+
     void operator = (const colorHSV& col);
     bool operator == (const colorHSV& col);
 
@@ -34,6 +37,8 @@ class colorRGB {
 
     void setRGB(double red, double green, double blue);
     void setRGB(colorHSV hsv);
+    
+    void invert();
 
     friend ostream& operator << (ostream& out, colorRGB color);
 
