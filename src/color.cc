@@ -14,6 +14,8 @@ colorRGB::colorRGB() : r(0), g(0), b(0) {}
 
 colorRGB::colorRGB(double red, double green, double blue) : r(red), g(green), b(blue) {}
 
+colorRGB::colorRGB(Color col) : r(col.r), g(col.g), b(col.b) {}
+
 ostream& operator << (ostream& out, colorRGB color) {
   out << "{" << color.r << ", " << color.g << ", " << color.b << "} (RGB)";
   return out;

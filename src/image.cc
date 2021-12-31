@@ -84,3 +84,16 @@ void imageController::changeScale(float scaleOffset) {
   scale = min(max(0.1f*defaultScale, (float)scale + scaleOffset* scale/defaultScale), 10.0f*defaultScale);
   logQ("newscale", scale);
 }
+
+vector<colorRGB> imageController::getRawData() {
+  vector<colorRGB> result;
+
+  if (isLoaded) {
+    for (int x = 0; x < ctr.image.getWidth(); ++x) {
+      for (int y = 0; y < ctr.image.getHeight(); ++y) {
+        logQ(colorRGB(GetImageColor(img, x, y)));  
+      }
+    } 
+  }
+  return result;
+}

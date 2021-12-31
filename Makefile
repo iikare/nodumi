@@ -1,6 +1,6 @@
 CC = g++
 
-LD = -fuse-ld=gold
+LD = -fuse-ld=gold -gdwarf-4
 
 CFLAGS = --std=c++17 -Wall -Wextra -g $(LD) -D__LINUX_ALSA__ -D__UNIX_JACK__ 
 CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 

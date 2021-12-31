@@ -1045,15 +1045,18 @@ int main (int argc, char* argv[]) {
           }
           switch(paletteMenu.getActiveElement()) {
             case 0:
-              getColorScheme(128, ctr.setVelocityOn, ctr.setVelocityOff);
-              getColorScheme(12, ctr.setTonicOn, ctr.setTonicOff);
+              getColorScheme(KEY_COUNT, ctr.setVelocityOn, ctr.setVelocityOff);
+              getColorScheme(TONIC_COUNT, ctr.setTonicOn, ctr.setTonicOff);
               getColorScheme(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff);
               break;
             case 1:
               if (ctr.image.exists()) {
-                getColorSchemeImage(128, ctr.setVelocityOn, ctr.setVelocityOff);
-                getColorSchemeImage(12, ctr.setTonicOn, ctr.setTonicOff);
+                getColorSchemeImage(KEY_COUNT, ctr.setVelocityOn, ctr.setVelocityOff);
+                getColorSchemeImage(TONIC_COUNT, ctr.setTonicOn, ctr.setTonicOff);
                 getColorSchemeImage(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff);
+              }
+              else{
+                logW(LL_WARN, "attempt to get color scheme from nonexistent image");
               }
               break;
 

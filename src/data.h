@@ -17,3 +17,6 @@
 #define SHEET_LMARGIN 80
 #define TEXT_SPACING 0
 
+
+#define TONIC_COUNT 12
+#define KEY_COUNT 128

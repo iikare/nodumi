@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <raylib.h>
 
 using std::ostream;
 
@@ -30,6 +31,7 @@ class colorRGB {
   public:
     colorRGB();
     colorRGB(double red, double green, double blue);
+    colorRGB(Color col);
 
     colorHSV getHSV();
     

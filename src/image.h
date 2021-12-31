@@ -2,11 +2,16 @@
 
 #include <raylib.h>
 #include <string>
+#include <vector>
 #include "box.h"
+#include "color.h"
 
+using std::vector;
 using std::string;
 using std::min;
 using std::max;
+
+
 
 class imageController {
   public:
@@ -18,6 +23,9 @@ class imageController {
 
     void draw();
     void changeScale(float scaleOffset);
+
+    vector<colorRGB> getRawData();
+
 
     bool exists() { return isLoaded; }
 
