@@ -2,7 +2,7 @@ CC = g++
 
 LD = -fuse-ld=gold
 
-CFLAGS = --std=c++17 -Wall -Wextra -g $(LD) -D__LINUX_ALSA__ -D__UNIX_JACK__
+CFLAGS = --std=c++17 -Wall -Wextra -g $(LD) -D__LINUX_ALSA__ -D__UNIX_JACK__ 
 CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 
 CFLAGSRTM = $(CFLAGS) -w
 

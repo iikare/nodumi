@@ -5,18 +5,22 @@
 #include "box.h"
 
 using std::string;
+using std::min;
+using std::max;
 
 class imageController {
   public:
     imageController() : img(),  imgTex(), isLoaded(false), canMove(false),
-                        position({0,0}), base({0,0}), offset({0,0}), scale(1) {};
+                        position({0,0}), base({0,0}), offset({0,0}), scale(1), defaultScale(1) {};
 
     void load(string path);
     void unload();
 
     void draw();
+    void changeScale(float scaleOffset);
 
     bool exists() { return isLoaded; }
+
 
     int getX() { return position.x + offset.x; }
     int getY() { return position.y + offset.y; }
@@ -40,6 +44,7 @@ class imageController {
     point base;
     point offset;
     float scale;
+    float defaultScale;
     
 
 };

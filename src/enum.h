@@ -16,7 +16,9 @@ class enumChecker {
     }
 
     void add(T item) {
-      items.push_back(item);
+      if (!contains(item)) {
+        items.push_back(item);
+      }
     }
 
     void remove(T item) {
@@ -84,10 +86,10 @@ enum songTimeType {
 enum hoverType {
   HOVER_NOW,
   HOVER_NOTE,
+  HOVER_IMAGE,
   HOVER_MEASURE,
   HOVER_SHEET,
   HOVER_MENU,
-  HOVER_IMAGE,
   HOVER_BG, //default, should not be added
   HOVER_NONE
 };

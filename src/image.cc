@@ -17,17 +17,19 @@ void imageController::load(string path) {
   // find default scale
   if (img.width > ctr.getWidth() || img.height > ctr.getHeight()) {
     scale = 1.0/max((float)img.width/ctr.getWidth(), (float)img.height/ctr.getHeight());
+    defaultScale = scale;
   } 
 
   position = {0,0};
 
 
   imgTex = LoadTextureFromImage(img);
+  SetTextureFilter(imgTex, TEXTURE_FILTER_BILINEAR);
   
   isLoaded = true;
 }
 void imageController::unload() {
-  if (isLoaded) {
+ if (isLoaded) {
     UnloadImage(img);
     UnloadTexture(imgTex);
     
@@ -35,6 +37,7 @@ void imageController::unload() {
     offset = {0, 0};
     base = {0, 0};
     scale = 1;
+    defaultScale = 1;
 
     isLoaded = false;
   }
@@ -75,4 +78,9 @@ void imageController::finalizePosition() {
     offset = {0, 0};
   }
 
+}
+
+void imageController::changeScale(float scaleOffset) { 
+  scale = min(max(0.1f*defaultScale, (float)scale + scaleOffset* scale/defaultScale), 10.0f*defaultScale);
+  logQ("newscale", scale);
 }

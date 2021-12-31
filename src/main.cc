@@ -66,7 +66,10 @@ int main (int argc, char* argv[]) {
   bool colorSquare = false;
   bool colorCircle = false;
   bool sheetMusicDisplay = false;
-  
+ 
+  bool measureLine = true;
+  bool measureNumber = true;
+
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
   int displayMode = DISPLAY_BAR;
@@ -134,7 +137,7 @@ int main (int argc, char* argv[]) {
   menuctr.registerMenu(&editMenu);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Display Song Time:", "Hide Now Line", 
-                                     "Hide Background", "Show FPS"};
+                                     "Hide Measure Line", "Hide Measure Number", "Hide Background", "Show FPS"};
   menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&viewMenu);
   
@@ -262,54 +265,59 @@ int main (int argc, char* argv[]) {
       int lastMeasureNum = 0;
       int measureSpacing = MeasureTextEx(font, to_string(noteData.measureMap.size() - 1).c_str(), font.baseSize, 0.5).x;
 
-      for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
-        float measureLineWidth = 0.5;
-        int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
-        double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
-        if (measureLineX + measureSpacing + 4 > 0) {
-          if (pointInBox(GetMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - ctr.barHeight}) && 
-              !menuctr.mouseOnMenu()) {
-            measureLineWidth = 1;
-            hoverType.add(HOVER_MEASURE);
-          }
-         
-          if (!nowLine || fabs(nowLineX - measureLineX) > 3) {  
-            drawLineEx(measureLineX, ctr.menuHeight,
-                       measureLineX, ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
-          }
-
-
-
-          if (!i || convertSSX(noteData.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 <
-                    measureLineX) {
-            
-            // measure number / song time collision detection
-            Vector2 songTimeSize; 
-            switch (songTimeType) {
-              case SONGTIME_ABSOLUTE:
-               songTimeSize = measureTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str());
-               break;
-              case SONGTIME_RELATIVE: 
-               songTimeSize = measureTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str());
-               break;
-            }
-            
-            int measureLineTextAlpha = 255;
-
-            if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songTimeSize.x) {
-              measureLineTextAlpha = max(0.0,min(255.0, 
-                                                 255.0 * (1 -( songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
+      if (measureLine || measureNumber) {
+        for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
+          float measureLineWidth = 0.5;
+          int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
+          double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
+          if (measureLineX + measureSpacing + 4 > 0) {
+              
+            if (measureLine) {
+              if (pointInBox(GetMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
+                  !hoverType.containsLastFrame(HOVER_MENU)) {
+                measureLineWidth = 1;
+                hoverType.add(HOVER_MEASURE);
+              }
+             
+              if (!nowLine || fabs(nowLineX - measureLineX) > 3) {  
+                drawLineEx(measureLineX, measureLineY,
+                           measureLineX, ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
+              }
             }
 
 
-            int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
-            drawTextEx(font, to_string(i + 1).c_str(), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
-            lastMeasureNum = i;
+            if (measureNumber) {
+              if (!i || convertSSX(noteData.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 <
+                        measureLineX) {
+                
+                // measure number / song time collision detection
+                Vector2 songTimeSize; 
+                switch (songTimeType) {
+                  case SONGTIME_ABSOLUTE:
+                   songTimeSize = measureTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str());
+                   break;
+                  case SONGTIME_RELATIVE: 
+                   songTimeSize = measureTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str());
+                   break;
+                }
+                
+                int measureLineTextAlpha = 255;
+
+                if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songTimeSize.x) {
+                  measureLineTextAlpha = max(0.0,min(255.0, 
+                                                     255.0 * (1 -( songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
+                }
+
+
+                int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
+                drawTextEx(font, to_string(i + 1).c_str(), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
+                lastMeasureNum = i;
+              }
+            }
           }
         }
       }
-
-
+    
 
       if (nowLine) {
         float nowLineWidth = 0.5;
@@ -616,9 +624,22 @@ int main (int argc, char* argv[]) {
     }
     
     // key logic
+    
+    if ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_LEFT_SHIFT)) && GetMouseWheelMove() != 0) {
+      if (ctr.image.exists() && showImage) {
 
-    if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_UP) || GetMouseWheelMove() != 0) {
-      if (IsKeyPressed(KEY_DOWN) || GetMouseWheelMove() < 0) {
+        // defaults to ±1, adjusted depending on default image scale value
+        float scaleModifier = 0.02f;
+        if (IsKeyDown(KEY_LEFT_SHIFT)) {
+          scaleModifier = 0.002f;
+        }
+        ctr.image.changeScale(scaleModifier*GetMouseWheelMove());
+      }
+    }
+    
+    if ((!IsKeyDown(KEY_LEFT_CONTROL) && !IsKeyDown(KEY_LEFT_SHIFT)) && 
+        (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_UP) || GetMouseWheelMove() != 0)) {
+      if (IsKeyPressed(KEY_DOWN) || (GetMouseWheelMove() < 0)) {
         if (zoomLevel > 0.00001) {
           zoomLevel *= 0.75;
         }
@@ -860,6 +881,24 @@ int main (int argc, char* argv[]) {
               nowLine = !nowLine;
               break;
             case 4:
+              if (viewMenu.getContent(4) == "Show Measure Line") {
+                viewMenu.setContent("Hide Measure Line", 4);
+              }
+              else if (viewMenu.getContent(4) == "Hide Measure Line") {
+                viewMenu.setContent("Show Measure Line", 4);
+              }
+              measureLine = !measureLine;
+              break;
+            case 5:
+              if (viewMenu.getContent(5) == "Show Measure Number") {
+                viewMenu.setContent("Hide Measure Number", 5);
+              }
+              else if (viewMenu.getContent(5) == "Hide Measure Number") {
+                viewMenu.setContent("Show Measure Number", 5);
+              }
+              measureNumber = !measureNumber;
+              break;
+            case 6:
               if (viewMenu.getContent(4) == "Show Background") {
                 viewMenu.setContent("Hide Background", 4);
               }
@@ -868,7 +907,7 @@ int main (int argc, char* argv[]) {
               }
               showImage = !showImage;
               break;
-            case 5:
+            case 7:
               if (viewMenu.getContent(5) == "Show FPS") {
                 viewMenu.setContent("Hide FPS", 5);
               }
@@ -1149,13 +1188,16 @@ int main (int argc, char* argv[]) {
       //logQ(clickNote);
 
       if (!hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET) && 
-          !hoverType.containsLastFrame(HOVER_MENU)) {
+          !hoverType.containsLastFrame(HOVER_MENU, HOVER_MEASURE)) {
         if (hoverType.contains(HOVER_IMAGE)) {
           ctr.image.updateBasePosition();
+          //logQ("UPDATE BASE");
         }
       }
 
     }
+    //logQ("can image move?:", !hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET) && 
+          //!hoverType.containsLastFrame(HOVER_MENU, HOVER_MEASURE));
     //logQ("label", rightMenuContents[1], "v.", rightMenu.getContent(0));
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         colorMove = false;
@@ -1262,7 +1304,6 @@ int main (int argc, char* argv[]) {
         }
       }
     }
-    //logQ("hover image?:", hoverType.contains(HOVER_IMAGE)); 
     if (menuctr.mouseOnMenu() || pointInBox(GetMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
       hoverType.add(HOVER_MENU);
