@@ -203,13 +203,17 @@ int main (int argc, char* argv[]) {
 
     ctr.load(filename);
   }
- 
+  
+   
 
   // test image
   logQ("loading debug image: ./tests/large.png");
   ctr.image.load("./tests/large.png");
 
   while (ctr.getProgramState()) {
+
+    // the now line IS variable
+    //nowLineX = ctr.getWidth()/2.0f + ctr.getWidth()/4.0f*sin(GetTime());
 
     if (newFile) {
       newFile = false;
@@ -1052,13 +1056,13 @@ int main (int argc, char* argv[]) {
             case 0:
               getColorScheme(KEY_COUNT, ctr.setVelocityOn, ctr.setVelocityOff);
               getColorScheme(TONIC_COUNT, ctr.setTonicOn, ctr.setTonicOff);
-              getColorScheme(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff);
+              getColorScheme(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff, ctr.file.trackHeightMap);
               break;
             case 1:
               if (ctr.image.exists()) {
                 getColorSchemeImage(KEY_COUNT, ctr.setVelocityOn, ctr.setVelocityOff);
                 getColorSchemeImage(TONIC_COUNT, ctr.setTonicOn, ctr.setTonicOff);
-                getColorSchemeImage(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff);
+                getColorSchemeImage(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff, ctr.file.trackHeightMap);
               }
               else{
                 logW(LL_WARN, "attempt to get color scheme from nonexistent image");

@@ -1,8 +1,13 @@
 CC = g++
+#CC = x86_64-w64-mingw32-gcc-11.2.0 
 
+#LD =
 LD = -fuse-ld=gold -gdwarf-4
 
-CFLAGS = --std=c++17 -Wall -Wextra -g $(LD) -D__LINUX_ALSA__ -D__UNIX_JACK__ 
+LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__ 
+#WINDOWS = -D__WINDOWS_MM__
+
+CFLAGS = --std=c++17 -Wall -Wextra -g $(LD) $(LINUX) 
 CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 
 CFLAGSRTM = $(CFLAGS) -w
 
@@ -26,6 +31,7 @@ SRCSMF = $(wildcard $(MFDIR)/*.cpp)
 OBJSMF = $(patsubst $(MFDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSMF))
 
 SRCSOSD = $(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_gtk3.c
+#SRCSOSD = $(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_win.c
 OBJSOSD = $(patsubst $(OSDDIR)/%.c, $(BUILDDIR)/%.o, $(SRCSOSD))
 
 SRCSRTM = $(RTMDIR)/RtMidi.cpp

@@ -49,8 +49,8 @@ void imageController::unload() {
 void imageController::draw() {
   if (isLoaded) {
     DrawTextureEx(imgTex, {(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, 0, scale, WHITE);
-    DrawRectangle((float)position.x + (float)offset.x, (float)position.y + (float)offset.y, 
-                  getWidth(), getHeight(), {100,100,100,100});
+    //DrawRectangle((float)position.x + (float)offset.x, (float)position.y + (float)offset.y, 
+                  //getWidth(), getHeight(), {100,100,100,100});
   }
 }
 
@@ -90,9 +90,10 @@ void imageController::changeScale(float scaleOffset) {
   logQ("newscale", scale);
 }
 
-vector<colorRGB> imageController::getRawData() {
+vector<pixel> imageController::getRawData() {
   return rawPixelData;
 }
+
 void imageController::createRawData() {
   rawPixelData.clear();
 
@@ -101,10 +102,10 @@ void imageController::createRawData() {
   
   if (isLoaded) {
     // use original image values to prevent effects from scaling
-    for (int x = 0; x < img.width; ++x) {
-      for (int y = 0; y < img.height; ++y) {
-        //logQ(colorRGB(GetImageColor(img, x, y)));  
-        rawPixelData.push_back(colorRGB(GetImageColor(img, x, y)));  
+    for (int x = 0; x < copy.width; ++x) {
+      for (int y = 0; y < copy.height; ++y) {
+        //logQ(colorRGB(GetImageColor(copy, x, y))); 
+        rawPixelData.push_back(pixel(GetImageColor(copy, x, y)));  
       }
     } 
   }

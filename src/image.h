@@ -5,6 +5,7 @@
 #include <vector>
 #include "box.h"
 #include "color.h"
+#include "colorgen.h"
 
 using std::vector;
 using std::string;
@@ -25,7 +26,7 @@ class imageController {
     void draw();
     void changeScale(float scaleOffset);
 
-    vector<colorRGB> getRawData();
+    vector<pixel> getRawData();
 
 
     bool exists() { return isLoaded; }
@@ -57,7 +58,7 @@ class imageController {
     float scale;
     float defaultScale;
 
-    vector<colorRGB> rawPixelData;
+    vector<pixel> rawPixelData;
     
 
 };

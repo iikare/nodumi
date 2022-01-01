@@ -14,15 +14,18 @@ void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorV
 void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, vector<pair<int, double>>& weight);
 
 void getColorSchemeImage(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB);
+void getColorSchemeImage(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB,
+                         vector<pair<int, double>>& weight);
 void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, vector<pair<int, double>>& weight);
 
-vector<colorRGB> findKMeans(vector<colorRGB>& colorData, int k, int& meanV);
+vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV);
 
 class pixel {
   public:
 
   pixel() : data(0,0,0), cluster(-1), cDist(__DBL_MAX__) {}
   pixel(colorRGB color) : data(color), cluster(-1), cDist(__DBL_MAX__) {}
+  pixel(Color color) : data(color), cluster(-1), cDist(__DBL_MAX__) {}
   
   colorRGB data;
   int cluster = -1;

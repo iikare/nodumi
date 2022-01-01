@@ -22,7 +22,7 @@ void controller::toggleLivePlay() {
     notes = &file.notes;
   }
   // ensure sufficient track colors
-  getColorScheme(getTrackCount(), setTrackOn, setTrackOff);
+  getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
 }
 
 int controller::getTrackCount() {
@@ -64,7 +64,7 @@ void controller::load(string filename) {
   file.load(filename);
   getColorScheme(KEY_COUNT, setVelocityOn, setVelocityOff);
   getColorScheme(TONIC_COUNT, setTonicOn, setTonicOff);
-  getColorScheme(getTrackCount(), setTrackOn, setTrackOff);
+  getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
 }
 
 void controller::loadTextures() {

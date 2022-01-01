@@ -9,6 +9,7 @@
 #include "timekey.h"
 #include "sheetctr.h"
 #include "measure.h"
+#include "color.h"
 #include "log.h"
 
 using namespace smf;
@@ -54,10 +55,11 @@ class midi {
 
     friend class midiInput;
     friend class controller;
+
+    vector<pair<int, double>> trackHeightMap;
   private:
     vector<pair<double, int>> tempoMap;
     vector<trackController> tracks;
-    vector<pair<int, double>> trackHeightMap;
     vector<int> lineVerts;
     vector<int> tickMap;
 

@@ -77,6 +77,10 @@ void getColorSchemeImage(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& c
   getColorSchemeImage(n, 2, colorVecA, colorVecB, tmp);
 }
 
+void getColorSchemeImage(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB,
+                         vector<pair<int, double>>& weight) {
+  getColorSchemeImage(n, 2, colorVecA, colorVecB, weight);
+}
 void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, 
                          vector<pair<int, double>>& weight) {
  
@@ -91,12 +95,12 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
     k = n;
   }
 
-  vector<colorRGB> colorData = ctr.image.getRawData(); 
+  vector<pixel> colorData = ctr.image.getRawData(); 
 
   colorVecA.clear();
   colorVecB.clear();
   
-  logQ(ctr.getTrackCount());
+  //logQ(ctr.getTrackCount());
   int meanV = 0;
   vector<colorRGB> colorVecC = findKMeans(colorData, k, meanV);
 
@@ -230,19 +234,21 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
     // provide contrast on dark images
     swap(colorVecA, colorVecB);
   }
+  
+  // sort by first 
+  if (weight.size() != 0) {
+    for (unsigned int i = 0; i < weight.size(); i++) {
+      swap(colorVecA[i], colorVecA[weight[i].first]);
+      swap(colorVecB[i], colorVecB[weight[i].first]);
+    }
+  } 
+
 } 
 
-vector<colorRGB> findKMeans(vector<colorRGB>& colorIn, int k, int& meanV) {
+vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
   // result vector
   vector<colorRGB> result;
   
-  // input conversion
-  vector<pixel> colorData;
-  
-  for (auto i: colorIn) {
-    colorData.push_back(pixel(i));
-  }
-
   // mean value
   double intVal = 0;
 
