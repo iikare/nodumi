@@ -27,6 +27,8 @@ void imageController::load(string path) {
   SetTextureFilter(imgTex, TEXTURE_FILTER_BILINEAR);
   
   isLoaded = true;
+
+  createRawData();
 }
 void imageController::unload() {
  if (isLoaded) {
@@ -40,12 +42,15 @@ void imageController::unload() {
     defaultScale = 1;
 
     isLoaded = false;
+    rawPixelData.clear();
   }
 }
 
 void imageController::draw() {
   if (isLoaded) {
     DrawTextureEx(imgTex, {(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, 0, scale, WHITE);
+    DrawRectangle((float)position.x + (float)offset.x, (float)position.y + (float)offset.y, 
+                  getWidth(), getHeight(), {100,100,100,100});
   }
 }
 
@@ -86,15 +91,24 @@ void imageController::changeScale(float scaleOffset) {
 }
 
 vector<colorRGB> imageController::getRawData() {
-  vector<colorRGB> result;
+  return rawPixelData;
+}
+void imageController::createRawData() {
+  rawPixelData.clear();
 
+  Image copy = ImageCopy(img);
+  ImageResizeNN(&copy, 200, 200 * (float)img.width/img.height);
+  
   if (isLoaded) {
-    for (int x = 0; x < ctr.image.getWidth(); ++x) {
-      for (int y = 0; y < ctr.image.getHeight(); ++y) {
+    // use original image values to prevent effects from scaling
+    for (int x = 0; x < img.width; ++x) {
+      for (int y = 0; y < img.height; ++y) {
         //logQ(colorRGB(GetImageColor(img, x, y)));  
-        result.push_back(colorRGB(GetImageColor(img, x, y)));  
+        rawPixelData.push_back(colorRGB(GetImageColor(img, x, y)));  
       }
     } 
   }
-  return result;
+
+  UnloadImage(copy);
+
 }

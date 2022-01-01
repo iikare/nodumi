@@ -16,7 +16,8 @@ using std::max;
 class imageController {
   public:
     imageController() : img(),  imgTex(), isLoaded(false), canMove(false),
-                        position({0,0}), base({0,0}), offset({0,0}), scale(1), defaultScale(1) {};
+                        position({0,0}), base({0,0}), offset({0,0}), scale(1), defaultScale(1),
+                        rawPixelData() {};
 
     void load(string path);
     void unload();
@@ -41,7 +42,9 @@ class imageController {
     void finalizePosition();
 
   private:
-    
+   
+    void createRawData();
+
     Image img;
     Texture2D imgTex;
     
@@ -53,6 +56,8 @@ class imageController {
     point offset;
     float scale;
     float defaultScale;
+
+    vector<colorRGB> rawPixelData;
     
 
 };

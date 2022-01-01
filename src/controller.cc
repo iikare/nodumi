@@ -21,6 +21,8 @@ void controller::toggleLivePlay() {
     liveInput.resetInput();
     notes = &file.notes;
   }
+  // ensure sufficient track colors
+  getColorScheme(getTrackCount(), setTrackOn, setTrackOff);
 }
 
 int controller::getTrackCount() {
@@ -60,7 +62,9 @@ void controller::load(string filename) {
   
   //logW(LL_INFO, "load midi:", filename);
   file.load(filename);
-  getColorScheme(file.getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
+  getColorScheme(KEY_COUNT, setVelocityOn, setVelocityOff);
+  getColorScheme(TONIC_COUNT, setTonicOn, setTonicOff);
+  getColorScheme(getTrackCount(), setTrackOn, setTrackOff);
 }
 
 void controller::loadTextures() {

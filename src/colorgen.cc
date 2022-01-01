@@ -96,7 +96,7 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
   colorVecA.clear();
   colorVecB.clear();
   
-
+  logQ(ctr.getTrackCount());
   int meanV = 0;
   vector<colorRGB> colorVecC = findKMeans(colorData, k, meanV);
 
@@ -204,6 +204,7 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
   
     colorVecA.clear();
     colorVecB.clear();
+
 
     for (int i = 0; i < n; i++) {
       colorHSV mid = start;

@@ -203,7 +203,12 @@ int main (int argc, char* argv[]) {
 
     ctr.load(filename);
   }
-  
+ 
+
+  // test image
+  logQ("loading debug image: ./tests/large.png");
+  ctr.image.load("./tests/large.png");
+
   while (ctr.getProgramState()) {
 
     if (newFile) {
