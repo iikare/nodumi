@@ -4,6 +4,7 @@
 #include <random>
 #include <vector>
 #include <chrono>
+#include <thread>
 #include "log.h"
 #include "color.h"
 #include "colorgen.h"
@@ -18,6 +19,8 @@ using std::swap;
 using std::bind;
 using std::pair;
 using std::min;
+
+using std::thread;
 
 void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>* on, vector<colorRGB>* off){
   bg.invert();
@@ -263,6 +266,10 @@ vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
   vector<int> idxUsed(k, 0);
   vector<pixel> centroidData;
 
+  if (!k) {
+    logQ(LL_WARN, "call to findKMeans with k =", k);
+  }
+
   // get mean value if k = 1
   if (k == 1) {
     for (unsigned int i = 0; i < colorData.size(); i++) {
@@ -293,7 +300,11 @@ vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
         double distToCentroid = 0;
         for (int m = 0; m < i; m++) {
           // prevent clustering of centroids
-          if (centroidData[m].distance(colorData[j].data) < 100) {
+          
+
+          // TODO: distance function should return distance not based on raw RGB values but based on distance on 
+          // color perception
+          if (centroidData[m].distance(colorData[j].data) < 10000) {
             distToCentroid = 0;
             break;
           }

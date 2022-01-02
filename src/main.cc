@@ -72,7 +72,7 @@ int main (int argc, char* argv[]) {
 
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_BAR;
+  int displayMode = DISPLAY_BALL;
   
   float nowLineX = ctr.getWidth()/2.0f;
 
