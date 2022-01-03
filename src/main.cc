@@ -255,6 +255,14 @@ int main (int argc, char* argv[]) {
       songTimePosition.y = 26.0f;
       ctr.topHeight = ctr.menuHeight;
     }
+   
+    
+    //colorLAB cLAB(colorRGB(121,215,91));
+  
+     
+    //logQ("l a b:", cLAB.l, cLAB.a, cLAB.b);
+   
+   
     // main render loop
     
     BeginDrawing();

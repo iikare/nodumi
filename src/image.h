@@ -26,7 +26,7 @@ class imageController {
     void draw();
     void changeScale(float scaleOffset);
 
-    vector<pixel> getRawData();
+    vector<kMeansPoint> getRawData();
 
 
     bool exists() { return isLoaded; }
@@ -58,7 +58,7 @@ class imageController {
     float scale;
     float defaultScale;
 
-    vector<pixel> rawPixelData;
+    vector<kMeansPoint> rawPixelData;
     
 
 };

@@ -6,6 +6,8 @@
 
 using std::ostream;
 
+class colorLAB;
+
 class colorHSV {
   public:
     colorHSV();
@@ -34,7 +36,8 @@ class colorRGB {
     colorRGB(Color col);
 
     colorHSV getHSV();
-    
+    colorLAB getLAB();
+
     bool operator == (const colorRGB& col);
 
     void setRGB(double red, double green, double blue);
@@ -46,5 +49,18 @@ class colorRGB {
 
     double r;
     double g;
+    double b;
+};
+
+class colorLAB {
+  public:
+
+    colorLAB() : l(0), a(0), b(0) {}
+    colorLAB(colorRGB color);
+
+
+
+    double l;
+    double a;
     double b;
 };

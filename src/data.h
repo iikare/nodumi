@@ -20,3 +20,5 @@
 
 #define TONIC_COUNT 12
 #define KEY_COUNT 128
+
+#define COLDIST_CIE00

@@ -98,7 +98,7 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
     k = n;
   }
 
-  vector<pixel> colorData = ctr.image.getRawData(); 
+  vector<kMeansPoint> colorData = ctr.image.getRawData(); 
 
   colorVecA.clear();
   colorVecB.clear();
@@ -248,137 +248,183 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
 
 } 
 
-vector<colorRGB> findKMeans(vector<pixel>& colorData, int k, int& meanV) {
-  // result vector
-  vector<colorRGB> result;
-  
-  // mean value
-  double intVal = 0;
+vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k, int& meanV) {
 
-  // init rng
-  mt19937::result_type gen = high_resolution_clock::now().time_since_epoch().count();
-  uniform_int_distribution<int> range(0, colorData.size() - 1);
-  auto getCentroid = bind(range, mt19937(gen));
+  #if !defined(COLDIST_CIE76) && !defined (COLDIST_CIE94) && !defined(COLDIST_CIE00)
+  logW(LL_CRIT, "CIE distance formula not specified at compile time!");
+  ctr.setCloseFlag();
+  return vector<colorRGB>();
+  #endif
 
-  // generate starting points via distance-based selection algorithm
-  double maxDist = 0; 
-  int idxNextCentroid = 0;
-  vector<int> idxUsed(k, 0);
-  vector<pixel> centroidData;
+    kMeansPoint f(colorRGB(255,200,200));
 
-  if (!k) {
-    logQ(LL_WARN, "call to findKMeans with k =", k);
-  }
+  double maxE = 0;
+  int maxX, maxY, maxZ, maxI, maxJ, maxK = 0;
 
-  // get mean value if k = 1
-  if (k == 1) {
-    for (unsigned int i = 0; i < colorData.size(); i++) {
-      colorHSV col = colorData[i].data.getHSV();
-      intVal += col.v;
-    }
-    meanV = intVal / colorData.size(); 
-  }
+  for (int x = 0; x<=255; x+=25) {
+    for (int y = 0; y<=255; y+=25) {
+      for (int z = 0; z<=255; z+=25) {
+        for (int i = 0; i<=255; i+=25) {
+          logQ(x, y, z,"Y Z ----->", i, "J K");
+          for (int j = 0; j<=255; j+=25) {
+            for (int k = 0; k<=255; k+=25) {
+              kMeansPoint e(colorRGB(x,y,z));
+              kMeansPoint f(colorRGB(i,j,k));
 
-  for (int i = 0; i < k; ++i) {
-    // initial centroid is random
-    if (i == 0) {
-      centroidData.push_back(colorData[getCentroid()]);
-      if (k == 1) {
-        colorRGB col(round(centroidData[i].data.r), round(centroidData[i].data.g), round(centroidData[i].data.b)); 
-        result.push_back(col);
-        return result;
+              double q = e.distance(f);
+              
+              if (q > maxE) {
+                maxE = q;
+                maxX = x;
+                maxY = y;
+                maxZ = z;
+                maxI = i;
+                maxJ = j;
+                maxK = k;
+              }
+              //if (q>150)
+                //logQ("rgb:", i, j, k, "deltaE:", q);
+            }
+          }
+        }
       }
     }
-    else {
-      for (unsigned int j = 0; j < colorData.size(); j++) {
-        if (i == 1) {
-          // only calculate once
-          colorHSV col = colorData[j].data.getHSV();
-          intVal += col.v;
-        }
+  }
 
-        double distToCentroid = 0;
-        for (int m = 0; m < i; m++) {
-          // prevent clustering of centroids
+  logQ("max deltaE:", maxE, "on map - RGB: {", maxX, maxY, maxZ, "} -> RGB: {", maxI, maxJ, maxK, "}");
+  exit(1);
+  return vector<colorRGB>();
+}
+  //// result vector
+  //vector<colorRGB> result;
+  
+  //// mean value
+  //double intVal = 0;
+
+  //// init rng
+  //mt19937::result_type gen = high_resolution_clock::now().time_since_epoch().count();
+  //uniform_int_distribution<int> range(0, colorData.size() - 1);
+  //auto getCentroid = bind(range, mt19937(gen));
+
+  //// generate starting points via distance-based selection algorithm
+  //double maxDist = 0; 
+  //int idxNextCentroid = 0;
+  //vector<int> idxUsed(k, 0);
+  //vector<kMeansPoint> centroidData;
+
+  //if (!k) {
+    //logQ(LL_WARN, "call to findKMeans with k =", k);
+  //}
+
+  //// get mean value if k = 1
+  //if (k == 1) {
+    //for (unsigned int i = 0; i < colorData.size(); i++) {
+      //colorHSV col = colorData[i].data.getHSV();
+      //intVal += col.v;
+    //}
+    //meanV = intVal / colorData.size(); 
+  //}
+
+  //for (int i = 0; i < k; ++i) {
+    //// initial centroid is random
+    //if (i == 0) {
+      //centroidData.push_back(colorData[getCentroid()]);
+      //if (k == 1) {
+        //colorRGB col(round(centroidData[i].data.r), round(centroidData[i].data.g), round(centroidData[i].data.b)); 
+        //result.push_back(col);
+        //return result;
+      //}
+    //}
+    //else {
+      //for (unsigned int j = 0; j < colorData.size(); j++) {
+        //if (i == 1) {
+          //// only calculate once
+          //colorHSV col = colorData[j].data.getHSV();
+          //intVal += col.v;
+        //}
+
+        //double distToCentroid = 0;
+        //for (int m = 0; m < i; m++) {
+          //// prevent clustering of centroids
           
 
-          // TODO: distance function should return distance not based on raw RGB values but based on distance on 
-          // color perception
-          if (centroidData[m].distance(colorData[j].data) < 10000) {
-            distToCentroid = 0;
-            break;
-          }
-          distToCentroid += centroidData[m].distance(colorData[j].data);
-        }
-        if (distToCentroid > maxDist) {
-            maxDist = distToCentroid;
-            idxNextCentroid = j;
-        }  
-      }
-      idxUsed.push_back(idxNextCentroid);
-      centroidData.push_back(colorData[idxNextCentroid]);
-      maxDist = 0;
-    }
-  }
+          //// TODO: distance function should return distance not based on raw RGB values but based on distance on 
+          //// color perception
+          //if (centroidData[m].distance(colorData[j].data) < 10000) {
+            //distToCentroid = 0;
+            //break;
+          //}
+          //distToCentroid += centroidData[m].distance(colorData[j].data);
+        //}
+        //if (distToCentroid > maxDist) {
+            //maxDist = distToCentroid;
+            //idxNextCentroid = j;
+        //}  
+      //}
+      //idxUsed.push_back(idxNextCentroid);
+      //centroidData.push_back(colorData[idxNextCentroid]);
+      //maxDist = 0;
+    //}
+  //}
 
-  meanV = intVal / colorData.size(); 
+  //meanV = intVal / colorData.size(); 
 
-  vector<int> nPixel(k, 0);
-  vector<double> sumR(k, 0); 
-  vector<double> sumG(k, 0); 
-  vector<double> sumB(k, 0);
+  //vector<int> nPixel(k, 0);
+  //vector<double> sumR(k, 0); 
+  //vector<double> sumG(k, 0); 
+  //vector<double> sumB(k, 0);
 
-  // run algorithm q times
-  for (int q = 0; q < 3; q++) {
-    nPixel.clear();
-    sumR.clear();
-    sumG.clear();
-    sumB.clear();
+  //// run algorithm q times
+  //for (int q = 0; q < 3; q++) {
+    //nPixel.clear();
+    //sumR.clear();
+    //sumG.clear();
+    //sumB.clear();
 
-    // assign pixels to centroids
-    for (unsigned int i = 0; i < centroidData.size(); i++) {
-      for (unsigned int j = 0; j < colorData.size(); j++) {
-        double dist = colorData[j].distance(centroidData[i].data);
-        if (dist < colorData[j].cDist) {
-          colorData[j].cDist = dist;
-          colorData[j].cluster = i;
-        }
-      }
-    }
+    //// assign pixels to centroids
+    //for (unsigned int i = 0; i < centroidData.size(); i++) {
+      //for (unsigned int j = 0; j < colorData.size(); j++) {
+        //double dist = colorData[j].distance(centroidData[i].data);
+        //if (dist < colorData[j].cDist) {
+          //colorData[j].cDist = dist;
+          //colorData[j].cluster = i;
+        //}
+      //}
+    //}
     
-    // accumulate centroid data
-    for (unsigned int i = 0; i < colorData.size(); i++) {
-      int nCluster = colorData[i].cluster;
+    //// accumulate centroid data
+    //for (unsigned int i = 0; i < colorData.size(); i++) {
+      //int nCluster = colorData[i].cluster;
 
-      nPixel[nCluster] += 1;
+      //nPixel[nCluster] += 1;
 
-      sumR[nCluster] += static_cast<double>(colorData[i].data.r);
-      sumG[nCluster] += static_cast<double>(colorData[i].data.g);
-      sumB[nCluster] += static_cast<double>(colorData[i].data.b);
+      //sumR[nCluster] += static_cast<double>(colorData[i].data.r);
+      //sumG[nCluster] += static_cast<double>(colorData[i].data.g);
+      //sumB[nCluster] += static_cast<double>(colorData[i].data.b);
 
-      colorData[i].cDist = __DBL_MAX__;
-    }
+      //colorData[i].cDist = __DBL_MAX__;
+    //}
 
-    // find new centroids
-    for (unsigned int i = 0; i < centroidData.size(); i++) {
-      if (nPixel[i] != 0) {
-        centroidData[i].data.r = sumR[i]/nPixel[i];
-        centroidData[i].data.g = sumG[i]/nPixel[i];
-        centroidData[i].data.b = sumB[i]/nPixel[i];
-      }
-      else {
-        // algorithm failed, restart
-      }
-    }
-  }
+    //// find new centroids
+    //for (unsigned int i = 0; i < centroidData.size(); i++) {
+      //if (nPixel[i] != 0) {
+        //centroidData[i].data.r = sumR[i]/nPixel[i];
+        //centroidData[i].data.g = sumG[i]/nPixel[i];
+        //centroidData[i].data.b = sumB[i]/nPixel[i];
+      //}
+      //else {
+        //// algorithm failed, restart
+      //}
+    //}
+  //}
 
-  // convert to colorRGB vector
+  //// convert to colorRGB vector
   
-  for (unsigned int i = 0; i < centroidData.size(); i++) {
-    colorRGB col(round(centroidData[i].data.r), round(centroidData[i].data.g), round(centroidData[i].data.b)); 
-    result.push_back(col);
-  }
+  //for (unsigned int i = 0; i < centroidData.size(); i++) {
+    //colorRGB col(round(centroidData[i].data.r), round(centroidData[i].data.g), round(centroidData[i].data.b)); 
+    //result.push_back(col);
+  //}
 
-  return result;
+  //return result;
 
-}
+//}

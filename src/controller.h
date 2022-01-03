@@ -9,6 +9,7 @@
 #include "image.h"
 #include "input.h"
 #include "color.h"
+#include "kmeans.h"
 #include "output.h"
 #include "colorgen.h"
 

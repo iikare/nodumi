@@ -90,7 +90,7 @@ void imageController::changeScale(float scaleOffset) {
   logQ("newscale", scale);
 }
 
-vector<pixel> imageController::getRawData() {
+vector<kMeansPoint> imageController::getRawData() {
   return rawPixelData;
 }
 
@@ -105,7 +105,7 @@ void imageController::createRawData() {
     for (int x = 0; x < copy.width; ++x) {
       for (int y = 0; y < copy.height; ++y) {
         //logQ(colorRGB(GetImageColor(copy, x, y))); 
-        rawPixelData.push_back(pixel(GetImageColor(copy, x, y)));  
+        rawPixelData.push_back(kMeansPoint(GetImageColor(copy, x, y)));  
       }
     } 
   }
