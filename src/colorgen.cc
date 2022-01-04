@@ -251,47 +251,54 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
 vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k, int& meanV) {
 
   #if !defined(COLDIST_CIE76) && !defined (COLDIST_CIE94) && !defined(COLDIST_CIE00)
-  logW(LL_CRIT, "CIE distance formula not specified at compile time!");
-  ctr.setCloseFlag();
-  return vector<colorRGB>();
+  #error "CIE distance formula not specified at compile time!"
   #endif
 
-    kMeansPoint f(colorRGB(255,200,200));
-
   double maxE = 0;
-  int maxX, maxY, maxZ, maxI, maxJ, maxK = 0;
+  int maxI, maxJ, maxK = 0;
+ 
+  int r = 255;
+  int g = 255;
+  int b = 0;
 
-  for (int x = 0; x<=255; x+=25) {
-    for (int y = 0; y<=255; y+=25) {
-      for (int z = 0; z<=255; z+=25) {
-        for (int i = 0; i<=255; i+=25) {
-          logQ(x, y, z,"Y Z ----->", i, "J K");
-          for (int j = 0; j<=255; j+=25) {
-            for (int k = 0; k<=255; k+=25) {
-              kMeansPoint e(colorRGB(x,y,z));
-              kMeansPoint f(colorRGB(i,j,k));
+  int _i = 0;
+  int _j = 0;
+  int _k = 0;
+  
+  kMeansPoint e(colorRGB(r,g,b));
+  kMeansPoint f(colorRGB(_i,_j,_k));
+  
+  //kMeansPoint e(50.0,2.6772,-79.7751);
+  //kMeansPoint f(50.0,0.0,-82.7485);
+  logQ("l a b: ", e.data.l, e.data.a, e.data.b);
+  logQ("l a b: ", f.data.l, f.data.a, f.data.b);
 
-              double q = e.distance(f);
-              
-              if (q > maxE) {
-                maxE = q;
-                maxX = x;
-                maxY = y;
-                maxZ = z;
-                maxI = i;
-                maxJ = j;
-                maxK = k;
-              }
-              //if (q>150)
-                //logQ("rgb:", i, j, k, "deltaE:", q);
-            }
-          }
+  
+  logQ("deltaE:", e.distance(f), "on map - RGB: {", r, g, b,"} -> RGB: {", _i, _j, _k, "}");
+
+  for (int i = _i; i<=255; i++) {
+    logQ("i:",i);
+    for (int j = _j; j<=255; j++) {
+      for (int k = _k; k<=255; k++) {
+        kMeansPoint f(colorRGB(i,j,k));
+
+
+
+        double q = e.distance(f);
+        
+        if (q > maxE) {
+          maxE = q;
+          maxI = i;
+          maxJ = j;
+          maxK = k;
         }
+        //if (q>150)
+          //logQ("rgb:", i, j, k, "deltaE:", q);
       }
     }
   }
 
-  logQ("max deltaE:", maxE, "on map - RGB: {", maxX, maxY, maxZ, "} -> RGB: {", maxI, maxJ, maxK, "}");
+  logQ("max deltaE:", maxE, "on map - RGB: {", r, g, b,"} -> RGB: {", maxI, maxJ, maxK, "}");
   exit(1);
   return vector<colorRGB>();
 }

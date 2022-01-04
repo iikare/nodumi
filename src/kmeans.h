@@ -13,9 +13,10 @@ struct lchIntermediary {
 class kMeansPoint {
   public:
 
-  kMeansPoint() : data({0,0,0}), cluster(-1), cDist(__DBL_MAX__) {}
+  kMeansPoint() : data(), cluster(-1), cDist(__DBL_MAX__) {}
   kMeansPoint(colorRGB color) : data(color.getLAB()), cluster(-1), cDist(__DBL_MAX__) {}
   kMeansPoint(colorLAB color) : data(color), cluster(-1), cDist(__DBL_MAX__) {}
+  kMeansPoint(float l, float a, float b) : data(l,a,b), cluster(-1), cDist(__DBL_MAX__) {}
   kMeansPoint(Color color) : data(color), cluster(-1), cDist(__DBL_MAX__) {}
   
   colorLAB data;

@@ -57,6 +57,8 @@ class colorLAB {
 
     colorLAB() : l(0), a(0), b(0) {}
     colorLAB(colorRGB color);
+    colorLAB(float l, float a, float b) { this->l = l; this->a = a; this->b=b; }
+    colorLAB(const colorLAB& other) { l = other.l; a = other.a; b = other.b; }
 
 
 

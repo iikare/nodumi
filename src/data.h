@@ -22,3 +22,11 @@
 #define KEY_COUNT 128
 
 #define COLDIST_CIE00
+
+
+// already defined in <raylib.h>
+//#define RAD2DEG M_PI/180.0f
+//#define DEG2RAD 180.0f/M_PI
+
+#define sinDeg(x) sin(x*RAD2DEG)
+#define cosDeg(x) cos(x*RAD2DEG)

@@ -7,9 +7,10 @@ LD = -fuse-ld=gold -gdwarf-4
 LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__ 
 #WINDOWS = -D__WINDOWS_MM__
 
-CFLAGS = --std=c++17 -Wall -Wextra -g $(LD) $(LINUX)  -O0
+CFLAGS = --std=c++17 -Wall -Wextra -g $(LD) $(LINUX) 
 CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 
 CFLAGSRTM = $(CFLAGS) -w
+CFLAGSCIE = $(CFLAGS) -w
 
 LFLAGS = -lraylib -lasound -lpthread -ljack $(shell pkg-config --libs gtk+-3.0)
 
@@ -18,6 +19,7 @@ PREREQ_DIR=@mkdir -p $(@D)
 MFDIR = dpd/midifile
 OSDDIR = dpd/osdialog
 RTMDIR = dpd/rtmidi
+CIEDIR = dpd/CIEDE2000
 SRCDIR = src
 BUILDDIR = build
 BINDIR = bin
@@ -37,14 +39,17 @@ OBJSOSD = $(patsubst $(OSDDIR)/%.c, $(BUILDDIR)/%.o, $(SRCSOSD))
 SRCSRTM = $(RTMDIR)/RtMidi.cpp
 OBJSRTM = $(patsubst $(RTMDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSRTM))
 
+SRCSCIE = $(CIEDIR)/CIEDE2000.cpp
+OBJSCIE = $(patsubst $(CIEDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSCIE))
+
 all: $(NAME)
 
 re: clean
 	$(MAKE)
 
-$(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) | $(@D)
+$(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) | $(@D)
 	$(PREREQ_DIR)
-	$(CC) $(CFLAGS) $(LFLAGS) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM)
+	$(CC) $(CFLAGS) $(LFLAGS) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE)
 
 $(OBJS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
 	$(PREREQ_DIR)
@@ -61,6 +66,10 @@ $(OBJSOSD): $(BUILDDIR)/%.o: $(OSDDIR)/%.c
 $(OBJSRTM): $(BUILDDIR)/%.o: $(RTMDIR)/%.cpp
 	$(PREREQ_DIR)
 	$(CC) $(CFLAGSRTM) -o $@ -c $< 
+
+$(OBJSCIE): $(BUILDDIR)/%.o: $(CIEDIR)/%.cpp
+	$(PREREQ_DIR)
+	$(CC) $(CFLAGSCIE) -o $@ -c $< 
 
 clean:
 	rm -rf build/* $(NAME)
