@@ -115,152 +115,147 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
   //colorVecB.clear();
   
   //logQ(ctr.getTrackCount());
-  int meanV = ctr.image.getMeanValue();
   vector<colorRGB> colorVecC = findKMeans(colorData, nCol);
 
-  bool isAOn = false;
-return;  
-  if (k == 1) {
-    // filter single color
-    float colV = colorVecC[0].getHSV().v;
-    while (colV < 100) {
-      colorVecC.clear();
-      colorVecC = findKMeans(colorData, k);
-      colV = colorVecC[0].getHSV().v;
-    }
-  }
-
-  for (unsigned int i = 0; i < colorVecC.size(); i++) {
-    colorHSV col(colorVecC[i].getHSV());
-
-    if (col.v > meanV) {
-      // this is on color, calculate off
-      colorRGB colB;
-      colB.setRGB(col);
-
-      col.v = min(255.0, 1.6 * meanV);
-      colB.setRGB(col);
-      colorVecB.push_back(colB);
-      
-      col.v = meanV * 0.8;
-      colB.setRGB(col);
-
-      colorVecA.push_back(colB);
-
-      isAOn = false;
-    }
-    else {
-      // do inverse
-      
-      colorRGB colB;
-      colB.setRGB(col);
-
-      col.v = meanV * 0.8;
-      colB.setRGB(col);
-      
-      colorVecA.push_back(colB);
-      isAOn = true;
-      
-      col.v = min(255.0, 1.6 * meanV);
-      colB.setRGB(col);
-      
-      colorVecB.push_back(colB);
-    }
-  }
-
-  // for new kmeans debug
-  colorVecA = colorVecC;
-  colorVecB = colorVecC;
-  return;
-
-  //find k shades of n colors
-  if (n > k) {
-    if (k != 2) {
-      cerr << "warn: this value of k is not supported for color interpolation (k = " << k << ")" << endl;
-      return;
-    }
-    
-    //cerr << colorVecC[0] << endl;
-    //cerr << colorVecC[1] << endl;
-
-    colorHSV col1(0, 0, 0);
-    colorHSV col2(0 ,0 ,0);
-    
-    if (isAOn) {
-      // interpolate using 0->1 values 
-      col1 = colorVecB[0].getHSV();
-      col2 = colorVecB[1].getHSV();
-    }
-    else {
-      // interpolate using 1->0 values
-      col1 = colorVecB[1].getHSV();
-      col2 = colorVecB[0].getHSV();
-    }
-
-    colorHSV start(0, 0, 0);
-    colorHSV end(0, 0, 0);
-
-    // find starting values
-    col1.v > col2.v ? start = col2 : start = col1;
-    start == col2 ? end = col1 : end = col2;
-
-    start.s = min(255.0, end.s * 0.9);
-    start.v = start.v * 0.8;
-
-    end.s = min(255.0, end.s * 1.6);
-    end.v = min(255.0, end.v * 1.1);
-
-    if (fabs(start.h - end.h) < 100) {
-      // boost gradient if algorithmic values are too low
-      start.h = fmod(start.h - 10, 360);
-      end.h = fmod(end.h + 10, 360);
-    }
-    
-    //cerr << start << endl;
-    //cerr << end << endl;
-
-    double incH = fabs(start.h - end.h) / n;
-    double incS = fabs(start.s - end.s) / n;
-    double incV = fabs(start.v - end.v) / n;
-
-    //cerr << "incHSV: " << incH << ", " << incS << ", " << incV << endl; 
-  
-    colorVecA.clear();
-    colorVecB.clear();
-
-
-    for (int i = 0; i < n; i++) {
-      colorHSV mid = start;
-      mid.h += incH * i;
-      mid.s += incS * i;
-      mid.v += incV * i;
-      
-      //cerr << i << ": " << mid << endl;
-      
-      colorRGB midRGB;
-      midRGB.setRGB(mid);
-
-      colorVecB.push_back(midRGB);
-
-      mid.v = min(255.0, mid.v * 0.8);
-      midRGB.setRGB(mid);
-
-      colorVecA.push_back(midRGB);
-    }
-  }
-
-  if (meanV < 200) {
-    // provide contrast on dark images
-    swap(colorVecA, colorVecB);
+  // add any extra values
+  if (ctr.image.getNumColors() < n) {
+    for (int i = 0; i < n - ctr.image.getNumColors(); ++i) {
+      colorVecC.push_back(colorVecC[i % colorVecC.size()]);
+    }  
   }
   
-  // sort by first 
+  
+  //colorVecA = colorVecC;
+  //colorVecB = colorVecC;
+  
+  // k == 1 should never occur
+
+  //if (k == 1) {
+    //// filter single color
+    //float colV = colorVecC[0].getHSV().v;
+    //while (colV < 100) {
+      //colorVecC.clear();
+      //colorVecC = findKMeans(colorData, k);
+      //colV = colorVecC[0].getHSV().v;
+    //}
+  //}
+
+  // sort if track weight map is provided
   if (weight.size() != 0) {
     for (unsigned int i = 0; i < weight.size(); i++) {
       swap(colorVecA[i], colorVecA[weight[i].first]);
       swap(colorVecB[i], colorVecB[weight[i].first]);
     }
   } 
+  
+  colorVecA = colorVecC;
+  colorVecB = colorVecC;
+
+  for (unsigned int i = 0; i < colorVecC.size(); ++i) {
+    if (ctr.image.getMeanValue() > colorVecA[i].getHSV().v) {
+      colorHSV tmpHSV = colorVecB[i].getHSV();
+      tmpHSV.v = min(255.0f, (float)tmpHSV.v*1.2f);
+      
+      colorVecA[i] = HSVtoRGB(tmpHSV);
+    }
+    else {
+      colorHSV tmpHSV = colorVecA[i].getHSV();
+      tmpHSV.v = max(0.0f, (float)tmpHSV.v*(1.0f/1.2f));
+
+      colorVecB[i] = HSVtoRGB(tmpHSV);
+
+    }
+  }
+  return;
+
+  ////find k shades of n colors
+  //if (n > k) {
+    //if (k != 2) {
+      //cerr << "warn: this value of k is not supported for color interpolation (k = " << k << ")" << endl;
+      //return;
+    //}
+    
+    ////cerr << colorVecC[0] << endl;
+    ////cerr << colorVecC[1] << endl;
+
+    //colorHSV col1(0, 0, 0);
+    //colorHSV col2(0 ,0 ,0);
+    
+    //if (isAOn) {
+      //// interpolate using 0->1 values 
+      //col1 = colorVecB[0].getHSV();
+      //col2 = colorVecB[1].getHSV();
+    //}
+    //else {
+      //// interpolate using 1->0 values
+      //col1 = colorVecB[1].getHSV();
+      //col2 = colorVecB[0].getHSV();
+    //}
+
+    //colorHSV start(0, 0, 0);
+    //colorHSV end(0, 0, 0);
+
+    //// find starting values
+    //col1.v > col2.v ? start = col2 : start = col1;
+    //start == col2 ? end = col1 : end = col2;
+
+    //start.s = min(255.0, end.s * 0.9);
+    //start.v = start.v * 0.8;
+
+    //end.s = min(255.0, end.s * 1.6);
+    //end.v = min(255.0, end.v * 1.1);
+
+    //if (fabs(start.h - end.h) < 100) {
+      //// boost gradient if algorithmic values are too low
+      //start.h = fmod(start.h - 10, 360);
+      //end.h = fmod(end.h + 10, 360);
+    //}
+    
+    ////cerr << start << endl;
+    ////cerr << end << endl;
+
+    //double incH = fabs(start.h - end.h) / n;
+    //double incS = fabs(start.s - end.s) / n;
+    //double incV = fabs(start.v - end.v) / n;
+
+    ////cerr << "incHSV: " << incH << ", " << incS << ", " << incV << endl; 
+  
+    //colorVecA.clear();
+    //colorVecB.clear();
+
+
+    //for (int i = 0; i < n; i++) {
+      //colorHSV mid = start;
+      //mid.h += incH * i;
+      //mid.s += incS * i;
+      //mid.v += incV * i;
+      
+      ////cerr << i << ": " << mid << endl;
+      
+      //colorRGB midRGB;
+      //midRGB.setRGB(mid);
+
+      //colorVecB.push_back(midRGB);
+
+      //mid.v = min(255.0, mid.v * 0.8);
+      //midRGB.setRGB(mid);
+
+      //colorVecA.push_back(midRGB);
+    //}
+  //}
+
+  //if (meanV < 200) {
+    //// provide contrast on dark images
+    //swap(colorVecA, colorVecB);
+  //}
+  
+  //// sort by first 
+  //if (weight.size() != 0) {
+    //for (unsigned int i = 0; i < weight.size(); i++) {
+      //swap(colorVecA[i], colorVecA[weight[i].first]);
+      //swap(colorVecB[i], colorVecB[weight[i].first]);
+    //}
+  //} 
 
 } 
 
@@ -404,71 +399,76 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
   // amount of points associated to each centroid
   vector<int> nPoints(centroids.size(),0);
 
-  // clear LAB sums
-  sumL.clear();
-  sumA.clear();
-  sumB.clear();
 
-  // clear point counter per centroid
-  nPoints.clear();
+  // iterate over points 
+  for (unsigned int it = 0; it < 3; ++it) {
+    // clear LAB sums
+    sumL.clear();
+    sumL.resize(centroidMap.size());
+    sumA.clear();
+    sumA.resize(centroidMap.size());
+    sumB.clear();
+    sumB.resize(centroidMap.size());
 
-  // calculate initial distance to centroids and assign centroids to points
-  for (unsigned int pixel = 0; pixel < colorData.size(); ++pixel) {
-    // first reset distance measurements
-    colorData[pixel].cluster = -1;
-    colorData[pixel].cDist = __DBL_MAX__;
-    for (unsigned int centroid = 0; centroid < centroids.size(); ++centroid) {
-      kMeansPoint kmPoint = colorData[pixel];
+    // clear point counter per centroid
+    nPoints.clear();
+    nPoints.resize(centroidMap.size());
 
-      sumL.push_back(kmPoint.data.l);
-      sumA.push_back(kmPoint.data.a);
-      sumB.push_back(kmPoint.data.b);
+    // calculate initial distance to centroids and assign centroids to points
+    for (unsigned int pixel = 0; pixel < colorData.size(); ++pixel) {
+      // first reset distance measurements
+      colorData[pixel].cluster = -1;
+      colorData[pixel].cDist = __DBL_MAX__;
+      for (unsigned int centroid = 0; centroid < centroids.size(); ++centroid) {
+        kMeansPoint kmPoint = colorData[pixel];
 
-      // find distance and nearest cluster
-      float pixDist = kmPoint.distance(centroids[centroid].second);
+        sumL.push_back(kmPoint.data.l);
+        sumA.push_back(kmPoint.data.a);
+        sumB.push_back(kmPoint.data.b);
 
+        // find distance and nearest cluster
+        float pixDist = kmPoint.distance(centroids[centroid].second);
 
-      if (pixDist < kmPoint.cDist) {
-        kmPoint.cDist = pixDist;
+        //logQ("pixDist:", pixDist);
 
-        // add INDEX of centroid among other centroids
-        kmPoint.cluster = centroid;
+        if (pixDist < kmPoint.cDist) {
+          colorData[pixel].cDist = pixDist;
+
+          // add INDEX of centroid among other centroids
+          colorData[pixel].cluster = centroid;
+        }
       }
+      // assign this point to the specified cluster vector
+      //logQ("cluster, pixel: ", colorData.at(pixel).cluster, pixel);
+      centroidMap.at(colorData.at(pixel).cluster).second.push_back(pixel);
+
+      // add this point's LAB values to the sum total for the specified pixel's cluster
+      sumL.at(colorData.at(pixel).cluster) += colorData.at(pixel).data.l;
+      sumA.at(colorData.at(pixel).cluster) += colorData.at(pixel).data.a;
+      sumB.at(colorData.at(pixel).cluster) += colorData.at(pixel).data.b;
+
+      // increment the amount of points assigned to this pixel's centroid
+      nPoints.at(colorData.at(pixel).cluster)++;
+
     }
-    // assign this point to the specified cluster vector
-    //centroidMap.at(colorData.at(pixel).cluster).second.push_back(pixel);
 
-    // add this point's LAB values to the sum total for the specified pixel's cluster
-    //sumL.at(colorData.at(pixel).cluster) += colorData.at(pixel).data.l;
-    //sumA.at(colorData.at(pixel).cluster) += colorData.at(pixel).data.a;
-    //sumB.at(colorData.at(pixel).cluster) += colorData.at(pixel).data.b;
+    // update centroids based on mean of clustered points
+    for (unsigned int i = 0; i < centroidMap.size(); ++i) {
+      float newL = sumL.at(i) / nPoints.at(i); 
+      float newA = sumA.at(i) / nPoints.at(i); 
+      float newB = sumB.at(i) / nPoints.at(i);
 
-    // increment the amount of points assigned to this pixel's centroid
-    //nPoints.at(colorData.at(pixel).cluster)++;
-
+      centroids.at(i).second.data = colorLAB(newL, newA, newB);
+    }
   }
-
-  // update centroids based on mean of clustered points
-  //for (unsigned int i = 0; i < centroidMap.size(); ++i) {
-    //float newL = sumL.at(i) / nPoints.at(i); 
-    //float newA = sumA.at(i) / nPoints.at(i); 
-    //float newB = sumB.at(i) / nPoints.at(i);
-
-    //centroids.at(i).second.data = colorLAB(newL, newA, newB);
-  //}
 
 
   for (auto i : centroidMap) {
 
-    logQ("centroid:", i.first, "has", i.second.size(), "linked points with LAB:", colorData[i.first].data);
-    colors.push_back(colorRGB(0,0,0));
+    logQ("centroid", i.first, "has", i.second.size(), "linked points with LAB:", colorData[i.first].data);
+    colors.push_back(colorRGB(colorData[i.first].data));
   }
   
-  if (ctr.image.getNumColors() < k) {
-    for (int i = 0; i < k - ctr.image.getNumColors(); ++i) {
-      colors.push_back(colorRGB(0,0,0));
-    }  
-  }
 
   return colors;
 }

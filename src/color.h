@@ -33,8 +33,8 @@ class colorRGB {
   public:
     colorRGB();
     colorRGB(double red, double green, double blue);
-    colorRGB(Color col);
-    colorRGB(colorLAB col);
+    colorRGB(const Color& col);
+    colorRGB(const colorLAB& col);
 
     colorHSV getHSV();
     colorLAB getLAB();

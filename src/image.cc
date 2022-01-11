@@ -93,7 +93,7 @@ void imageController::finalizePosition() {
 
 void imageController::changeScale(float scaleOffset) { 
   scale = min(max(0.1f*defaultScale, (float)scale + scaleOffset* scale/defaultScale), 10.0f*defaultScale);
-  logQ("newscale", scale);
+  //logQ("newscale", scale);
 }
 
 vector<kMeansPoint> imageController::getRawData() {

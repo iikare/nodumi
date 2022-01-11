@@ -258,9 +258,9 @@ int main (int argc, char* argv[]) {
     }
    
     
-    colorLAB cLAB(colorRGB(121,215,91));
+    //colorLAB cLAB(colorRGB(121,215,91));
   
-    logQ(colorRGB(cLAB));
+    //logQ(colorRGB(cLAB));
     //logQ("l a b:", cLAB.l, cLAB.a, cLAB.b);
    
    
