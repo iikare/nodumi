@@ -151,16 +151,18 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
   colorVecA = colorVecC;
   colorVecB = colorVecC;
 
+  constexpr float valScale = 1.2f;
+
   for (unsigned int i = 0; i < colorVecC.size(); ++i) {
     if (ctr.image.getMeanValue() > colorVecA[i].getHSV().v) {
       colorHSV tmpHSV = colorVecB[i].getHSV();
-      tmpHSV.v = min(255.0f, (float)tmpHSV.v*1.2f);
+      tmpHSV.v = min(255.0f, (float)tmpHSV.v*valScale);
       
       colorVecA[i] = HSVtoRGB(tmpHSV);
     }
     else {
       colorHSV tmpHSV = colorVecA[i].getHSV();
-      tmpHSV.v = max(0.0f, (float)tmpHSV.v*(1.0f/1.2f));
+      tmpHSV.v = max(0.0f, (float)tmpHSV.v*(1.0f/valScale));
 
       colorVecB[i] = HSVtoRGB(tmpHSV);
 
