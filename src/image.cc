@@ -20,6 +20,9 @@ void imageController::load(string path) {
     defaultScale = scale;
   } 
 
+  meanV = 0;
+  numColors = 0;
+
   position = {0,0};
 
 
@@ -40,6 +43,9 @@ void imageController::unload() {
     base = {0, 0};
     scale = 1;
     defaultScale = 1;
+
+    meanV = 0;
+    numColors = 0;
 
     isLoaded = false;
     rawPixelData.clear();
@@ -98,18 +104,41 @@ void imageController::createRawData() {
   rawPixelData.clear();
 
   Image copy = ImageCopy(img);
-  ImageResizeNN(&copy, 200, 200 * (float)img.width/img.height);
+  constexpr int baseWidth = 100;
+  ImageResizeNN(&copy, baseWidth, baseWidth * (float)img.width/img.height);
   
+  vector<colorRGB> uniqueColors;
+
   if (isLoaded) {
     // use original image values to prevent effects from scaling
     for (int x = 0; x < copy.width; ++x) {
       for (int y = 0; y < copy.height; ++y) {
         //logQ(colorRGB(GetImageColor(copy, x, y))); 
-        rawPixelData.push_back(kMeansPoint(GetImageColor(copy, x, y)));  
+        Color tmpColorR = GetImageColor(copy, x, y);
+        colorRGB tmpColor = {(double)tmpColorR.r, (double)tmpColorR.g, (double)tmpColorR.b};
+        meanV += tmpColor.getHSV().v;
+        rawPixelData.push_back(kMeansPoint(tmpColor));
+        
+        if (uniqueColors.size() < 1000 && find(uniqueColors.begin(), uniqueColors.end(), tmpColor) == uniqueColors.end()) {
+          uniqueColors.push_back(tmpColor);
+        }
+
       }
     } 
   }
+  
+  meanV /= (copy.width*copy.height);
+  numColors = uniqueColors.size();
+  logQ("numC", numColors);
 
   UnloadImage(copy);
 
+}
+
+float imageController::getMeanValue() {
+  return meanV;
+}
+
+int imageController::getNumColors() {
+  return numColors;
 }

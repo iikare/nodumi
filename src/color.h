@@ -34,6 +34,7 @@ class colorRGB {
     colorRGB();
     colorRGB(double red, double green, double blue);
     colorRGB(Color col);
+    colorRGB(colorLAB col);
 
     colorHSV getHSV();
     colorLAB getLAB();
@@ -61,6 +62,11 @@ class colorLAB {
     colorLAB(const colorLAB& other) { l = other.l; a = other.a; b = other.b; }
 
 
+    void operator = (const colorLAB& col);
+    bool operator == (const colorLAB& col);
+    bool operator != (const colorLAB& col);
+    
+    friend ostream& operator << (ostream& out, colorLAB color);
 
     double l;
     double a;

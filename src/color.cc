@@ -181,6 +181,69 @@ colorLAB colorRGB::getLAB() {
   return result;
 }
 
+colorRGB::colorRGB(colorLAB col) {
+
+
+  // convert from CIELAB to CIEXYZ
+  constexpr float delta = 6.0f/29.0f;
+  
+  // inverse t transformation function
+  const auto cieTransform = [&] (float t) {
+    if (t > delta) {
+      return pow(t, 3.0f);
+    }
+    return 3*pow(delta,2)*(t - 4.0f/29.0f);
+  };
+  
+  // sRGB D65
+  constexpr float tMat[3][3] = {{ 3.2406,-1.5372,-0.4986},
+                                {-0.9689, 1.8758, 0.0415},
+                                { 0.0557,-0.2040, 1.0570}};
+ 
+  // sRGB D65 
+  constexpr float cieX_n = 95.0489f / 100.0f;
+  constexpr float cieY_n = 100.0f / 100.0f;
+  constexpr float cieZ_n = 108.8840f / 100.0f;
+
+  const float lPrime = (col.l + 16)/116;
+  const float aPrime = col.a/500;
+  const float bPrime = col.b/200;
+
+
+  const float cieX = cieX_n * cieTransform(lPrime + aPrime);
+  const float cieY = cieY_n * cieTransform(lPrime);
+  const float cieZ = cieZ_n * cieTransform(lPrime - bPrime);
+
+  // now in CIEXYZ, convert to sRGB
+  
+  const float rLin = tMat[0][0]*cieX + tMat[0][1]*cieY + tMat[0][2]*cieZ;
+  const float gLin = tMat[1][0]*cieX + tMat[1][1]*cieY + tMat[1][2]*cieZ;
+  const float bLin = tMat[2][0]*cieX + tMat[2][1]*cieY + tMat[2][2]*cieZ; 
+
+
+
+  const auto delinearizeGamma = [] (float value) {
+    if (value <= 0.0031308f) {
+      return value*12.92f;
+    }
+    return 1.055f*(float)pow(value, 1.0f/2.4f) - 0.055f;
+  };
+
+  //const float r = delinearizeGamma(rLin);
+  //const float g = delinearizeGamma(gLin);
+  //const float b = delinearizeGamma(bLin);
+  
+  // convert to [0,255] range
+  r = 255*delinearizeGamma(rLin);
+  g = 255*delinearizeGamma(gLin);
+  b = 255*delinearizeGamma(bLin);
+
+
+
+}
+
+
+
 colorLAB::colorLAB(colorRGB color) {
 
   colorLAB col = color.getLAB();
@@ -189,4 +252,22 @@ colorLAB::colorLAB(colorRGB color) {
   l = col.l;
   a = col.a;
   b = col.b;
+}
+
+void colorLAB::operator = (const colorLAB& col) {
+  l = col.l;
+  a = col.a;
+  b = col.b;
+}
+
+bool colorLAB::operator == (const colorLAB& col) {
+  return l == col.l && a == col.a && b == col.b; 
+}
+bool colorLAB::operator != (const colorLAB& col) {
+  return !(l == col.l && a == col.a && b == col.b); 
+}
+
+ostream& operator << (ostream& out, colorLAB color) {
+  out << "{" << color.l << ", " << color.a << ", " << color.b << "} (LAB)";
+  return out;
 }

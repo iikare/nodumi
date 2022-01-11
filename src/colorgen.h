@@ -18,5 +18,5 @@ void getColorSchemeImage(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& c
                          vector<pair<int, double>>& weight);
 void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, vector<pair<int, double>>& weight);
 
-vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k, int& meanV);
+vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k);
 

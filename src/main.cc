@@ -207,8 +207,9 @@ int main (int argc, char* argv[]) {
    
 
   // test image
-  logQ("loading debug image: ./tests/large.png");
-  ctr.image.load("./tests/large.png");
+  string dbgPATH = "./tests/bg8c.png";
+  logQ("loading debug image:", dbgPATH);
+  ctr.image.load(dbgPATH);
 
   while (ctr.getProgramState()) {
 
@@ -257,9 +258,9 @@ int main (int argc, char* argv[]) {
     }
    
     
-    //colorLAB cLAB(colorRGB(121,215,91));
+    colorLAB cLAB(colorRGB(121,215,91));
   
-     
+    logQ(colorRGB(cLAB));
     //logQ("l a b:", cLAB.l, cLAB.a, cLAB.b);
    
    

@@ -17,7 +17,7 @@ using std::max;
 class imageController {
   public:
     imageController() : img(),  imgTex(), isLoaded(false), canMove(false),
-                        position({0,0}), base({0,0}), offset({0,0}), scale(1), defaultScale(1),
+                        position({0,0}), base({0,0}), offset({0,0}), scale(1), defaultScale(1), meanV(0), numColors(0),
                         rawPixelData() {};
 
     void load(string path);
@@ -27,6 +27,8 @@ class imageController {
     void changeScale(float scaleOffset);
 
     vector<kMeansPoint> getRawData();
+    float getMeanValue();
+    int getNumColors();
 
 
     bool exists() { return isLoaded; }
@@ -57,6 +59,8 @@ class imageController {
     point offset;
     float scale;
     float defaultScale;
+    float meanV;
+    int numColors;
 
     vector<kMeansPoint> rawPixelData;
     
