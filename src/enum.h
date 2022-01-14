@@ -97,5 +97,13 @@ enum hoverType {
 enum colorMode {
   COLOR_PART,
   COLOR_VELOCITY,
-  COLOR_TONIC
+  COLOR_TONIC,
+  COLOR_NONE
+};
+
+enum colorFromType {
+  COLORBG_VELOCITY, // 2 colors (interpolation)
+  COLORBG_TONIC, // tonic (12 static colors), can also be an interpolation
+  COLORBG_TRACK, // dynamic track coloring (color count evaluated at runtime)
+  COLORBG_NONE
 };

@@ -607,3 +607,47 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
   //return result;
 
 //}
+
+void interpolateColorSet(int finalColors, vector<colorRGB>& on, vector<colorRGB>& off) {
+  if (on.size() != 2 || off.size() != 2) {
+    logW(LL_WARN, "color set has non-two size for interpolation");
+    return;
+  }
+  if (finalColors <= 2) {
+    logW(LL_WARN, "attempt to interpolate 2 colors into", finalColors, "colors is invalid");
+    return;
+  }
+
+  on.resize(finalColors);
+  off.resize(finalColors);
+
+
+  const auto interpolateFromLAB = [&](vector<colorRGB>& vec) {
+    
+
+    colorLAB start = vec[0];
+    colorLAB end = vec[1];
+
+    const auto LABLERP = [&](double value) {
+      double ratio = (value) / (finalColors - 1.0);
+      
+      double newL = end.l * ratio + start.l * (1.0-ratio);
+      double newA = end.a * ratio + start.a * (1.0-ratio);
+      double newB = end.b * ratio + start.b * (1.0-ratio);
+
+      return colorLAB(newL, newA, newB);
+    };
+    
+    for (unsigned int i = 0; i < vec.size(); ++i) {
+
+
+      vec[i] = LABLERP(i);
+    }
+    
+
+  };
+
+  interpolateFromLAB(on);
+  interpolateFromLAB(off);
+
+}

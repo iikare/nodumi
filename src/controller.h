@@ -37,6 +37,8 @@ class controller {
     void load(string filename);
     void loadTextures();
     void unloadTextures(); 
+    
+    void getColorFromBackground(int setType);
 
     bool getProgramState() { return programState; }
     bool getPlayState() { return playState; }
@@ -68,6 +70,7 @@ class controller {
     vector<colorRGB> setVelocityOff;
     vector<colorRGB> setTonicOn;
     vector<colorRGB> setTonicOff;
+
 
     colorRGB bgDark = colorRGB(0, 0, 0);
     colorRGB bgLight = colorRGB(255, 255, 255);

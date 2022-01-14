@@ -62,7 +62,8 @@ class colorLAB {
     colorLAB(const colorLAB& other) { l = other.l; a = other.a; b = other.b; }
 
 
-    void operator = (const colorLAB& col);
+    colorLAB& operator = (const colorRGB& col);
+    colorLAB& operator = (const colorLAB& col);
     bool operator == (const colorLAB& col);
     bool operator != (const colorLAB& col);
     

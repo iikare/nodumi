@@ -1069,9 +1069,14 @@ int main (int argc, char* argv[]) {
               break;
             case 1:
               if (ctr.image.exists()) {
-                getColorSchemeImage(KEY_COUNT, ctr.setVelocityOn, ctr.setVelocityOff);
-                getColorSchemeImage(TONIC_COUNT, ctr.setTonicOn, ctr.setTonicOff);
-                getColorSchemeImage(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff, ctr.file.trackHeightMap);
+
+                ctr.getColorFromBackground(COLORBG_VELOCITY);
+                ctr.getColorFromBackground(COLORBG_TONIC);
+                ctr.getColorFromBackground(COLORBG_TRACK);
+
+                //getColorSchemeImage(VELOCITY_COUNT, ctr.setVelocityOn, ctr.setVelocityOff);
+                //getColorSchemeImage(TONIC_COUNT, ctr.setTonicOn, ctr.setTonicOff);
+                //getColorSchemeImage(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff, ctr.file.trackHeightMap);
               }
               else{
                 logW(LL_WARN, "attempt to get color scheme from nonexistent image");
