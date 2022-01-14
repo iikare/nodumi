@@ -22,6 +22,8 @@
 #define KEY_COUNT 128
 
 #define COLDIST_CIE00
+#define KMEANS_ITERATIONS 2
+
 
 
 // already defined in <raylib.h>

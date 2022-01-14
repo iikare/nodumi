@@ -403,7 +403,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
 
 
   // iterate over points 
-  for (unsigned int it = 0; it < 3; ++it) {
+  for (unsigned int it = 0; it < KMEANS_ITERATIONS; ++it) {
     // clear LAB sums
     sumL.clear();
     sumL.resize(centroidMap.size());
