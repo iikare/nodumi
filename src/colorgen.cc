@@ -110,18 +110,86 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
 
   vector<kMeansPoint> colorData = ctr.image.getRawData(); 
 
+  // init rng
+  mt19937::result_type gen = high_resolution_clock::now().time_since_epoch().count();
+  uniform_int_distribution<int> range(0, colorData.size() - 1);
+  auto getPoint = bind(range, mt19937(gen));
+  
   //return;
   //colorVecA.clear();
   //colorVecB.clear();
   
   //logQ(ctr.getTrackCount());
-  vector<colorRGB> colorVecC = findKMeans(colorData, nCol);
+  vector<colorRGB> colorVecC;
 
-  // add any extra values
-  if (ctr.image.getNumColors() < n) {
-    for (int i = 0; i < n - ctr.image.getNumColors(); ++i) {
-      colorVecC.push_back(colorVecC[i % colorVecC.size()]);
-    }  
+  if (nCol == 1) {
+    // single color, pick an edge color
+    colorVecC.push_back(colorRGB(colorData[getPoint()].data));
+  }
+  else if (nCol == 2) {
+    //colorVecC.push_back(colorRGB(254,100,255)); 
+    //colorVecC.push_back(colorRGB(100,255,255)); 
+
+    vector<pair<int, kMeansPoint>> intermediateSet;
+
+    const auto existsInMap = [&] (const colorLAB col){
+      for (auto i : intermediateSet) {
+        if (&colorData[i.first].data == &col) {
+          return true;
+        }
+      }
+      return false; 
+    };
+
+    // generate min(100, nCol) unique points
+    for (int i = 0; i < min(MAX_UNIQUE_COLORS, nCol); ++i) {
+      int intermediateIdx= getPoint();
+      colorLAB cenCol = colorData[intermediateIdx].data;
+   
+      while (existsInMap(cenCol)) { 
+        intermediateIdx = getPoint();
+        cenCol = colorData[intermediateIdx].data;
+      }
+
+      intermediateSet.push_back(make_pair(intermediateIdx, colorData[intermediateIdx]));
+    }
+
+    double maxDeltaE = 0;
+    int colAIdx = 0;
+    int colBIdx = 0;
+
+    for (unsigned int i = 0; i < intermediateSet.size(); ++i) {
+      
+      for (unsigned int j = i; j < intermediateSet.size(); ++j) {
+
+        double deltaE = intermediateSet[i].second.distance(std::ref(intermediateSet[j].second));
+
+        if (maxDeltaE < deltaE) {
+          maxDeltaE = deltaE;
+          colAIdx = i;
+          colBIdx = j;
+        }
+      }
+    }
+
+    colorVecC.push_back(colorRGB(intermediateSet[colAIdx].second.data));
+    colorVecC.push_back(colorRGB(intermediateSet[colBIdx].second.data));
+    logQ(intermediateSet[colAIdx].second.data);
+    logQ(intermediateSet[colBIdx].second.data);
+  
+    logQ("max delta E is:", maxDeltaE); 
+
+  
+
+  }
+  else {
+    colorVecC = findKMeans(colorData, nCol);
+    // add any extra values
+    if (ctr.image.getNumColors() < n) {
+      for (int i = 0; i < n - ctr.image.getNumColors(); ++i) {
+        colorVecC.push_back(colorVecC[i % colorVecC.size()]);
+      }  
+    }
   }
   
   
@@ -350,7 +418,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
   centroids.push_back(make_pair(centroidIdx, colorData[centroidIdx]));
   centroidMap.push_back(make_pair(centroidIdx, vector<int>{}));
  
-  auto existsInMap = [&] (const colorLAB col){
+  const auto existsInMap = [&] (const colorLAB col){
     for (auto i : centroids) {
       if (&colorData[i.first].data == &col) {
         return true;

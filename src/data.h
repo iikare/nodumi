@@ -24,7 +24,7 @@
 
 #define COLDIST_CIE00
 #define KMEANS_ITERATIONS 2
-
+#define MAX_UNIQUE_COLORS 10000
 
 
 // already defined in <raylib.h>

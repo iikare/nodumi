@@ -119,7 +119,8 @@ void imageController::createRawData() {
         meanV += tmpColor.getHSV().v;
         rawPixelData.push_back(kMeansPoint(tmpColor));
         
-        if (uniqueColors.size() < 1000 && find(uniqueColors.begin(), uniqueColors.end(), tmpColor) == uniqueColors.end()) {
+        if (uniqueColors.size() < MAX_UNIQUE_COLORS && 
+            find(uniqueColors.begin(), uniqueColors.end(), tmpColor) == uniqueColors.end()) {
           uniqueColors.push_back(tmpColor);
         }
 
