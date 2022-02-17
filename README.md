@@ -14,6 +14,9 @@ This project requires several dependencies, many of which are submodules to this
 * rtmidi (supplied as a submodule)
 * GNU `make`
 
+Note that CIEDE2000 is only required if `COLDIST_CIE00` is defined at compile-time, and you wish to use the CIEDE2000 
+deltaE color-distance algorithm in generating a color palette from a background image.
+
 # build
 Don't forget to `git clone --recurse-submodules` when obtaining the source code!
 
