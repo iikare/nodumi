@@ -19,8 +19,7 @@
 
 
 #define TONIC_COUNT 12
-#define KEY_COUNT 88
-#define VELOCITY_COUNT 128
+#define KEY_COUNT 128
 
 #define COLDIST_CIE00
 #define KMEANS_ITERATIONS 2

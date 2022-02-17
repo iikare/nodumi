@@ -1,5 +1,4 @@
 #include "controller.h"
-#include "enum.h"
 
 void controller::updateKeyState() {
   if (WindowShouldClose()) {
@@ -53,33 +52,6 @@ int controller::getTempo(int idx) {
   }
   else {
     return file.getTempo(idx);
-  }
-}
-
-void controller::getColorFromBackground(int setType) {
-  switch (setType) {
-    case COLORBG_VELOCITY: 
-
-      getColorSchemeImage(2, setVelocityOn, setVelocityOff);
-      interpolateColorSet(VELOCITY_COUNT, setVelocityOn, setVelocityOff);
-
-      //for (auto i : setVelocityOn) {
-        //logQ(i);
-      //}
-      break;
-    case COLORBG_TONIC:
-      
-      getColorSchemeImage(2, setTonicOn, setTonicOff);
-      interpolateColorSet(TONIC_COUNT, setTonicOn, setTonicOff);
-      break;
-
-    case COLORBG_TRACK:
-      getColorSchemeImage(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
-      break;
-
-    case COLORBG_NONE:
-      logW(LL_WARN, "no colorFromBG type selected");
-      break;
   }
 }
 

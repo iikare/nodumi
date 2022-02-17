@@ -254,21 +254,10 @@ colorLAB::colorLAB(colorRGB color) {
   b = col.b;
 }
 
-colorLAB& colorLAB::operator = (const colorLAB& col) {
+void colorLAB::operator = (const colorLAB& col) {
   l = col.l;
   a = col.a;
   b = col.b;
-  return *this;
-}
-colorLAB& colorLAB::operator = (const colorRGB& col) {
-
-  const colorLAB tmp = colorLAB(col);
-
-  l = tmp.l;
-  a = tmp.a;
-  b = tmp.b;
-
-  return *this;
 }
 
 bool colorLAB::operator == (const colorLAB& col) {

@@ -20,5 +20,3 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
 
 vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k);
 
-
-void interpolateColorSet(int finalColors, vector<colorRGB>& on, vector<colorRGB>& off);
