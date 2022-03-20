@@ -13,10 +13,10 @@ void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>* on, vecto
 void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB);
 void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, vector<pair<int, double>>& weight);
 
-void getColorSchemeImage(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB);
 void getColorSchemeImage(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB,
-                         vector<pair<int, double>>& weight);
-void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, vector<pair<int, double>>& weight);
+                         const vector<pair<int, double>>& weight = {});
+void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, 
+                         const vector<pair<int, double>>& weight);
 
 vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k);
 
