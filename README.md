@@ -5,6 +5,8 @@ At some point in the future as development progresses, a usage guide will be ava
 
 A project logo will eventually take this statement's place.
 
+`nodumi` — ನೋಡು (look/see) + [mi]di
+
 # dependencies
 This project requires several dependencies, many of which are submodules to this repository.
 
