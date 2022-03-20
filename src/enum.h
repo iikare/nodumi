@@ -52,6 +52,12 @@ class enumChecker {
     vector<T> itemsLastFrame;
 };
 
+enum schemeType {
+  SCHEME_TRACK,
+  SCHEME_TONIC,
+  SCHEME_KEY,
+  SCHEME_NONE
+};
 
 enum colorType {
   SELECT_BG,

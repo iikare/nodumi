@@ -78,9 +78,21 @@ void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorV
   } 
 }
 
-void getColorSchemeImage(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB,
+void getColorSchemeImage(schemeType type, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB,
                          const vector<pair<int, double>>& weight) {
-  getColorSchemeImage(n, 2, colorVecA, colorVecB, weight);
+  switch (type) {
+    case SCHEME_KEY:
+      getColorSchemeImage(KEY_COUNT, 2, colorVecA, colorVecB, weight);
+      break;
+    case SCHEME_TONIC:
+      getColorSchemeImage(TONIC_COUNT, 2, colorVecA, colorVecB, weight);
+      break;
+    case SCHEME_TRACK:
+      getColorSchemeImage(ctr.getTrackCount(), 2, colorVecA, colorVecB, weight);
+      break;
+    default: // nothing here
+      break;
+  }
 }
 void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, 
                          const vector<pair<int, double>>& weight) {
