@@ -189,7 +189,7 @@ int main (int argc, char* argv[]) {
   
   // main program logic
 
-  if (argc == 2) {
+  if (argc >= 2) {
     string filename = argv[1];
     transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
     string ext = filename.substr(filename.size() - 3);
@@ -202,14 +202,15 @@ int main (int argc, char* argv[]) {
     filecheck.close();
 
     ctr.load(filename);
+   
+    // load an image if supplied
+    if (argc == 3) {
+      ctr.image.load(argv[2]);
+    }
   }
   
    
 
-  // test image
-  string dbgPATH = "./tests/bg8c.png";
-  logQ("loading debug image:", dbgPATH);
-  ctr.image.load(dbgPATH);
 
   while (ctr.getProgramState()) {
 

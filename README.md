@@ -8,11 +8,14 @@ A project logo will eventually take this statement's place.
 # dependencies
 This project requires several dependencies, many of which are submodules to this repository.
 
-* CIEDE2000 (supplied as a submodule)
-* midifile (supplied as a submodule)
-* osdialog (supplied as a submodule)
-* rtmidi (supplied as a submodule)
+* `CIEDE2000` (supplied as a submodule)
+* `midifile` (supplied as a submodule)
+* `osdialog` (supplied as a submodule)
+* `rtmidi` (supplied as a submodule)
+* `raylib`
 * GNU `make`
+
+Cross-compilation will require you to recompile raylib for the target platform. The current build script assumes you are building on a Linux environment with raylib installed in the appropriate directories (`/lib/libraylib.so` and `/usr/include/raylib.h`).
 
 Note that CIEDE2000 is only required if `COLDIST_CIE00` is defined at compile-time, and you wish to use the CIEDE2000 
 deltaE color-distance algorithm in generating a color palette from a background image.

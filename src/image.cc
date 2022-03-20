@@ -14,6 +14,10 @@ void imageController::load(string path) {
 
   img = LoadImage(path.c_str());
 
+  if (img.data == nullptr) {
+    logW(LL_WARN, "image with path", path, "failed to load!");
+  }
+
   // find default scale
   if (img.width > ctr.getWidth() || img.height > ctr.getHeight()) {
     scale = 1.0/max((float)img.width/ctr.getWidth(), (float)img.height/ctr.getHeight());
@@ -130,7 +134,7 @@ void imageController::createRawData() {
   
   meanV /= (copy.width*copy.height);
   numColors = uniqueColors.size();
-  logQ("numC", numColors);
+  //logQ("numC", numColors);
 
   UnloadImage(copy);
 
