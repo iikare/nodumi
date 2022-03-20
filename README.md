@@ -13,7 +13,9 @@ This project requires several dependencies, many of which are submodules to this
 * `osdialog` (supplied as a submodule)
 * `rtmidi` (supplied as a submodule)
 * `raylib`
-* GNU `make`
+* `make`
+
+Cross-compilation will require you to recompile raylib for the target platform. The current build script assumes you are building on a Linux environment with raylib installed in the appropriate directories (`/lib/libraylib.so` and `/usr/include/raylib.h`).
 
 Cross-compilation will require you to recompile raylib for the target platform. The current build script assumes you are building on a Linux environment with raylib installed in the appropriate directories (`/lib/libraylib.so` and `/usr/include/raylib.h`).
 
