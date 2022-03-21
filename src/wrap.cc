@@ -59,7 +59,7 @@ Vector2 measureTextEx(Font ft, string msg) {
   return MeasureTextEx(ft, msg.c_str(), ft.baseSize, TEXT_SPACING);
 }
 
-char* openFileDialog(osdialog_file_action action, const char* cdir, const char* defName, osdialog_filters* filters) {
+char* fileDialog(osdialog_file_action action, osdialog_filters* filters, const char* cdir, const char* defName) {
  
   // prevent buffer overrun while osdialog blocks the main thread 
   if (ctr.getLiveState()) {

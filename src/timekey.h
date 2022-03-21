@@ -34,7 +34,7 @@ class timeSig {
       return *this;
     }
    
-    bool operator== (const timeSig& other) {
+    bool operator== (const timeSig& other) const {
       return top == other.top && bottom == other.bottom;
     }
     
@@ -121,7 +121,7 @@ class keySig {
       return *this;
     }
 
-    bool operator== (const keySig& other) {
+    bool operator== (const keySig& other) const {
       return key == other.key && isMinor == other.isMinor;
     }
 

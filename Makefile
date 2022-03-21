@@ -1,8 +1,9 @@
-CC = g++
+CC = clang++
+C = clang
 #CC = x86_64-w64-mingw32-gcc-11.2.0 
 
 #LD =
-LD = -fuse-ld=gold -gdwarf-4
+LD = -DLLVM_USE_LINKER=gold #-fuse-ld=gold -gdwarf-4
 
 LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__ 
 #WINDOWS = -D__WINDOWS_MM__
@@ -61,7 +62,7 @@ $(OBJSMF): $(BUILDDIR)/%.o: $(MFDIR)/%.cpp
 
 $(OBJSOSD): $(BUILDDIR)/%.o: $(OSDDIR)/%.c
 	$(PREREQ_DIR)
-	$(CC) $(CFLAGSOSD) -o $@ -c $< 
+	$(C) $(CFLAGSOSD) -o $@ -c $< 
 
 $(OBJSRTM): $(BUILDDIR)/%.o: $(RTMDIR)/%.cpp
 	$(PREREQ_DIR)

@@ -728,7 +728,7 @@ int main (int argc, char* argv[]) {
           }
           switch(fileMenu.getActiveElement()) {
             case 1:
-              filenameC = openFileDialog(OSDIALOG_OPEN, ".", nullptr, filetypes);
+              filenameC = fileDialog(OSDIALOG_OPEN, filetypes);
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
@@ -738,7 +738,7 @@ int main (int argc, char* argv[]) {
               menuctr.hideAll();
               break;
             case 2:
-              imagenameC = openFileDialog(OSDIALOG_OPEN, ".", nullptr, imagetypes);
+              imagenameC = fileDialog(OSDIALOG_OPEN, imagetypes);
               if (imagenameC != nullptr) {
                 imagename = static_cast<string>(imagenameC);
                 newImage = true;
@@ -747,9 +747,18 @@ int main (int argc, char* argv[]) {
                 viewMenu.setContent("Hide Background", 4);
               }
 
-              menuctr.hideAll();
               break;
             case 3:
+              imagenameC = fileDialog(OSDIALOG_SAVE, savetypes);
+              if (imagenameC != nullptr) {
+                imagename = static_cast<string>(imagenameC);
+                newImage = true;
+                
+                showImage = true; 
+                viewMenu.setContent("Hide Background", 4);
+              }
+
+              break;
               break;
             case 4:
               break;

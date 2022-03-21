@@ -23,4 +23,4 @@ void drawGradientLineH(Vector2 a, Vector2 b, float thick, colorRGB col, float al
 
 Vector2 measureTextEx(Font ft, string msg);
 
-char* openFileDialog(osdialog_file_action action, const char* cdir, const char* defName, osdialog_filters* filters);
+char* fileDialog(osdialog_file_action action, osdialog_filters* filters, const char* cdir = ".", const char* defName = nullptr);
