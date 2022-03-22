@@ -74,6 +74,7 @@ class midi {
     void findMeasure(note& idxNote);
     void findKeySig(note& idxNote);
 
+    MidiFile midifile;
 
     int trackCount;
     int noteCount;

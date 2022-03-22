@@ -55,16 +55,22 @@ int controller::getTempo(int idx) {
   }
 }
 
-void controller::load(string filename) {
+void controller::load(string path) {
 
   // TODO: implement type and filter based on type
 
   
   //logW(LL_INFO, "load midi:", filename);
-  file.load(filename);
+  file.load(path);
   getColorScheme(KEY_COUNT, setVelocityOn, setVelocityOff);
   getColorScheme(TONIC_COUNT, setTonicOn, setTonicOff);
   getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
+}
+
+void controller::save(string path) {
+
+  file.midifile.write(path + ".mid");
+
 }
 
 void controller::loadTextures() {

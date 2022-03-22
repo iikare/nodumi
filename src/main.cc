@@ -97,6 +97,8 @@ int main (int argc, char* argv[]) {
   string imagename = "";
   osdialog_filters* imagetypes = osdialog_filters_parse("image:png,jpeg,jpg");
   
+  char* savenameC = nullptr;
+  string savename = "";
   osdialog_filters* savetypes = osdialog_filters_parse("mki:mki");
 
   // data selector
@@ -749,16 +751,16 @@ int main (int argc, char* argv[]) {
 
               break;
             case 3:
-              imagenameC = fileDialog(OSDIALOG_SAVE, savetypes);
-              if (imagenameC != nullptr) {
-                imagename = static_cast<string>(imagenameC);
-                newImage = true;
-                
-                showImage = true; 
-                viewMenu.setContent("Hide Background", 4);
-              }
+              savenameC = fileDialog(OSDIALOG_SAVE, savetypes);
+              if (savenameC != nullptr) {
+                savename = static_cast<string>(savenameC);
+             
+                if (savename.size() < 4 || savename.substr(savename.size() - 4) != ".mki") {
+                  savename += ".mki";
+                }
 
-              break;
+                ctr.save(savename);
+              }
               break;
             case 4:
               break;

@@ -34,7 +34,8 @@ class controller {
     void updateKeyState();
     void toggleLivePlay();
     void setCloseFlag();
-    void load(string filename);
+    void load(string path);
+    void save(string path);
     void loadTextures();
     void unloadTextures(); 
 
