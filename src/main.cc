@@ -931,20 +931,20 @@ int main (int argc, char* argv[]) {
               measureNumber = !measureNumber;
               break;
             case 6:
-              if (viewMenu.getContent(4) == "Show Background") {
-                viewMenu.setContent("Hide Background", 4);
+              if (viewMenu.getContent(6) == "Show Background") {
+                viewMenu.setContent("Hide Background", 6);
               }
-              else if (viewMenu.getContent(4) == "Hide Background") {
-                viewMenu.setContent("Show Background", 4);
+              else if (viewMenu.getContent(6) == "Hide Background") {
+                viewMenu.setContent("Show Background", 6);
               }
               showImage = !showImage;
               break;
             case 7:
-              if (viewMenu.getContent(5) == "Show FPS") {
-                viewMenu.setContent("Hide FPS", 5);
+              if (viewMenu.getContent(7) == "Show FPS") {
+                viewMenu.setContent("Hide FPS", 7);
               }
-              else if (viewMenu.getContent(5) == "Hide FPS") {
-                viewMenu.setContent("Show FPS", 5);
+              else if (viewMenu.getContent(7) == "Hide FPS") {
+                viewMenu.setContent("Show FPS", 7);
               }
               showFPS = !showFPS;
               FPSText = to_string(GetFPS());
