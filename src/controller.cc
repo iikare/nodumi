@@ -219,9 +219,28 @@ void controller::save(string path,
     writeRGB(col);
   }
   
+  
+  // 0x368-0x371 - track size marker (n)
+  // 0x372-0x372+(n*3)       track (on) colors
+  // 0x372+(n*3)-0x372+(n*6) track (off) colors
+  uint32_t trackSetSize = setTrackOn.size();
+  output.write(reinterpret_cast<const char*>(&trackSetSize), sizeof(trackSetSize));
 
+  for (auto col : setTrackOn) {
+    writeRGB(col);
+  }
+  for (auto col : setTrackOff) {
+    writeRGB(col);
+  }
 
-  //output << midiData.str();
+  // get size of midi data
+  midiData.seekg(0, std::ios::end);
+  uint32_t midiSize = midiData.tellg();
+  midiData.seekg(0, std::ios::beg);
+  
+  output.write(reinterpret_cast<const char*>(&midiSize), sizeof(midiSize));
+  logQ(midiSize);
+  output.write(midiData.str().c_str(), midiData.str().size());
 }
 
 void controller::loadTextures() {

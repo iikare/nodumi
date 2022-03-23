@@ -113,6 +113,8 @@ void midi::load(string file, stringstream& buf) {
 
   // file is known to work
   ifstream midiData(file);
+  buf.str("");
+  buf.clear();
 
   buf << midiData.rdbuf();
   midiData.close();
