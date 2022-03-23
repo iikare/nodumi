@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 
 #include <raylib.h>
 #include <string>
@@ -11,6 +11,8 @@ using std::vector;
 using std::string;
 using std::min;
 using std::max;
+using std::ifstream;
+using std::stringstream;
 
 
 
@@ -18,7 +20,7 @@ class imageController {
   public:
     imageController() : img(),  imgTex(), isLoaded(false), canMove(false),
                         position({0,0}), base({0,0}), offset({0,0}), scale(1), defaultScale(1), meanV(0), numColors(0),
-                        rawPixelData() {};
+                        rawPixelData(), imageFormat(IMAGE_NONE), buf() {};
 
     void load(string path);
     void unload();
@@ -64,6 +66,9 @@ class imageController {
     int numColors;
 
     vector<kMeansPoint> rawPixelData;
+
+    int imageFormat;
+    stringstream buf;
     
 
 };

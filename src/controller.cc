@@ -100,7 +100,8 @@ void controller::save(string path,
   // 0x00:[4:4] - sheet music display
   // 0x00:[3:3] - measure line display
   // 0x00:[2:2] - measure number display
-  // 0x00:[1:0] - reserved
+  // 0x00:[1:1] - image existence
+  // 0x00:[0:0] - reserved
 
   uint8_t byte0 = 0;
   byte0 |= (nowLine << 7);
@@ -109,8 +110,9 @@ void controller::save(string path,
   byte0 |= (sheetMusicDisplay << 4);
   byte0 |= (measureLine << 3);
   byte0 |= (measureNumber << 2);
+  byte0 |= (image.exists() << 1);
 
-  logQ(byte0);
+  //logQ(byte0);
 
   output << byte0;
 
@@ -152,8 +154,6 @@ void controller::save(string path,
 
   output.write( reinterpret_cast<const char*>(&zlf), sizeof(zlf));
   //logQ(static_cast<float>(zoomLevel));
-
-  // COLOR NOT YET IMPLEMENTED
 
   const int imageBlockSize = 20;
   // position need not exceed 16 bits
@@ -239,8 +239,22 @@ void controller::save(string path,
   midiData.seekg(0, std::ios::beg);
   
   output.write(reinterpret_cast<const char*>(&midiSize), sizeof(midiSize));
-  logQ(midiSize);
+  //logQ(midiSize);
   output.write(midiData.str().c_str(), midiData.str().size());
+
+
+  // in variable length regime, only write if the marker is set at 0x00[1:1]
+  if (image.exists()) {
+    // get size of image data
+    image.buf.seekg(0, std::ios::end);
+    uint32_t imageSize = image.buf.tellg();
+    image.buf.seekg(0, std::ios::beg);
+    
+    output.write(reinterpret_cast<const char*>(&imageSize), sizeof(imageSize));
+    logQ(imageSize);
+    output.write(image.buf.str().c_str(), image.buf.str().size());
+  }
+
 }
 
 void controller::loadTextures() {

@@ -105,3 +105,9 @@ enum colorMode {
   COLOR_VELOCITY,
   COLOR_TONIC
 };
+
+enum imageType {
+  IMAGE_PNG,
+  IMAGE_JPG,
+  IMAGE_NONE
+};

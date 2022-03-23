@@ -18,6 +18,22 @@ void imageController::load(string path) {
     logW(LL_WARN, "image with path", path, "failed to load!");
   }
 
+
+  // file is known to work
+  ifstream imageData(path);
+
+  if (path.size() > 4) {
+    if (path.substr(path.size() - 4) == ".jpg" || path.substr(path.size()-4) == ".jpeg") {
+      imageFormat = IMAGE_JPG;
+    }
+    else if (path.substr(path.size() - 4) == ".png") {
+      imageFormat = IMAGE_PNG;
+    }
+  }
+
+  buf << imageData.rdbuf();
+  imageData.close();
+
   // find default scale
   if (img.width > ctr.getWidth() || img.height > ctr.getHeight()) {
     scale = 1.0/max((float)img.width/ctr.getWidth(), (float)img.height/ctr.getHeight());
@@ -53,6 +69,10 @@ void imageController::unload() {
 
     isLoaded = false;
     rawPixelData.clear();
+
+    imageFormat = IMAGE_NONE;
+    buf.str("");
+    buf.clear();
   }
 }
 
