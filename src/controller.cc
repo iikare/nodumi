@@ -1,4 +1,5 @@
 #include "controller.h"
+#include <stdlib.h>
 
 using std::ofstream;
 using std::stringstream;
@@ -81,7 +82,8 @@ void controller::save(string path,
                       double zoomLevel) {
 
   // open output file
-  ofstream output(path, std::ofstream::out | std::ofstream::trunc);
+  ofstream output(path, std::ofstream::out | std::ofstream::trunc | std::ios::binary);
+  output.imbue(std::locale::classic());
 
   if(!output) {
     logW(LL_WARN, "unable to save file to", path);
@@ -144,17 +146,79 @@ void controller::save(string path,
   
   output << emptyByte << emptyByte << emptyByte;
   
-  // 0x07-0x0A - zoom level (4bit float (cast from double))
-  
+  // 0x08-0x0B - zoom level (4bit float (cast from double))
+ 
+  float zlf = static_cast<float>(zoomLevel);
+
+  output.write( reinterpret_cast<const char*>(&zlf), sizeof(zlf));
+  //logQ(static_cast<float>(zoomLevel));
+
   // COLOR NOT YET IMPLEMENTED
 
-  // 0x0B-0x0E - image x position (x) 
+  const int imageBlockSize = 20;
+  // position need not exceed 16 bits
+  // 0x0C-0x0D - image position (x) 
+  // 0x0E-0x0F - image position (y)
+  // 0x10-0x13 - scale
+  // 0x14-0x17 - default scale
+  // 0x18-0x1B - mean value
+  // 0x1C-0x1F - color count
+
+  // if no image exists, all values are left zero
+
+  if (image.exists()) {
+    int16_t x = static_cast<int16_t>(image.position.x);
+    int16_t y = static_cast<int16_t>(image.position.y);
+    output.write(reinterpret_cast<const char*>(&x), sizeof(y));
+    output.write(reinterpret_cast<const char*>(&y), sizeof(y));
+    
+    output.write(reinterpret_cast<const char*>(&image.scale), sizeof(image.scale));
+    output.write(reinterpret_cast<const char*>(&image.defaultScale), sizeof(image.defaultScale));
+    output.write(reinterpret_cast<const char*>(&image.meanV), sizeof(image.meanV));
+    output.write(reinterpret_cast<const char*>(&image.numColors), sizeof(image.numColors));
+  }
+  else {
+    for (auto i = 0; i < imageBlockSize; ++i) {
+      output << emptyByte;
+    }
+  }
 
   // colorRGB has 3 bytes per object
-  // track order:
-  // velocity(128)        -> 384 bytes of velocity color data
-  // tonic(12)            -> 36  bytes of tonic color data 
-  // track(variable)      -> n*3 bytes of track color data
+  // track order (on, off):
+  // tonic(12)            -> 72    bytes of tonic color data 
+  // velocity(128)        -> 768   bytes of velocity color data
+  // track(variable)      -> n*3*2 bytes of track color data
+
+  auto writeRGB = [&] (colorRGB col) {
+
+    uint8_t r = col.r;
+    uint8_t g = col.g;
+    uint8_t b = col.b;
+
+    // all items are uint8_t
+    output.write(reinterpret_cast<const char*>(&r), sizeof(r));
+    output.write(reinterpret_cast<const char*>(&g), sizeof(g));
+    output.write(reinterpret_cast<const char*>(&b), sizeof(b));
+  };
+
+  // 0x20-0x43 - tonic (on) colors
+  // 0x44-0x67 - tonic (off) colors
+  for (auto col : setTonicOn) {
+    writeRGB(col);
+  }
+  for (auto col : setTonicOff) {
+    writeRGB(col);
+  }
+
+  // 0x68-0x1E7  velocity (on) colors
+  // 0x1E8-0x367 velocity (off) colors
+  for (auto col : setVelocityOn) {
+    writeRGB(col);
+  }
+  for (auto col : setVelocityOff) {
+    writeRGB(col);
+  }
+  
 
 
   //output << midiData.str();
