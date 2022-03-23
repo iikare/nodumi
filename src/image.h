@@ -44,6 +44,7 @@ class imageController {
     void updateBasePosition();
     void finalizePosition();
 
+    friend class controller;
   private:
    
     void createRawData();

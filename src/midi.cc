@@ -5,8 +5,6 @@
 #include "sheetctr.h"
 #include "define.h"
 
-using std::max;
-
 int midi::getTempo(int offset) {
   int tempo = 120;
   if (tempoMap.size() != 0 && offset == 0) {
@@ -106,12 +104,21 @@ int midi::findParentMeasure(int measure) {
   return measureMap[measure - 1].parentMeasure + 1;
 }
 
-void midi::load(string file) {
+void midi::load(string file, stringstream& buf) {
   MidiFile midifile;
   if (!midifile.read(file.c_str())) {
     logW(LL_WARN, "unable to open MIDI");
     return;
   }
+
+  // file is known to work
+  ifstream midiData(file);
+
+  buf << midiData.rdbuf();
+  midiData.close();
+
+
+
 
   notes.clear();
   tempoMap.clear();

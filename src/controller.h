@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <functional>
+#include <sstream>
 #include <raylib.h>
 #include "midi.h"
 #include "misc.h"
@@ -14,10 +15,11 @@
 #include "colorgen.h"
 
 using std::vector;
+using std::stringstream;
 
 class controller {
   public:
-    controller() {
+    controller() : midiData() {
       file = midi();
       image = imageController();
       programState = true;
@@ -35,7 +37,15 @@ class controller {
     void toggleLivePlay();
     void setCloseFlag();
     void load(string path);
-    void save(string path);
+    void save(string path, 
+                          bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay,
+                          bool measureLine, bool measureNumber, 
+
+                          int colorMode, int displayMode,
+
+                          int songTimeType, int tonicOffset, 
+
+                          double zoomLevel);
     void loadTextures();
     void unloadTextures(); 
 
@@ -59,6 +69,7 @@ class controller {
     midiInput liveInput;
     midiOutput output;
 
+    stringstream midiData;
     imageController image;
 
     vector<note>* notes;

@@ -759,7 +759,9 @@ int main (int argc, char* argv[]) {
                   savename += ".mki";
                 }
 
-                ctr.save(savename);
+
+                ctr.save(savename, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
+                         colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
               }
               break;
             case 4:

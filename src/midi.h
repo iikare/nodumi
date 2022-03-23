@@ -13,11 +13,15 @@
 #include "log.h"
 
 using namespace smf;
+
 using std::string;
 using std::to_string;
 using std::vector;
 using std::pair;
 using std::make_pair;
+using std::max;
+using std::ifstream;
+using std::stringstream;
 
 class midi {
   public:
@@ -42,7 +46,7 @@ class midi {
       tpq = 0;
     }
 
-    void load(string file);
+    void load(string file, stringstream& buf);
     
     vector<int>* getLineVerts() { return &lineVerts; }
     int findMeasure(int offset);
