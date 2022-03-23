@@ -243,8 +243,12 @@ void controller::save(string path,
   output.write(midiData.str().c_str(), midiData.str().size());
 
 
-  // in variable length regime, only write if the marker is set at 0x00[1:1]
+  // in variable length regime, only write if the marker is set at 0x00[1:1] 
+  // here, no need to check marker, just check image object
   if (image.exists()) {
+    // first write image type
+    output.write(reinterpret_cast<const char*>(&image.imageFormat), sizeof(image.imageFormat));
+    
     // get size of image data
     image.buf.seekg(0, std::ios::end);
     uint32_t imageSize = image.buf.tellg();
