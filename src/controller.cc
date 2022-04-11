@@ -172,7 +172,7 @@ void controller::load(string path,
     
     if (imageExists) {
       
-      // TODO: handle image stream loading here
+      // TODO: handle image metadata loading here
       for (auto i = 0; i < imageBlockSize; ++i) {
         readByte();
       }
@@ -240,6 +240,11 @@ void controller::load(string path,
     for (auto i = 0; i < trackSetSize; ++i) {
       setTrackOff[i] = readRGB();
     }
+
+    // HERE IS MIDI STREAM DATA
+    
+
+    // HERE IS IMAGE STREAM DATA (if exists)
 
   }
   else {
