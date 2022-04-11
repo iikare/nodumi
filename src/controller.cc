@@ -76,8 +76,6 @@ void controller::load(string path,
 
 
   if (isMKI(path)) {
-    logQ("dlskfjldksjfklsdjfkdls");
-
     // open input file
     ifstream input(path, std::ifstream::in | std::ios::binary);
     input.imbue(std::locale::classic());
@@ -147,7 +145,7 @@ void controller::load(string path,
     
     // 0x04
     readByte();
-    debugByte();
+    //debugByte();
 
     songTimeType = (byteBuf >> 4) & 0xF;
     tonicOffset = byteBuf & 0x0F;
@@ -158,6 +156,17 @@ void controller::load(string path,
     readByte();
 
     // 0x08-0x0B - zoom level
+    char zoomBuf[4] = {0};
+    for (int i = 0; i < 4; ++i) {
+      readByte();
+      //debugByte();
+      zoomBuf[i] = byteBuf;
+    }
+
+    zoomLevel = *(reinterpret_cast<float*>(zoomBuf));
+
+    //logQ(zoomLevel);
+
   }
   else {
     logW(LL_INFO, "load midi:", path);
