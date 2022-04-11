@@ -17,7 +17,7 @@ This project requires several dependencies, many of which are submodules to this
 * `raylib`
 * `make`
 
-Cross-compilation will require you to recompile raylib for the target platform. The current build script assumes you are building on a Linux environment with raylib installed in the appropriate directories (`/lib/libraylib.so` and `/usr/include/raylib.h`).
+Cross-compilation will require you to recompile `raylib` for the target platform. The current build script assumes you are building on a Linux environment with raylib installed in the appropriate directories (`/lib/libraylib.so` and `/usr/include/raylib.h`). This project should be compiler-agnostic, but for best results, use `clang`/`clang++`.
 
 Note that CIEDE2000 is only required if `COLDIST_CIE00` is defined at compile-time, and you wish to use the CIEDE2000 
 deltaE color-distance algorithm in generating a color palette from a background image.

@@ -124,38 +124,45 @@ void controller::load(string path,
 
     bool imageExists = byteBuf & (1 << 1);
 
-    logQ(nowLine);
-    logQ(showFPS);
-    logQ(showImage);
-    logQ(sheetMusicDisplay);
-    logQ(measureLine);
-    logQ(measureNumber);
-    logQ(imageExists);
+    //logQ(nowLine);
+    //logQ(showFPS);
+    //logQ(showImage);
+    //logQ(sheetMusicDisplay);
+    //logQ(measureLine);
+    //logQ(measureNumber);
+    //logQ(imageExists);
 
-    debugByte();
+    //debugByte();
 
-    // 0x01-0x02
-
+    // 0x01-0x02 (reserved)
     readByte();
     readByte();
 
+    
     // 0x03
     readByte();
+
+    colorMode = (byteBuf >> 4) & 0xF;
+    displayMode = byteBuf & 0xF;
+    
+    // 0x04
+    readByte();
     debugByte();
 
-    colorMode = byteBuf & 0xF0;
-    displayMode = byteBuf & 0x0F;
+    songTimeType = (byteBuf >> 4) & 0xF;
+    tonicOffset = byteBuf & 0x0F;
 
+    // 0x05-0x07 (reserved)
+    readByte();
+    readByte();
+    readByte();
+
+    // 0x08-0x0B - zoom level
   }
   else {
-
-
     logW(LL_INFO, "load midi:", path);
 
-
-
     file.load(path, midiData);
-
 
     getColorScheme(KEY_COUNT, setVelocityOn, setVelocityOff);
     getColorScheme(TONIC_COUNT, setTonicOn, setTonicOff);
@@ -232,6 +239,8 @@ void controller::save(string path,
   uint8_t byte4 = 0;
 
   byte4 |= (static_cast<uint8_t>(songTimeType) << 4);
+  //logQ(bitset<8>(songTimeType));
+  //logQ(bitset<8>(byte4));
   byte4 |= (static_cast<uint8_t>(tonicOffset) & 0xF);
 
   output << byte4;
@@ -246,10 +255,13 @@ void controller::save(string path,
  
   float zlf = static_cast<float>(zoomLevel);
 
+
+  logQ("zl", zlf);
+
   output.write( reinterpret_cast<const char*>(&zlf), sizeof(zlf));
   //logQ(static_cast<float>(zoomLevel));
 
-  const int imageBlockSize = 20;
+  //const int imageBlockSize = 20;
   // position need not exceed 16 bits
   // 0x0C-0x0D - image position (x) 
   // 0x0E-0x0F - image position (y)
@@ -272,9 +284,11 @@ void controller::save(string path,
     output.write(reinterpret_cast<const char*>(&image.numColors), sizeof(image.numColors));
   }
   else {
-    for (auto i = 0; i < imageBlockSize; ++i) {
-      output << emptyByte;
-    }
+    // is this even needed?
+    
+    //for (auto i = 0; i < imageBlockSize; ++i) {
+      //output << emptyByte;
+    //}
   }
 
   // colorRGB has 3 bytes per object
