@@ -36,7 +36,15 @@ class controller {
     void updateKeyState();
     void toggleLivePlay();
     void setCloseFlag();
-    void load(string path);
+    void load(string path, 
+                          bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
+                          bool& measureLine, bool& measureNumber, 
+
+                          int& colorMode, int& displayMode,
+
+                          int& songTimeType, int& tonicOffset, 
+
+                          double& zoomLevel);
     void save(string path, 
                           bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay,
                           bool measureLine, bool measureNumber, 

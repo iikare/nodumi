@@ -1,8 +1,10 @@
 #include "controller.h"
 #include <stdlib.h>
+#include <bitset>
 
 using std::ofstream;
 using std::stringstream;
+using std::bitset;
 
 void controller::updateKeyState() {
   if (WindowShouldClose()) {
@@ -59,16 +61,106 @@ int controller::getTempo(int idx) {
   }
 }
 
-void controller::load(string path) {
 
+void controller::load(string path, 
+                      bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
+                      bool& measureLine, bool& measureNumber, 
+
+                      int& colorMode, int& displayMode,
+
+                      int& songTimeType, int& tonicOffset, 
+
+                      double& zoomLevel) {
   // TODO: implement type and filter based on type
 
-  
-  //logW(LL_INFO, "load midi:", filename);
-  file.load(path, midiData);
-  getColorScheme(KEY_COUNT, setVelocityOn, setVelocityOff);
-  getColorScheme(TONIC_COUNT, setTonicOn, setTonicOff);
-  getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
+
+
+  if (isMKI(path)) {
+    logQ("dlskfjldksjfklsdjfkdls");
+
+    // open input file
+    ifstream input(path, std::ifstream::in | std::ios::binary);
+    input.imbue(std::locale::classic());
+
+    if(!input) {
+      logW(LL_WARN, "unable to load MKI: ", path);
+      return;
+    }
+
+
+    char byteBuf = 0;
+
+    auto readByte = [&]() {
+      if (!input.eof()) {
+        input.read(&byteBuf, 1);
+        return true;
+      }
+      logW(LL_WARN, "invalid MKI file");
+      return false;
+    };
+
+    auto debugByte = [&]() {
+      #ifndef NODEBUG
+
+      std::bitset<8> binRep(byteBuf);
+      logQ(binRep);
+
+
+      #endif    
+    };
+
+    //#define readByte(); if(!readByte()) { return; }
+
+    // 0x00 
+
+    readByte();
+
+    nowLine = byteBuf & (1 << 7);
+    showFPS = byteBuf & (1 << 6);
+    showImage = byteBuf & (1 << 5);
+    sheetMusicDisplay = byteBuf & (1 << 4);
+    measureLine = byteBuf & (1 << 3);
+    measureNumber = byteBuf & (1 << 2);
+
+    bool imageExists = byteBuf & (1 << 1);
+
+    logQ(nowLine);
+    logQ(showFPS);
+    logQ(showImage);
+    logQ(sheetMusicDisplay);
+    logQ(measureLine);
+    logQ(measureNumber);
+    logQ(imageExists);
+
+    debugByte();
+
+    // 0x01-0x02
+
+    readByte();
+    readByte();
+
+    // 0x03
+    readByte();
+    debugByte();
+
+    colorMode = byteBuf & 0xF0;
+    displayMode = byteBuf & 0x0F;
+
+  }
+  else {
+
+
+    logW(LL_INFO, "load midi:", path);
+
+
+
+    file.load(path, midiData);
+
+
+    getColorScheme(KEY_COUNT, setVelocityOn, setVelocityOff);
+    getColorScheme(TONIC_COUNT, setTonicOn, setTonicOff);
+    getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
+  }
 }
 
 void controller::save(string path, 
@@ -129,6 +221,8 @@ void controller::save(string path,
 
   byte3 |= (static_cast<uint8_t>(colorMode) << 4);
   byte3 |= (static_cast<uint8_t>(displayMode) & 0xF);
+
+  //logQ((unsigned int)byte3);
 
   output << byte3;
   

@@ -90,7 +90,7 @@ int main (int argc, char* argv[]) {
   bool newFile = false;
   char* filenameC = nullptr;
   string filename = "";
-  osdialog_filters* filetypes = osdialog_filters_parse("midi:mid;mki:mki");
+  osdialog_filters* filetypes = osdialog_filters_parse("midi/mki:mid,mki");
   
   bool newImage = false;
   char* imagenameC = nullptr;
@@ -198,12 +198,17 @@ int main (int argc, char* argv[]) {
 
     ifstream filecheck;
     filecheck.open(filename);
-    if (!filecheck || (ext != "mid" && ext != "mki")) {
-      logW(LL_WARN, "invalid filename: " + filename);
-    }
+    //if (!filecheck || (ext != "mid" && ext != "mki")) {
+      //logW(LL_WARN, "invalid file extension:", filename);
+    //}
     filecheck.close();
 
-    ctr.load(filename);
+    ctr.load(filename, 
+             nowLine,  showFPS,  showImage,  sheetMusicDisplay,
+             measureLine,  measureNumber, 
+             colorMode,  displayMode,
+             songTimeType,  tonicOffset, 
+             zoomLevel);
    
     // load an image if supplied
     if (argc == 3) {
@@ -224,7 +229,12 @@ int main (int argc, char* argv[]) {
       run = false;
       timeOffset = 0;
 
-      ctr.load(filename);
+      ctr.load(filename, 
+               nowLine,  showFPS,  showImage,  sheetMusicDisplay,
+               measureLine,  measureNumber, 
+               colorMode,  displayMode,
+               songTimeType,  tonicOffset, 
+               zoomLevel);
     }
 
     if (newImage) {

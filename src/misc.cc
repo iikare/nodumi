@@ -420,3 +420,17 @@ vector<string>& formatPortName(vector<string>& ports) {
 
   return ports;
 }
+
+bool isMKI(string path) {
+
+
+  transform(path.begin(), path.end(), path.begin(), ::tolower);
+  string ext = path.substr(path.size() - 3);
+
+  if (ext != "mid" && ext != "mki") {
+    logW(LL_WARN, "invalid file extension:", path);
+    logW(LL_WARN, "assuming default extension (mid)");
+  }
+
+  return ext == "mki";
+}
