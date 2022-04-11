@@ -6,6 +6,9 @@ using std::ofstream;
 using std::stringstream;
 using std::bitset;
 
+// shared across load/save routines
+const int imageBlockSize = 20;
+
 void controller::updateKeyState() {
   if (WindowShouldClose()) {
     programState = false;
@@ -97,15 +100,15 @@ void controller::load(string path,
       return false;
     };
 
-    auto debugByte = [&]() {
-      #ifndef NODEBUG
+    //auto debugByte = [&]() {
+      //#ifndef NODEBUG
 
-      std::bitset<8> binRep(byteBuf);
-      logQ(binRep);
+      //std::bitset<8> binRep(byteBuf);
+      //logQ(binRep);
 
 
-      #endif    
-    };
+      //#endif    
+    //};
 
     //#define readByte(); if(!readByte()) { return; }
 
@@ -166,6 +169,77 @@ void controller::load(string path,
     zoomLevel = *(reinterpret_cast<float*>(zoomBuf));
 
     //logQ(zoomLevel);
+    
+    if (imageExists) {
+      
+      // TODO: handle image stream loading here
+      for (auto i = 0; i < imageBlockSize; ++i) {
+        readByte();
+      }
+
+    }
+    else {
+      // ignore image metadata block otherwise
+      for (auto i = 0; i < imageBlockSize; ++i) {
+        readByte();
+      }
+    }
+
+    auto readRGB = [&] () {
+      readByte();
+      uint8_t r = *reinterpret_cast<uint*>(&byteBuf);
+      readByte();
+      uint8_t g = *reinterpret_cast<uint8_t*>(&byteBuf);
+      readByte();
+      uint8_t b = *reinterpret_cast<uint8_t*>(&byteBuf);
+
+      colorRGB col(r,g,b);
+
+      return col;
+    };
+
+    // 0x20-0x43 - tonic (on) colors
+    // 0x44-0x67 - tonic (off) colors
+    for (auto col : setTonicOn) {
+      col = readRGB();
+    }
+    for (auto col : setTonicOff) {
+      col = readRGB();
+    }
+    
+    // 0x68-0x1E7  velocity (on) colors
+    // 0x1E8-0x367 velocity (off) colors
+    for (auto col : setVelocityOn) {
+      col = readRGB();
+    }
+    for (auto col : setVelocityOff) {
+      col = readRGB();
+    }
+    
+    
+    // 0x368-0x371 - track size marker (n)
+    char trackSizeBuf[4] = {0};
+    for (int i = 0; i < 4; ++i) {
+      readByte();
+      //debugByte();
+      trackSizeBuf[i] = byteBuf;
+    }
+
+    int trackSetSize = *(reinterpret_cast<int*>(trackSizeBuf));
+
+    setTrackOn.resize(trackSetSize);
+    setTrackOff.resize(trackSetSize);
+
+    logQ(trackSetSize);
+
+    // 0x372-0x372+(n*3)       track (on) colors
+    // 0x372+(n*3)-0x372+(n*6) track (off) colors
+    for (auto i = 0; i < trackSetSize; ++i) {
+      setTrackOn[i] = readRGB();
+    }
+    for (auto i = 0; i < trackSetSize; ++i) {
+      setTrackOff[i] = readRGB();
+    }
 
   }
   else {
@@ -265,12 +339,11 @@ void controller::save(string path,
   float zlf = static_cast<float>(zoomLevel);
 
 
-  logQ("zl", zlf);
+  //logQ("zl", zlf);
 
   output.write( reinterpret_cast<const char*>(&zlf), sizeof(zlf));
   //logQ(static_cast<float>(zoomLevel));
 
-  //const int imageBlockSize = 20;
   // position need not exceed 16 bits
   // 0x0C-0x0D - image position (x) 
   // 0x0E-0x0F - image position (y)
@@ -293,11 +366,12 @@ void controller::save(string path,
     output.write(reinterpret_cast<const char*>(&image.numColors), sizeof(image.numColors));
   }
   else {
-    // is this even needed?
-    
-    //for (auto i = 0; i < imageBlockSize; ++i) {
-      //output << emptyByte;
-    //}
+   
+    // needed to maintain file block formatting
+
+    for (auto i = 0; i < imageBlockSize; ++i) {
+      output << emptyByte;
+    }
   }
 
   // colorRGB has 3 bytes per object
@@ -308,9 +382,9 @@ void controller::save(string path,
 
   auto writeRGB = [&] (colorRGB col) {
 
-    uint8_t r = col.r;
-    uint8_t g = col.g;
-    uint8_t b = col.b;
+    uint8_t r = round(col.r);
+    uint8_t g = round(col.g);
+    uint8_t b = round(col.b);
 
     // all items are uint8_t
     output.write(reinterpret_cast<const char*>(&r), sizeof(r));
