@@ -31,8 +31,44 @@ void imageController::load(string path) {
     }
   }
 
+  buf.str("");
+  buf.clear();
   buf << imageData.rdbuf();
   imageData.close();
+
+  process();
+}
+
+void imageController::load(stringstream& byteData, int byteSize, int format) {
+
+
+  unload();
+
+  buf.str("");
+  buf.clear();
+  buf.write(byteData.str().c_str(), byteData.str().size()); 
+
+
+  string ext = "";
+
+  switch(format) {
+    case IMAGE_PNG:
+      ext = ".png";
+      break;
+    case IMAGE_JPG:
+      ext = ".jpg";
+      break;
+    default:
+      logW(LL_WARN, "wrong image format");
+      return;
+  }
+
+  img = LoadImageFromMemory(ext.c_str(), reinterpret_cast<const unsigned char*>(byteData.str().c_str()), byteSize);
+
+  process();
+}
+
+void imageController::process() {
 
   // find default scale
   if (img.width > ctr.getWidth() || img.height > ctr.getHeight()) {

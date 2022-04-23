@@ -242,9 +242,62 @@ void controller::load(string path,
     }
 
     // HERE IS MIDI STREAM DATA
-    
+
+    // next 4 bytes is midi size
+    char midiSizeBuf[4] = {0};
+    for (int i = 0; i < 4; ++i) {
+      readByte();
+      //debugByte();
+      midiSizeBuf[i] = byteBuf;
+    }
+
+    int midiSize = *reinterpret_cast<int*>(midiSizeBuf);
+    logQ("midi size is:", midiSize);
+
+    stringstream midiData;
+
+    for (auto i = 0; i < midiSize; ++i) {
+      readByte();
+      midiData.write(&byteBuf, sizeof(byteBuf));
+    }
 
     // HERE IS IMAGE STREAM DATA (if exists)
+
+    if (imageExists) {
+
+      // next 4 bytes is image format
+      char imageFormatBuf[4] = {0};
+      for (int i = 0; i < 4; ++i) {
+        readByte();
+        //debugByte();
+        imageFormatBuf[i] = byteBuf;
+      }
+
+      // error handling of image format handled in loader function
+      int imageFormat = *reinterpret_cast<int*>(imageFormatBuf);
+      
+      // next 4 bytes is image size
+      char imageSizeBuf[4] = {0};
+      for (int i = 0; i < 4; ++i) {
+        readByte();
+        //debugByte();
+        imageSizeBuf[i] = byteBuf;
+      }
+
+      int imageSize = *reinterpret_cast<int*>(imageSizeBuf);
+        
+      stringstream imageData;
+
+      for (auto i = 0; i < imageSize; ++i) {
+        readByte();
+        imageData.write(&byteBuf, sizeof(byteBuf));
+      }
+
+
+      // finally load the image
+      image.load(imageData, imageSize, imageFormat);
+
+    }
 
   }
   else {
@@ -433,9 +486,10 @@ void controller::save(string path,
   midiData.seekg(0, std::ios::end);
   uint32_t midiSize = midiData.tellg();
   midiData.seekg(0, std::ios::beg);
-  
+ 
+  logQ("midisize marker is", sizeof(midiSize), "bytes");
   output.write(reinterpret_cast<const char*>(&midiSize), sizeof(midiSize));
-  //logQ(midiSize);
+  logQ("saved midi stream byte length is:",midiSize);
   output.write(midiData.str().c_str(), midiData.str().size());
 
 
@@ -451,7 +505,7 @@ void controller::save(string path,
     image.buf.seekg(0, std::ios::beg);
     
     output.write(reinterpret_cast<const char*>(&imageSize), sizeof(imageSize));
-    logQ(imageSize);
+    //logQ(imageSize);
     output.write(image.buf.str().c_str(), image.buf.str().size());
   }
 

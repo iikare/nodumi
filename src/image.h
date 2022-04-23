@@ -50,6 +50,9 @@ class imageController {
   private:
    
     void createRawData();
+    void process();
+    void load(stringstream& byteData, int byteSize, int format);
+
 
     Image img;
     Texture2D imgTex;
