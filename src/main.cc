@@ -2,10 +2,12 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <thread>
 #include <algorithm>
 #include <raylib.h>
 #include "../dpd/osdialog/osdialog.h"
+#include "aghfile.h"
 #include "enum.h"
 #include "box.h"
 #include "log.h"
@@ -24,6 +26,7 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+using std::unordered_map;
 using std::ifstream;
 using std::min;
 using std::max;
@@ -36,14 +39,17 @@ Font font;
 
 int main (int argc, char* argv[]) {
 
+
+
  
   // basic window setup
-
   SetTraceLogLevel(LOG_NONE);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   InitWindow(mWidth, mHeight, (string("nodumi ") + string(mVersion)).c_str());
   SetTargetFPS(60);
   SetExitKey(KEY_F7);
+
+  ctr.initData(assetSet);
   font = LoadFontEx("bin/fonts/yklight.ttf", 14, 0, 250);
   ctr.loadTextures();
   
@@ -220,6 +226,9 @@ int main (int argc, char* argv[]) {
 
 
   while (ctr.getProgramState()) {
+
+
+    logQ(assetSet.size());
 
     // the now line IS variable
     //nowLineX = ctr.getWidth()/2.0f + ctr.getWidth()/4.0f*sin(GetTime());

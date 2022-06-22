@@ -43,10 +43,16 @@ OBJSRTM = $(patsubst $(RTMDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSRTM))
 SRCSCIE = $(CIEDIR)/CIEDE2000.cpp
 OBJSCIE = $(patsubst $(CIEDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSCIE))
 
-all: $(NAME)
+all: 
+	@$(MAKE) --no-print-directory pre
+	@$(MAKE) --no-print-directory $(NAME)
+	@./tool/generate.sh 
 
 re: clean
-	$(MAKE)
+	@$(MAKE) --no-print-directory
+
+pre:
+	@./tool/generate.sh ON
 
 $(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) | $(@D)
 	$(PREREQ_DIR)
@@ -73,7 +79,11 @@ $(OBJSCIE): $(BUILDDIR)/%.o: $(CIEDIR)/%.cpp
 	$(CC) $(CFLAGSCIE) -o $@ -c $< 
 
 clean:
-	rm -rf build/* $(NAME)
+	@echo
+	@echo "cleaning old build files"
+	@echo
+	rm -f build/*.o $(NAME)
+	rm -f src/agh/*
 
 .PHONY: all clean
 

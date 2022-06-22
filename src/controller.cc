@@ -5,9 +5,18 @@
 using std::ofstream;
 using std::stringstream;
 using std::bitset;
+using std::make_pair;
 
 // shared across load/save routines
 const int imageBlockSize = 20;
+
+void controller::initData(vector<asset>& assets) {
+
+  for (auto item : assets) {
+    data.insert(make_pair(item.assetName, item));
+  }
+
+}
 
 void controller::updateKeyState() {
   if (WindowShouldClose()) {

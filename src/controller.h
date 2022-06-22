@@ -1,12 +1,14 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 #include <functional>
 #include <sstream>
 #include <raylib.h>
 #include "midi.h"
 #include "misc.h"
 #include "data.h"
+#include "asset.h"
 #include "image.h"
 #include "input.h"
 #include "color.h"
@@ -15,6 +17,7 @@
 #include "colorgen.h"
 
 using std::vector;
+using std::unordered_map;
 using std::stringstream;
 
 class controller {
@@ -32,6 +35,8 @@ class controller {
       getColorScheme(12, setTonicOn, setTonicOff);
       getColorScheme(1, setTrackOn, setTrackOff);
     }
+
+    void initData(vector<asset>& assets);
 
     void updateKeyState();
     void toggleLivePlay();
@@ -134,6 +139,9 @@ class controller {
     bool programState = true;
     bool playState;
     bool livePlayState;
+  
+
+    unordered_map<string, asset> data;
     
 
 };
