@@ -6,6 +6,7 @@ using std::ofstream;
 using std::stringstream;
 using std::bitset;
 using std::make_pair;
+using std::move;
 
 // shared across load/save routines
 const int imageBlockSize = 20;
@@ -13,10 +14,57 @@ const int imageBlockSize = 20;
 void controller::initData(vector<asset>& assets) {
 
   for (auto item : assets) {
-    data.insert(make_pair(item.assetName, item));
+    switch(item.assetType) {
+      case ASSET_FONT:
+        fontMap.insert(make_pair(item.assetName, make_pair(item, map<int, Font>())));
+        break;
+    }
+
   }
 
 }
+
+Font* controller::getFont(string id, int size) {
+
+  // find if a font with this id exists
+  auto fit = fontMap.find(id);
+  if (fit == fontMap.end()) {
+    logW(LL_CRIT, "invalid font id -", id);
+    return nullptr;
+  }
+
+  // if this font exists, find map of font size to font pointer
+  auto it = fit->second.second.find(size);
+  if (it == fit->second.second.end()){ 
+
+    // if end is reached, this font combination doesn't exist and needs to be created
+
+    asset& tmpFontAsset = fit->second.first;
+
+    Font tmp = LoadFontFromMemory(".otf", tmpFontAsset.data, tmpFontAsset.dataLen, size, 0, 250);
+
+    ////logQ(sceneController->getFontData("LMP_R").assetName);
+
+    SetTextureFilter(tmp.texture, TEXTURE_FILTER_BILINEAR);
+    
+    fit->second.second.insert(make_pair(size, move(tmp)));
+  
+    //it = fontMap.find(size);
+  }
+
+  return &fit->second.second.find(size)->second;
+  
+  
+}
+
+void controller::unloadData() {
+  for (auto item : fontMap) {
+    for (auto font : item.second.second) {
+      UnloadFont(font.second);
+    }
+  }
+}
+
 
 void controller::updateKeyState() {
   if (WindowShouldClose()) {

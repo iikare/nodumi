@@ -39,9 +39,6 @@ Font font;
 
 int main (int argc, char* argv[]) {
 
-
-
- 
   // basic window setup
   SetTraceLogLevel(LOG_NONE);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -49,8 +46,11 @@ int main (int argc, char* argv[]) {
   SetTargetFPS(60);
   SetExitKey(KEY_F7);
 
+  // no packed executable data can be loaded before this point
   ctr.initData(assetSet);
-  font = LoadFontEx("bin/fonts/yklight.ttf", 14, 0, 250);
+
+
+  font = *ctr.getFont("YKLIGHT", 14);//LoadFontEx("bin/fonts/yklight.otf", 14, 0, 250);
   ctr.loadTextures();
   
  
@@ -226,9 +226,6 @@ int main (int argc, char* argv[]) {
 
 
   while (ctr.getProgramState()) {
-
-
-    logQ(assetSet.size());
 
     // the now line IS variable
     //nowLineX = ctr.getWidth()/2.0f + ctr.getWidth()/4.0f*sin(GetTime());
@@ -1376,13 +1373,13 @@ int main (int argc, char* argv[]) {
     
   }
 
+  ctr.unloadData();
   ctr.unloadTextures();
   ctr.image.unload();
 
   osdialog_filters_free(filetypes); 
   osdialog_filters_free(savetypes); 
   osdialog_filters_free(imagetypes); 
-  UnloadFont(font);
   CloseWindow();
   return 0;
 }

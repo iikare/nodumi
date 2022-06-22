@@ -37,6 +37,10 @@ class controller {
     }
 
     void initData(vector<asset>& assets);
+    void unloadData();
+
+
+    Font* getFont(string id, int size);
 
     void updateKeyState();
     void toggleLivePlay();
@@ -94,24 +98,24 @@ class controller {
     vector<colorRGB> setTonicOn;
     vector<colorRGB> setTonicOff;
 
-    colorRGB bgDark = colorRGB(0, 0, 0);
-    colorRGB bgLight = colorRGB(255, 255, 255);
-    colorRGB bgNow = colorRGB(255, 0, 0);
-    colorRGB bgMenu = colorRGB(222, 222, 222);
-    colorRGB bgMenuShade = colorRGB(155, 155, 155);
-    colorRGB bgMenuLine = colorRGB(22, 22, 22);
-    colorRGB bgColor = bgDark;
-    colorRGB bgSheet = colorRGB(255, 252, 242);
-    colorRGB bgMeasure = colorRGB(155, 155, 155);
+    colorRGB bgDark =         colorRGB(0  , 0  , 0);
+    colorRGB bgLight =        colorRGB(255, 255, 255);
+    colorRGB bgNow =          colorRGB(255, 0  , 0);
+    colorRGB bgMenu =         colorRGB(222, 222, 222);
+    colorRGB bgMenuShade =    colorRGB(155, 155, 155);
+    colorRGB bgMenuLine =     colorRGB(22 , 22 , 22);
+    colorRGB bgSheet =        colorRGB(255, 252, 242);
+    colorRGB bgMeasure =      colorRGB(155, 155, 155);
+    colorRGB bgColor =        bgDark;
 
-    const int menuHeight = 20;
-    const int sheetHeight = 200;
-    int barHeight = 0;
-    int topHeight = 0;
+    const int menuHeight =    20;
+    const int sheetHeight =   200;
+    int barHeight =           0;
+    int topHeight =           0;
 
-    const int barWidth = 10;
-    const int barSpacing = 80;
-    const int barMargin = 49;
+    const int barWidth =      10;
+    const int barSpacing =    80;
+    const int barMargin =     49;
 
     int livePlayOffset;
   
@@ -141,7 +145,7 @@ class controller {
     bool livePlayState;
   
 
-    unordered_map<string, asset> data;
+    unordered_map<string, pair<asset, map<int, Font>>> fontMap;
     
 
 };
