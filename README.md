@@ -16,6 +16,7 @@ This project requires several dependencies, many of which are submodules to this
 * `rtmidi` (supplied as a submodule)
 * `raylib`
 * `make`
+* `xxd`
 
 Cross-compilation will require you to recompile `raylib` for the target platform. The current build script assumes you are building on a Linux environment with raylib installed in the appropriate directories (`/lib/libraylib.so` and `/usr/include/raylib.h`). This project should be compiler-agnostic, but for best results, use `clang`/`clang++`.
 
@@ -37,6 +38,8 @@ If executing `nodumi` from the command-line, one optional argument is accepted:
 ```
 ./bin/nodumi path/to/file.(mid|midi)
 ```
+
+Otherwise, use the built-in graphical commands.
 
 # license
 `nodumi` is licensed under GPLv3.
