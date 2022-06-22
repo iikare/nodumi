@@ -35,7 +35,6 @@ using std::thread;
 using std::ref;
 
 controller ctr;
-Font font;
 
 int main (int argc, char* argv[]) {
 
@@ -50,7 +49,6 @@ int main (int argc, char* argv[]) {
   ctr.initData(assetSet);
 
 
-  font = *ctr.getFont("YKLIGHT", 14);//LoadFontEx("bin/fonts/yklight.otf", 14, 0, 250);
   ctr.loadTextures();
   
  
@@ -300,7 +298,7 @@ int main (int argc, char* argv[]) {
       }
 
       int lastMeasureNum = 0;
-      int measureSpacing = MeasureTextEx(font, to_string(noteData.measureMap.size() - 1).c_str(), font.baseSize, 0.5).x;
+      int measureSpacing = measureTextEx(to_string(noteData.measureMap.size() - 1).c_str()).x; 
 
       if (measureLine || measureNumber) {
         for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
@@ -331,10 +329,10 @@ int main (int argc, char* argv[]) {
                 Vector2 songTimeSize; 
                 switch (songTimeType) {
                   case SONGTIME_ABSOLUTE:
-                   songTimeSize = measureTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str());
+                   songTimeSize = measureTextEx(getSongTime(timeOffset, ctr.getLastTime()).c_str());
                    break;
                   case SONGTIME_RELATIVE: 
-                   songTimeSize = measureTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str());
+                   songTimeSize = measureTextEx(getSongPercent(timeOffset, ctr.getLastTime()).c_str());
                    break;
                 }
                 
@@ -347,7 +345,7 @@ int main (int argc, char* argv[]) {
 
 
                 int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
-                drawTextEx(font, to_string(i + 1).c_str(), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
+                drawTextEx(to_string(i + 1).c_str(), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
                 lastMeasureNum = i;
               }
             }
@@ -593,10 +591,10 @@ int main (int argc, char* argv[]) {
       // option actions
       switch (songTimeType) {
         case SONGTIME_RELATIVE:
-          drawTextEx(font, getSongPercent(timeOffset, ctr.getLastTime()).c_str(), songTimePosition, ctr.bgLight);
+          drawTextEx(getSongPercent(timeOffset, ctr.getLastTime()).c_str(), songTimePosition, ctr.bgLight);
           break;
         case SONGTIME_ABSOLUTE:
-          drawTextEx(font, getSongTime(timeOffset, ctr.getLastTime()).c_str(), songTimePosition, ctr.bgLight);
+          drawTextEx(getSongTime(timeOffset, ctr.getLastTime()).c_str(), songTimePosition, ctr.bgLight);
           break;
       }
 
@@ -604,8 +602,9 @@ int main (int argc, char* argv[]) {
         if (GetTime() - (int)GetTime() < GetFrameTime()) {
           FPSText = to_string(GetFPS());
         }
-        drawTextEx(font, FPSText.c_str(),
-                   ctr.getWidth() - MeasureTextEx(font, FPSText.c_str(), font.baseSize, 0.5).x - 3, 3, ctr.bgDark);
+        drawTextEx(FPSText.c_str(),
+                   ctr.getWidth() - 
+                  measureTextEx(FPSText.c_str()).x - 4, 4, ctr.bgDark);
       }
 
       //fileMenu.draw();

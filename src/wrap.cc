@@ -17,14 +17,14 @@ void drawLineEx(int xi, int yi, int xf, int yf, float thick, colorRGB col) {
   DrawLineEx((Vector2){(float)xi, (float)yi}, (Vector2){(float)xf, (float)yf}, thick, color);
 }
 
-
-void drawTextEx(Font ft, string msg, Vector2 pos, colorRGB col, unsigned char alpha) {
-  drawTextEx(ft, msg, pos.x, pos.y, col, alpha);
+void drawTextEx(string msg, Vector2 pos, colorRGB col, unsigned char alpha, int size, string font) {
+  drawTextEx(msg, pos.x, pos.y, col, alpha, size, font);
 }
-void drawTextEx(Font ft, string msg, int x, int y, colorRGB col, unsigned char alpha) {
+void drawTextEx(string msg, int x, int y, colorRGB col, unsigned char alpha, int size, string font) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, alpha};
-  DrawTextEx(ft, msg.c_str(), (Vector2){static_cast<float>(x), static_cast<float>(y)}, 
-             ft.baseSize, TEXT_SPACING, color);
+  Font* ft = ctr.getFont(font, size);
+  DrawTextEx(*ft, msg.c_str(), (Vector2){static_cast<float>(x), static_cast<float>(y)}, 
+             ft->baseSize, TEXT_SPACING, color);
 }
 
 void drawCircle(int x, int y, float r, colorRGB col) {
@@ -55,8 +55,9 @@ void drawGradientLineH(Vector2 a, Vector2 b, float thick, colorRGB col, float al
   DrawRectangleGradientH(a.x, a.y-thick/2.0 , b.x-a.x, thick , colorB, colorA);
 }
 
-Vector2 measureTextEx(Font ft, string msg) {
-  return MeasureTextEx(ft, msg.c_str(), ft.baseSize, TEXT_SPACING);
+Vector2 measureTextEx(string msg, int size, string font) {
+  Font* ft = ctr.getFont(font, size);
+  return MeasureTextEx(*ft, msg.c_str(), ft->baseSize, TEXT_SPACING);
 }
 
 char* fileDialog(osdialog_file_action action, osdialog_filters* filters, const char* cdir, const char* defName) {

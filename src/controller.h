@@ -101,12 +101,12 @@ class controller {
     colorRGB bgDark =         colorRGB(0  , 0  , 0);
     colorRGB bgLight =        colorRGB(255, 255, 255);
     colorRGB bgNow =          colorRGB(255, 0  , 0);
+    colorRGB bgColor =        bgDark;
     colorRGB bgMenu =         colorRGB(222, 222, 222);
     colorRGB bgMenuShade =    colorRGB(155, 155, 155);
     colorRGB bgMenuLine =     colorRGB(22 , 22 , 22);
     colorRGB bgSheet =        colorRGB(255, 252, 242);
     colorRGB bgMeasure =      colorRGB(155, 155, 155);
-    colorRGB bgColor =        bgDark;
 
     const int menuHeight =    20;
     const int sheetHeight =   200;
