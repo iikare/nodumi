@@ -28,8 +28,8 @@ void drawTextEx(string msg, int x, int y, colorRGB col, unsigned char alpha, int
 }
 
 void drawSymbol(int sym, int size, int x, int y, colorRGB col, unsigned char alpha) {
-  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, (float)alpha};
-  DrawTextCodepoint(*ctr.getFont("LELAND", size), sym, (Vector2){(float)x, (float)y}, size, color);
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, static_cast<unsigned char>(alpha)};
+  DrawTextCodepoint(*ctr.getFont("LELAND", size), sym, (Vector2){static_cast<float>(x), static_cast<float>(y)}, size, color);
 }
 
 void drawCircle(int x, int y, float r, colorRGB col) {

@@ -38,10 +38,10 @@ controller ctr;
 int main (int argc, char* argv[]) {
 
   // basic window setup
-  SetTraceLogLevel(LOG_NONE);
+  SetTraceLogLevel(LOG_WARNING);
 
   // debug
-  SetTraceLogLevel(LOG_TRACE);
+  //SetTraceLogLevel(LOG_TRACE);
   
 
   SetConfigFlags(FLAG_MSAA_4X_HINT);
