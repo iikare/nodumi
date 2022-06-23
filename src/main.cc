@@ -35,7 +35,6 @@ using std::thread;
 using std::ref;
 
 controller ctr;
-
 int main (int argc, char* argv[]) {
 
   // basic window setup
@@ -52,9 +51,6 @@ int main (int argc, char* argv[]) {
 
   // no packed executable data can be loaded before this point
   ctr.initData(assetSet);
-
-
-  ctr.loadTextures();
   
  
   // program-wide variables 
@@ -561,6 +557,9 @@ int main (int argc, char* argv[]) {
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
 
       // sheet music layout
+      //
+      // TODO: delete this when done with sheet music
+      //sheetMusicDisplay = true;
       if (sheetMusicDisplay) {
         
         // needs refactoring 
@@ -583,13 +582,13 @@ int main (int argc, char* argv[]) {
         //// end lines
         drawLineEx(30, ctr.menuHeight + ctr.barMargin, 30,
                    ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
-        //drawLineEx(ctr.getWidth() - 30, ctr.menuHeight + ctr.barMargin, ctr.getWidth() - 30,
-                   //ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
+        drawLineEx(ctr.getWidth() - 30, ctr.menuHeight + ctr.barMargin, ctr.getWidth() - 30,
+                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
 
-        // static sprites
-        DrawTextureEx(ctr.brace, {18.0f, float(ctr.menuHeight + ctr.barMargin) + 2}, 0, 1.0f, {0, 0, 0, 255});
-        DrawTextureEx(ctr.treble, {40.0f, ctr.menuHeight + 35.0f}, 0, 1.0f, {0, 0, 0, 255});
-        DrawTextureEx(ctr.bass, {40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 1)}, 0, 1.0f, {0, 0, 0, 255});
+        
+        drawSymbol(SYM_STAFF_BRACE, 480, 17.0f, float(ctr.menuHeight + ctr.barMargin) - 120, ctr.bgSheetNote);
+        drawSymbol(SYM_CLEF_TREBLE, 155, 40.0f, ctr.menuHeight+2, ctr.bgSheetNote);
+        drawSymbol(SYM_CLEF_BASS, 155, 40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 67), ctr.bgSheetNote);
         
       }
       
@@ -1382,12 +1381,10 @@ int main (int argc, char* argv[]) {
   }
 
   ctr.unloadData();
-  ctr.unloadTextures();
-  ctr.image.unload();
-
   osdialog_filters_free(filetypes); 
   osdialog_filters_free(savetypes); 
   osdialog_filters_free(imagetypes); 
   CloseWindow();
+
   return 0;
 }

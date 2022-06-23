@@ -63,8 +63,6 @@ class controller {
                           int songTimeType, int tonicOffset, 
 
                           double zoomLevel);
-    void loadTextures();
-    void unloadTextures(); 
 
     bool getProgramState() { return programState; }
     bool getPlayState() { return playState; }
@@ -98,14 +96,15 @@ class controller {
     vector<colorRGB> setTonicOn;
     vector<colorRGB> setTonicOff;
 
-    colorRGB bgDark =         colorRGB(0  , 0  , 0);
+    colorRGB bgDark =         colorRGB(0  , 0  , 0  );
     colorRGB bgLight =        colorRGB(255, 255, 255);
-    colorRGB bgNow =          colorRGB(255, 0  , 0);
+    colorRGB bgNow =          colorRGB(255, 0  , 0  );
     colorRGB bgColor =        bgDark;
     colorRGB bgMenu =         colorRGB(222, 222, 222);
     colorRGB bgMenuShade =    colorRGB(155, 155, 155);
-    colorRGB bgMenuLine =     colorRGB(22 , 22 , 22);
+    colorRGB bgMenuLine =     colorRGB(22 , 22 , 22 );
     colorRGB bgSheet =        colorRGB(255, 252, 242);
+    colorRGB bgSheetNote =    colorRGB(0  , 0  , 0  );
     colorRGB bgMeasure =      colorRGB(155, 155, 155);
 
     const int menuHeight =    20;
@@ -134,8 +133,6 @@ class controller {
     Texture2D treble;
     Texture2D brace;
     Texture2D bass;
-
-    Font fontMusic;
 
     
     

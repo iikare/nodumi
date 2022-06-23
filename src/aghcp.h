@@ -7,7 +7,9 @@
 using std::vector;
 
 vector<int> codepointSet = {
+  0xE000,
   0xE050,
+  0xE062,
   0xE0A2,
   0x0000,
 };

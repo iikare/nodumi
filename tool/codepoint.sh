@@ -3,7 +3,9 @@
 # ALL CODEPOINTS DEFINED HERE
 
 points=(
-        "SYM_TREBLE,        0xE050" 
+        "SYM_STAFF_BRACE,   0xE000" 
+        "SYM_CLEF_TREBLE,   0xE050" 
+        "SYM_CLEF_BASS,     0xE062" 
         "SYM_HEAD_WHOLE,    0xE0A2" 
         "SYM_NONE,          0x0000"
        )
