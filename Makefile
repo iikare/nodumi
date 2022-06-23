@@ -8,7 +8,7 @@ LD = -DLLVM_ENABLE_LLD=ON #-fuse-ld=gold -gdwarf-4
 LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__ 
 #WINDOWS = -D__WINDOWS_MM__
 
-CFLAGS = --std=c++20 -Wall -Wextra -g $(LD) $(LINUX) 
+CFLAGS = --std=c++20 -Wall -Wextra -Wno-narrowing -g $(LD) $(LINUX) 
 CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 
 CFLAGSRTM = $(CFLAGS) -w
 CFLAGSCIE = $(CFLAGS) -w
@@ -53,6 +53,7 @@ re: clean
 
 pre:
 	@./tool/generate.sh ON
+	@./tool/codepoint.sh
 
 $(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) | $(@D)
 	$(PREREQ_DIR)

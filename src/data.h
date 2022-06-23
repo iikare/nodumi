@@ -15,6 +15,8 @@
 #define SHEET_NOTEWIDTH 20
 #define SHEET_RMARGIN 30
 #define SHEET_LMARGIN 80
+
+#define DEFAULT_FONT "YKLIGHT"
 #define TEXT_SPACING 0
 
 

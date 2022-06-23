@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include "aghcpenum.h"
 
 using std::find;
 using std::vector;
@@ -119,3 +120,4 @@ enum imageType {
   IMAGE_JPG,
   IMAGE_NONE
 };
+

@@ -27,6 +27,11 @@ void drawTextEx(string msg, int x, int y, colorRGB col, unsigned char alpha, int
              ft->baseSize, TEXT_SPACING, color);
 }
 
+void drawSymbol(int sym, int size, int x, int y, colorRGB col, unsigned char alpha) {
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, (float)alpha};
+  DrawTextCodepoint(*ctr.getFont("LELAND", size), sym, (Vector2){(float)x, (float)y}, size, color);
+}
+
 void drawCircle(int x, int y, float r, colorRGB col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   DrawCircle(x, y, r, color);

@@ -1,6 +1,8 @@
 #include "controller.h"
 #include <stdlib.h>
 #include <bitset>
+#include "define.h"
+
 
 using std::ofstream;
 using std::stringstream;
@@ -12,20 +14,16 @@ using std::move;
 const int imageBlockSize = 20;
 
 void controller::initData(vector<asset>& assets) {
-
   for (auto item : assets) {
     switch(item.assetType) {
       case ASSET_FONT:
         fontMap.insert(make_pair(item.assetName, make_pair(item, map<int, Font>())));
         break;
     }
-
   }
-
 }
 
 Font* controller::getFont(string id, int size) {
-
   // find if a font with this id exists
   auto fit = fontMap.find(id);
   if (fit == fontMap.end()) {
@@ -41,7 +39,19 @@ Font* controller::getFont(string id, int size) {
 
     asset& tmpFontAsset = fit->second.first;
 
-    Font tmp = LoadFontFromMemory(".otf", tmpFontAsset.data, tmpFontAsset.dataLen, size, 0, 250);
+    // SMuFL defines at most 3423 (0xE000 - 0xED5F) glyphs
+    //logQ(tmpFontAsset.assetName);
+
+    int lim = 255;
+    int* loc = nullptr;
+
+    // special handling for SMuFL font
+    if (tmpFontAsset.assetName == "LELAND") {
+      loc = &codepointSet[0];
+      lim = codepointSet.size();
+    }
+
+    Font tmp = LoadFontFromMemory(".otf", tmpFontAsset.data, tmpFontAsset.dataLen, size, loc , lim);
 
     ////logQ(sceneController->getFontData("LMP_R").assetName);
 

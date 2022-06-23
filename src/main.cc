@@ -40,6 +40,11 @@ int main (int argc, char* argv[]) {
 
   // basic window setup
   SetTraceLogLevel(LOG_NONE);
+
+  // debug
+  SetTraceLogLevel(LOG_TRACE);
+  
+
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   InitWindow(mWidth, mHeight, (string("nodumi ") + string(mVersion)).c_str());
   SetTargetFPS(60);
@@ -488,6 +493,7 @@ int main (int argc, char* argv[]) {
                     drawRing({cX, ballY}, radius - 2, radius, colorSetOff->at(colorID));
                   }
                 }
+                //drawSymbol(SYM_TREBLE, 75, cX,cY, colorSetOff->at(colorID));
               }
             }
             break;
@@ -1368,6 +1374,9 @@ int main (int argc, char* argv[]) {
     
     //logQ("in:", formatVector(inputMenuContents));
     //logQ("out:", formatVector(outputMenuContents));
+
+    //drawSymbol(SYM_TREBLE, 175, 100,300, ctr.bgSheet);
+    //drawSymbol(SYM_HEAD_WHOLE, 375, 100,100, ctr.bgSheet);
 
     
   }
