@@ -144,6 +144,7 @@ class keySig {
     keySig* getPrev() { return prev; }
 
     int getSize();
+    int getAcc() { return accidentals; }
     int getStartingIndex() { return startingIndex; }
 
     bool isMinor;

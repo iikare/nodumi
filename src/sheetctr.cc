@@ -116,17 +116,13 @@ void sheetController::linkKeySignatures() {
 void sheetController::drawTimeSignature(pair<int, int> sig, int x, colorRGB col) {
 
   // y-coordinate is constant in respect to sheet controller parameters, not a user-callable parameter
-  int y = ctr.barMargin+ctr.barWidth*2;
+  const int y = ctr.barMargin+ctr.barWidth*2;
+  const int fSize = 157; // constant numeral font size
 
 
   // for centering
   //drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
 
-
-  //logQ(ctr.getFont("LELAND", 100)->glyphCount);
-
-  const int fSize = 157; // constant numeral font size
-  //const int fSize = 100; // constant numeral font size
 
   auto getGlyphWidth = [&](int codepoint) {
       return GetGlyphInfo(*ctr.getFont("LELAND",fSize), codepoint).image.width;
@@ -193,4 +189,92 @@ void sheetController::drawTimeSignature(pair<int, int> sig, int x, colorRGB col)
   }
 
   
+}
+
+void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
+
+  int symbol = SYM_ACC_NATURAL;
+
+  if (key.getAcc() == 0) {
+    // C major / A minor
+    // TODO: NEEDS COURTESY ACCIDENTALS
+    return;
+  }
+  else if (key.getAcc() > 0) {
+    symbol = SYM_ACC_SHARP;
+  }
+  else {
+    symbol = SYM_ACC_FLAT;
+  }
+
+
+  const int y = ctr.barMargin+ctr.barWidth*2;
+  const int fSize = 157; // constant numeral font size
+  
+  // for centering
+  drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
+
+  const vector<int> sharpHash    = {1, 4, 0, 3, 6, 2, 5};
+  const vector<int> sharpSpacing = {0, 1, 0, 2, 4, 4, 5};
+  const vector<int> sharpY       = {-2, -1, -2, -2, 0, -1, -1};
+
+  const vector<int> flatHash     = {5, 2, 6, 3, 7, 4, 8};
+  const vector<int> flatSpacing  = {0, 0, 0, 1, 1, 2, 2};
+  const vector<int> flatY        = {0, 0, 0, 0, 0, -1, 0};
+
+  
+  // unimplemented
+  const vector<int> naturalHashS = {0,0,0,0,0,0,0};
+  const vector<int> naturalHashF = {0,0,0,0,0,0,0};
+ 
+  auto drawKeySigPart = [&] (int symbol, int index) {
+
+    if (index > (int)sharpHash.size() || index < 0) { return; }
+
+    vector<int>& accHash = const_cast<vector<int>&>(sharpHash);
+    vector<int>& accSpacing = const_cast<vector<int>&>(sharpSpacing);
+    vector<int>& accY = const_cast<vector<int>&>(sharpY);
+    float posMod = accHash[index];
+    
+    switch(symbol) {
+      case SYM_ACC_SHARP:
+        accHash = sharpHash;
+        accSpacing = sharpSpacing;
+        accY = sharpY;
+        posMod = accHash[index]-1;
+        break;
+      case SYM_ACC_FLAT:
+        accHash = flatHash;
+        accSpacing = flatSpacing;
+        accY = flatY;
+        posMod = accHash[index]-1;
+        break;
+      case SYM_ACC_NATURAL:
+        logQ("NATURAL NOT IMPLEMENTED YET");
+        accHash = sharpHash;
+        break;
+
+    }
+    //posMod = index;
+    
+    const int accConstSpacing = 10;
+
+
+    drawSymbol(symbol, fSize, x+index*accConstSpacing+accSpacing[index], 
+                              y-ctr.barSpacing+posMod*(ctr.barWidth/2.0f+0.4)-accY[index], col);
+    drawSymbol(symbol, fSize, x+index*accConstSpacing+accSpacing[index], 
+                              y+posMod*(ctr.barWidth/2.0f+0.4)-accY[index]+1, col);
+  };
+
+  for (auto i = 0; i < abs(key.getAcc()); i++) {
+  
+    drawKeySigPart(symbol, i);
+
+  }
+
+}
+
+
+void sheetController::drawNote(sheetNote noteData, int x, colorRGB col) {
+
 }

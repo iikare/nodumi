@@ -5,7 +5,7 @@
 
 using std::vector;
 
-enum accidentalTypes{
+enum accidentalType{
   ACC_NATURAL,
   ACC_SHARP,
   ACC_FLAT,
@@ -13,8 +13,8 @@ enum accidentalTypes{
 };
 
 struct sheetNote {
-  sheetNote() { accidentalType = ACC_NONE; keyIndex = 0; }
-  int accidentalType;
+  sheetNote() { accType = ACC_NONE; keyIndex = 0; }
+  int accType;
   int keyIndex;
 };
 
@@ -80,7 +80,7 @@ class note {
 
 };
 
-enum noteSize {
+enum noteType {
   NOTE_LARGE,
   NOTE_WHOLE,
   NOTE_HALF,

@@ -21,6 +21,9 @@ vector<int> codepointSet = {
   0xE088,
   0xE089,
   0xE0A2,
+  0xE260,
+  0xE261,
+  0xE262,
 };
 
 #endif //AGHCP_H

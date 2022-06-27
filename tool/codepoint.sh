@@ -17,6 +17,9 @@ points=(
         "SYM_TIME_8,        0xE088" 
         "SYM_TIME_9,        0xE089" 
         "SYM_HEAD_WHOLE,    0xE0A2" 
+        "SYM_ACC_FLAT,      0xE260" 
+        "SYM_ACC_NATURAL,   0xE261" 
+        "SYM_ACC_SHARP,     0xE262" 
         #"SYM_NONE,          0x0000"    # extra codepoints
        )
 
