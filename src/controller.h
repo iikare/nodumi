@@ -118,22 +118,6 @@ class controller {
 
     int livePlayOffset;
   
-    Texture2D quarter;
-    Texture2D half;
-    Texture2D whole;
-    Texture2D flag;
-
-    Texture2D sharp;
-    Texture2D flat;
-    Texture2D natural;
-
-    Texture2D restQ;
-    Texture2D restE;
-    
-    Texture2D treble;
-    Texture2D brace;
-    Texture2D bass;
-
     
     
   private:

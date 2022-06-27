@@ -1,4 +1,7 @@
 #include "sheetctr.h"
+#include "define.h"
+#include "enum.h"
+#include "wrap.h"
 
 void sheetController::addTimeSignature(int position, int tick, timeSig timeSignature) {
   if (timeSignatureMap.size() != 0 && timeSignatureMap[timeSignatureMap.size()-1].second == timeSignature) {
@@ -108,4 +111,86 @@ void sheetController::linkKeySignatures() {
     }
     keySignatureMap[i].second.setPrev(&keySignatureMap[i].second);
   }
+}
+
+void sheetController::drawTimeSignature(pair<int, int> sig, int x, colorRGB col) {
+
+  // y-coordinate is constant in respect to sheet controller parameters, not a user-callable parameter
+  int y = ctr.barMargin+ctr.barWidth*2;
+
+
+  // for centering
+  //drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
+
+
+  //logQ(ctr.getFont("LELAND", 100)->glyphCount);
+
+  const int fSize = 157; // constant numeral font size
+  //const int fSize = 100; // constant numeral font size
+
+  auto getGlyphWidth = [&](int codepoint) {
+      return GetGlyphInfo(*ctr.getFont("LELAND",fSize), codepoint).image.width;
+  };
+
+  if (sig.first < 0 || sig.first > 99 || sig.second < 0 || sig.second > 99) {
+    logW(LL_WARN, "complex time signature detected with meter", sig.first, "/", sig.second);
+    return;
+  }
+
+  // the given x-coordinate is the spatial center of the time signature
+  // the given y-coordinate is the top line of the upper staff
+  
+
+  auto drawSingleSig = [&](int val, int yOffset) {
+    const int point = SYM_TIME_0+val;
+    const int halfDist = (getGlyphWidth(point) + 1)/2;
+
+    drawSymbol(point, fSize, x-halfDist, y+yOffset, col);
+
+  };
+  auto drawDoubleSig = [&](int val, int yOffset) {
+    int padding = 0;
+    
+    int numL = val/10;
+    int numR = val%10;
+
+    if (numL == 1) {
+      padding = -2;
+    }
+
+    const int pointL = SYM_TIME_0+numL;
+    const int widthL= getGlyphWidth(pointL);
+    const int pointR = SYM_TIME_0+numR;
+    const int widthR= getGlyphWidth(pointR);
+
+
+    const int leftPos = x - (padding + widthL + widthR)/2;
+    const int rightPos = leftPos + widthL + padding;
+
+    drawSymbol(pointL, fSize, leftPos, y+yOffset, col);
+    
+
+    drawSymbol(pointR, fSize, rightPos, y+yOffset, col);
+
+  };
+
+  if (sig.first > 9) { // two-digit top
+    drawDoubleSig(sig.first, -ctr.barMargin-ctr.barWidth*2 + 1);
+    drawDoubleSig(sig.first, -ctr.barMargin+ctr.barSpacing-ctr.barWidth*2 + 1);
+  }
+  else {
+    drawSingleSig(sig.first, -ctr.barMargin-ctr.barWidth*2 + 1);
+    drawSingleSig(sig.first, -ctr.barMargin+ctr.barSpacing-ctr.barWidth*2 + 1);
+  }
+  
+  if (sig.second > 9) { // two-digit bottom
+    drawDoubleSig(sig.second, -ctr.barMargin + 1);
+    drawDoubleSig(sig.second, -ctr.barMargin+ctr.barSpacing + 1);
+  }
+  else {
+    drawSingleSig(sig.second, -ctr.barMargin + 1);
+    drawSingleSig(sig.second, -ctr.barMargin+ctr.barSpacing + 1);
+  }
+
+  
 }

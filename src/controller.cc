@@ -40,16 +40,19 @@ Font* controller::getFont(string id, int size) {
     asset& tmpFontAsset = fit->second.first;
 
     // SMuFL defines at most 3423 (0xE000 - 0xED5F) glyphs
-    //logQ(tmpFontAsset.assetName);
+    logQ("loading", tmpFontAsset.assetName, "with size", size);
 
     int lim = 255;
     int* loc = nullptr;
 
     // special handling for SMuFL font
     if (tmpFontAsset.assetName == "LELAND") {
-      loc = &codepointSet[0];
+      loc = codepointSet.data();
       lim = codepointSet.size();
     }
+
+    //logQ("font lim is", lim);
+    //logQ("codepoints are", formatVector(codepointSet));
 
     Font tmp = LoadFontFromMemory(".otf", tmpFontAsset.data, tmpFontAsset.dataLen, size, loc , lim);
 

@@ -17,10 +17,12 @@ points=(
         "SYM_TIME_8,        0xE088" 
         "SYM_TIME_9,        0xE089" 
         "SYM_HEAD_WHOLE,    0xE0A2" 
-        "SYM_NONE,          0x0000"
+        #"SYM_NONE,          0x0000"    # extra codepoints
        )
 
-echo "generating ${#points[@]} codepoints"
+pointnum=${#points[@]}
+#padnum=$((2*${#points[@]}))
+echo "generating $pointnum codepoints"
 echo
 
 echo "codepoints generated:"
@@ -98,12 +100,18 @@ do
   done
 done
 
+# padding for font atlas problems in raylib
+#
+#for i in $(seq 1 $padnum):
+#do
+  #echo "  0xE000," >> ./src/aghcp.h
+#done
+
 echo "};" >> ./src/aghcp.h
 
 echo "" >> ./src/aghcp.h
 
 echo "#endif //AGHCP_H" >> ./src/aghcp.h
-
 
 # raw enums
 

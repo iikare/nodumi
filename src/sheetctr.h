@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vector>
 #include "timekey.h"
+#include "color.h"
 #include "log.h"
 
 using std::pair;
@@ -28,6 +29,8 @@ class sheetController {
     keySig getKeySignature(int offset);
     
     keySig eventToKeySignature(int keySigType, bool isMinor);
+
+    void drawTimeSignature(pair<int, int> sig, int x, colorRGB col);
 
     friend class midi;
 

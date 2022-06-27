@@ -41,7 +41,7 @@ int main (int argc, char* argv[]) {
   SetTraceLogLevel(LOG_WARNING);
 
   // debug
-  //SetTraceLogLevel(LOG_TRACE);
+  SetTraceLogLevel(LOG_TRACE);
   
 
   SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -589,7 +589,10 @@ int main (int argc, char* argv[]) {
         drawSymbol(SYM_STAFF_BRACE, 480, 17.0f, float(ctr.menuHeight + ctr.barMargin) - 120, ctr.bgSheetNote);
         drawSymbol(SYM_CLEF_TREBLE, 155, 40.0f, ctr.menuHeight+2, ctr.bgSheetNote);
         drawSymbol(SYM_CLEF_BASS, 155, 40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 67), ctr.bgSheetNote);
-        
+       
+
+        noteData.sheetData.drawTimeSignature(make_pair(3,4),80,ctr.bgSheetNote);
+
       }
       
 
@@ -617,6 +620,11 @@ int main (int argc, char* argv[]) {
 
     EndDrawing();
 
+    // NOTE: only for debugging sheet area
+    if(IsKeyPressed(KEY_TAB)) {
+      sheetMusicDisplay = !sheetMusicDisplay;
+      sheetMusicDisplay ? ctr.barHeight = ctr.menuHeight + ctr.sheetHeight : ctr.barHeight = ctr.menuHeight;
+    }
     // key actions
     if (run) {
       if (timeOffset + GetFrameTime() * 500 < ctr.getLastTime()) {
