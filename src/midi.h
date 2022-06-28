@@ -55,6 +55,7 @@ class midi {
     int getLastTime() { return lastTime; }
 
     vector<note> notes;
+
     sheetController sheetData;
     vector<measureController> measureMap;
     vector<measureController> measureTickMap;

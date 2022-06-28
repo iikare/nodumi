@@ -132,6 +132,10 @@ int main (int argc, char* argv[]) {
   };
 
   // inverse screen space conversion functions
+  const auto unconvertSSX = [&] (int value) {
+    return timeOffset + (value-nowLineX)/zoomLevel;
+  };
+
   const auto inverseSSX = [&] () {
 
     //double spaceR = ctr.getWidth() - nowLineX;
@@ -394,6 +398,10 @@ int main (int argc, char* argv[]) {
           clickTmp = i;
           hoverType.add(HOVER_NOTE);
         };
+        
+        if (ctr.notes->at(i).x < currentBoundaries.first*0.9 && ctr.notes->at(i).x > currentBoundaries.second*1.1) {
+          continue;
+        }
 
         
         float cX = convertSSX(ctr.notes->at(i).x);
@@ -401,9 +409,6 @@ int main (int argc, char* argv[]) {
         float cW = ctr.notes->at(i).duration * zoomLevel < 1 ? 1 : ctr.notes->at(i).duration * zoomLevel;
         float cH = (ctr.getHeight() - ctr.menuHeight) / 88;
        
-        if (ctr.notes->at(i).x < currentBoundaries.first*0.9 && ctr.notes->at(i).x > currentBoundaries.second*1.1) {
-          continue;
-        }
         
         switch (colorMode) {
           case COLOR_PART:
@@ -525,7 +530,6 @@ int main (int argc, char* argv[]) {
               }
               if (!ctr.getLiveState() || (convertSSX(ctr.notes->at(i).getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
                 if (ctr.notes->at(i).isChordRoot()) {
-                  //cerr << i << endl;
                   for (unsigned int j = 0; j < linePositions->size(); j += 5) {
                     switch (colorMode) {
                       case COLOR_PART:
@@ -651,8 +655,9 @@ int main (int argc, char* argv[]) {
     drawSymbol(SYM_CLEF_TREBLE, 155, convertSSX(inverseSSX().second)-getGlyphWidth(SYM_CLEF_TREBLE), 320, ctr.bgNow);
     
 
+    //logQ(noteData.tpq);
     //for (auto i : noteData.notes) {
-      //std::cerr << i.x << " " ;
+      //std::cerr << i.tick << " " ;
     //}
     //cerr << endl;
 
@@ -755,6 +760,21 @@ int main (int argc, char* argv[]) {
           timeOffset = 0;
         }
       }
+      else if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+        // immediately move to previous measure
+        bool measureFirst = true;
+        for (unsigned int i = noteData.measureMap.size()-1; i > 0; --i) {
+          double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
+          if (measureLineX < nowLineX-1) {
+            timeOffset = unconvertSSX(measureLineX);
+            measureFirst = false;
+            break;
+          }
+        }
+        if (measureFirst) {
+          timeOffset = 0;
+        }
+      }
       else {
         if (timeOffset > shiftC * 6) {
           timeOffset -= shiftC * 6;
@@ -770,6 +790,21 @@ int main (int argc, char* argv[]) {
           timeOffset += shiftC * 60;
         }
         else if (timeOffset < ctr.getLastTime()) {
+          timeOffset = ctr.getLastTime();
+        }
+      }
+      else if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+        // immediately move to next measure
+        bool measureLast = true;
+        for (unsigned int i = 0; i < noteData.measureMap.size(); ++i) {
+          double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
+          if (measureLineX > nowLineX+1) {
+            timeOffset = unconvertSSX(measureLineX);
+            measureLast = false;
+            break;
+          }
+        }
+        if (measureLast) {
           timeOffset = ctr.getLastTime();
         }
       }
