@@ -171,21 +171,21 @@ void sheetController::drawTimeSignature(pair<int, int> sig, int x, colorRGB col)
   };
 
   if (sig.first > 9) { // two-digit top
-    drawDoubleSig(sig.first, -ctr.barMargin-ctr.barWidth*2 + 1);
-    drawDoubleSig(sig.first, -ctr.barMargin+ctr.barSpacing-ctr.barWidth*2 + 1);
+    drawDoubleSig(sig.first, (ctr.sheetHeight-200)/2-ctr.barMargin-ctr.barWidth*2 + 1);
+    drawDoubleSig(sig.first, (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing-ctr.barWidth*2 + 1);
   }
   else {
-    drawSingleSig(sig.first, -ctr.barMargin-ctr.barWidth*2 + 1);
-    drawSingleSig(sig.first, -ctr.barMargin+ctr.barSpacing-ctr.barWidth*2 + 1);
+    drawSingleSig(sig.first, (ctr.sheetHeight-200)/2-ctr.barMargin-ctr.barWidth*2 + 1);
+    drawSingleSig(sig.first, (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing-ctr.barWidth*2 + 1);
   }
   
   if (sig.second > 9) { // two-digit bottom
-    drawDoubleSig(sig.second, -ctr.barMargin + 1);
-    drawDoubleSig(sig.second, -ctr.barMargin+ctr.barSpacing + 1);
+    drawDoubleSig(sig.second, (ctr.sheetHeight-200)/2-ctr.barMargin + 1);
+    drawDoubleSig(sig.second, (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing + 1);
   }
   else {
-    drawSingleSig(sig.second, -ctr.barMargin + 1);
-    drawSingleSig(sig.second, -ctr.barMargin+ctr.barSpacing + 1);
+    drawSingleSig(sig.second, (ctr.sheetHeight-200)/2-ctr.barMargin + 1);
+    drawSingleSig(sig.second, (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing + 1);
   }
 
   
