@@ -76,8 +76,10 @@ class controller {
     int getWidth() { return GetScreenWidth(); }
     int getHeight() { return GetScreenHeight(); }
     point getSize() { return {GetScreenWidth(), GetScreenHeight()}; }
-    point getMousePosition() { return (point){ GetMouseX(), GetMouseY()}; }
-
+    point getMousePosition(); 
+    int getMouseX() { return getMousePosition().x; }; 
+    int getMouseY() { return getMousePosition().y; }; 
+    
     int getSheetSize() { return getWidth() - SHEET_LMARGIN - SHEET_RMARGIN; }
 
     midi file;

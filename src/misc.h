@@ -16,7 +16,8 @@ double getDistance(int x1, int y1, int x2, int y2);
 colorHSV RGBtoHSV(const colorRGB& rgb);
 colorRGB HSVtoRGB(const colorHSV& hsv);
 
-bool pointInBox(Vector2 mouse, rect box);
+bool pointInBox(Vector2 pt, rect box);
+bool pointInBox(point pt, rect box);
 rect pointToRect(point a, point b);
 
 

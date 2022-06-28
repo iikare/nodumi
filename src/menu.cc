@@ -303,8 +303,8 @@ void menu::setAngle() {
   const float circleY = y + COLOR_HEIGHT/2.0f;
 
   if (type == TYPE_COLOR) {
-    int deltaX = circleX - GetMouseX();
-    int deltaY = circleY - GetMouseY();
+    int deltaX = circleX - ctr.getMouseX();
+    int deltaY = circleY - ctr.getMouseY();
     angle = atan2(-deltaY, deltaX) * 180.0/M_PI + 180;
     angle = fmod(angle, 360.0);
   }
@@ -319,12 +319,12 @@ bool menu::clickCircle(int circleType) {
   const float circleY = y + COLOR_HEIGHT/2.0f;
 
   if (circleType == 0) {
-    if (getDistance(GetMouseX(), GetMouseY(), circleX, circleY) > (circleRatio - circleWidth) * COLOR_WIDTH) {
+    if (getDistance(ctr.getMouseX(), ctr.getMouseY(), circleX, circleY) > (circleRatio - circleWidth) * COLOR_WIDTH) {
       return true;
     }
   }
   if (circleType == 1) {
-    if (getDistance(GetMouseX(), GetMouseY(), circleX - squareDim/2.0 + pX, circleY - squareDim/2.0 + pY) < 5.0f) {
+    if (getDistance(ctr.getMouseX(), ctr.getMouseY(), circleX - squareDim/2.0 + pX, circleY - squareDim/2.0 + pY) < 5.0f) {
         return true;
     }
   }

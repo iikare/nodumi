@@ -77,6 +77,22 @@ void logOutput(logLevel level, string file, int line, const V& arg1) {
   cerr << out.str();
 }
 
+template<typename U, typename V>
+string formatPair(const pair<U, V>& typePair) {
+  #ifdef NO_DEBUG
+    return "";
+  #endif
+
+  string s;
+
+  ostringstream ss;
+  ss << fixed << setprecision(2);
+  ss << (typePair.first) << " " << (typePair.second);
+  s += ss.str();
+  
+  return s;
+}
+
 template<typename T>
 string formatVector(const vector<T>& vec) {
   
@@ -103,22 +119,6 @@ string formatVector(const vector<T>& vec) {
 }
 
 template<typename U, typename V>
-string formatPair(const pair<U, V>& typePair) {
-  #ifdef NO_DEBUG
-    return "";
-  #endif
-
-  string s;
-
-  ostringstream ss;
-  ss << fixed << setprecision(2);
-  ss << (typePair.first) << " " << (typePair.second);
-  s += ss.str();
-  
-  return s;
-}
-
-template<typename U, typename V>
 string formatVector(const vector<pair<U, V>>& vec) {
   
   #ifdef NO_DEBUG
@@ -129,10 +129,7 @@ string formatVector(const vector<pair<U, V>>& vec) {
 
   for (auto it = vec.begin(); it != vec.end(); ++it) {
 
-    ostringstream ss;
-    ss << fixed << setprecision(2);
-    ss << ((*it).first) + " " + ((*it).second);
-    s += ss.str();
+    s += formatPair(*it);
     s += " ";
 
   }
@@ -143,3 +140,4 @@ string formatVector(const vector<pair<U, V>>& vec) {
   
   return s;
 }
+

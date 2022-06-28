@@ -300,14 +300,17 @@ int main (int argc, char* argv[]) {
     //logQ("l a b:", cLAB.l, cLAB.a, cLAB.b);
     
 
+    logQ(ctr.getMouseX(), ctr.getMouseY());
+    logQ("focused:", IsWindowFocused());
+
     // main render loop
     BeginDrawing();
       clearBackground(ctr.bgColor);
      
       if (showImage) {
         ctr.image.draw();
-        if (GetMousePosition().x > ctr.image.getX() && GetMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
-          if (GetMousePosition().y > ctr.image.getY() && GetMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
+        if (ctr.getMousePosition().x > ctr.image.getX() && ctr.getMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
+          if (ctr.getMousePosition().y > ctr.image.getY() && ctr.getMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
             //logQ(ctr.image.getWidth(), ctr.image.getHeight()); 
             hoverType.add(HOVER_IMAGE); 
           } 
@@ -325,7 +328,7 @@ int main (int argc, char* argv[]) {
           if (measureLineX + measureSpacing + 4 > 0) {
               
             if (measureLine) {
-              if (pointInBox(GetMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
+              if (pointInBox(ctr.getMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
                   !hoverType.containsLastFrame(HOVER_MENU)) {
                 measureLineWidth = 1;
                 hoverType.add(HOVER_MEASURE);
@@ -374,7 +377,7 @@ int main (int argc, char* argv[]) {
       if (nowLine) {
         float nowLineWidth = 0.5;
         int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
-        if (pointInBox(GetMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) && 
+        if (pointInBox(ctr.getMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) && 
             !menuctr.mouseOnMenu()) {
           nowLineWidth = 1;
           hoverType.add(HOVER_NOW);
@@ -431,7 +434,7 @@ int main (int argc, char* argv[]) {
                  (timeOffset >= ctr.notes->at(i).x && timeOffset < ctr.notes->at(i).x + ctr.notes->at(i).duration)) {
                 noteOn = true;
               }
-              if (pointInBox(GetMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !menuctr.mouseOnMenu()) {
+              if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !menuctr.mouseOnMenu()) {
                 updateClickIndex();
               }
 
@@ -469,11 +472,11 @@ int main (int argc, char* argv[]) {
                   else {
                     realX = nowLineX;
                   }
-                  if (getDistance(GetMouseX(), GetMouseY(), realX, ballY) < radius) {
+                  if (getDistance(ctr.getMouseX(), ctr.getMouseY(), realX, ballY) < radius) {
                     updateClickIndex();
                   }
-                  else if (realX == nowLineX && (getDistance(GetMouseX(), GetMouseY(), cX, ballY) < radius ||
-                           pointInBox(GetMousePosition(), (rect) {int(cX), int(ballY) - 2, max(int(nowLineX - cX), 0), 4}))) {
+                  else if (realX == nowLineX && (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, ballY) < radius ||
+                           pointInBox(ctr.getMousePosition(), (rect) {int(cX), int(ballY) - 2, max(int(nowLineX - cX), 0), 4}))) {
                     updateClickIndex();
                   }
                 }
@@ -548,7 +551,7 @@ int main (int argc, char* argv[]) {
                     else {
                       noteOn = false;
                     }
-                    if (pointInBox(GetMousePosition(), pointToRect({(int)convertSSX(linePositions->at(j + 1)),
+                    if (pointInBox(ctr.getMousePosition(), pointToRect({(int)convertSSX(linePositions->at(j + 1)),
                                    (int)convertSSY(linePositions->at(j + 2))}, {(int)convertSSX(linePositions->at(j + 3)),
                                    (int)convertSSY(linePositions->at(j + 4))}))) {
                       updateClickIndex();
@@ -588,7 +591,7 @@ int main (int argc, char* argv[]) {
 
         // bg
         drawRectangle(0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight, ctr.bgSheet);  
-        if (pointInBox(GetMousePosition(), {0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight})) {
+        if (pointInBox(ctr.getMousePosition(), {0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight})) {
           hoverType.add(HOVER_SHEET);
         }
 
@@ -796,8 +799,8 @@ int main (int argc, char* argv[]) {
       else if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
         // immediately move to next measure
         bool measureLast = true;
-        for (unsigned int i = 0; i < noteData.measureMap.size(); ++i) {
-          double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
+        for (auto& measure : noteData.measureMap) {
+          double measureLineX = convertSSX(measure.getLocation());
           if (measureLineX > nowLineX+1) {
             timeOffset = unconvertSSX(measureLineX);
             measureLast = false;
@@ -1258,7 +1261,7 @@ int main (int argc, char* argv[]) {
           switch(colorSelect.getActiveElement()) {
             case 0:
               colorMove = true;
-              if (pointInBox(GetMousePosition(), colorSelect.getSquare()) || colorSelect.clickCircle(1)) {
+              if (pointInBox(ctr.getMousePosition(), colorSelect.getSquare()) || colorSelect.clickCircle(1)) {
                 colorSquare = true;
               }
               else if (colorSelect.clickCircle(0)) {
@@ -1357,7 +1360,7 @@ int main (int argc, char* argv[]) {
       menuctr.hideAll();
 
       if (!menuctr.mouseOnMenu()) {
-        if (!pointInBox(GetMousePosition(), (rect){0, 0, ctr.getWidth(), 20})) {
+        if (!pointInBox(ctr.getMousePosition(), (rect){0, 0, ctr.getWidth(), 20})) {
           
           int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
 
@@ -1368,7 +1371,7 @@ int main (int argc, char* argv[]) {
           }
           
           // find coordinate to draw right click menu
-          getMenuLocation(ctr.getWidth(), ctr.getHeight(), GetMouseX(), GetMouseY(),
+          getMenuLocation(ctr.getWidth(), ctr.getHeight(), ctr.getMouseX(), ctr.getMouseY(),
                               rightX, rightY, rightMenu.getWidth(), rightMenu.getHeight());
           getColorSelectLocation(ctr.getWidth(), ctr.getHeight(), colorX, colorY,
                                  rightX, rightY, rightMenu.getWidth(),
@@ -1391,11 +1394,11 @@ int main (int argc, char* argv[]) {
             }
           }
           else {
-            if (sheetMusicDisplay && pointInBox(GetMousePosition(), (rect){0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight})) {
+            if (sheetMusicDisplay && pointInBox(ctr.getMousePosition(), (rect){0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight})) {
               selectType = SELECT_SHEET;
               colorSelect.setColor(ctr.bgSheet);
             }
-            else if (pointInBox(GetMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight})) {
+            else if (pointInBox(ctr.getMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight})) {
               selectType = SELECT_LINE;
               rightMenuContents[1] = "Change Line Color";
               colorSelect.setColor(ctr.bgNow);
@@ -1404,7 +1407,7 @@ int main (int argc, char* argv[]) {
               bool measureSelected = false;
               for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
                 double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
-                if (pointInBox(GetMousePosition(), {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
+                if (pointInBox(ctr.getMousePosition(), {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
                     !menuctr.mouseOnMenu()) {
                   measureSelected = true;
                   break; 
@@ -1446,7 +1449,7 @@ int main (int argc, char* argv[]) {
         }
       }
     }
-    if (menuctr.mouseOnMenu() || pointInBox(GetMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
+    if (menuctr.mouseOnMenu() || pointInBox(ctr.getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
       hoverType.add(HOVER_MENU);
     }

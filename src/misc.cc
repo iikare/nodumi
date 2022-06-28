@@ -78,9 +78,12 @@ colorRGB HSVtoRGB(const colorHSV& hsv) {
   return output;
 }
 
-bool pointInBox(Vector2 mouse, rect box) {
-  if (mouse.x >= box.x && mouse.x < box.x + box.width &&
-      mouse.y >= box.y && mouse.y < box.y + box.height) {
+bool pointInBox(Vector2 pt, rect box) {
+  return pointInBox((point){static_cast<int>(pt.x), static_cast<int>(pt.y)}, box);
+}
+bool pointInBox(point pt, rect box) {
+  if (pt.x >= box.x && pt.x < box.x + box.width &&
+      pt.y >= box.y && pt.y < box.y + box.height) {
     return true;
   }
   return false;

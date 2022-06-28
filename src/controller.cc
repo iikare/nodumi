@@ -582,6 +582,14 @@ void controller::save(string path,
 
 }
 
+point controller::getMousePosition() { 
+
+  if (IsWindowFocused()) {
+    return (point){ GetMouseX(), GetMouseY()}; 
+  }
+  return {-1,-1};
+}
+
 void controller::setCloseFlag() {
   programState = false;
 }

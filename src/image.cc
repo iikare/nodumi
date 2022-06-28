@@ -122,14 +122,14 @@ void imageController::draw() {
 
 void imageController::updatePosition() {
   if (canMove) {
-    float xBounds = min(max(0, (int)GetMousePosition().x), ctr.getWidth());
-    float yBounds = min(max(ctr.topHeight, (int)GetMousePosition().y), ctr.getHeight()); 
+    float xBounds = min(max(0, (int)ctr.getMousePosition().x), ctr.getWidth());
+    float yBounds = min(max(ctr.topHeight, (int)ctr.getMousePosition().y), ctr.getHeight()); 
 
     offset.x = xBounds - base.x;
     offset.y = yBounds - base.y;
 
-    //offset.x = min(max(0, (int)GetMousePosition().x - base.x), ctr.getWidth());
-    //offset.y = min(max(ctr.barHeight, (int)GetMousePosition().y - base.y), ctr.getHeight());
+    //offset.x = min(max(0, (int)ctr.getMousePosition().x - base.x), ctr.getWidth());
+    //offset.y = min(max(ctr.barHeight, (int)ctr.getMousePosition().y - base.y), ctr.getHeight());
   }
 }
 
@@ -137,8 +137,8 @@ void imageController::updatePosition() {
 void imageController::updateBasePosition() {
   canMove = true;
   
-  base.x = GetMousePosition().x;
-  base.y = GetMousePosition().y;
+  base.x = ctr.getMousePosition().x;
+  base.y = ctr.getMousePosition().y;
 }
 
 void imageController::finalizePosition() {
