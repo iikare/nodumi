@@ -285,6 +285,6 @@ void sheetController::drawNote(sheetNote noteData, int x, colorRGB col) {
   drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
 
 
-  drawSymbol(SYM_DYN_MF, fSize, x, y, col);
+  drawSymbol(SYM_HEAD_STD, fSize, x, y, col);
     
 }

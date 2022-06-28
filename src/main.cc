@@ -128,7 +128,21 @@ int main (int argc, char* argv[]) {
 
   const auto convertSSY = [&] (int value) {
     return (ctr.getHeight() - (ctr.getHeight() - (ctr.menuHeight + ctr.barHeight)) *
-            static_cast<float>(value - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 4));
+            static_cast<double>(value - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 4));
+  };
+
+  // inverse screen space conversion functions
+  const auto inverseSSX = [&] () {
+
+    //double spaceR = ctr.getWidth() - nowLineX;
+
+    double minVal = max(0.0, timeOffset - nowLineX/zoomLevel);
+
+    // extra "1" prevents roundoff error
+    double maxVal = min(ctr.getLastTime(), static_cast<int>(timeOffset+(ctr.getWidth()+1-nowLineX)/zoomLevel));
+
+
+    return make_pair(minVal, maxVal);
   };
 
   // menu variables
@@ -280,14 +294,12 @@ int main (int argc, char* argv[]) {
   
     //logQ(colorRGB(cLAB));
     //logQ("l a b:", cLAB.l, cLAB.a, cLAB.b);
-   
-   
-    // main render loop
     
+
+    // main render loop
     BeginDrawing();
       clearBackground(ctr.bgColor);
      
-
       if (showImage) {
         ctr.image.draw();
         if (GetMousePosition().x > ctr.image.getX() && GetMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
@@ -368,6 +380,8 @@ int main (int argc, char* argv[]) {
 
       
 
+      pair<double, double> currentBoundaries = inverseSSX();
+
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
         
@@ -386,7 +400,10 @@ int main (int argc, char* argv[]) {
         float cY = convertSSY(ctr.notes->at(i).y);
         float cW = ctr.notes->at(i).duration * zoomLevel < 1 ? 1 : ctr.notes->at(i).duration * zoomLevel;
         float cH = (ctr.getHeight() - ctr.menuHeight) / 88;
-        
+       
+        if (ctr.notes->at(i).x < currentBoundaries.first*0.9 && ctr.notes->at(i).x > currentBoundaries.second*1.1) {
+          continue;
+        }
         
         switch (colorMode) {
           case COLOR_PART:
@@ -623,7 +640,29 @@ int main (int argc, char* argv[]) {
       //fileMenu.draw();
       menuctr.renderAll();
 
+    auto getGlyphWidth = [&](int codepoint) {
+        return GetGlyphInfo(*ctr.getFont("LELAND",155), codepoint).image.width;
+    };
+  
+    //logQ("maxtime", ctr.getLastTime());
+
+    //logQ("bounds", formatPair(inverseSSX()));
+    drawSymbol(SYM_REST_16, 155, convertSSX(inverseSSX().first), 320, ctr.bgNow);
+    drawSymbol(SYM_CLEF_TREBLE, 155, convertSSX(inverseSSX().second)-getGlyphWidth(SYM_CLEF_TREBLE), 320, ctr.bgNow);
+    
+
+    //for (auto i : noteData.notes) {
+      //std::cerr << i.x << " " ;
+    //}
+    //cerr << endl;
+
+    //logQ("timeOffset", timeOffset);
+    //logQ("timeOffset*zoomLevel", timeOffset*zoomLevel);
+    
+
+
     EndDrawing();
+
 
     // NOTE: only for debugging sheet area
     if(IsKeyPressed(KEY_TAB)) {

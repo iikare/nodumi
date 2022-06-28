@@ -51,6 +51,8 @@ class midi {
     vector<int>* getLineVerts() { return &lineVerts; }
     int findMeasure(int offset);
     int findParentMeasure(int measure);
+    
+    int getLastTime() { return lastTime; }
 
     vector<note> notes;
     sheetController sheetData;
@@ -66,11 +68,12 @@ class midi {
     vector<trackController> tracks;
     vector<int> lineVerts;
     vector<int> tickMap;
-
+    
     int getTrackCount() { return trackCount; }
     int getNoteCount() { return noteCount; }
-    int getLastTime() { return lastTime; }
+    int getLastTick() { return lastTick; }
     int getTempo(int offset);
+
     
     void buildLineMap();
     void buildTickMap();

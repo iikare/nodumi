@@ -103,6 +103,22 @@ string formatVector(const vector<T>& vec) {
 }
 
 template<typename U, typename V>
+string formatPair(const pair<U, V>& typePair) {
+  #ifdef NO_DEBUG
+    return "";
+  #endif
+
+  string s;
+
+  ostringstream ss;
+  ss << fixed << setprecision(2);
+  ss << (typePair.first) << " " << (typePair.second);
+  s += ss.str();
+  
+  return s;
+}
+
+template<typename U, typename V>
 string formatVector(const vector<pair<U, V>>& vec) {
   
   #ifdef NO_DEBUG
