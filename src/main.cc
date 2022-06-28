@@ -300,8 +300,10 @@ int main (int argc, char* argv[]) {
     //logQ("l a b:", cLAB.l, cLAB.a, cLAB.b);
     
 
-    logQ(ctr.getMouseX(), ctr.getMouseY());
-    logQ("focused:", IsWindowFocused());
+    noteData.measureMap[1].printNotes();
+
+    //logQ(ctr.getMouseX(), ctr.getMouseY());
+    //logQ("focused:", IsWindowFocused());
 
     // main render loop
     BeginDrawing();

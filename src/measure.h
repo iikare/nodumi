@@ -3,6 +3,7 @@
 #include <vector>
 #include "note.h"
 #include "timekey.h"
+#include "log.h"
 
 using std::vector;
 
@@ -44,7 +45,12 @@ class measureController {
     int getDisplayLocation() { return displayX; }
     int getDisplayLength() { return displayLength; }
     int getParent() { return parentMeasure; }
-    
+
+    void printNotes() {
+      for (auto i : notes) {
+        logQ(i->measure);
+      }
+    }
 
     friend class midi;
   private:

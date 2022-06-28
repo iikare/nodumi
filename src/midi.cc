@@ -169,7 +169,7 @@ void midi::load(string file, stringstream& buf) {
     return;
   }
 
-  sort(trackInfo.begin(), trackInfo.end());
+  //sort(trackInfo.begin(), trackInfo.end());
 
   notes.resize(noteCount);
   int idx = 0;
