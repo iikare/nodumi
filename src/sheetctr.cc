@@ -192,13 +192,19 @@ void sheetController::drawTimeSignature(pair<int, int> sig, int x, colorRGB col)
 }
 
 void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
+  
+  const int y = ctr.barMargin+ctr.barWidth*2;
+  const int fSize = 157; // constant numeral font size
+  
+  // for centering
+  drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
 
-  int symbol = SYM_ACC_NATURAL;
+  int symbol = SYM_NONE;
 
   if (key.getAcc() == 0) {
     // C major / A minor
-    // TODO: NEEDS COURTESY ACCIDENTALS
-    return;
+    // find number of courtesy accidentals
+    symbol = SYM_ACC_NATURAL;
   }
   else if (key.getAcc() > 0) {
     symbol = SYM_ACC_SHARP;
@@ -208,11 +214,6 @@ void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
   }
 
 
-  const int y = ctr.barMargin+ctr.barWidth*2;
-  const int fSize = 157; // constant numeral font size
-  
-  // for centering
-  drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
 
   const vector<int> sharpHash    = {1, 4, 0, 3, 6, 2, 5};
   const vector<int> sharpSpacing = {0, 1, 0, 2, 4, 4, 5};
@@ -276,5 +277,14 @@ void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
 
 
 void sheetController::drawNote(sheetNote noteData, int x, colorRGB col) {
+  
+  const int y = ctr.barMargin+ctr.barWidth*2;
+  const int fSize = 157; // constant numeral font size
+  
+  // for centering
+  drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
 
+
+  drawSymbol(SYM_DYN_MF, fSize, x, y, col);
+    
 }

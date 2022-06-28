@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "timekey.h"
+#include "data.h"
 
 using std::vector;
 
@@ -13,7 +14,8 @@ enum accidentalType{
 };
 
 struct sheetNote {
-  sheetNote() { accType = ACC_NONE; keyIndex = 0; }
+  sheetNote() { accType = ACC_NONE; keyIndex = MIN_NOTE_IDX; }
+  sheetNote(int a, int k) { accType = a; keyIndex = k; }
   int accType;
   int keyIndex;
 };
