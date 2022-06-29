@@ -1,9 +1,13 @@
 #include <algorithm>
+#include <set>
 #include "midi.h"
 #include "misc.h"
 #include "data.h"
 #include "sheetctr.h"
 #include "define.h"
+
+using std::set;
+using std::ref;
 
 int midi::getTempo(int offset) {
   int tempo = 120;
@@ -94,16 +98,6 @@ int midi::findMeasure(int offset) {
   return -1;
 }
 
-int midi::findParentMeasure(int measure) {
-  if (measure < 0 || measure > static_cast<int>(measureMap.size())) {
-    return -1;
-  }
-  else if (!measure) {
-    return 1;
-  }
-  return measureMap[measure - 1].parentMeasure + 1;
-}
-
 void midi::load(string file, stringstream& buf) {
   MidiFile midifile;
   if (!midifile.read(file.c_str())) {
@@ -128,7 +122,6 @@ void midi::load(string file, stringstream& buf) {
   trackHeightMap.clear();
   lineVerts.clear();
   measureMap.clear();
-  measureTickMap.clear();
   tickMap.clear();
   sheetData.reset();
 
@@ -237,6 +230,12 @@ void midi::load(string file, stringstream& buf) {
   });
  
   // build measure map
+  if (sheetData.timeSignatureMap.size() == 0) {
+    logW(LL_CRIT, "attempt to load MIDI with no time signatures!");
+    sheetData.timeSignatureMap.push_back(make_pair(0,timeSig(4,4,0)));
+    //exit(1);
+  }
+
   int cTick = 0;
   timeSig cTimeSig = sheetData.timeSignatureMap[0].second;
   idx = 0;
@@ -268,6 +267,27 @@ void midi::load(string file, stringstream& buf) {
     }
   }
   measureMap.pop_back(); 
+
+  // assign notes, TODO:key signatures to measures
+  auto measureStartCmp = [] (pair<int, int> a, pair<int, int> b) { return a.first < b.first; };
+  set<pair<int, int>, decltype(measureStartCmp)> measureStart = {};
+  for (int m = 0; auto& measure : measureMap) {
+    //logQ(measure.getTick());
+    measureStart.insert(make_pair(measure.getTick(), m++));
+  }
+
+  for (auto& note : notes) {
+    auto mIt = measureStart.lower_bound(make_pair(note.tick, 0));
+    // measures have 1-based index
+    int noteMeasure = 1 + (mIt != measureStart.begin() ? (--mIt)->second : 0);
+
+    //if (noteMeasure > 534) 
+    logQ(note.tick, "has closest measure start", noteMeasure);
+
+    note.measure = noteMeasure;
+  }
+  
+
 
   // build line vertex map
   buildLineMap();

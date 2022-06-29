@@ -32,7 +32,6 @@ class midi {
       trackHeightMap = {};
       lineVerts = {};
       measureMap = {};
-      measureTickMap = {};
       tickMap = {};
       sheetData.reset();
 
@@ -50,7 +49,6 @@ class midi {
     
     vector<int>* getLineVerts() { return &lineVerts; }
     int findMeasure(int offset);
-    int findParentMeasure(int measure);
     
     int getLastTime() { return lastTime; }
 
@@ -58,7 +56,6 @@ class midi {
 
     sheetController sheetData;
     vector<measureController> measureMap;
-    vector<measureController> measureTickMap;
 
     friend class midiInput;
     friend class controller;

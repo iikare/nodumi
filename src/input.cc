@@ -53,7 +53,6 @@ void midiInput::resetInput() {
   // TODO: implement midi reset handler
   noteStream.notes.clear();
   noteStream.measureMap.clear();
-  noteStream.measureTickMap.clear();
 
   for (unsigned int i = 0; i < noteStream.tracks.size(); i++) {
     noteStream.tracks[i].reset();

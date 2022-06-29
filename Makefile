@@ -8,7 +8,10 @@ LD = -DLLVM_ENABLE_LLD=ON #-fuse-ld=gold -gdwarf-4
 LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__ 
 #WINDOWS = -D__WINDOWS_MM__
 
-CFLAGS = --std=c++20 -Wall -Wextra -g $(LD) $(LINUX) 
+# use clang13 or higher
+NONSTD = -Wc++20-extensions
+
+CFLAGS = --std=c++20 -Wall -Wextra $(NONSTD) -g $(LD) $(LINUX) 
 CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 
 CFLAGSRTM = $(CFLAGS) -w
 CFLAGSCIE = $(CFLAGS) -w
