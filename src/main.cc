@@ -297,8 +297,6 @@ int main (int argc, char* argv[]) {
     //logQ("l a b:", cLAB.l, cLAB.a, cLAB.b);
     
 
-    noteData.measureMap[1].printNotes();
-
     //logQ(ctr.getMouseX(), ctr.getMouseY());
     //logQ("focused:", IsWindowFocused());
 

@@ -32,11 +32,6 @@ class measureController {
     double getLocation() { return location; }
     double getTick() { return tick; }
 
-    void printNotes() {
-      for (auto i : notes) {
-        logQ(i->measure);
-      }
-    }
 
     friend class midi;
   private:

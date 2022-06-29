@@ -231,7 +231,7 @@ void midi::load(string file, stringstream& buf) {
  
   // build measure map
   if (sheetData.timeSignatureMap.size() == 0) {
-    logW(LL_CRIT, "attempt to load MIDI with no time signatures!");
+    //logW(LL_WARN, "attempt to load MIDI with no time signatures!");
     sheetData.timeSignatureMap.push_back(make_pair(0,timeSig(4,4,0)));
     //exit(1);
   }
@@ -269,25 +269,29 @@ void midi::load(string file, stringstream& buf) {
   measureMap.pop_back(); 
 
   // assign notes, TODO:key signatures to measures
-  auto measureStartCmp = [] (pair<int, int> a, pair<int, int> b) { return a.first < b.first; };
+  auto measureStartCmp = [] (pair<int, int> a, pair<int, int> b) { return a.first <= b.first; };
   set<pair<int, int>, decltype(measureStartCmp)> measureStart = {};
   for (int m = 0; auto& measure : measureMap) {
     //logQ(measure.getTick());
     measureStart.insert(make_pair(measure.getTick(), m++));
+    measure.notes.clear();
   }
 
   for (auto& note : notes) {
     auto mIt = measureStart.lower_bound(make_pair(note.tick, 0));
-    // measures have 1-based index
-    int noteMeasure = 1 + (mIt != measureStart.begin() ? (--mIt)->second : 0);
+    // measures have 0-based index, but 1-based for rendering
+    int noteMeasure = (mIt != measureStart.begin() ? (--mIt)->second : 0);
 
-    //if (noteMeasure > 534) 
-    logQ(note.tick, "has closest measure start", noteMeasure);
+    //logQ(note.tick, "has closest measure start", noteMeasure);
 
     note.measure = noteMeasure;
+
+    measureMap[noteMeasure].notes.push_back(&note);
   }
   
-
+  //for (int m = 0; auto& measure : measureMap) {
+    //logQ(measure.notes.size(), "notes in measure", 1+m++);
+  //}
 
   // build line vertex map
   buildLineMap();
