@@ -69,16 +69,16 @@ void midi::findMeasure(note& idxNote) {
 }
 
 void midi::findKeySig(note& idxNote) {
-  if (sheetData.keySignatureMap.size() == 0) {
+  if (keySignatureMap.size() == 0) {
     return;
   }
-  if (idxNote.x >= sheetData.keySignatureMap[sheetData.keySignatureMap.size() - 1].first) {
-    idxNote.setKeySig(&(sheetData.keySignatureMap[sheetData.keySignatureMap.size() - 1].second));
+  if (idxNote.x >= keySignatureMap[keySignatureMap.size() - 1].first) {
+    idxNote.setKeySig(&(keySignatureMap[keySignatureMap.size() - 1].second));
     return;
   }
-  for (unsigned int i = 0; i < sheetData.keySignatureMap.size(); i++) {
-    if (sheetData.keySignatureMap[i].first <= idxNote.x && sheetData.keySignatureMap[i + 1].first > idxNote.x) {
-      idxNote.setKeySig(&(sheetData.keySignatureMap[i].second));
+  for (unsigned int i = 0; i < keySignatureMap.size(); i++) {
+    if (keySignatureMap[i].first <= idxNote.x && keySignatureMap[i + 1].first > idxNote.x) {
+      idxNote.setKeySig(&(keySignatureMap[i].second));
       return;
     }
   }
@@ -96,6 +96,113 @@ int midi::findMeasure(int offset) {
     }
   }
   return -1;
+}
+
+void midi::addTimeSignature(int position, int tick, timeSig timeSignature) {
+  if (timeSignatureMap.size() != 0 && timeSignatureMap[timeSignatureMap.size()-1].second == timeSignature) {
+    return;
+  }
+  timeSignature.setTick(tick);
+  timeSignatureMap.push_back(make_pair(position, timeSignature));
+}
+
+void midi::addKeySignature(int position, int tick, keySig keySignature) {
+  if (keySignatureMap.size() != 0 && keySignatureMap[keySignatureMap.size()-1].second == keySignature) {
+    return;
+  }
+  keySignature.setTick(tick);
+  keySignatureMap.push_back(make_pair(position, keySignature));
+}
+
+keySig midi::eventToKeySignature(int keySigType, bool isMinor) {
+  int keyType = KEYSIG_NONE;
+
+  switch(keySigType) {
+    case 0:
+      keyType = KEYSIG_C;
+      break;
+    case 1:
+      keyType = KEYSIG_G;
+      break;
+    case 2:
+      keyType = KEYSIG_D;
+      break;
+    case 3:
+      keyType = KEYSIG_A;
+      break;
+    case 4:
+      keyType = KEYSIG_E;
+      break;
+    case 5:
+      keyType = KEYSIG_B;
+      break;
+    case 6:
+      keyType = KEYSIG_FSHARP;
+      break;
+    case 7:
+      keyType = KEYSIG_CSHARP;
+      break;
+    case 255:
+      keyType = KEYSIG_F;
+      break;
+    case 254:
+      keyType = KEYSIG_BFLAT;
+      break;
+    case 253:
+      keyType = KEYSIG_EFLAT;
+      break;
+    case 252:
+      keyType = KEYSIG_AFLAT;
+      break;
+    case 251:
+      keyType = KEYSIG_DFLAT;
+      break;
+    case 250:
+      keyType = KEYSIG_GFLAT;
+      break;
+    case 249:
+      keyType = KEYSIG_CFLAT;
+      break;
+  }
+
+
+  keySig finalKey = keySig(keyType, isMinor, -1);
+
+  return finalKey;
+}
+
+timeSig midi::getTimeSignature(int offset) {
+  timeSig timeSignature = {0, -1, 1};
+  for (unsigned int i = 0; i < timeSignatureMap.size(); i++) {
+    if (offset > timeSignatureMap[i].first && offset < timeSignatureMap[i + 1].first) {
+      return timeSignatureMap[i].second;
+    }
+  }
+  return timeSignature;
+}
+
+keySig midi::getKeySignature(int offset) {
+  keySig keySignature = {0, 1, -1};
+  for (unsigned int i = 0; i < keySignatureMap.size(); i++) {
+    if (offset > keySignatureMap[i].first && offset < keySignatureMap[i + 1].first) {
+      return keySignatureMap[i].second;
+    }
+  }
+  return keySignature;
+}
+
+
+
+void midi::linkKeySignatures() {
+  if (keySignatureMap.size() == 0) {
+    return;
+  }
+  for (unsigned int i = 0; i < keySignatureMap.size(); i++) {
+    if (i == 0) {
+      continue;
+    }
+    keySignatureMap[i].second.setPrev(&keySignatureMap[i].second);
+  }
 }
 
 void midi::load(string file, stringstream& buf) {
@@ -122,8 +229,9 @@ void midi::load(string file, stringstream& buf) {
   trackHeightMap.clear();
   lineVerts.clear();
   measureMap.clear();
+  timeSignatureMap.clear();
+  keySignatureMap.clear();
   tickMap.clear();
-  sheetData.reset();
 
   noteCount = 0;
   trackCount = 0;
@@ -202,20 +310,20 @@ void midi::load(string file, stringstream& buf) {
     if (midifile[0][i].isTimeSignature()) {
       //log3(LL_INFO, "time sig at event", j);
       //cerr << (int)midifile[0][i][3] << " " << pow(2, (int) midifile[0][i][4])<< endl;
-      sheetData.addTimeSignature(midifile[0][i].seconds * 500, midifile[0][i].tick,
+      addTimeSignature(midifile[0][i].seconds * 500, midifile[0][i].tick,
                                  {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4]), -1});
     }
     if (midifile[0][i].isKeySignature()) {
       //log3(LL_INFO, "key sig at event", i);
       //cerr << (int)midifile[0][i][1] << " " << (int)midifile[0][i][3] << " " << (int)midifile[0][i][4] <<  endl;
       //cerr << midifile[0][i].seconds * 500 << endl;;
-      sheetData.addKeySignature(midifile[0][i].seconds * 500, midifile[0][i].tick, 
-                                sheetData.eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4]));
+      addKeySignature(midifile[0][i].seconds * 500, midifile[0][i].tick, 
+                                eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4]));
       }
   }
 
   // link keysigs
-  sheetData.linkKeySignatures();
+  linkKeySignatures();
 
   for (unsigned int i = 0; i < tracks.size(); i++) {
     // assign chord to last note of each track
@@ -230,30 +338,30 @@ void midi::load(string file, stringstream& buf) {
   });
  
   // build measure map
-  if (sheetData.timeSignatureMap.size() == 0) {
+  if (timeSignatureMap.size() == 0) {
     //logW(LL_WARN, "attempt to load MIDI with no time signatures!");
-    sheetData.timeSignatureMap.push_back(make_pair(0,timeSig(4,4,0)));
+    timeSignatureMap.push_back(make_pair(0,timeSig(4,4,0)));
     //exit(1);
   }
 
   int cTick = 0;
-  timeSig cTimeSig = sheetData.timeSignatureMap[0].second;
+  timeSig cTimeSig = timeSignatureMap[0].second;
   idx = 0;
 
-  for (unsigned int i = 0; i < sheetData.timeSignatureMap.size(); i++) {
-    //cerr << sheetData.timeSignatureMap[i].second.top << " " << sheetData.timeSignatureMap[i].second.bottom;
-    //cerr << ": " << sheetData.timeSignatureMap[i].first << endl;//<< " " << sheetData.timeSignatureMap[i].second.bottom << endl;
+  for (unsigned int i = 0; i < timeSignatureMap.size(); i++) {
+    //cerr << timeSignatureMap[i].second.top << " " << timeSignatureMap[i].second.bottom;
+    //cerr << ": " << timeSignatureMap[i].first << endl;//<< " " << timeSignatureMap[i].second.bottom << endl;
   }
   
   
   measureMap.push_back(measureController(0, 0, cTimeSig.qpm * tpq));
-  while (idx < (int)sheetData.timeSignatureMap.size()) {
+  while (idx < (int)timeSignatureMap.size()) {
 
   //  cerr << cTimeSig.top << " " << cTimeSig.bottom << endl;
-    if (idx + 1 != (int)sheetData.timeSignatureMap.size()) {
+    if (idx + 1 != (int)timeSignatureMap.size()) {
       cTick += cTimeSig.qpm * tpq;
-      if (midifile.getTimeInSeconds(cTick) * 500>= sheetData.timeSignatureMap[idx + 1].first) {
-        cTimeSig = sheetData.timeSignatureMap[++idx].second;
+      if (midifile.getTimeInSeconds(cTick) * 500>= timeSignatureMap[idx + 1].first) {
+        cTimeSig = timeSignatureMap[++idx].second;
       }
       measureMap.push_back(measureController(midifile.getTimeInSeconds(cTick) * 500, cTick, cTimeSig.qpm * tpq));
     }
@@ -290,6 +398,7 @@ void midi::load(string file, stringstream& buf) {
   }
 
 
+  //for (const auto& ts : timeSignatureMap
 
   //for (int m = 0; auto& measure : measureMap) {
     //logQ(measure.notes.size(), "notes in measure", 1+m++);

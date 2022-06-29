@@ -32,8 +32,9 @@ class midi {
       trackHeightMap = {};
       lineVerts = {};
       measureMap = {};
+      timeSignatureMap = {};
+      keySignatureMap = {};
       tickMap = {};
-      sheetData.reset();
 
       tracks.resize(1);
       
@@ -66,12 +67,21 @@ class midi {
     vector<trackController> tracks;
     vector<int> lineVerts;
     vector<int> tickMap;
+    vector<pair<int, timeSig>> timeSignatureMap;
+    vector<pair<int, keySig>> keySignatureMap;
     
     int getTrackCount() { return trackCount; }
     int getNoteCount() { return noteCount; }
     int getLastTick() { return lastTick; }
     int getTempo(int offset);
 
+    void addTimeSignature(int position, int tick, timeSig timeSignature);
+    timeSig getTimeSignature(int offset);
+    
+    void addKeySignature(int position, int tick, keySig keySignature);
+    void linkKeySignatures();
+    keySig getKeySignature(int offset);
+    keySig eventToKeySignature(int keySigType, bool isMinor);
     
     void buildLineMap();
     void buildTickMap();
