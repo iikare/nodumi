@@ -763,7 +763,7 @@ int main (int argc, char* argv[]) {
       else if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
         // immediately move to previous measure
         //
-        logQ(noteData.findMeasure(nowLineX));
+        //logQ(noteData.findMeasure(nowLineX));
         bool measureFirst = true;
         for (unsigned int i = noteData.measureMap.size()-1; i > 0; --i) {
           double measureLineX = convertSSX(noteData.measureMap[i].getLocation());

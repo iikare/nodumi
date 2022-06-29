@@ -140,7 +140,7 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
     vector<pair<int, kMeansPoint>> intermediateSet;
 
     const auto existsInMap = [&] (const colorLAB col){
-      for (auto i : intermediateSet) {
+      for (const auto& i : intermediateSet) {
         if (&colorData[i.first].data == &col) {
           return true;
         }
@@ -426,7 +426,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
   centroidMap.push_back(make_pair(centroidIdx, vector<int>{}));
  
   const auto existsInMap = [&] (const colorLAB col){
-    for (auto i : centroids) {
+    for (const auto& i : centroids) {
       if (&colorData[i.first].data == &col) {
         return true;
       }
@@ -540,7 +540,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
   }
 
 
-  for (auto i : centroidMap) {
+  for (const auto& i : centroidMap) {
 
     logQ("centroid", i.first, "has", i.second.size(), "linked points with LAB:", colorData[i.first].data);
     colors.push_back(colorRGB(colorData[i.first].data));

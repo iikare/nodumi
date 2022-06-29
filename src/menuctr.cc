@@ -39,7 +39,7 @@ bool menuController::mouseOnMenu() {
 }
 
 void menuController::updateRenderStatus() {
-  for (auto i : menuSet) {
+  for (const auto& i : menuSet) {
     if (i->parent) {
       if (!i->parent->render) {
         i->render = false;

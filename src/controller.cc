@@ -14,7 +14,7 @@ using std::move;
 const int imageBlockSize = 20;
 
 void controller::initData(vector<asset>& assets) {
-  for (auto item : assets) {
+  for (const auto& item : assets) {
     switch(item.assetType) {
       case ASSET_FONT:
         fontMap.insert(make_pair(item.assetName, make_pair(item, map<int, Font>())));
@@ -71,8 +71,8 @@ Font* controller::getFont(string id, int size) {
 }
 
 void controller::unloadData() {
-  for (auto item : fontMap) {
-    for (auto font : item.second.second) {
+  for (const auto& item : fontMap) {
+    for (const auto& font : item.second.second) {
       UnloadFont(font.second);
     }
   }
@@ -271,10 +271,10 @@ void controller::load(string path,
 
     // 0x20-0x43 - tonic (on) colors
     // 0x44-0x67 - tonic (off) colors
-    for (auto col : setTonicOn) {
+    for (auto& col : setTonicOn) {
       col = readRGB();
     }
-    for (auto col : setTonicOff) {
+    for (auto& col : setTonicOff) {
       col = readRGB();
     }
     

@@ -268,7 +268,7 @@ void midi::load(string file, stringstream& buf) {
   }
   measureMap.pop_back(); 
 
-  // assign notes, TODO:key signatures to measures
+  // assign notes, TODO:time/key signatures to measures
   auto measureStartCmp = [] (pair<int, int> a, pair<int, int> b) { return a.first <= b.first; };
   set<pair<int, int>, decltype(measureStartCmp)> measureStart = {};
   for (int m = 0; auto& measure : measureMap) {
@@ -288,7 +288,9 @@ void midi::load(string file, stringstream& buf) {
 
     measureMap[noteMeasure].notes.push_back(&note);
   }
-  
+
+
+
   //for (int m = 0; auto& measure : measureMap) {
     //logQ(measure.notes.size(), "notes in measure", 1+m++);
   //}
