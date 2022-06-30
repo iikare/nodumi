@@ -51,7 +51,11 @@ class midi {
     vector<int>* getLineVerts() { return &lineVerts; }
     int findMeasure(int offset);
     
+    int getTrackCount() { return trackCount; }
+    int getNoteCount() { return noteCount; }
+    int getLastTick() { return lastTick; }
     int getLastTime() { return lastTime; }
+    int getTempo(int offset);
     vector<trackController>& getTracks() { return tracks;}
     
     void setNoteCount(int nc) { noteCount = nc; }
@@ -61,8 +65,6 @@ class midi {
     sheetController sheetData;
     vector<measureController> measureMap;
 
-    //friend class midiInput;
-    friend class controller;
 
     vector<pair<int, double>> trackHeightMap;
   private:
@@ -73,10 +75,6 @@ class midi {
     vector<pair<int, timeSig>> timeSignatureMap;
     vector<pair<int, keySig>> keySignatureMap;
     
-    int getTrackCount() { return trackCount; }
-    int getNoteCount() { return noteCount; }
-    int getLastTick() { return lastTick; }
-    int getTempo(int offset);
 
     void addTimeSignature(int position, int tick, timeSig timeSignature);
     timeSig getTimeSignature(int offset);
