@@ -54,8 +54,8 @@ void midiInput::resetInput() {
   noteStream.notes.clear();
   noteStream.measureMap.clear();
 
-  for (unsigned int i = 0; i < noteStream.tracks.size(); i++) {
-    noteStream.tracks[i].reset();
+  for (unsigned int i = 0; i < noteStream.getTracks().size(); i++) {
+    noteStream.getTracks()[i].reset();
   }
 }
 
@@ -117,14 +117,14 @@ void midiInput::convertEvents() {
         tmpNote.duration = -1;
        
         noteStream.notes.push_back(tmpNote);
-        noteStream.tracks[0].insert(noteCount, &noteStream.notes.at(noteCount)); 
+        noteStream.getTracks()[0].insert(noteCount, &noteStream.notes.at(noteCount)); 
         noteCount++;
         numOn++;
         i += 2;
         
         //cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
         
-        noteStream.noteCount = noteCount;
+        noteStream.setNoteCount(noteCount);
       }
       else {
         int idx = findNoteIndex(static_cast<int>(msgQueue[i + 1]));

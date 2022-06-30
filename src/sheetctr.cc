@@ -84,7 +84,7 @@ void sheetController::drawTimeSignature(pair<int, int> sig, int x, colorRGB col)
 void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
   
   const int y = ctr.barMargin+ctr.barWidth*2;
-  const int fSize = 157; // constant numeral font size
+
   
   // for centering
   drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
@@ -154,7 +154,7 @@ void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
     drawSymbol(symbol, fSize, x+index*accConstSpacing+accSpacing[index], 
                               y-ctr.barSpacing+posMod*(ctr.barWidth/2.0f+0.4)-accY[index], col);
     drawSymbol(symbol, fSize, x+index*accConstSpacing+accSpacing[index], 
-                              y+posMod*(ctr.barWidth/2.0f+0.4)-accY[index]+1, col);
+                              y+posMod*(ctr.barWidth/2.0f+0.4)-accY[index]+1+ctr.barWidth, col);
   };
 
   for (auto i = 0; i < abs(key.getAcc()); i++) {
@@ -169,7 +169,7 @@ void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
 void sheetController::drawNote(sheetNote noteData, int x, colorRGB col) {
   
   const int y = ctr.barMargin+ctr.barWidth*2;
-  const int fSize = 157; // constant numeral font size
+
   
   // for centering
   drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});

@@ -14,8 +14,6 @@ using std::vector;
 
 class sheetController {
   public:
-    sheetController() { 
-    }
 
     void drawTimeSignature(pair<int, int> sig, int x, colorRGB col);
     
@@ -27,4 +25,6 @@ class sheetController {
     friend class midi;
 
   private:
+
+    static constexpr int fSize = 157;
 };

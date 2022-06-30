@@ -32,15 +32,14 @@ class measureController {
     double getLocation() { return location; }
     double getTick() { return tick; }
 
+    vector<note*> notes;
+    vector<timeSig*> timeSignatures;
+    vector<keySig*> keySignatures;
 
-    friend class midi;
   private:
 
     double location;
     int tick;
     int tickLength;
-    vector<note*> notes;
-    vector<timeSig*> timeSignatures;
-    vector<keySig*> keySignatures;
 
 };

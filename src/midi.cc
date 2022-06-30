@@ -51,13 +51,13 @@ void midi::buildTickMap() {
 
 void midi::findMeasure(note& idxNote) {
   // requires a built measure map
-  if (measureMap[measureMap.size() - 1].location <= idxNote.x) {
+  if (measureMap[measureMap.size() - 1].getLocation() <= idxNote.x) {
    idxNote.measure = measureMap.size() - 1;
    measureMap[measureMap.size() - 1].notes.push_back(&idxNote);
    return;
   }
   for (unsigned int i = 0; i <= measureMap.size(); i++) {
-    if (measureMap[i].location <= idxNote.x && measureMap[i + 1].location > idxNote.x) {
+    if (measureMap[i].getLocation() <= idxNote.x && measureMap[i + 1].getLocation() > idxNote.x) {
       idxNote.measure = i;
       measureMap[i].notes.push_back(&idxNote);
       return;
@@ -86,12 +86,12 @@ void midi::findKeySig(note& idxNote) {
 
 int midi::findMeasure(int offset) {
   if (!offset ) { return 0; }
-  if (measureMap[measureMap.size() - 1].location < offset) {
+  if (measureMap[measureMap.size() - 1].getLocation() < offset) {
     return measureMap.size();
   } 
   // requires a built measure map
   for (unsigned int i = 0; i < measureMap.size(); i++) {
-    if (measureMap[i].location < offset && measureMap[i + 1].location >= offset) {
+    if (measureMap[i].getLocation() < offset && measureMap[i + 1].getLocation() >= offset) {
       return i + 1;
     }
   }

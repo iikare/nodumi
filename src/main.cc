@@ -607,8 +607,14 @@ int main (int argc, char* argv[]) {
        
 
         noteData.sheetData.drawTimeSignature(make_pair(3,4),80,ctr.bgSheetNote);
-        
-        noteData.sheetData.drawKeySignature(keySig(KEYSIG_CFLAT,false,0),100, ctr.bgSheetNote);
+       
+        for (int p = 0; auto& m : noteData.measureMap) {
+          for (auto ks : m.keySignatures) {
+            
+            noteData.sheetData.drawKeySignature(*ks,100*++p, ctr.bgSheetNote);
+
+          }
+        }
         
         // middle C
         noteData.sheetData.drawNote({ACC_SHARP, 60},400, ctr.bgSheetNote);

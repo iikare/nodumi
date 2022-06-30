@@ -52,13 +52,16 @@ class midi {
     int findMeasure(int offset);
     
     int getLastTime() { return lastTime; }
+    vector<trackController>& getTracks() { return tracks;}
+    
+    void setNoteCount(int nc) { noteCount = nc; }
 
     vector<note> notes;
 
     sheetController sheetData;
     vector<measureController> measureMap;
 
-    friend class midiInput;
+    //friend class midiInput;
     friend class controller;
 
     vector<pair<int, double>> trackHeightMap;
