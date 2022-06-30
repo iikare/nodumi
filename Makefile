@@ -9,7 +9,7 @@ LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__
 #WINDOWS = -D__WINDOWS_MM__
 
 # use clang13 or higher
-NONSTD = -Wc++20-extensions
+NONSTD = 
 
 CFLAGS = --std=c++20 -Wall -Wextra $(NONSTD) -g $(LD) $(LINUX) 
 CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 

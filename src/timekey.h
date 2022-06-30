@@ -41,7 +41,12 @@ class timeSig {
     
     void setMeasure(int m) { measure = m; }
     void setTick(int tk) { tick = tk; }
+    int getTick() { return tick; }
+    int getMeasure() { return measure; }
+    int getQPM() { return qpm; }
     int getSize();
+
+  private:
     
     int top;
     int bottom;
@@ -144,17 +149,18 @@ class keySig {
     keySig* getPrev() { return prev; }
 
     int getSize();
+    int getTick() { return tick; }
     int getAcc() { return accidentals; }
     int getStartingIndex() { return startingIndex; }
 
     bool isMinor;
     int measure;
-    int tick;
   private:
     void findAccidentalsFromKey();
     void findStartingIndex();
 
     int key;
+    int tick;
     int accidentals;
     int startingIndex;
     keySig* prev;

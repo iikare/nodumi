@@ -280,10 +280,10 @@ void controller::load(string path,
     
     // 0x68-0x1E7  velocity (on) colors
     // 0x1E8-0x367 velocity (off) colors
-    for (auto col : setVelocityOn) {
+    for (auto& col : setVelocityOn) {
       col = readRGB();
     }
-    for (auto col : setVelocityOff) {
+    for (auto& col : setVelocityOff) {
       col = readRGB();
     }
     

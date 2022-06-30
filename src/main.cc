@@ -578,13 +578,7 @@ int main (int argc, char* argv[]) {
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
 
       // sheet music layout
-      //
-      // TODO: delete this when done with sheet music
-      //sheetMusicDisplay = true;
       if (sheetMusicDisplay) {
-        
-        // needs refactoring 
-        
 
         // bg
         drawRectangle(0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight, ctr.bgSheet);  

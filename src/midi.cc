@@ -354,22 +354,22 @@ void midi::load(string file, stringstream& buf) {
   }
   
   
-  measureMap.push_back(measureController(0, 0, cTimeSig.qpm * tpq));
+  measureMap.push_back(measureController(0, 0, cTimeSig.getQPM() * tpq));
   while (idx < (int)timeSignatureMap.size()) {
 
   //  cerr << cTimeSig.top << " " << cTimeSig.bottom << endl;
     if (idx + 1 != (int)timeSignatureMap.size()) {
-      cTick += cTimeSig.qpm * tpq;
+      cTick += cTimeSig.getQPM() * tpq;
       if (midifile.getTimeInSeconds(cTick) * 500>= timeSignatureMap[idx + 1].first) {
         cTimeSig = timeSignatureMap[++idx].second;
       }
-      measureMap.push_back(measureController(midifile.getTimeInSeconds(cTick) * 500, cTick, cTimeSig.qpm * tpq));
+      measureMap.push_back(measureController(midifile.getTimeInSeconds(cTick) * 500, cTick, cTimeSig.getQPM() * tpq));
     }
     else {
       while (cTick < lastTick) {
-        cTick += cTimeSig.qpm * tpq;
+        cTick += cTimeSig.getQPM() * tpq;
         
-        measureMap.push_back(measureController(midifile.getTimeInSeconds(cTick) * 500, cTick, cTimeSig.qpm * tpq));
+        measureMap.push_back(measureController(midifile.getTimeInSeconds(cTick) * 500, cTick, cTimeSig.getQPM() * tpq));
       }
       break;
     }
@@ -377,18 +377,20 @@ void midi::load(string file, stringstream& buf) {
   measureMap.pop_back(); 
 
   // assign notes, TODO:time/key signatures to measures
-  auto measureStartCmp = [] (pair<int, int> a, pair<int, int> b) { return a.first <= b.first; };
-  set<pair<int, int>, decltype(measureStartCmp)> measureStart = {};
+  auto itemStartCmp = [] (pair<int, int> a, pair<int, int> b) { return a.first <= b.first; };
+  set<pair<int, int>, decltype(itemStartCmp)> itemStart = {};
   for (int m = 0; auto& measure : measureMap) {
     //logQ(measure.getTick());
-    measureStart.insert(make_pair(measure.getTick(), m++));
+    itemStart.insert(make_pair(measure.getTick(), m++));
     measure.notes.clear();
+    measure.timeSignatures.clear();
+    measure.keySignatures.clear();
   }
 
   for (auto& note : notes) {
-    auto mIt = measureStart.lower_bound(make_pair(note.tick, 0));
+    auto mIt = itemStart.lower_bound(make_pair(note.tick, 0));
     // measures have 0-based index, but 1-based for rendering
-    int noteMeasure = (mIt != measureStart.begin() ? (--mIt)->second : 0);
+    int noteMeasure = (mIt != itemStart.begin() ? (--mIt)->second : 0);
 
     //logQ(note.tick, "has closest measure start", noteMeasure);
 
@@ -398,7 +400,32 @@ void midi::load(string file, stringstream& buf) {
   }
 
 
-  //for (const auto& ts : timeSignatureMap
+  for (auto& ts : timeSignatureMap) {
+    auto mIt = itemStart.lower_bound(make_pair(ts.second.getTick(), 0));
+    // measures have 0-based index, but 1-based for rendering
+    int tsMeasure = (mIt != itemStart.begin() ? (--mIt)->second : 0);
+
+    logQ("ts", ts.second.getTick(), "has closest measure start", 1+tsMeasure);
+
+    ts.second.setMeasure(tsMeasure);
+
+    measureMap[tsMeasure].timeSignatures.push_back(&ts.second);
+  }
+
+  
+  for (auto& ks : keySignatureMap) {
+    auto mIt = itemStart.lower_bound(make_pair(ks.second.getTick(), 0));
+    // measures have 0-based index, but 1-based for rendering
+    int ksMeasure = (mIt != itemStart.begin() ? (--mIt)->second : 0);
+
+    logQ("ks", ks.second.getTick(), "has closest measure start", 1+ksMeasure);
+
+    ks.second.setMeasure(ksMeasure);
+
+    measureMap[ksMeasure].keySignatures.push_back(&ks.second);
+  }
+  
+
 
   //for (int m = 0; auto& measure : measureMap) {
     //logQ(measure.notes.size(), "notes in measure", 1+m++);
