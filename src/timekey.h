@@ -43,10 +43,11 @@ class timeSig {
     
     void setMeasure(int m) { measure = m; }
     void setTick(int tk) { tick = tk; }
-    int getTick() { return tick; }
-    int getMeasure() { return measure; }
-    int getQPM() { return qpm; }
-    int getSize();
+    int getTop() const { return top; }
+    int getBottom() const { return bottom; }
+    int getTick() const { return tick; }
+    int getMeasure() const { return measure; }
+    int getQPM() const { return qpm; }
 
   private:
     
@@ -81,29 +82,26 @@ class keySig {
     keySig() {
       key = KEYSIG_NONE;
       accidentals = 0;
-      startingIndex = -1;
       measure = -1;
       tick = -1;
       prev = nullptr;
 
       findAccidentalsFromKey();
-      findStartingIndex();
     }
 
     keySig(int k, bool m, int tk) {
       // key is in interval [-7,7]
       if (m) {
+        logQ("ALERT");
         k = (k + 10) % 15 - 7; // upshift by three tones if minor
       }
       key = k;
       accidentals = 0;
-      startingIndex = -1;
       measure = -1;
       tick = tk;
       prev = nullptr;
       
       findAccidentalsFromKey();
-      findStartingIndex();
     }
 
     keySig(const keySig& other) {
@@ -113,7 +111,6 @@ class keySig {
       prev = other.prev;
       
       findAccidentalsFromKey();
-      findStartingIndex();
     }
 
     keySig& operator= (const keySig& other) {
@@ -123,7 +120,6 @@ class keySig {
       prev = other.prev;
       
       findAccidentalsFromKey();
-      findStartingIndex();
 
       return *this;
     }
@@ -145,18 +141,15 @@ class keySig {
     int getSize() const;
     int getTick() const { return tick; }
     int getAcc() const { return accidentals; }
-    int getStartingIndex() const { return startingIndex; }
 
     bool isSharp() const { return accidentals > 0; }
 
     int measure;
   private:
     void findAccidentalsFromKey();
-    void findStartingIndex();
 
     int key;
     int tick;
     int accidentals;
-    int startingIndex;
     keySig* prev;
 };

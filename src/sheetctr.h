@@ -17,11 +17,12 @@ class sheetController {
 
     int getGlyphWidth (int codepoint, int size = fSize);
 
-    void drawTimeSignature(pair<int, int> sig, int x, colorRGB col);
+    void drawTimeSignature(const timeSig& time, int x, colorRGB col);
     
     void drawKeySignature(const keySig& key, int x, colorRGB col);
    
     int getKeyWidth(const keySig& key);
+    int getTimeWidth(const timeSig& key);
 
     // no beaming
     void drawNote(sheetNote noteData, int x, colorRGB col);
@@ -32,18 +33,23 @@ class sheetController {
 
 
     void findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType);
-  
+    int findTimePartWidth(const int part); 
 
-    vector<int> sharpHash    = {1, 4, 0, 3, 6, 2, 5};
-    vector<int> sharpSpacing = {0, 1, 0, 2, 4, 4, 5};
-    vector<int> sharpY       = {-1, -1, -2, -2, 0, -1, -1};
+    static constexpr int sharpHash[7]    = {1, 4, 0, 3, 6, 2, 5};
+    static constexpr int sharpSpacing[7] = {0, 1, 0, 2, 4, 4, 5};
+    static constexpr int sharpY[7]       = {-1, -1, -2, -2, 0, -1, -1};
 
-    vector<int> flatHash     = {5, 2, 6, 3, 7, 4, 8};
-    vector<int> flatSpacing  = {0, 0, 0, 1, 1, 2, 2};
-    vector<int> flatY        = {0, -1, 0, -2, 0, -1, 0};
+    static constexpr int flatHash[7]     = {5, 2, 6, 3, 7, 4, 8};
+    static constexpr int flatSpacing[7]  = {0, 0, 0, 1, 1, 2, 2};
+    static constexpr int flatY[7]        = {0, -1, 0, -2, 0, -1, 0};
 
-    static constexpr int sharpWidths[8] = {0, 10, 21, 30, 42, 54, 64, 75};
-    static constexpr int flatWidths[8]  = {0,  8, 18, 28, 39, 49, 60, 70};
+    // padding for thin "1" doesnt' work on second "1" (i.e. 11, 21, etc)
+    // or singular "1"
+    static constexpr int timeWidths[10] = {16, 14, 15, 15, 18, 15, 16, 15, 16, 16};
+    
+    static constexpr int sharpWidths[8] = {0 , 10, 21, 30, 42, 54, 64, 75};
+    static constexpr int flatWidths[8]  = {0 ,  8, 18, 28, 39, 49, 60, 70};
     static constexpr int fSize = 157;
     static constexpr int accConstSpacing = 10;
+    static constexpr int accMax = 7;
 };

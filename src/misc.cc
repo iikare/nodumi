@@ -8,6 +8,7 @@
 using std::min;
 using std::max;
 using std::stringstream;
+using std::hex;
 
 double getDistance(int x1, int y1, int x2, int y2) {
   double deltaX = abs(x1 - x2);
@@ -436,4 +437,10 @@ bool isMKI(string path) {
   }
 
   return ext == "mki";
+}
+
+string toHex(int dec) {
+  stringstream stream;
+  stream << hex << dec;
+  return stream.str();
 }

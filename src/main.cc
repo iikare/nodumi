@@ -41,7 +41,7 @@ int main (int argc, char* argv[]) {
   SetTraceLogLevel(LOG_WARNING);
 
   // debug
-  SetTraceLogLevel(LOG_TRACE);
+  //SetTraceLogLevel(LOG_TRACE);
   
 
   SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -606,13 +606,17 @@ int main (int argc, char* argv[]) {
         drawSymbol(SYM_CLEF_BASS, 155, 40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 67), ctr.bgSheetNote);
        
 
-        noteData.sheetData.drawTimeSignature(make_pair(3,4),80,ctr.bgSheetNote);
-       
-        for (int p = 0; auto& m : noteData.measureMap) {
-          for (auto ks : m.keySignatures) {
-            
-            noteData.sheetData.drawKeySignature(*ks,100+(50+2*p)*(p), ctr.bgSheetNote);
-  
+        noteData.sheetData.drawTimeSignature({3,4,0},80,ctr.bgSheetNote);
+      
+        logQ("snugpug");
+        int p = 0;
+        for (const auto& m : noteData.measureMap) {
+          for (const auto& t : m.timeSignatures) {
+            noteData.sheetData.drawTimeSignature(*t,100+(30+p)*(p), ctr.bgSheetNote);
+            p++;
+          }
+          for (const auto& k : m.keySignatures) {
+            noteData.sheetData.drawKeySignature(*k,100+(30+p)*(p), ctr.bgSheetNote);
             p++;
           }
         }

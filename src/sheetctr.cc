@@ -6,22 +6,24 @@
 
 using std::accumulate;
 
-int sheetController::getGlyphWidth (int codepoint, int size) {
+int sheetController::getGlyphWidth(int codepoint, int size) {
   return GetGlyphInfo(*ctr.getFont("LELAND", size), codepoint).image.width;
 }
 
-void sheetController::drawTimeSignature(pair<int, int> sig, int x, colorRGB col) {
+void sheetController::drawTimeSignature(const timeSig& time, int x, colorRGB col) {
   // y-coordinate is constant in respect to sheet controller parameters, not a user-callable parameter
   const int y = ctr.barMargin+ctr.barWidth*2;
-  const int fSize = 157; // constant numeral font size
+
 
   // for centering
   drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
 
-  if (sig.first < 0 || sig.first > 99 || sig.second < 0 || sig.second > 99) {
-    logW(LL_WARN, "complex time signature detected with meter", sig.first, "/", sig.second);
+  if (time.getTop() < 0 || time.getTop() > 99 || time.getBottom() < 0 || time.getBottom() > 99) {
+    logW(LL_WARN, "complex time signature detected with meter", time.getTop(), "/", time.getBottom());
     return;
   }
+
+  x = x + getTimeWidth(timeSig(time.getTop(),time.getBottom(),0))/2;
 
   // the given x-coordinate is the spatial center of the time signature
   // the given y-coordinate is the top line of the upper staff
@@ -60,22 +62,22 @@ void sheetController::drawTimeSignature(pair<int, int> sig, int x, colorRGB col)
 
   };
 
-  if (sig.first > 9) { // two-digit top
-    drawDoubleSig(sig.first, (ctr.sheetHeight-200)/2-ctr.barMargin-ctr.barWidth*2 + 1);
-    drawDoubleSig(sig.first, (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing-ctr.barWidth*2 + 1);
+  if (time.getTop() > 9) { // two-digit top
+    drawDoubleSig(time.getTop(), (ctr.sheetHeight-200)/2-ctr.barMargin-ctr.barWidth*2 + 1);
+    drawDoubleSig(time.getTop(), (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing-ctr.barWidth*2 + 1);
   }
   else {
-    drawSingleSig(sig.first, (ctr.sheetHeight-200)/2-ctr.barMargin-ctr.barWidth*2 + 1);
-    drawSingleSig(sig.first, (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing-ctr.barWidth*2 + 1);
+    drawSingleSig(time.getTop(), (ctr.sheetHeight-200)/2-ctr.barMargin-ctr.barWidth*2 + 1);
+    drawSingleSig(time.getTop(), (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing-ctr.barWidth*2 + 1);
   }
 
-  if (sig.second > 9) { // two-digit bottom
-    drawDoubleSig(sig.second, (ctr.sheetHeight-200)/2-ctr.barMargin + 1);
-    drawDoubleSig(sig.second, (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing + 1);
+  if (time.getBottom() > 9) { // two-digit bottom
+    drawDoubleSig(time.getBottom(), (ctr.sheetHeight-200)/2-ctr.barMargin + 1);
+    drawDoubleSig(time.getBottom(), (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing + 1);
   }
   else {
-    drawSingleSig(sig.second, (ctr.sheetHeight-200)/2-ctr.barMargin + 1);
-    drawSingleSig(sig.second, (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing + 1);
+    drawSingleSig(time.getBottom(), (ctr.sheetHeight-200)/2-ctr.barMargin + 1);
+    drawSingleSig(time.getBottom(), (ctr.sheetHeight-200)/2-ctr.barMargin+ctr.barSpacing + 1);
   }
 }
 
@@ -89,43 +91,46 @@ void sheetController::drawKeySignature(const keySig& key, int x, colorRGB col) {
   int prevAcc = 0;
   int prevType = SYM_ACC_NATURAL;
   findKeyData(key, symbol, prevAcc, prevType);
+  
  
-  auto drawKeySigPart = [&] (int symbol, int index, int prevType) {
-    if (index > (int)sharpHash.size() || index < 0) { return; }
+  auto drawKeySigPart = [&] (const int symbol, const int index, const int prevType) {
+    if (index > accMax || index < 0) { return; }
+    
+    int* accHash = const_cast<int*>(flatHash);
+    int* accSpacing = const_cast<int*>(flatSpacing);
+    int* accY = const_cast<int*>(flatY);
 
-    vector<int>& accHash = const_cast<vector<int>&>(sharpHash);
-    vector<int>& accSpacing = const_cast<vector<int>&>(sharpSpacing);
-    vector<int>& accY = const_cast<vector<int>&>(sharpY);
-    float posMod = accHash[index];
+    double posMod = 0;
     
     switch(symbol) {
       case SYM_ACC_SHARP:
-        accHash = sharpHash;
-        accSpacing = sharpSpacing;
-        accY = sharpY;
+        accHash = const_cast<int*>(sharpHash);
+        accSpacing = const_cast<int*>(sharpSpacing);
+        accY = const_cast<int*>(sharpY);
         posMod = accHash[index]-1;
         break;
       case SYM_ACC_FLAT:
-        accHash = flatHash;
-        accSpacing = flatSpacing;
-        accY = flatY;
+        accHash = const_cast<int*>(flatHash);
+        accSpacing = const_cast<int*>(flatSpacing);
+        accY = const_cast<int*>(flatY);
         posMod = accHash[index]-1;
         break;
       case SYM_ACC_NATURAL:
         switch(prevType) {
           case SYM_ACC_SHARP:
-            accHash = sharpHash;
-            accSpacing = sharpSpacing;
-            accY = sharpY;
+            accHash = const_cast<int*>(sharpHash);
+            accSpacing = const_cast<int*>(sharpSpacing);
+            accY = const_cast<int*>(sharpY);
             posMod = accHash[index]-1;
             break;
           case SYM_ACC_FLAT:
-            accHash = flatHash;
-            accSpacing = flatSpacing;
-            accY = flatY;
+            accHash = const_cast<int*>(flatHash);
+            accSpacing = const_cast<int*>(flatSpacing);
+            accY = const_cast<int*>(flatY);
             posMod = accHash[index]-1;
             break;
         }
+        break;
     }
     //logQ(getGlyphWidth(symbol) + index*accConstSpacing+accSpacing[index]);
 
@@ -141,7 +146,7 @@ void sheetController::drawKeySignature(const keySig& key, int x, colorRGB col) {
     drawKeySigPart(symbol, i, prevType);
   }
 
-  logQ(getKeyWidth(key));
+  //logQ(getKeyWidth(key));
 }
 
 
@@ -188,10 +193,28 @@ int sheetController::getKeyWidth(const keySig& key) {
   return xBound;
 }
 
+int sheetController::getTimeWidth(const timeSig& key) {
+  return max(findTimePartWidth(key.getTop()), findTimePartWidth(key.getBottom()));
+}
+
+int sheetController::findTimePartWidth(const int part) {
+  // error checking already done earlier
+  if (part < 10) {
+    return timeWidths[part]; 
+  }
+
+  // account for shortening of "1" glyph in range 10-19
+  if (part/10 == 1) {
+    return timeWidths[part/10]-2+timeWidths[part%10];
+  }
+  
+  return timeWidths[part/10]+timeWidths[part%10];
+}
+
 void sheetController::findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType) {
   symbol = SYM_NONE;
   prevAcc = 0;
-  prevType = SYM_ACC_NATURAL;
+  prevType = SYM_NONE;
 
   if (key.getAcc() == 0) {
     // C major / A minor
@@ -204,10 +227,13 @@ void sheetController::findKeyData(const keySig& key, int& symbol, int& prevAcc, 
       prevType = key.getPrev()->isSharp() ? SYM_ACC_SHARP : SYM_ACC_FLAT;
     }
   }
-  else if (key.getAcc() > 0) {
+  else if (key.isSharp()) {
     symbol = SYM_ACC_SHARP;
   }
   else {
     symbol = SYM_ACC_FLAT;
   }
+
+  logQ("codepoint", toHex(symbol), prevAcc,key.getAcc());
+
 }
