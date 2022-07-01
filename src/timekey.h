@@ -1,5 +1,7 @@
 #pragma once
 
+#include "log.h"
+
 class timeSig {
   public:
     timeSig() {
@@ -77,7 +79,6 @@ enum keySignature {
 class keySig {
   public:
     keySig() {
-      isMinor = false;
       key = KEYSIG_NONE;
       accidentals = 0;
       startingIndex = -1;
@@ -90,10 +91,13 @@ class keySig {
     }
 
     keySig(int k, bool m, int tk) {
+      // key is in interval [-7,7]
+      if (m) {
+        k = (k + 10) % 15 - 7; // upshift by three tones if minor
+      }
       key = k;
       accidentals = 0;
       startingIndex = -1;
-      isMinor = m;
       measure = -1;
       tick = tk;
       prev = nullptr;
@@ -103,7 +107,6 @@ class keySig {
     }
 
     keySig(const keySig& other) {
-      isMinor = other.isMinor;
       key = other.key;
       measure = other.measure;
       tick = other.tick;
@@ -114,7 +117,6 @@ class keySig {
     }
 
     keySig& operator= (const keySig& other) {
-      isMinor = other.isMinor;
       key = other.key;
       measure = other.measure;
       tick = other.tick;
@@ -127,19 +129,11 @@ class keySig {
     }
 
     bool operator== (const keySig& other) const {
-      return key == other.key && isMinor == other.isMinor;
+      return key == other.key;
     }
 
     int getKey() {
       return key;
-      
-      // junk
-      if (!isMinor) {
-        return key;
-      }
-      else {
-        return toMajorKey(key);
-      }
     }
 
     void setMeasure(int m) { measure = m; }
@@ -153,7 +147,8 @@ class keySig {
     int getAcc() { return accidentals; }
     int getStartingIndex() { return startingIndex; }
 
-    bool isMinor;
+    bool isSharp() { return accidentals > 0; }
+
     int measure;
   private:
     void findAccidentalsFromKey();
@@ -164,9 +159,4 @@ class keySig {
     int accidentals;
     int startingIndex;
     keySig* prev;
-
-    int toMajorKey(int minorKey) {
-      // stub
-      return minorKey;
-    }
 };

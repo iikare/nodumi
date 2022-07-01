@@ -90,11 +90,20 @@ void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
   drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
 
   int symbol = SYM_NONE;
+  int prevAcc = 0;
+  int prevType = SYM_ACC_NATURAL;
 
   if (key.getAcc() == 0) {
     // C major / A minor
     // find number of courtesy accidentals
     symbol = SYM_ACC_NATURAL;
+    if (key.getPrev() != nullptr) {
+      prevAcc = key.getPrev()->getSize();
+      logQ("prevAcc", prevAcc);
+    }
+    if (prevAcc != 0) {
+      prevType = key.getPrev()->isSharp() ? SYM_ACC_SHARP : SYM_ACC_FLAT;
+    }
   }
   else if (key.getAcc() > 0) {
     symbol = SYM_ACC_SHARP;
@@ -107,18 +116,18 @@ void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
 
   const vector<int> sharpHash    = {1, 4, 0, 3, 6, 2, 5};
   const vector<int> sharpSpacing = {0, 1, 0, 2, 4, 4, 5};
-  const vector<int> sharpY       = {-2, -1, -2, -2, 0, -1, -1};
+  const vector<int> sharpY       = {-1, -1, -2, -2, 0, -1, -1};
 
   const vector<int> flatHash     = {5, 2, 6, 3, 7, 4, 8};
   const vector<int> flatSpacing  = {0, 0, 0, 1, 1, 2, 2};
-  const vector<int> flatY        = {0, 0, 0, 0, 0, -1, 0};
+  const vector<int> flatY        = {0, -1, 0, -2, 0, -1, 0};
 
   
   // unimplemented
   const vector<int> naturalHashS = {0,0,0,0,0,0,0};
   const vector<int> naturalHashF = {0,0,0,0,0,0,0};
  
-  auto drawKeySigPart = [&] (int symbol, int index) {
+  auto drawKeySigPart = [&] (int symbol, int index, int prevType) {
 
     if (index > (int)sharpHash.size() || index < 0) { return; }
 
@@ -142,14 +151,26 @@ void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
         break;
       case SYM_ACC_NATURAL:
         logQ("NATURAL NOT IMPLEMENTED YET");
-        accHash = sharpHash;
+        if (prevType == SYM_ACC_SHARP) {
+          accHash = sharpHash;
+          accSpacing = sharpSpacing;
+          accY = sharpY;
+          posMod = accHash[index]-1;
+        }
+        else {
+          accHash = flatHash;
+          accSpacing = flatSpacing;
+          accY = flatY;
+          posMod = accHash[index]-1;
+        }
         break;
 
     }
     //posMod = index;
-    
+   //symbol = SYM_ACC_NATURAL; 
     const int accConstSpacing = 10;
 
+    if (symbol == SYM_ACC_NATURAL) logQ("zoom");
 
     drawSymbol(symbol, fSize, x+index*accConstSpacing+accSpacing[index], 
                               y-ctr.barSpacing+posMod*(ctr.barWidth/2.0f+0.4)-accY[index], col);
@@ -157,9 +178,11 @@ void sheetController::drawKeySignature(keySig key, int x, colorRGB col) {
                               y+posMod*(ctr.barWidth/2.0f+0.4)-accY[index]+1+ctr.barWidth, col);
   };
 
-  for (auto i = 0; i < abs(key.getAcc()); i++) {
+  int drawLimit = symbol == SYM_ACC_NATURAL ? prevAcc : key.getSize();
+
+  for (auto i = 0; i < drawLimit; i++) {
   
-    drawKeySigPart(symbol, i);
+    drawKeySigPart(symbol, i, prevType);
 
   }
 
@@ -175,6 +198,11 @@ void sheetController::drawNote(sheetNote noteData, int x, colorRGB col) {
   drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
 
 
-  drawSymbol(SYM_HEAD_STD, fSize, x, y, col);
+  drawSymbol(SYM_HEAD_STD, fSize, x, y+1, col);
     
+}
+
+int sheetController::getKeyWidth(keySig key) {
+
+  return key.getKey();
 }

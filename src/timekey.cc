@@ -63,6 +63,9 @@ void keySig::findAccidentalsFromKey() {
 }
 
 int keySig::getSize() {
+  return abs(accidentals);
+
+  // obsolete??
   if (!prev) {
     return 1 + abs(accidentals);
   }

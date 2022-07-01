@@ -201,7 +201,7 @@ void midi::linkKeySignatures() {
     if (i == 0) {
       continue;
     }
-    keySignatureMap[i].second.setPrev(&keySignatureMap[i].second);
+    keySignatureMap[i].second.setPrev(&keySignatureMap[i-1].second);
   }
 }
 
