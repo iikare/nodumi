@@ -606,19 +606,28 @@ int main (int argc, char* argv[]) {
         drawSymbol(SYM_CLEF_BASS, 155, 40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 67), ctr.bgSheetNote);
        
 
-        noteData.sheetData.drawTimeSignature({3,4,0},80,ctr.bgSheetNote);
+        //noteData.sheetData.drawTimeSignature({3,4,0},80,ctr.bgSheetNote);
       
         logQ("snugpug");
         int p = 0;
-        for (const auto& m : noteData.measureMap) {
-          for (const auto& t : m.timeSignatures) {
-            noteData.sheetData.drawTimeSignature(*t,100+(30+p)*(p), ctr.bgSheetNote);
-            p++;
-          }
+        int ml = 0;
+        int clen = 70;
+        for (int me = 0; const auto& m : noteData.measureMap) {
+          ml = 0;
+          noteData.sheetData.disectMeasure(m);
+          // keysig comes first
           for (const auto& k : m.keySignatures) {
-            noteData.sheetData.drawKeySignature(*k,100+(30+p)*(p), ctr.bgSheetNote);
+            noteData.sheetData.drawKeySignature(*k,clen+ml, ctr.bgSheetNote);
             p++;
+            ml+=noteData.sheetData.getKeyWidth(*k);
           }
+          for (const auto& t : m.timeSignatures) {
+            noteData.sheetData.drawTimeSignature(*t,clen+ml, ctr.bgSheetNote);
+            p++;
+            ml+=noteData.sheetData.getTimeWidth(*t);
+          }
+          clen+=ml;
+          //logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);
         }
         
         // middle C

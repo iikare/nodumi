@@ -145,8 +145,6 @@ void sheetController::drawKeySignature(const keySig& key, int x, colorRGB col) {
   for (auto i = 0; i < drawLimit; i++) {
     drawKeySigPart(symbol, i, prevType);
   }
-
-  //logQ(getKeyWidth(key));
 }
 
 
@@ -233,7 +231,11 @@ void sheetController::findKeyData(const keySig& key, int& symbol, int& prevAcc, 
   else {
     symbol = SYM_ACC_FLAT;
   }
+}
 
-  logQ("codepoint", toHex(symbol), prevAcc,key.getAcc());
+void sheetController::disectMeasure(const measureController& measure) {
 
+
+
+  logQ("measure", measure.getNumber(), "has timesig", measure.currentTime.getTop(), measure.currentTime.getBottom());
 }

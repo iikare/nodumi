@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <stdint.h>
 #include <vector>
+#include "sheetcomp.h"
 #include "timekey.h"
+#include "measure.h"
 #include "color.h"
 #include "note.h"
 #include "log.h"
@@ -15,7 +17,13 @@ using std::vector;
 class sheetController {
   public:
 
-    int getGlyphWidth (int codepoint, int size = fSize);
+    void reset() {
+      for (auto& disp : displayMeasure) {
+        disp.reset();
+      }
+    }
+
+    int getGlyphWidth(int codepoint, int size = fSize);
 
     void drawTimeSignature(const timeSig& time, int x, colorRGB col);
     
@@ -27,10 +35,14 @@ class sheetController {
     // no beaming
     void drawNote(sheetNote noteData, int x, colorRGB col);
 
+
+    void disectMeasure(const measureController& measure);
+
     friend class midi;
 
   private:
 
+    vector<sheetMeasure> displayMeasure;
 
     void findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType);
     int findTimePartWidth(const int part); 

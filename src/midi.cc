@@ -354,22 +354,25 @@ void midi::load(string file, stringstream& buf) {
   }
   
   
-  measureMap.push_back(measureController(0, 0, cTimeSig.getQPM() * tpq));
+  int measureNum = 1;
+  measureMap.push_back(measureController(measureNum++, 0, 0, cTimeSig.getQPM() * tpq, cTimeSig));
   while (idx < (int)timeSignatureMap.size()) {
 
   //  cerr << cTimeSig.top << " " << cTimeSig.bottom << endl;
     if (idx + 1 != (int)timeSignatureMap.size()) {
       cTick += cTimeSig.getQPM() * tpq;
-      if (midifile.getTimeInSeconds(cTick) * 500>= timeSignatureMap[idx + 1].first) {
+      if (midifile.getTimeInSeconds(cTick) * 500 >= timeSignatureMap[idx + 1].first) {
         cTimeSig = timeSignatureMap[++idx].second;
       }
-      measureMap.push_back(measureController(midifile.getTimeInSeconds(cTick) * 500, cTick, cTimeSig.getQPM() * tpq));
+      measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * 500, cTick, 
+                           cTimeSig.getQPM() * tpq, cTimeSig));
     }
     else {
       while (cTick < lastTick) {
         cTick += cTimeSig.getQPM() * tpq;
         
-        measureMap.push_back(measureController(midifile.getTimeInSeconds(cTick) * 500, cTick, cTimeSig.getQPM() * tpq));
+        measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * 500, cTick, 
+                             cTimeSig.getQPM() * tpq, cTimeSig));
       }
       break;
     }
