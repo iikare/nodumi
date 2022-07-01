@@ -140,14 +140,14 @@ class keySig {
     void setTick(int tk) { tick = tk; }
     void setPrev(keySig* p) { prev = p; }
 
-    keySig* getPrev() { return prev; }
+    keySig* getPrev() const { return prev; }
 
-    int getSize();
-    int getTick() { return tick; }
-    int getAcc() { return accidentals; }
-    int getStartingIndex() { return startingIndex; }
+    int getSize() const;
+    int getTick() const { return tick; }
+    int getAcc() const { return accidentals; }
+    int getStartingIndex() const { return startingIndex; }
 
-    bool isSharp() { return accidentals > 0; }
+    bool isSharp() const { return accidentals > 0; }
 
     int measure;
   private:

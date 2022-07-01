@@ -611,7 +611,7 @@ int main (int argc, char* argv[]) {
         for (int p = 0; auto& m : noteData.measureMap) {
           for (auto ks : m.keySignatures) {
             
-            noteData.sheetData.drawKeySignature(*ks,100+(40+2*p)*(p), ctr.bgSheetNote);
+            noteData.sheetData.drawKeySignature(*ks,100+(50+2*p)*(p), ctr.bgSheetNote);
   
             p++;
           }
@@ -645,15 +645,13 @@ int main (int argc, char* argv[]) {
       //fileMenu.draw();
       menuctr.renderAll();
 
-    auto getGlyphWidth = [&](int codepoint) {
-        return GetGlyphInfo(*ctr.getFont("LELAND",155), codepoint).image.width;
-    };
   
     //logQ("maxtime", ctr.getLastTime());
 
     //logQ("bounds", formatPair(inverseSSX()));
     drawSymbol(SYM_REST_16, 155, convertSSX(inverseSSX().first), 320, ctr.bgNow);
-    drawSymbol(SYM_CLEF_TREBLE, 155, convertSSX(inverseSSX().second)-getGlyphWidth(SYM_CLEF_TREBLE), 320, ctr.bgNow);
+    drawSymbol(SYM_CLEF_TREBLE, 155, 
+               convertSSX(inverseSSX().second)-noteData.sheetData.getGlyphWidth(SYM_CLEF_TREBLE,155), 320, ctr.bgNow);
     
 
     //logQ(noteData.tpq);

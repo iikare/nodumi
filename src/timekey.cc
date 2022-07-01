@@ -62,7 +62,7 @@ void keySig::findAccidentalsFromKey() {
   }
 }
 
-int keySig::getSize() {
+int keySig::getSize() const {
   return abs(accidentals);
 
   // obsolete??
