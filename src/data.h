@@ -17,6 +17,7 @@
 #define SHEET_LMARGIN 80
 
 #define DEFAULT_FONT "YKLIGHT"
+#define MUSIC_FONT   "LELAND"
 #define TEXT_SPACING 0
 
 

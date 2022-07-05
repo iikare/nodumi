@@ -608,7 +608,7 @@ int main (int argc, char* argv[]) {
 
         //noteData.sheetData.drawTimeSignature({3,4,0},80,ctr.bgSheetNote);
       
-        //logQ("snugpug");
+        logQ("snugpug");
         int p = 0;
         int ml = 0;
         int clen = 70;
@@ -626,11 +626,11 @@ int main (int argc, char* argv[]) {
             ml+=noteData.sheetData.getTimeWidth(*t);
           }
           clen+=ml;
-          //logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);
+          logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);
         }
-       
-        // verify note value when testing
-        noteData.sheetData.drawNote(noteData.notes[0],400, ctr.bgSheetNote);
+        
+        // middle C
+        noteData.sheetData.drawNote(note(),400, ctr.bgSheetNote);
 
       }
       
@@ -1467,7 +1467,6 @@ int main (int argc, char* argv[]) {
     menuctr.updateMouse();
     menuctr.updateRenderStatus();
     ctr.updateKeyState();
-    ctr.updateDimension();
     
     // displays index of last clicked note  
     //logQ(clickNote);

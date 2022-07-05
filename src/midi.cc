@@ -47,7 +47,7 @@ void midi::buildTickSet() {
   logQ("real TPQ:", tpq);
 
   for (int pos = 0; pos < tickNoteTransformLen; ++pos) {
-    logQ(pos, "maps to TICK VALUE", tpq*tickNoteTransform[pos]); 
+    //logQ(pos, "maps to TICK VALUE", tpq*tickNoteTransform[pos]); 
     tickSet.insert(make_pair(tpq*tickNoteTransform[pos], pos));
   }
 
@@ -389,9 +389,7 @@ void midi::load(string file, stringstream& buf) {
   for (int m = 0; auto& measure : measureMap) {
     //logQ(measure.getTick());
     itemStartSet.insert(make_pair(measure.getTick(), m++));
-    measure.notes.clear();
-    measure.timeSignatures.clear();
-    measure.keySignatures.clear();
+    measure.clear();
   }
 
   for (auto& note : notes) {

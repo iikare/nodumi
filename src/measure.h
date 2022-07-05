@@ -29,10 +29,9 @@ class measureController {
       keySignatures = {};
       currentTime = cTime;
     }
-  
-    //void findLength();
-    //void draw();
-    
+   
+    void clear();
+
     double getLocation() const { return location; }
     int getNumber() const { return number; }
     int getTick() const { return tick; }

@@ -110,14 +110,14 @@ class controller {
     colorRGB bgSheetNote =    colorRGB(0  , 0  , 0  );
     colorRGB bgMeasure =      colorRGB(155, 155, 155);
 
-    const int menuHeight =    20;
-    const int sheetHeight =   250;
-    int barHeight =           0;
-    int topHeight =           0;
+    static constexpr int menuHeight  =   20;
+    static constexpr int sheetHeight =   250;
+    int barHeight =                      0;
+    int topHeight =                      0;
 
-    const int barWidth =      10;
-    const int barSpacing =    80;
-    const int barMargin =     49 + (sheetHeight-200)/2;
+    static constexpr int barWidth    =   10;
+    static constexpr int barSpacing  =   80;
+    static constexpr int barMargin   =   49 + (sheetHeight-200)/2;
 
     int livePlayOffset;
   

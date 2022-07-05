@@ -8,3 +8,10 @@
 
 using std::find;
 using std::sort;
+
+void measureController::clear() {
+  notes.clear();
+  timeSignatures.clear();
+  keySignatures.clear();
+  currentTime = timeSig();
+}
