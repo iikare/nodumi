@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <functional>
 #include "../dpd/midifile/MidiFile.h"
 #include "note.h"
 #include "track.h"
@@ -22,6 +23,20 @@ using std::make_pair;
 using std::max;
 using std::ifstream;
 using std::stringstream;
+using std::function;
+
+// using std::function was disastrous
+struct tickCmp {
+    bool operator() (const pair<int, int>& a, const pair<int, int>& b) const {
+        return a.first < b.first;
+    }
+};
+
+struct itemStartCmp{
+    bool operator() (const pair<int, int>& a, const pair<int, int>& b) const {
+        return a.first <= b.first;
+    }
+};
 
 class midi {
   public:
@@ -34,7 +49,9 @@ class midi {
       measureMap = {};
       timeSignatureMap = {};
       keySignatureMap = {};
-      tickMap = {};
+      tickSet = {};
+      itemStartSet = {};
+
 
       tracks.resize(1);
       
@@ -44,6 +61,7 @@ class midi {
       lastTick = 0;
 
       tpq = 0;
+
     }
 
     void load(string file, stringstream& buf);
@@ -51,10 +69,11 @@ class midi {
     vector<int>* getLineVerts() { return &lineVerts; }
     int findMeasure(int offset);
     
-    int getTrackCount() { return trackCount; }
-    int getNoteCount() { return noteCount; }
-    int getLastTick() { return lastTick; }
-    int getLastTime() { return lastTime; }
+    int getTrackCount() const { return trackCount; }
+    int getNoteCount() const { return noteCount; }
+    int getLastTick() const { return lastTick; }
+    int getLastTime() const { return lastTime; }
+    int getTPQ() const { return tpq; }
     int getTempo(int offset);
     vector<trackController>& getTracks() { return tracks;}
     
@@ -76,6 +95,10 @@ class midi {
     vector<pair<int, keySig>> keySignatureMap;
     
 
+    set<pair<int, int>, tickCmp> tickSet;
+    set<pair<int, int>, itemStartCmp> itemStartSet;
+   
+
     void addTimeSignature(int position, int tick, timeSig timeSignature);
     timeSig getTimeSignature(int offset);
     
@@ -85,7 +108,7 @@ class midi {
     keySig eventToKeySignature(int keySigType, bool isMinor);
     
     void buildLineMap();
-    void buildTickMap();
+    void buildTickSet();
 
     void findMeasure(note& idxNote);
     void findKeySig(note& idxNote);
@@ -100,5 +123,11 @@ class midi {
 
     int tpq;
  
+    static constexpr double tickNoteTransform[13] =
+                                                    {
+                                                      8, 6, 4, 3, 2, 1.5, 1,
+                                                      0.75, 0.5, 0.375, 0.25, 0.125, 0.0625,
+                                                    };
+    static constexpr int tickNoteTransformLen = 13;
 
 };

@@ -43,6 +43,7 @@ class controller {
     Font* getFont(string id, int size);
 
     void updateKeyState();
+    void updateDimension();
     void toggleLivePlay();
     void setCloseFlag();
     void load(string path, 
@@ -73,14 +74,14 @@ class controller {
     int getLastTime();
     int getTempo(int idx);
 
-    int getWidth() { return GetScreenWidth(); }
-    int getHeight() { return GetScreenHeight(); }
-    point getSize() { return {GetScreenWidth(), GetScreenHeight()}; }
-    point getMousePosition(); 
-    int getMouseX() { return getMousePosition().x; }; 
-    int getMouseY() { return getMousePosition().y; }; 
+    int getWidth() const { return GetScreenWidth(); }
+    int getHeight() const { return GetScreenHeight(); }
+    point getSize() const { return {GetScreenWidth(), GetScreenHeight()}; }
+    point getMousePosition() const; 
+    int getMouseX() const { return getMousePosition().x; }; 
+    int getMouseY() const { return getMousePosition().y; }; 
     
-    int getSheetSize() { return getWidth() - SHEET_LMARGIN - SHEET_RMARGIN; }
+    int getSheetSize() const { return getWidth() - SHEET_LMARGIN - SHEET_RMARGIN; }
 
     midi file;
     midiInput liveInput;

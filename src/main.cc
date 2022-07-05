@@ -608,13 +608,12 @@ int main (int argc, char* argv[]) {
 
         //noteData.sheetData.drawTimeSignature({3,4,0},80,ctr.bgSheetNote);
       
-        logQ("snugpug");
+        //logQ("snugpug");
         int p = 0;
         int ml = 0;
         int clen = 70;
         for (int me = 0; const auto& m : noteData.measureMap) {
           ml = 0;
-          noteData.sheetData.disectMeasure(m);
           // keysig comes first
           for (const auto& k : m.keySignatures) {
             noteData.sheetData.drawKeySignature(*k,clen+ml, ctr.bgSheetNote);
@@ -629,9 +628,9 @@ int main (int argc, char* argv[]) {
           clen+=ml;
           //logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);
         }
-        
-        // middle C
-        noteData.sheetData.drawNote({ACC_SHARP, 60},400, ctr.bgSheetNote);
+       
+        // verify note value when testing
+        noteData.sheetData.drawNote(noteData.notes[0],400, ctr.bgSheetNote);
 
       }
       
@@ -1468,6 +1467,7 @@ int main (int argc, char* argv[]) {
     menuctr.updateMouse();
     menuctr.updateRenderStatus();
     ctr.updateKeyState();
+    ctr.updateDimension();
     
     // displays index of last clicked note  
     //logQ(clickNote);

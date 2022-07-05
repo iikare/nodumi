@@ -148,7 +148,7 @@ void sheetController::drawKeySignature(const keySig& key, int x, colorRGB col) {
 }
 
 
-void sheetController::drawNote(sheetNote noteData, int x, colorRGB col) {
+void sheetController::drawNote(const note& noteData, int x, colorRGB col) {
   const int y = ctr.barMargin+ctr.barWidth*2;
 
   // for centering
@@ -234,8 +234,28 @@ void sheetController::findKeyData(const keySig& key, int& symbol, int& prevAcc, 
 }
 
 void sheetController::disectMeasure(const measureController& measure) {
+  //logQ("measure", measure.getNumber(), "has timesig", measure.currentTime.getTop(), measure.currentTime.getBottom());
+
+  sheetMeasure dm;
+
+  // left measure spacing
+  dm.addSpace(borderSpacing);
+
+  for (auto i : measure.notes) {
+    //logQ(i->tickDuration, "v. ticks/quarter", ctr.file.getTPQ(), measure.currentTime.getQPM());
+  }
+
+
+  if (measure.notes.size() == 0) {
+    // fill space with rests
+
+  }
 
 
 
-  logQ("measure", measure.getNumber(), "has timesig", measure.currentTime.getTop(), measure.currentTime.getBottom());
+  // right measure spacing
+  // last item before ending this item
+  dm.addSpace(borderSpacing);
+  
+  displayMeasure.push_back(dm);
 }

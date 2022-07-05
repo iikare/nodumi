@@ -121,3 +121,35 @@ enum imageType {
   IMAGE_NONE
 };
 
+enum sheetEventType {
+  EVENT_TIME,
+  EVENT_KEY,
+  EVENT_NOTE,
+  EVENT_REST,
+  EVENT_NONE
+};
+
+// in ratios of TPQ
+enum noteType {
+  NOTE_LARGE,            // 0  |  8 (fake)
+  NOTE_WHOLE_DOT,        // 1  |  6
+  NOTE_WHOLE,            // 2  |  4
+  NOTE_HALF_DOT,         // 3  |  3
+  NOTE_HALF,             // 4  |  2
+  NOTE_QUARTER_DOT,      // 5  |  1.5
+  NOTE_QUARTER,          // 6  |  1 
+  NOTE_8_DOT,            // 7  |  0.75
+  NOTE_8,                // 8  |  0.5
+  NOTE_16_DOT,           // 9  |  0.375
+  NOTE_16,               // 10 |  0.25
+  NOTE_32,               // 11 |  0.125
+  NOTE_64,               // 12 |  0.0625
+  NOTE_NONE              // no numerical mapping
+};
+
+enum accidentalType{
+  ACC_NATURAL,
+  ACC_SHARP,
+  ACC_FLAT,
+  ACC_NONE
+};

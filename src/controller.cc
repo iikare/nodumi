@@ -86,6 +86,13 @@ void controller::updateKeyState() {
   }
 }
 
+void controller::updateDimension() {
+  if(IsWindowResized()) {
+    // TODO: re-center the nowline on window resize
+  }
+}
+
+
 void controller::toggleLivePlay() {
   if (setTrackOn.size() < 1) {
     getColorScheme(2, setTrackOn, setTrackOff);
@@ -582,7 +589,7 @@ void controller::save(string path,
 
 }
 
-point controller::getMousePosition() { 
+point controller::getMousePosition() const { 
 
   if (IsWindowFocused()) {
     return (point){ GetMouseX(), GetMouseY()}; 

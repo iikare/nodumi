@@ -38,15 +38,20 @@ void midi::buildLineMap() {
   //logII(LL_CRIT, lineVerts.size());
 }
 
-void midi::buildTickMap() {
+void midi::buildTickSet() {
   if (!tpq) {
-    logW(LL_CRIT, "invalid MIDI file");
+    logW(LL_CRIT, "MIDI lacks TPQ marker");
     return;
   }
-  
-  for (int i = 0; i < 8; i++) {
-    tickMap.push_back(tpq * 4 * pow(2, -i));
+
+  logQ("real TPQ:", tpq);
+
+  for (int pos = 0; pos < tickNoteTransformLen; ++pos) {
+    logQ(pos, "maps to TICK VALUE", tpq*tickNoteTransform[pos]); 
+    tickSet.insert(make_pair(tpq*tickNoteTransform[pos], pos));
   }
+
+
 }
 
 void midi::findMeasure(note& idxNote) {
@@ -220,9 +225,6 @@ void midi::load(string file, stringstream& buf) {
   buf << midiData.rdbuf();
   midiData.close();
 
-
-
-
   notes.clear();
   tempoMap.clear();
   tracks.clear();
@@ -231,7 +233,9 @@ void midi::load(string file, stringstream& buf) {
   measureMap.clear();
   timeSignatureMap.clear();
   keySignatureMap.clear();
-  tickMap.clear();
+
+  tickSet.clear();
+  itemStartSet.clear();
 
   noteCount = 0;
   trackCount = 0;
@@ -248,7 +252,7 @@ void midi::load(string file, stringstream& buf) {
   lastTime = midifile.getFileDurationInSeconds() * 500;
   lastTick = midifile.getFileDurationInTicks();
 
-  buildTickMap();
+  buildTickSet();
 
   vector<pair<double, int>> trackInfo;
 
@@ -288,9 +292,10 @@ void midi::load(string file, stringstream& buf) {
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
 
-        notes[idx].findSize(tickMap);
-
         //cerr << midifile.getTimeInSeconds(notes[idx].tick) << " " << midifile[i][j].seconds << endl;
+        
+        notes[idx].findSize(tickSet);
+
 
         tracks.at(notes[idx].track).insert(idx, &notes.at(idx));
 
@@ -379,34 +384,34 @@ void midi::load(string file, stringstream& buf) {
   }
   measureMap.pop_back(); 
 
-  // assign notes, TODO:time/key signatures to measures
-  auto itemStartCmp = [] (pair<int, int> a, pair<int, int> b) { return a.first <= b.first; };
-  set<pair<int, int>, decltype(itemStartCmp)> itemStart = {};
+  //auto itemStartCmp = [] (pair<int, int> a, pair<int, int> b) { return a.first <= b.first; };
+  //set<pair<int, int>, decltype(itemStartCmp)> itemStartSet = {};
   for (int m = 0; auto& measure : measureMap) {
     //logQ(measure.getTick());
-    itemStart.insert(make_pair(measure.getTick(), m++));
+    itemStartSet.insert(make_pair(measure.getTick(), m++));
     measure.notes.clear();
     measure.timeSignatures.clear();
     measure.keySignatures.clear();
   }
 
   for (auto& note : notes) {
-    auto mIt = itemStart.lower_bound(make_pair(note.tick, 0));
+    auto mIt = itemStartSet.lower_bound(make_pair(note.tick, 0));
     // measures have 0-based index, but 1-based for rendering
-    int noteMeasure = (mIt != itemStart.begin() ? (--mIt)->second : 0);
+    int noteMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
     //logQ(note.tick, "has closest measure start", noteMeasure);
 
     note.measure = noteMeasure;
 
     measureMap[noteMeasure].notes.push_back(&note);
+
   }
 
 
   for (auto& ts : timeSignatureMap) {
-    auto mIt = itemStart.lower_bound(make_pair(ts.second.getTick(), 0));
+    auto mIt = itemStartSet.lower_bound(make_pair(ts.second.getTick(), 0));
     // measures have 0-based index, but 1-based for rendering
-    int tsMeasure = (mIt != itemStart.begin() ? (--mIt)->second : 0);
+    int tsMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
     logQ("ts", ts.second.getTick(), "has closest measure start", 1+tsMeasure);
 
@@ -417,9 +422,9 @@ void midi::load(string file, stringstream& buf) {
 
   
   for (auto& ks : keySignatureMap) {
-    auto mIt = itemStart.lower_bound(make_pair(ks.second.getTick(), 0));
+    auto mIt = itemStartSet.lower_bound(make_pair(ks.second.getTick(), 0));
     // measures have 0-based index, but 1-based for rendering
-    int ksMeasure = (mIt != itemStart.begin() ? (--mIt)->second : 0);
+    int ksMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
     logQ("ks", ks.second.getTick(), "has closest measure start", 1+ksMeasure);
 
@@ -429,7 +434,10 @@ void midi::load(string file, stringstream& buf) {
   }
   
 
-
+  // create sheet music position data
+  for (auto& measure : measureMap) {
+    sheetData.disectMeasure(measure);
+  }
   //for (int m = 0; auto& measure : measureMap) {
     //logQ(measure.notes.size(), "notes in measure", 1+m++);
   //}
@@ -440,6 +448,5 @@ void midi::load(string file, stringstream& buf) {
   //lastTime = notes[getNoteCount() - 1].x + notes[getNoteCount() - 1].duration;
   //logII(LL_CRIT, (midifile.getFileDurationInTicks()) / (tpq * 4) + 1);
   //logII(LL_CRIT, measureMap.size());
-    
 }
 

@@ -3,6 +3,7 @@
 #include <cmath>
 #include "note.h"
 #include "data.h"
+#include "midi.h"
 #include "log.h"
 
 using std::cerr;
@@ -70,22 +71,6 @@ int note::getChordSize() {
   }
 }
 
-void note::findSize(vector<int>& noteChart) {
-  if (tickDuration > noteChart[0]) {
-    size = NOTE_LARGE;
-  }
-  else {
-    for (unsigned int i = 0; i < noteChart.size(); i++) {
-      if (noteChart[i] > tickDuration && noteChart[i + 1] < tickDuration) {
-        size = i + 1; // map to note enum 
-      }  
-    }
-    if (tickDuration < noteChart[noteChart.size() - 1]) {
-      size = NOTE_128;
-    }
-  }
-}
-
 void note::findSheetParameters() {
   int mappedPos = y - MIN_NOTE_IDX;
   //int octave = (9 + mappedPos) / 12;
@@ -106,4 +91,11 @@ void note::findSheetParameters() {
 
   //TODO: fix getStartingIndex() segfault on files with 0 key sigs
   //cerr << key->getStartingIndex() << " " << (octave * 7 + keyIndex) - 9 << " " << (9 + mappedPos) % 12 << endl;
+}
+
+void note::findSize(const set<pair<int,int>, tickCmp>& tickSet)  {
+  auto it = tickSet.lower_bound(make_pair(tickDuration, 0));
+
+  //logQ(tickDuration, "map to notevalue", it->second);
+  type = it->second;
 }

@@ -33,7 +33,7 @@ class sheetController {
     int getTimeWidth(const timeSig& key);
 
     // no beaming
-    void drawNote(sheetNote noteData, int x, colorRGB col);
+    void drawNote(const note& noteData, int x, colorRGB col);
 
 
     void disectMeasure(const measureController& measure);
@@ -64,4 +64,6 @@ class sheetController {
     static constexpr int fSize = 157;
     static constexpr int accConstSpacing = 10;
     static constexpr int accMax = 7;
+
+    static constexpr int borderSpacing = 15;
 };
