@@ -348,10 +348,17 @@ void midi::load(string file, stringstream& buf) {
     timeSignatureMap.push_back(make_pair(0,timeSig(4,4,0)));
     //exit(1);
   }
+  if (keySignatureMap.size() == 0) {
+    logW(LL_INFO, "no key signatures detected, adding default key signature");
+    keySignatureMap.push_back(make_pair(0,keySig(KEYSIG_C,0,0)));
+    //exit(1);
+  }
 
   int cTick = 0;
   timeSig cTimeSig = timeSignatureMap[0].second;
+  keySig cKeySig = keySignatureMap[0].second;
   idx = 0;
+  int idxK = 0;
 
   for (unsigned int i = 0; i < timeSignatureMap.size(); i++) {
     //cerr << timeSignatureMap[i].second.top << " " << timeSignatureMap[i].second.bottom;
@@ -360,7 +367,7 @@ void midi::load(string file, stringstream& buf) {
   
   
   int measureNum = 1;
-  measureMap.push_back(measureController(measureNum++, 0, 0, cTimeSig.getQPM() * tpq, cTimeSig));
+  measureMap.push_back(measureController(measureNum++, 0, 0, cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   while (idx < (int)timeSignatureMap.size()) {
 
   //  cerr << cTimeSig.top << " " << cTimeSig.bottom << endl;
@@ -369,15 +376,18 @@ void midi::load(string file, stringstream& buf) {
       if (midifile.getTimeInSeconds(cTick) * 500 >= timeSignatureMap[idx + 1].first) {
         cTimeSig = timeSignatureMap[++idx].second;
       }
+      if (midifile.getTimeInSeconds(cTick) * 500 >= keySignatureMap[idxK + 1].first) {
+        cKeySig = keySignatureMap[++idxK].second;
+      }
       measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * 500, cTick, 
-                           cTimeSig.getQPM() * tpq, cTimeSig));
+                           cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
     }
     else {
       while (cTick < lastTick) {
         cTick += cTimeSig.getQPM() * tpq;
         
         measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * 500, cTick, 
-                             cTimeSig.getQPM() * tpq, cTimeSig));
+                             cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
       }
       break;
     }
@@ -434,6 +444,13 @@ void midi::load(string file, stringstream& buf) {
 
   // create sheet music position data
   for (auto& measure : measureMap) {
+
+    for (auto& notes : measure.notes) {
+
+      // map note position to key
+
+    }
+
     sheetData.disectMeasure(measure);
   }
   //for (int m = 0; auto& measure : measureMap) {

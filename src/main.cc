@@ -41,7 +41,7 @@ int main (int argc, char* argv[]) {
   SetTraceLogLevel(LOG_WARNING);
 
   // debug
-  //SetTraceLogLevel(LOG_TRACE);
+  SetTraceLogLevel(LOG_TRACE);
   
 
   SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -608,7 +608,7 @@ int main (int argc, char* argv[]) {
 
         //noteData.sheetData.drawTimeSignature({3,4,0},80,ctr.bgSheetNote);
       
-        logQ("snugpug");
+        //logQ("snugpug");
         int p = 0;
         int ml = 0;
         int clen = 70;
@@ -626,7 +626,7 @@ int main (int argc, char* argv[]) {
             ml+=noteData.sheetData.getTimeWidth(*t);
           }
           clen+=ml;
-          logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);
+          //logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);
         }
         
         // middle C

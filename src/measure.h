@@ -18,8 +18,9 @@ class measureController {
       timeSignatures = {};
       keySignatures = {};
       currentTime = timeSig();
+      currentKey = keySig();
     }
-    measureController(int num, double loc, int tk, int tkl, timeSig cTime) {
+    measureController(int num, double loc, int tk, int tkl, const timeSig& cTime, const keySig& cKey) {
       location = loc;
       number = num;
       tick = tk;
@@ -28,6 +29,7 @@ class measureController {
       timeSignatures = {};
       keySignatures = {};
       currentTime = cTime;
+      currentKey = cKey;
     }
    
     void clear();
@@ -36,11 +38,14 @@ class measureController {
     int getNumber() const { return number; }
     int getTick() const { return tick; }
 
+    // persistent qualities to render
     vector<note*> notes;
     vector<timeSig*> timeSignatures;
     vector<keySig*> keySignatures;
 
+    // transient qualities not present in measure itself
     timeSig currentTime;
+    keySig currentKey;
 
   private:
 
