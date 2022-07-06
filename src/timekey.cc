@@ -54,7 +54,7 @@ void keySig::findAccidentalsFromKey() {
       accidentals = -7;
       break;
     default:
-      accidentals = 0;
+      accidentals = 10;
   }
 }
 

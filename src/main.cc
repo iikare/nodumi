@@ -41,7 +41,7 @@ int main (int argc, char* argv[]) {
   SetTraceLogLevel(LOG_WARNING);
 
   // debug
-  SetTraceLogLevel(LOG_TRACE);
+  //SetTraceLogLevel(LOG_TRACE);
   
 
   SetConfigFlags(FLAG_MSAA_4X_HINT);

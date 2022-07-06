@@ -344,14 +344,12 @@ void midi::load(string file, stringstream& buf) {
  
   // build measure map
   if (timeSignatureMap.size() == 0) {
-    //logW(LL_WARN, "attempt to load MIDI with no time signatures!");
+    logW(LL_INFO, "no time signatures detected, adding default time signature");
     timeSignatureMap.push_back(make_pair(0,timeSig(4,4,0)));
-    //exit(1);
   }
   if (keySignatureMap.size() == 0) {
     logW(LL_INFO, "no key signatures detected, adding default key signature");
     keySignatureMap.push_back(make_pair(0,keySig(KEYSIG_C,0,0)));
-    //exit(1);
   }
 
   int cTick = 0;
@@ -367,30 +365,24 @@ void midi::load(string file, stringstream& buf) {
   
   
   int measureNum = 1;
-  measureMap.push_back(measureController(measureNum++, 0, 0, cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
-  while (idx < (int)timeSignatureMap.size()) {
+  measureMap.push_back(measureController(measureNum++, cTimeSig.getTop(), cTimeSig.getBottom(), 
+                                         cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
+  while (cTick < lastTick) {
+    cTick += cTimeSig.getQPM() * tpq;
 
-  //  cerr << cTimeSig.top << " " << cTimeSig.bottom << endl;
-    if (idx + 1 != (int)timeSignatureMap.size()) {
-      cTick += cTimeSig.getQPM() * tpq;
-      if (midifile.getTimeInSeconds(cTick) * 500 >= timeSignatureMap[idx + 1].first) {
-        cTimeSig = timeSignatureMap[++idx].second;
-      }
-      if (midifile.getTimeInSeconds(cTick) * 500 >= keySignatureMap[idxK + 1].first) {
+    if (idx + 1 != (int)keySignatureMap.size()) {
+      if (midifile.getTimeInSeconds(cTick) * 500 > keySignatureMap[idxK + 1].first) {
         cKeySig = keySignatureMap[++idxK].second;
       }
-      measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * 500, cTick, 
-                           cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
     }
-    else {
-      while (cTick < lastTick) {
-        cTick += cTimeSig.getQPM() * tpq;
-        
-        measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * 500, cTick, 
-                             cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
+
+    if (idx + 1 != (int)timeSignatureMap.size()) {
+      if (midifile.getTimeInSeconds(cTick) * 500 > timeSignatureMap[idx + 1].first) {
+        cTimeSig = timeSignatureMap[++idx].second;
       }
-      break;
     }
+    measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * 500, cTick, 
+                         cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   }
   measureMap.pop_back(); 
 
@@ -443,7 +435,12 @@ void midi::load(string file, stringstream& buf) {
   
 
   // create sheet music position data
-  for (auto& measure : measureMap) {
+  for (int z = 0; auto& measure : measureMap) {
+
+
+    //logQ("measure",z++,"at tick",measure.getTick());
+    logQ("measure",z,"has keysig ",measure.currentKey.getAcc());
+    logQ("measure",z++,"has timesig",measure.currentTime.getTop(), measure.currentTime.getBottom());
 
     for (auto& notes : measure.notes) {
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "log.h"
+#include "enum.h"
 
 class timeSig {
   public:
@@ -32,6 +33,8 @@ class timeSig {
       top = other.top;
       bottom = other.bottom;
       qpm = other.qpm;
+      measure = other.measure;
+      tick = other.tick;
 
       return *this;
     }
@@ -47,7 +50,7 @@ class timeSig {
     int getBottom() const { return bottom; }
     int getTick() const { return tick; }
     int getMeasure() const { return measure; }
-    int getQPM() const { return qpm; }
+    double getQPM() const { return qpm; }
 
   private:
     
@@ -56,25 +59,6 @@ class timeSig {
     double qpm;
     int measure;
     int tick;
-};
-
-enum keySignature {
-  KEYSIG_C,
-  KEYSIG_CSHARP,
-  KEYSIG_DFLAT,
-  KEYSIG_D,
-  KEYSIG_EFLAT,
-  KEYSIG_E,
-  KEYSIG_F,
-  KEYSIG_FSHARP,
-  KEYSIG_GFLAT,
-  KEYSIG_G,
-  KEYSIG_AFLAT,
-  KEYSIG_A,
-  KEYSIG_BFLAT,
-  KEYSIG_B,
-  KEYSIG_CFLAT,
-  KEYSIG_NONE
 };
 
 class keySig {
