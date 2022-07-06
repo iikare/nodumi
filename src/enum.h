@@ -68,7 +68,7 @@ enum schemeType {
   SCHEME_NONE
 };
 
-enum colorType {
+enum selectType {
   SELECT_BG,
   SELECT_LINE,
   SELECT_NOTE,
@@ -109,7 +109,7 @@ enum hoverType {
   HOVER_NONE
 };
 
-enum colorMode {
+enum colorType {
   COLOR_PART,
   COLOR_VELOCITY,
   COLOR_TONIC
