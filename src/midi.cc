@@ -44,7 +44,7 @@ void midi::buildTickSet() {
     return;
   }
 
-  logQ("real TPQ:", tpq);
+  //logQ("real TPQ:", tpq);
 
   for (int pos = 0; pos < tickNoteTransformLen; ++pos) {
     //logQ(pos, "maps to TICK VALUE", tpq*tickNoteTransform[pos]); 
@@ -365,19 +365,19 @@ void midi::load(string file, stringstream& buf) {
   
   
   int measureNum = 1;
-  measureMap.push_back(measureController(measureNum++, cTimeSig.getTop(), cTimeSig.getBottom(), 
+  measureMap.push_back(measureController(measureNum++, 0, 0, 
                                          cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   while (cTick < lastTick) {
     cTick += cTimeSig.getQPM() * tpq;
 
     if (idx + 1 != (int)keySignatureMap.size()) {
-      if (midifile.getTimeInSeconds(cTick) * 500 > keySignatureMap[idxK + 1].first) {
+      if (midifile.getTimeInSeconds(cTick) * 500 >= keySignatureMap[idxK + 1].first) {
         cKeySig = keySignatureMap[++idxK].second;
       }
     }
 
     if (idx + 1 != (int)timeSignatureMap.size()) {
-      if (midifile.getTimeInSeconds(cTick) * 500 > timeSignatureMap[idx + 1].first) {
+      if (midifile.getTimeInSeconds(cTick) * 500 >= timeSignatureMap[idx + 1].first) {
         cTimeSig = timeSignatureMap[++idx].second;
       }
     }
@@ -414,6 +414,7 @@ void midi::load(string file, stringstream& buf) {
     int tsMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
     logQ("ts", ts.second.getTick(), "has closest measure start", 1+tsMeasure);
+    logQ("ts", ts.second.getTick(), "has value", ts.second.getTop(), ts.second.getBottom());
 
     ts.second.setMeasure(tsMeasure);
 
@@ -426,7 +427,7 @@ void midi::load(string file, stringstream& buf) {
     // measures have 0-based index, but 1-based for rendering
     int ksMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
-    logQ("ks", ks.second.getTick(), "has closest measure start", 1+ksMeasure);
+    logQ("ks", ks.second.getAcc(),"@", ks.second.getTick(), "has closest measure start", 1+ksMeasure);
 
     ks.second.setMeasure(ksMeasure);
 
@@ -438,9 +439,11 @@ void midi::load(string file, stringstream& buf) {
   for (int z = 0; auto& measure : measureMap) {
 
 
-    //logQ("measure",z++,"at tick",measure.getTick());
+    //logQ("measure",z,"at tick",measure.getTick());
     logQ("measure",z,"has keysig ",measure.currentKey.getAcc());
-    logQ("measure",z++,"has timesig",measure.currentTime.getTop(), measure.currentTime.getBottom());
+    //logQ("measure",z,"has timesig",measure.currentTime.getTop(), measure.currentTime.getBottom());
+
+    z++;
 
     for (auto& notes : measure.notes) {
 
