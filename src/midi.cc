@@ -8,6 +8,7 @@
 
 using std::set;
 using std::ref;
+using std::move;
 
 int midi::getTempo(int offset) {
   int tempo = 120;
@@ -327,7 +328,7 @@ void midi::load(string file, stringstream& buf) {
       }
   }
 
-  // link keysigs
+  // link keysigs with left-adjacents
   linkKeySignatures();
 
   for (unsigned int i = 0; i < tracks.size(); i++) {
@@ -338,7 +339,7 @@ void midi::load(string file, stringstream& buf) {
     trackHeightMap.push_back(make_pair(i, tracks[i].getAverageY()));
   }
   
-  sort(trackHeightMap.begin(), trackHeightMap.end(), [](const pair<int, double> &left, const pair<int, double> &right) {
+  sort(trackHeightMap.begin(), trackHeightMap.end(), [](const pair<int, double>& left, const pair<int, double>& right) {
     return left.second < right.second;
   });
  
@@ -358,31 +359,26 @@ void midi::load(string file, stringstream& buf) {
   idx = 0;
   int idxK = 0;
 
-  for (unsigned int i = 0; i < timeSignatureMap.size(); i++) {
-    //cerr << timeSignatureMap[i].second.top << " " << timeSignatureMap[i].second.bottom;
-    //cerr << ": " << timeSignatureMap[i].first << endl;//<< " " << timeSignatureMap[i].second.bottom << endl;
-  }
-  
-  
+
   int measureNum = 1;
-  measureMap.push_back(measureController(measureNum++, 0, 0, 
-                                         cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
+
+  measureMap.push_back(measureController(measureNum++, 0, 0, cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   while (cTick < lastTick) {
     cTick += cTimeSig.getQPM() * tpq;
 
-    if (idx + 1 != (int)keySignatureMap.size()) {
-      if (midifile.getTimeInSeconds(cTick) * 500 >= keySignatureMap[idxK + 1].first) {
+    if (idx + 1 < (int)keySignatureMap.size()) {
+      if (cTick >= keySignatureMap[idxK + 1].second.getTick()) {
         cKeySig = keySignatureMap[++idxK].second;
       }
     }
 
-    if (idx + 1 != (int)timeSignatureMap.size()) {
-      if (midifile.getTimeInSeconds(cTick) * 500 >= timeSignatureMap[idx + 1].first) {
+    if (idx + 1 < (int)timeSignatureMap.size()) {
+      if (cTick >= timeSignatureMap[idx + 1].second.getTick()) {
         cTimeSig = timeSignatureMap[++idx].second;
       }
     }
     measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * 500, cTick, 
-                         cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
+                                           cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   }
   measureMap.pop_back(); 
 
@@ -391,7 +387,7 @@ void midi::load(string file, stringstream& buf) {
   for (int m = 0; auto& measure : measureMap) {
     //logQ(measure.getTick());
     itemStartSet.insert(make_pair(measure.getTick(), m++));
-    measure.clear();
+    //measure.clear();
   }
 
   for (auto& note : notes) {
@@ -413,8 +409,8 @@ void midi::load(string file, stringstream& buf) {
     // measures have 0-based index, but 1-based for rendering
     int tsMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
-    logQ("ts", ts.second.getTick(), "has closest measure start", 1+tsMeasure);
-    logQ("ts", ts.second.getTick(), "has value", ts.second.getTop(), ts.second.getBottom());
+    //logQ("ts", ts.second.getTick(), "has closest measure start", 1+tsMeasure);
+    //logQ("ts", ts.second.getTick(), "has value", ts.second.getTop(), ts.second.getBottom());
 
     ts.second.setMeasure(tsMeasure);
 
@@ -427,7 +423,7 @@ void midi::load(string file, stringstream& buf) {
     // measures have 0-based index, but 1-based for rendering
     int ksMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
-    logQ("ks", ks.second.getAcc(),"@", ks.second.getTick(), "has closest measure start", 1+ksMeasure);
+    //logQ("ks", ks.second.getAcc(),"@", ks.second.getTick(), "has closest measure start", 1+ksMeasure);
 
     ks.second.setMeasure(ksMeasure);
 
@@ -440,7 +436,7 @@ void midi::load(string file, stringstream& buf) {
 
 
     //logQ("measure",z,"at tick",measure.getTick());
-    logQ("measure",z,"has keysig ",measure.currentKey.getAcc());
+    //logQ("measure",z+1,"has keysig ",measure.currentKey.getAcc());
     //logQ("measure",z,"has timesig",measure.currentTime.getTop(), measure.currentTime.getBottom());
 
     z++;

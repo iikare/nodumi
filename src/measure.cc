@@ -14,4 +14,5 @@ void measureController::clear() {
   timeSignatures.clear();
   keySignatures.clear();
   currentTime = timeSig();
+  currentKey = keySig();
 }

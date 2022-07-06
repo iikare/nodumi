@@ -22,25 +22,25 @@ class timeSig {
     }
 
     timeSig(const timeSig& other) {
-      top = other.top;
-      bottom = other.bottom;
-      qpm = other.qpm;
-      measure = other.measure;
-      tick = other.tick;
+      top = other.getTop();
+      bottom = other.getBottom();
+      qpm = other.getQPM();
+      measure = other.getMeasure();
+      tick = other.getTick();
     }
 
     timeSig& operator= (const timeSig& other) {
-      top = other.top;
-      bottom = other.bottom;
-      qpm = other.qpm;
-      measure = other.measure;
-      tick = other.tick;
+      top = other.getTop();
+      bottom = other.getBottom();
+      qpm = other.getQPM();
+      measure = other.getMeasure();
+      tick = other.getTick();
 
       return *this;
     }
    
     bool operator== (const timeSig& other) const {
-      return top == other.top && bottom == other.bottom;
+      return top == other.getTop() && bottom == other.getBottom();
     }
     
     
