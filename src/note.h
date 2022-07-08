@@ -67,7 +67,7 @@ class note {
     int type;
 
     friend class trackController;
-    friend vector<int> getLinePositions(note* now, note* next);
+    vector<int> getLinePositions(note* now, note* next);
 
   private:
   

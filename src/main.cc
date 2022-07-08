@@ -511,7 +511,8 @@ int main (int argc, char* argv[]) {
                 linePositions = noteData.getLineVerts();
               }
               else if (ctr.getLiveState()) {
-                vector<int> linePosRaw = getLinePositions(&ctr.notes->at(i), ctr.notes->at(i).getNextChordRoot());
+                vector<int> linePosRaw = ctr.notes->at(i).getLinePositions(&ctr.notes->at(i), 
+                                                                            ctr.notes->at(i).getNextChordRoot());
                 linePositions = &linePosRaw;
               }
               else { 

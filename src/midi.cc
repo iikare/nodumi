@@ -30,7 +30,7 @@ void midi::buildLineMap() {
   vector<int> tmpVerts;
   for (unsigned int i = 0; i < notes.size(); i++) {
     if (notes[i].isChordRoot()) {
-      tmpVerts = getLinePositions(&notes[i], notes[i].getNextChordRoot());
+      tmpVerts = notes[i].getLinePositions(&notes[i], notes[i].getNextChordRoot());
       lineVerts.insert(lineVerts.end(), tmpVerts.begin(), tmpVerts.end());
     }
   }

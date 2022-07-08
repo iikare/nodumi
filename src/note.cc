@@ -71,6 +71,79 @@ int note::getChordSize() {
   }
 }
 
+vector<int> note::getLinePositions(note* now, note* next) {
+  vector<int> linePos = {};
+
+  note* pNow = now;
+  note* pNext = next;
+  bool pushLine = false;
+
+  if (!pNext) {
+    if (!(pNow->isLastOnTrack)) {
+      logW(LL_WARN, "pNext is nullptr");
+    }
+    return {};
+  }
+
+  auto pushVerts = [&] {
+      linePos.push_back(now->number);
+      
+      linePos.push_back(pNow->x);
+      linePos.push_back(pNow->y);
+      
+      if (!pushLine) {
+        linePos.push_back(pNext->x);
+        linePos.push_back(pNext->y);
+      }
+      else {
+        linePos.push_back(pNow->x + pNow->duration);
+        linePos.push_back(pNow->y);
+      }
+  };
+
+  // only link spatially near notes
+  if (now->x + 2 * now->duration < next->x) {
+    pushLine = true;
+  }
+
+
+  if (now->getChordSize() == next->getChordSize()) {
+    for (int i = 0; i < now->getChordSize(); i++) {
+      pushVerts();
+      pNow = pNow->chordNext;
+      pNext = pNext->chordNext;
+    }
+  }
+  else if (now->getChordSize() > next->getChordSize()) {
+    for (int i = 0; i < next->getChordSize(); i++) {
+      pushVerts();
+      pNow = pNow->chordNext;
+      if (i != next->getChordSize() - 1) {
+        pNext = pNext->chordNext;
+      }
+    }
+    for (int i = 0; i < now->getChordSize() - next->getChordSize(); i++) {
+      pushVerts();
+      pNow = pNow->chordNext;
+    }
+  }
+  else {
+    for (int i = 0; i < now->getChordSize(); i++) {
+      pushVerts();
+      pNext = pNext->chordNext;
+      if (i != now->getChordSize() - 1) {
+        pNow = pNow->chordNext;
+      }
+    }
+    for (int i = 0; i < next->getChordSize() - now->getChordSize(); i++) {
+      pushVerts();
+      pNext = pNext->chordNext;
+    }
+  }
+
+  return linePos;
+}
+
 void note::findSheetParameters() {
   int mappedPos = y - MIN_NOTE_IDX;
   //int octave = (9 + mappedPos) / 12;
