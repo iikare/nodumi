@@ -1,5 +1,3 @@
-#include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -27,7 +25,6 @@ using std::endl;
 using std::string;
 using std::vector;
 using std::unordered_map;
-using std::ifstream;
 using std::min;
 using std::max;
 using std::to_string;
@@ -213,15 +210,7 @@ int main (int argc, char* argv[]) {
 
   if (argc >= 2) {
     string filename = argv[1];
-    transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
-    string ext = filename.substr(filename.size() - 3);
 
-    ifstream filecheck;
-    filecheck.open(filename);
-    //if (!filecheck || (ext != "mid" && ext != "mki")) {
-      //logW(LL_WARN, "invalid file extension:", filename);
-    //}
-    filecheck.close();
 
     ctr.load(filename, 
              nowLine,  showFPS,  showImage,  sheetMusicDisplay,
@@ -229,10 +218,11 @@ int main (int argc, char* argv[]) {
              colorMode,  displayMode,
              songTimeType,  tonicOffset, 
              zoomLevel);
-   
+     
     // load an image if supplied
     if (argc == 3) {
-      ctr.image.load(argv[2]);
+      string imagePath = argv[2];
+      ctr.image.load(imagePath);
     }
   }
   

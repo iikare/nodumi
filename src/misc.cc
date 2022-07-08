@@ -1,4 +1,7 @@
+#include <sys/stat.h>
 #include <algorithm>
+#include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 #include "misc.h"
@@ -8,6 +11,7 @@
 using std::min;
 using std::max;
 using std::stringstream;
+using std::ifstream;
 using std::hex;
 
 double getDistance(int x1, int y1, int x2, int y2) {
@@ -429,15 +433,32 @@ bool isMKI(string path) {
 
 
   transform(path.begin(), path.end(), path.begin(), ::tolower);
-  string ext = path.substr(path.size() - 3);
+  string ext = path.substr(path.size() - min(3, static_cast<int>(path.length())));
 
+
+  return ext == "mki";
+}
+
+bool isValidPath(string path) {
+  struct stat info;
+  // file doesn't exist in filesystem
+  if (stat(path.c_str(), &info) == -1) {
+    return false;
+  }
+  
+  transform(path.begin(), path.end(), path.begin(), ::tolower);
+  string ext = path.length() > 3 ? path.substr(path.size() - 3) : path;
+  
   if (ext != "mid" && ext != "mki") {
     logW(LL_WARN, "invalid file extension:", path);
     logW(LL_WARN, "assuming default extension (mid)");
   }
 
-  return ext == "mki";
+
+  return true;
 }
+
+
 
 string toHex(int dec) {
   stringstream stream;
