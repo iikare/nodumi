@@ -99,13 +99,13 @@ class midi {
     set<pair<int, int>, itemStartCmp> itemStartSet;
    
 
-    void addTimeSignature(int position, int tick, timeSig timeSignature);
+    void addTimeSignature(int position, timeSig timeSignature);
     timeSig getTimeSignature(int offset);
     
-    void addKeySignature(int position, int tick, keySig keySignature);
+    void addKeySignature(int position, keySig keySignature);
     void linkKeySignatures();
     keySig getKeySignature(int offset);
-    keySig eventToKeySignature(int keySigType, bool isMinor);
+    keySig eventToKeySignature(int keySigType, bool isMinor, int tick);
     
     void buildLineMap();
     void buildTickSet();

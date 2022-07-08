@@ -104,23 +104,21 @@ int midi::findMeasure(int offset) {
   return -1;
 }
 
-void midi::addTimeSignature(int position, int tick, timeSig timeSignature) {
+void midi::addTimeSignature(int position, timeSig timeSignature) {
   if (timeSignatureMap.size() != 0 && timeSignatureMap[timeSignatureMap.size()-1].second == timeSignature) {
     return;
   }
-  timeSignature.setTick(tick);
   timeSignatureMap.push_back(make_pair(position, timeSignature));
 }
 
-void midi::addKeySignature(int position, int tick, keySig keySignature) {
+void midi::addKeySignature(int position, keySig keySignature) {
   if (keySignatureMap.size() != 0 && keySignatureMap[keySignatureMap.size()-1].second == keySignature) {
     return;
   }
-  keySignature.setTick(tick);
   keySignatureMap.push_back(make_pair(position, keySignature));
 }
 
-keySig midi::eventToKeySignature(int keySigType, bool isMinor) {
+keySig midi::eventToKeySignature(int keySigType, bool isMinor, int tick) {
   int keyType = KEYSIG_NONE;
 
   switch(keySigType) {
@@ -172,9 +170,7 @@ keySig midi::eventToKeySignature(int keySigType, bool isMinor) {
   }
 
 
-  keySig finalKey = keySig(keyType, isMinor, -1);
-
-  return finalKey;
+  return keySig(keyType, isMinor, tick);
 }
 
 timeSig midi::getTimeSignature(int offset) {
@@ -316,16 +312,19 @@ void midi::load(string file, stringstream& buf) {
     if (midifile[0][i].isTimeSignature()) {
       //log3(LL_INFO, "time sig at event", j);
       //cerr << (int)midifile[0][i][3] << " " << pow(2, (int) midifile[0][i][4])<< endl;
-      addTimeSignature(midifile[0][i].seconds * 500, midifile[0][i].tick,
-                                 {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4]), -1});
+      addTimeSignature(midifile[0][i].seconds * 500,
+                                 {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4]), midifile[0][i].tick});
     }
     if (midifile[0][i].isKeySignature()) {
       //log3(LL_INFO, "key sig at event", i);
       //cerr << (int)midifile[0][i][1] << " " << (int)midifile[0][i][3] << " " << (int)midifile[0][i][4] <<  endl;
       //cerr << midifile[0][i].seconds * 500 << endl;;
-      addKeySignature(midifile[0][i].seconds * 500, midifile[0][i].tick, 
-                                eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4]));
-      }
+      addKeySignature(midifile[0][i].seconds * 500,
+                                eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick));
+      //logQ("type, tick", (int)midifile[0][i][3], midifile[0][i].tick);
+      //auto a = eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick);
+      //logQ("e2ks, tick", a.getAcc(), a.getTick());
+    }
   }
 
   // link keysigs with left-adjacents
@@ -366,17 +365,18 @@ void midi::load(string file, stringstream& buf) {
   while (cTick < lastTick) {
     cTick += cTimeSig.getQPM() * tpq;
 
-    if (idx + 1 < (int)keySignatureMap.size()) {
+    if (idxK + 1 <= static_cast<int>(keySignatureMap.size())) {
       if (cTick >= keySignatureMap[idxK + 1].second.getTick()) {
         cKeySig = keySignatureMap[++idxK].second;
       }
     }
 
-    if (idx + 1 < (int)timeSignatureMap.size()) {
+    if (idx + 1 < static_cast<int>(timeSignatureMap.size())) {
       if (cTick >= timeSignatureMap[idx + 1].second.getTick()) {
         cTimeSig = timeSignatureMap[++idx].second;
       }
     }
+    logQ(measureNum, "to",cKeySig.getAcc());
     measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * 500, cTick, 
                                            cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   }
@@ -414,7 +414,7 @@ void midi::load(string file, stringstream& buf) {
 
     ts.second.setMeasure(tsMeasure);
 
-    measureMap[tsMeasure].timeSignatures.push_back(&ts.second);
+    measureMap[tsMeasure].timeSignatures.push_back(ts.second);
   }
 
   
@@ -423,11 +423,11 @@ void midi::load(string file, stringstream& buf) {
     // measures have 0-based index, but 1-based for rendering
     int ksMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
-    //logQ("ks", ks.second.getAcc(),"@", ks.second.getTick(), "has closest measure start", 1+ksMeasure);
+    logQ("ks", ks.second.getAcc(),"@", ks.second.getTick(), "has closest measure start", 1+ksMeasure);
 
     ks.second.setMeasure(ksMeasure);
 
-    measureMap[ksMeasure].keySignatures.push_back(&ks.second);
+    measureMap[ksMeasure].keySignatures.push_back(ks.second);
   }
   
 
@@ -435,9 +435,12 @@ void midi::load(string file, stringstream& buf) {
   for (int z = 0; auto& measure : measureMap) {
 
 
-    //logQ("measure",z,"at tick",measure.getTick());
-    //logQ("measure",z+1,"has keysig ",measure.currentKey.getAcc());
-    //logQ("measure",z,"has timesig",measure.currentTime.getTop(), measure.currentTime.getBottom());
+    //logQ("measure",z+1,"at tick",measure.getTick());
+    if (measure.keySignatures.size() > 0) {
+      logQ("measure",z+1,"has INSIDE",measure.keySignatures[0].getAcc(), measure.keySignatures[0].getTick());
+    }
+    logQ("measure",z+1,"has keysig",measure.currentKey.getAcc());
+    //logQ("measure",z+1,"has timesig",measure.currentTime.getTop(), measure.currentTime.getBottom());
 
     z++;
 
@@ -459,5 +462,7 @@ void midi::load(string file, stringstream& buf) {
   //lastTime = notes[getNoteCount() - 1].x + notes[getNoteCount() - 1].duration;
   //logII(LL_CRIT, (midifile.getFileDurationInTicks()) / (tpq * 4) + 1);
   //logII(LL_CRIT, measureMap.size());
+  
+  logQ("total ks", keySignatureMap.size());
 }
 

@@ -389,6 +389,10 @@ int main (int argc, char* argv[]) {
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
         
+        if (ctr.notes->at(i).x < currentBoundaries.first*0.9 && ctr.notes->at(i).x > currentBoundaries.second*1.1) {
+          continue;
+        }
+        
         int colorID = 0;
         bool noteOn = false;
         
@@ -398,11 +402,6 @@ int main (int argc, char* argv[]) {
           clickTmp = i;
           hoverType.add(HOVER_NOTE);
         };
-        
-        if (ctr.notes->at(i).x < currentBoundaries.first*0.9 && ctr.notes->at(i).x > currentBoundaries.second*1.1) {
-          continue;
-        }
-
         
         float cX = convertSSX(ctr.notes->at(i).x);
         float cY = convertSSY(ctr.notes->at(i).y);
@@ -616,14 +615,14 @@ int main (int argc, char* argv[]) {
           ml = 0;
           // keysig comes first
           for (const auto& k : m.keySignatures) {
-            noteData.sheetData.drawKeySignature(*k,clen+ml, ctr.bgSheetNote);
+            noteData.sheetData.drawKeySignature(k,clen+ml, ctr.bgSheetNote);
             p++;
-            ml+=noteData.sheetData.getKeyWidth(*k);
+            ml+=noteData.sheetData.getKeyWidth(k);
           }
           for (const auto& t : m.timeSignatures) {
-            noteData.sheetData.drawTimeSignature(*t,clen+ml, ctr.bgSheetNote);
+            noteData.sheetData.drawTimeSignature(t,clen+ml, ctr.bgSheetNote);
             p++;
-            ml+=noteData.sheetData.getTimeWidth(*t);
+            ml+=noteData.sheetData.getTimeWidth(t);
           }
           clen+=ml;
           //logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);

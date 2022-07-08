@@ -40,8 +40,8 @@ class measureController {
 
     // persistent qualities to render
     vector<note*> notes;
-    vector<timeSig*> timeSignatures;
-    vector<keySig*> keySignatures;
+    vector<timeSig> timeSignatures;
+    vector<keySig> keySignatures;
 
     // transient qualities not present in measure itself
     timeSig currentTime;

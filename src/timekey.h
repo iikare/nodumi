@@ -123,7 +123,7 @@ class keySig {
     keySig* getPrev() const { return prev; }
 
     int getSize() const;
-    int getTick() const { return tick; }
+    int getTick() const { if (tick == -1) {logQ("ERROR UNINIT KEYSIG");} return tick; }
     int getAcc() const { return accidentals; }
 
     bool isSharp() const { return accidentals > 0; }
