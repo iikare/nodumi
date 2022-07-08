@@ -59,7 +59,7 @@ void imageController::load(stringstream& byteData, int byteSize, int format) {
       ext = ".jpg";
       break;
     default:
-      logW(LL_WARN, "wrong image format");
+      logW(LL_WARN, "wrong image format:", format);
       return;
   }
 
