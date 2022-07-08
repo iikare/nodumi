@@ -343,6 +343,8 @@ void controller::load(string path,
       midiData.write(&byteBuf, sizeof(byteBuf));
     }
 
+    file.load(midiData);
+
     // HERE IS IMAGE STREAM DATA (if exists)
 
     if (imageExists) {

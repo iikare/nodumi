@@ -65,6 +65,7 @@ class midi {
     }
 
     void load(string file, stringstream& buf);
+    void load(stringstream& buf);
     
     vector<int>* getLineVerts() { return &lineVerts; }
     int findMeasure(int offset);

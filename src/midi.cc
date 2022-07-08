@@ -211,7 +211,7 @@ void midi::load(string file, stringstream& buf) {
   MidiFile midifile;
   if (!midifile.read(file.c_str())) {
     logW(LL_WARN, "unable to open MIDI");
-    return;
+    //return;
   }
 
   // file is known to work
@@ -221,6 +221,14 @@ void midi::load(string file, stringstream& buf) {
 
   buf << midiData.rdbuf();
   midiData.close();
+
+  load(buf);
+
+}
+  
+void midi::load(stringstream& buf) {
+  
+  MidiFile midifile(buf);
 
   notes.clear();
   tempoMap.clear();
