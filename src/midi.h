@@ -100,10 +100,10 @@ class midi {
     set<pair<int, int>, itemStartCmp> itemStartSet;
    
 
-    void addTimeSignature(int position, timeSig timeSignature);
+    void addTimeSignature(int position, const timeSig& timeSignature);
     timeSig getTimeSignature(int offset);
     
-    void addKeySignature(int position, keySig keySignature);
+    void addKeySignature(int position, const keySig& keySignature);
     void linkKeySignatures();
     keySig getKeySignature(int offset);
     keySig eventToKeySignature(int keySigType, bool isMinor, int tick);

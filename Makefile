@@ -9,9 +9,12 @@ LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__
 #WINDOWS = -D__WINDOWS_MM__
 
 # use clang13 or higher
-NONSTD =  #-fsanitize=address 
+NONSTD =
+#NONSTD =  -fsanitize=address -fno-omit-frame-pointer
 
-CFLAGS = --std=c++20 -Wall -Wextra $(NONSTD) -g $(LD) $(LINUX) 
+DFLAGS =
+
+CFLAGS = --std=c++20 -Wall -Wextra -g $(NONSTD) $(DFLAGS) $(LD) $(LINUX) 
 CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 
 CFLAGSRTM = $(CFLAGS) -w
 CFLAGSCIE = $(CFLAGS) -w

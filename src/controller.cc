@@ -269,7 +269,7 @@ void controller::load(string path,
 
     auto readRGB = [&] () {
       readByte();
-      uint8_t r = *reinterpret_cast<uint*>(&byteBuf);
+      uint8_t r = *reinterpret_cast<uint8_t*>(&byteBuf);
       readByte();
       uint8_t g = *reinterpret_cast<uint8_t*>(&byteBuf);
       readByte();

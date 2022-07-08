@@ -22,19 +22,19 @@ class timeSig {
     }
 
     timeSig(const timeSig& other) {
-      top = other.getTop();
-      bottom = other.getBottom();
-      qpm = other.getQPM();
-      measure = other.getMeasure();
-      tick = other.getTick();
+      top = other.top;
+      bottom = other.bottom;
+      qpm = other.qpm;
+      measure = other.measure;
+      tick = other.tick;
     }
 
     timeSig& operator= (const timeSig& other) {
-      top = other.getTop();
-      bottom = other.getBottom();
-      qpm = other.getQPM();
-      measure = other.getMeasure();
-      tick = other.getTick();
+      top = other.top;
+      bottom = other.bottom;
+      qpm = other.qpm;
+      measure = other.measure;
+      tick = other.tick;
 
       return *this;
     }
@@ -123,7 +123,7 @@ class keySig {
     keySig* getPrev() const { return prev; }
 
     int getSize() const;
-    int getTick() const { if (tick == -1) {logQ("ERROR UNINIT KEYSIG");} return tick; }
+    int getTick() const { return tick; }
     int getAcc() const { return accidentals; }
 
     bool isSharp() const { return accidentals > 0; }

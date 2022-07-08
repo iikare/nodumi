@@ -17,9 +17,14 @@ using std::fixed;
 using std::setprecision;
 
 #define logW(a, ...) logOutput(a, __FILE__, __LINE__, __VA_ARGS__)
-#define logQ(...) logOutput(LL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
-#define logC(a,b) logOutput(LL_CRIT, __FILE__, __LINE__, a, "v.", b)
 
+#ifndef NO_DEBUG
+  #define logQ(...) logOutput(LL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
+  #define logC(a,b) logOutput(LL_CRIT, __FILE__, __LINE__, a, "v.", b)
+#else
+  #define logQ(...) ;
+  #define logC(a,b) ;
+#endif
 enum logLevel {
   LL_INFO,
   LL_WARN,
@@ -45,7 +50,7 @@ template<typename V, typename... W>
 void logOutput(logLevel level, string file, int line, const V& arg1, const W&... args) {
   
   #ifdef NO_DEBUG
-    return;
+    if (level == LL_DEBUG) { return; }
   #endif
   
   ostringstream out;
@@ -64,7 +69,7 @@ template<typename V>
 void logOutput(logLevel level, string file, int line, const V& arg1) {
  
   #ifdef NO_DEBUG
-    return;
+    if (level == LL_DEBUG) { return; }
   #endif 
 
   ostringstream out;
