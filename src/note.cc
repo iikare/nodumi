@@ -22,10 +22,6 @@ note* note::getNextNote() {
   else {
     note* p = this;
     return p;
-    while (p->chordNext != nullptr) {
-      p = p->prev;
-    }
-    return p;
   }
 }
 

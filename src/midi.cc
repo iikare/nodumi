@@ -11,7 +11,6 @@ using std::ref;
 using std::move;
 
 int midi::getTempo(int offset) {
-  int tempo = 120;
   if (tempoMap.size() != 0 && offset == 0) {
     return tempoMap[0].second;
   }
@@ -23,7 +22,7 @@ int midi::getTempo(int offset) {
       return tempoMap[i].second;
     }
   }
-  return tempo;
+  return 120;
 }
 
 void midi::buildLineMap() {
