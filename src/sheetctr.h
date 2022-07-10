@@ -33,7 +33,7 @@ class sheetController {
     int getTimeWidth(const timeSig& key);
 
     // no beaming
-    void drawNote(const note& noteData, int x, colorRGB col);
+    void drawNote(const sheetNote& noteData, int x, colorRGB col);
 
 
     void disectMeasure(const measureController& measure);

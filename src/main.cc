@@ -599,28 +599,28 @@ int main (int argc, char* argv[]) {
         //noteData.sheetData.drawTimeSignature({3,4,0},80,ctr.bgSheetNote);
       
         //logQ("snugpug");
-        int p = 0;
-        int ml = 0;
-        int clen = 70;
-        for (int me = 0; const auto& m : noteData.measureMap) {
-          ml = 0;
-          // keysig comes first
-          for (const auto& k : m.keySignatures) {
-            noteData.sheetData.drawKeySignature(k,clen+ml, ctr.bgSheetNote);
-            p++;
-            ml+=noteData.sheetData.getKeyWidth(k);
-          }
-          for (const auto& t : m.timeSignatures) {
-            noteData.sheetData.drawTimeSignature(t,clen+ml, ctr.bgSheetNote);
-            p++;
-            ml+=noteData.sheetData.getTimeWidth(t);
-          }
-          clen+=ml;
-          //logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);
-        }
+        //int p = 0;
+        //int ml = 0;
+        //int clen = 70;
+        //for ([>int me = 0;<] const auto& m : noteData.measureMap) {
+          //ml = 0;
+          //// keysig comes first
+          //for (const auto& k : m.keySignatures) {
+            //noteData.sheetData.drawKeySignature(k,clen+ml, ctr.bgSheetNote);
+            //p++;
+            //ml+=noteData.sheetData.getKeyWidth(k);
+          //}
+          //for (const auto& t : m.timeSignatures) {
+            //noteData.sheetData.drawTimeSignature(t,clen+ml, ctr.bgSheetNote);
+            //p++;
+            //ml+=noteData.sheetData.getTimeWidth(t);
+          //}
+          //clen+=ml;
+          ////logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);
+        //}
         
-        // middle C
-        noteData.sheetData.drawNote(note(),400, ctr.bgSheetNote);
+        //// middle C
+        //noteData.sheetData.drawNote(noteData.measureMap[0].displayNotes[0],400, ctr.bgSheetNote);
 
       }
       

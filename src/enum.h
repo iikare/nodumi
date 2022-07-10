@@ -173,3 +173,14 @@ enum keySignatureType {
   KEYSIG_NONE
 };
 
+enum staveType {
+  STAVE_TREBLE,
+  STAVE_BASS,
+  STAVE_NONE
+};
+
+enum displayDirectionType {
+  DISP_UP,
+  DISP_DOWN,
+  DISP_NONE
+};

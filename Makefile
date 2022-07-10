@@ -12,7 +12,11 @@ LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__
 NONSTD =
 #NONSTD =  -fsanitize=address -fno-omit-frame-pointer
 
-DFLAGS =
+ifeq ($(strip $(rel)),)
+DFLAGS = -Og
+else
+DFLAGS = -DNO_DEBUG -O3
+endif
 
 CFLAGS = --std=c++20 -Wall -Wextra -g $(NONSTD) $(DFLAGS) $(LD) $(LINUX) 
 CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 

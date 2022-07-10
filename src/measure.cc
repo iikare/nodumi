@@ -25,11 +25,31 @@ void measureController::buildTickMap() {
 
   //logQ(number, ":", currentTime.getTop(), currentTime.getBottom(), "#pos", numPos); 
 
-  vector<int> tmpPos(numPos);
+  vector<int> tmpPos(numPos, tick);
   for (unsigned int i = 0; i < tmpPos.size(); ++i) {
-    tmpPos[i] = i * minTick;
+    tmpPos[i] += i * minTick;
   }
+
+  //logQ(formatVector(tmpPos));
 
   tickMap = set<int>(make_move_iterator(tmpPos.begin()), make_move_iterator(tmpPos.end()));
 }
 
+void measureController::addNote(note& note) {
+  notes.push_back(&note);
+
+  // below this point: not required for non-sheetmusic usage
+
+
+  // find available sheet parameters (quantize)
+  if (!tickMap.contains(note.tick)) {
+    // not a standard position, needs quantization
+    int quantTick = *tickMap.lower_bound(note.tick);
+    //logQ("nonstandard tickpos with size", note.size, "on measure", note.measure, "rectified to", quantTick);
+
+    displayNotes.push_back({quantTick, &note}); 
+  }
+  else {
+    displayNotes.push_back({note.tick, &note}); 
+  }
+}

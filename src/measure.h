@@ -2,8 +2,9 @@
 
 #include <vector>
 #include <set>
-#include "note.h"
+#include "sheetnote.h"
 #include "timekey.h"
+#include "note.h"
 #include "log.h"
 
 using std::vector;
@@ -47,6 +48,8 @@ class measureController {
     int getTick() const { return tick; }
     int getTickLen() const { return tickLength; }
 
+    void addNote(note& note);
+
 
     // basic structural properties
     set<int> tickMap;
@@ -55,6 +58,9 @@ class measureController {
     vector<note*> notes;
     vector<timeSig> timeSignatures;
     vector<keySig> keySignatures;
+
+    // adjustments for sheet rendering
+    vector<sheetNote> displayNotes;
 
     // transient qualities not present in measure itself
     timeSig currentTime;

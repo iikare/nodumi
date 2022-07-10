@@ -48,7 +48,7 @@ void midi::buildTickSet() {
   //logQ("real TPQ:", tpq);
 
   for (int pos = 0; pos < tickNoteTransformLen; ++pos) {
-    logQ(pos, "maps to TICK VALUE", tpq*tickNoteTransform[pos]); 
+    //logQ(pos, "maps to TICK VALUE", tpq*tickNoteTransform[pos]); 
     tickSet.insert(make_pair(tpq*tickNoteTransform[pos], pos));
   }
 
@@ -407,7 +407,7 @@ void midi::load(stringstream& buf) {
 
     note.measure = noteMeasure;
 
-    measureMap[noteMeasure].notes.push_back(&note);
+    measureMap[noteMeasure].addNote(note);
 
   }
 
@@ -437,22 +437,6 @@ void midi::load(stringstream& buf) {
 
     measureMap[ksMeasure].keySignatures.push_back(ks.second);
   }
-  
-  set<double> uniqueTime;
-  
-  // get unique time signatures
-  for (const auto& ts : timeSignatureMap) {
-
-    uniqueTime.insert(ts.second.getQPM());
-
-  }
-  vector<double> tickV;
-  std::copy(uniqueTime.begin(), uniqueTime.end(), std::back_inserter(tickV));
-
-  logQ(formatVector(tickV));
-
-  // TDO: build quantization map from time signature lengths
-
 
   // create sheet music position data
   for (int z = 0; auto& measure : measureMap) {
