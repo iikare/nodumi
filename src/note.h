@@ -33,8 +33,6 @@ class note {
       prev = nullptr;
       next = nullptr;
       chordNext = nullptr;
-
-      type = NOTE_NONE;
     }
 
     note* getNextNote();
@@ -43,7 +41,7 @@ class note {
     
     bool isChordRoot();
 
-    void findSheetParameters();
+    void findKeyPos(const keySig& key);
 
     void findSize(const set<pair<int,int>, tickCmp>& tickSet);
     
@@ -60,7 +58,8 @@ class note {
     bool isOn;
     bool isLastOnTrack;
 
-    int type;
+    int type = NOTE_NONE;
+    int accType = ACC_NONE;
 
     friend class trackController;
     vector<int> getLinePositions(note* now, note* next);

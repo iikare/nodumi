@@ -403,7 +403,7 @@ void midi::load(stringstream& buf) {
   }
 
   // create sheet music position data
-  for (int z = 0; auto& measure : measureMap) {
+  for (/*int z = 0;*/ auto& measure : measureMap) {
 
 
     //logQ("measure",z+1,"at tick",measure.getTick());
@@ -413,11 +413,13 @@ void midi::load(stringstream& buf) {
     //logQ("measure",z+1,"has keysig",measure.currentKey.getAcc());
     //logQ("measure",z+1,"has timesig",measure.currentTime.getTop(), measure.currentTime.getBottom());
 
-    z++;
+    //z++;
 
-    for (auto& notes : measure.notes) {
+    for (auto& note : measure.notes) {
 
-      // map note position to key
+      // map note position to key (only if on/off signature)
+
+      note->findKeyPos(measure.currentKey);
 
     }
 

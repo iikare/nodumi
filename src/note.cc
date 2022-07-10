@@ -140,22 +140,28 @@ vector<int> note::getLinePositions(note* now, note* next) {
   return linePos;
 }
 
-void note::findSheetParameters() {
+void note::findKeyPos(const keySig& key) {
   int mappedPos = y - MIN_NOTE_IDX;
   //int octave = (9 + mappedPos) / 12;
-  int keyIndex = ((9 + mappedPos) % 12);
+  int keyStart = key.getIndex();
+  int noteIndex = ((9 + mappedPos) % 12);
 
+
+  logQ("key", key.getAcc(), "noteIndex", noteIndex, "mapped", mappedPos);
   // TODO: add getStartingIndex() check
 
+
   // 0, 2, 3, 5, 7, 8, 10 are in key
-  if (keyIndex == 0 || keyIndex == 2 || keyIndex == 3 || keyIndex == 5 || keyIndex == 7 || keyIndex == 8 || keyIndex == 10) {
+  if (noteIndex == 0 || noteIndex == 2 || noteIndex == 3 || noteIndex == 5 || 
+      noteIndex == 7 || noteIndex == 8 || noteIndex == 10) {
     // is part of the key and can be added normally
   //  sheetView.accidentalType = ACC_NONE;
  //   sheetView.keyIndex = (keyIndex + octave * 7) - 9;
   }
   else {
-    // need to shift based on key and key index
     // indexes 1, 4, 6, 9, 11
+    // accidental is based on current keysig accidental type
+    accType = key.isSharp() ? accType = ACC_SHARP : accType = ACC_FLAT;
   }
 
   //TODO: fix getStartingIndex() segfault on files with 0 key sigs

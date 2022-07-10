@@ -71,6 +71,7 @@ class keySig {
       prev = nullptr;
 
       findAccidentalsFromKey();
+      findStartingIndex();
     }
 
     keySig(int k, bool m, int tk) {
@@ -86,6 +87,7 @@ class keySig {
       prev = nullptr;
       
       findAccidentalsFromKey();
+      findStartingIndex();
     }
 
     keySig(const keySig& other) {
@@ -95,6 +97,7 @@ class keySig {
       prev = other.prev;
       
       findAccidentalsFromKey();
+      findStartingIndex();
     }
 
     keySig& operator= (const keySig& other) {
@@ -104,6 +107,7 @@ class keySig {
       prev = other.prev;
       
       findAccidentalsFromKey();
+      findStartingIndex();
 
       return *this;
     }
@@ -125,15 +129,18 @@ class keySig {
     int getSize() const;
     int getTick() const { return tick; }
     int getAcc() const { return accidentals; }
+    int getIndex() const { return startingIndex; }
 
     bool isSharp() const { return accidentals > 0; }
 
     int measure;
   private:
     void findAccidentalsFromKey();
+    void findStartingIndex();
 
     int key;
     int tick;
     int accidentals;
+    int startingIndex;
     keySig* prev;
 };
