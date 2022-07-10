@@ -3,8 +3,7 @@ C = clang
 #CC = x86_64-w64-mingw32-gcc-11.2.0 
 
 #LD =
-LD = -DLLVM_ENABLE_LLD=ON #-fuse-ld=gold -gdwarf-4
-
+LD = -DLLVM_ENABLE_LLD=ON 
 LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__ 
 #WINDOWS = -D__WINDOWS_MM__
 
@@ -13,12 +12,12 @@ NONSTD =
 #NONSTD =  -fsanitize=address -fno-omit-frame-pointer
 
 ifeq ($(strip $(rel)),)
-DFLAGS = -Og
-else
-DFLAGS = -DNO_DEBUG -O3
+RELFLAGS = -Og
+else # release build
+RELFLAGS = -DNO_DEBUG -O3 -flto=thin
 endif
 
-CFLAGS = --std=c++20 -Wall -Wextra -g $(NONSTD) $(DFLAGS) $(LD) $(LINUX) 
+CFLAGS = --std=c++20 -Wall -Wextra -g $(NONSTD) $(RELFLAGS) $(LD) $(LINUX) 
 CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 
 CFLAGSRTM = $(CFLAGS) -w
 CFLAGSCIE = $(CFLAGS) -w
