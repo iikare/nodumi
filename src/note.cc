@@ -144,28 +144,19 @@ void note::findKeyPos(const keySig& key) {
   int mappedPos = y - MIN_NOTE_IDX;
   //int octave = (9 + mappedPos) / 12;
   int keyStart = key.getIndex();
-  int noteIndex = ((9 + mappedPos) % 12);
+  int noteIndex = (12 + ((9 + mappedPos) % 12) - keyStart) % 12;
 
-
-  logQ("key", key.getAcc(), "noteIndex", noteIndex, "mapped", mappedPos);
-  // TODO: add getStartingIndex() check
-
-
-  // 0, 2, 3, 5, 7, 8, 10 are in key
-  if (noteIndex == 0 || noteIndex == 2 || noteIndex == 3 || noteIndex == 5 || 
-      noteIndex == 7 || noteIndex == 8 || noteIndex == 10) {
-    // is part of the key and can be added normally
-  //  sheetView.accidentalType = ACC_NONE;
- //   sheetView.keyIndex = (keyIndex + octave * 7) - 9;
+  // 0, 2, 4, 5, 7, 9, 11 are in key
+  if (noteIndex == 0 || noteIndex == 2 || noteIndex == 4 || noteIndex == 5 || 
+      noteIndex == 7 || noteIndex == 9 || noteIndex == 11) {
+      accType = ACC_NONE;
   }
   else {
-    // indexes 1, 4, 6, 9, 11
+    // indexes 1, 3, 6, 8, 10
     // accidental is based on current keysig accidental type
     accType = key.isSharp() ? accType = ACC_SHARP : accType = ACC_FLAT;
+    logQ("key", key.getAcc(), "noteIndex", noteIndex, "mapped", mappedPos);
   }
-
-  //TODO: fix getStartingIndex() segfault on files with 0 key sigs
-  //cerr << key->getStartingIndex() << " " << (octave * 7 + keyIndex) - 9 << " " << (9 + mappedPos) % 12 << endl;
 }
 
 void note::findSize(const set<pair<int,int>, tickCmp>& tickSet)  {
