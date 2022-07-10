@@ -86,12 +86,7 @@ class midi {
     sheetController sheetData;
     vector<measureController> measureMap;
 
-
     vector<pair<int, double>> trackHeightMap;
-
-
-
-
     
   private:
     vector<pair<double, int>> tempoMap;
@@ -101,10 +96,8 @@ class midi {
     vector<pair<int, timeSig>> timeSignatureMap;
     vector<pair<int, keySig>> keySignatureMap;
     
-
     set<pair<int, int>, tickCmp> tickSet;
     set<pair<int, int>, itemStartCmp> itemStartSet;
-   
 
     void addTimeSignature(int position, const timeSig& timeSignature);
     timeSig getTimeSignature(int offset);
@@ -117,15 +110,11 @@ class midi {
     void buildLineMap();
     void buildTickSet();
 
-    void findMeasure(note& idxNote);
-    void findKeySig(note& idxNote);
-
     int trackCount;
     int noteCount;
 
     double lastTime;
     int lastTick;
-
     int tpq;
  
     static constexpr double tickNoteTransform[13] =

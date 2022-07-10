@@ -242,16 +242,12 @@ void sheetController::disectMeasure(const measureController& measure) {
   dm.addSpace(borderSpacing);
 
   //logQ("MEASURE", measure.getNumber(), "with length", measure.getTickLen());
-  //for (auto n : measure.displayNotes) {
-    //auto i = n.oriNote;
-    //int relativePos = i->tick - measure.getTick();
+  for (auto n : measure.displayNotes) {
+    auto i = n.oriNote;
 
-    //logQ(i->tickDuration, "v. ticks/quarter", ctr.file.getTPQ(), measure.currentTime.getQPM());
-    //logQ("note is at", relativePos);
     
-  //}
-
-  //logQ(formatVector(tickV));
+    
+  }
 
   if (measure.notes.size() == 0) {
     // fill space with rests

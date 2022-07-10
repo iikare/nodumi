@@ -11,15 +11,12 @@ class sheetMeasure {
   public:
 
     void reset() {
-      events.clear();
       spacing.clear();
     }
 
-    void addEvent(int eventType);
     void addSpace(int space);
 
   private:
-    vector<int> events;
     vector<int> spacing;
 
 };

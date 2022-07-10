@@ -33,7 +33,6 @@ class note {
       prev = nullptr;
       next = nullptr;
       chordNext = nullptr;
-      key = nullptr;
 
       type = NOTE_NONE;
     }
@@ -42,9 +41,6 @@ class note {
     note* getNextChordRoot();
     int getChordSize();
     
-    void setKeySig(keySig* ks) { key = ks; }
-    keySig* getKeySig() { return key; };
-
     bool isChordRoot();
 
     void findSheetParameters();
@@ -70,12 +66,8 @@ class note {
     vector<int> getLinePositions(note* now, note* next);
 
   private:
-  
     note* prev;
     note* next;
     note* chordNext;
-
-    keySig* key;
-
 };
 

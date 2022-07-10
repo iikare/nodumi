@@ -55,41 +55,6 @@ void midi::buildTickSet() {
 
 }
 
-void midi::findMeasure(note& idxNote) {
-  // requires a built measure map
-  if (measureMap[measureMap.size() - 1].getLocation() <= idxNote.x) {
-   idxNote.measure = measureMap.size() - 1;
-   measureMap[measureMap.size() - 1].notes.push_back(&idxNote);
-   return;
-  }
-  for (unsigned int i = 0; i <= measureMap.size(); i++) {
-    if (measureMap[i].getLocation() <= idxNote.x && measureMap[i + 1].getLocation() > idxNote.x) {
-      idxNote.measure = i;
-      measureMap[i].notes.push_back(&idxNote);
-      return;
-    }
-  }
-  logQ(idxNote.number);
-  idxNote.measure = -1;
-  return;
-}
-
-void midi::findKeySig(note& idxNote) {
-  if (keySignatureMap.size() == 0) {
-    return;
-  }
-  if (idxNote.x >= keySignatureMap[keySignatureMap.size() - 1].first) {
-    idxNote.setKeySig(&(keySignatureMap[keySignatureMap.size() - 1].second));
-    return;
-  }
-  for (unsigned int i = 0; i < keySignatureMap.size(); i++) {
-    if (keySignatureMap[i].first <= idxNote.x && keySignatureMap[i + 1].first > idxNote.x) {
-      idxNote.setKeySig(&(keySignatureMap[i].second));
-      return;
-    }
-  }
-}
-
 int midi::findMeasure(int offset) {
   if (!offset ) { return 0; }
   if (measureMap[measureMap.size() - 1].getLocation() < offset) {
