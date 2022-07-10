@@ -1328,9 +1328,6 @@ int main (int argc, char* argv[]) {
           break;
       }
   
-      // TODO: add image moving capability
-      //logQ(clickOn);
-      //logQ(clickNote);
 
       if (!hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET) && 
           !hoverType.containsLastFrame(HOVER_MENU, HOVER_MEASURE)) {

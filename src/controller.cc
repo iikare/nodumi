@@ -161,7 +161,6 @@ void controller::load(string path,
                       int& songTimeType, int& tonicOffset, 
 
                       double& zoomLevel) {
-  // TODO: implement type and filter based on type
 
   if (!isValidPath(path)) {
     logW(LL_WARN, "invalid path:", path);

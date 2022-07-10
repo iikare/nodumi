@@ -155,7 +155,7 @@ void note::findKeyPos(const keySig& key) {
     // indexes 1, 3, 6, 8, 10
     // accidental is based on current keysig accidental type
     accType = key.isSharp() ? accType = ACC_SHARP : accType = ACC_FLAT;
-    logQ("key", key.getAcc(), "noteIndex", noteIndex, "mapped", mappedPos);
+    //logQ("key", key.getAcc(), "noteIndex", noteIndex, "mapped", mappedPos);
   }
 }
 
