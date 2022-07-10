@@ -34,9 +34,9 @@ Simply run `make` in the project's root directory. The resulting executable
 will be formed at `./bin/nodumi`
 
 # usage
-If executing `nodumi` from the command-line, one optional argument is accepted:
-```
-./bin/nodumi path/to/file.(mid|midi)
+If executing `nodumi` from the command-line, up to two optional arguments (in order) are accepted:
+```sh
+./bin/nodumi path/to/file.(mid|midi) path/to/image.(png|jpg)
 ```
 
 Otherwise, use the built-in graphical commands.
