@@ -11,7 +11,7 @@ using std::make_pair;
 using std::move;
 
 // shared across load/save routines
-const int imageBlockSize = 20;
+constexpr int imageBlockSize = 20;
 
 void controller::initData(vector<asset>& assets) {
   for (const auto& item : assets) {
@@ -142,6 +142,15 @@ int controller::getTempo(int idx) {
   }
 }
 
+int controller::getMinTickLen() const {
+  if (livePlayState) {
+    // TODO: find/calculate default MIDI TPQ for live devices
+    return 120;
+  }
+  else {
+    return file.getMinTickLen();
+  }
+}
 
 void controller::load(string path, 
                       bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,

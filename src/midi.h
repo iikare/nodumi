@@ -70,6 +70,7 @@ class midi {
     vector<int>* getLineVerts() { return &lineVerts; }
     int findMeasure(int offset);
     
+    int getMinTickLen() const { return tickNoteTransform[tickNoteTransformLen-1]*tpq; }
     int getTrackCount() const { return trackCount; }
     int getNoteCount() const { return noteCount; }
     int getLastTick() const { return lastTick; }
@@ -87,6 +88,11 @@ class midi {
 
 
     vector<pair<int, double>> trackHeightMap;
+
+
+
+
+    
   private:
     vector<pair<double, int>> tempoMap;
     vector<trackController> tracks;
@@ -128,5 +134,4 @@ class midi {
                                                       0.75, 0.5, 0.375, 0.25, 0.125, 0.0625,
                                                     };
     static constexpr int tickNoteTransformLen = 13;
-
 };

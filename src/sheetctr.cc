@@ -238,13 +238,26 @@ void sheetController::disectMeasure(const measureController& measure) {
 
   sheetMeasure dm;
 
+  vector<int> measurePositions; // relative tick values to start of measure
+
+  set<int> uniqueTicks;
+
   // left measure spacing
   dm.addSpace(borderSpacing);
 
+  //logQ("MEASURE", measure.getNumber(), "with length", measure.getTickLen());
   for (auto i : measure.notes) {
-    //logQ(i->tickDuration, "v. ticks/quarter", ctr.file.getTPQ(), measure.currentTime.getQPM());
-  }
+    int relativePos = i->tick - measure.getTick();
+    uniqueTicks.insert(relativePos);
 
+    //logQ(i->tickDuration, "v. ticks/quarter", ctr.file.getTPQ(), measure.currentTime.getQPM());
+    //logQ("note is at", relativePos);
+    
+  }
+  vector<int> tickV;
+  std::copy(uniqueTicks.begin(), uniqueTicks.end(), std::back_inserter(tickV));
+
+  //logQ(formatVector(tickV));
 
   if (measure.notes.size() == 0) {
     // fill space with rests

@@ -73,6 +73,7 @@ class controller {
     int getNoteCount();
     int getLastTime();
     int getTempo(int idx);
+    int getMinTickLen() const;
 
     int getWidth() const { return GetScreenWidth(); }
     int getHeight() const { return GetScreenHeight(); }
