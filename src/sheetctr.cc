@@ -233,25 +233,36 @@ void sheetController::findKeyData(const keySig& key, int& symbol, int& prevAcc, 
   }
 }
 
-void sheetController::disectMeasure(const measureController& measure) {
+void sheetController::disectMeasure(measureController& measure) {
   //logQ("measure", measure.getNumber(), "has timesig", measure.currentTime.getTop(), measure.currentTime.getBottom());
-
+  // preprocessing
   sheetMeasure dm;
+  dm.buildChordMap(measure.displayNotes);
+
+
+  // run a DFA for each valid midi key, advancing state based on new-note-to-midi-position values
+  vector<int> presentDFAState(MAX_NOTE_IDX - MIN_NOTE_IDX, DA_STATE_CLEAR); 
+
+  //logQ(measure.getNumber(), "has", dm.chords.size(), "chords");
+  for (const auto& c : dm.chords) {
+    for (const auto& n : c.second) {
+
+      //int& keyPos = presentDFAState[n->oriNote->sheetY];
+      n->displayAcc = getDisplayAccType(presentDFAState[3], n->oriNote->accType);
+    }
+
+    logQ(formatVector(vector<int>(presentDFAState)));
+    //logQ("chord", ch++, "@", c.first, "has", c.second.size(), "quantized notes");
+  }
+
 
   // left measure spacing
   dm.addSpace(borderSpacing);
 
-  sheetChord positions;
 
   //logQ("MEASURE", measure.getNumber(), "with length", measure.getTickLen());
-  for (auto n : measure.displayNotes) {
-    auto i = n.oriNote;
-
-    positions.addNote(*i); 
 
 
-    
-  }
 
   if (measure.notes.size() == 0) {
     // fill space with rests
@@ -265,4 +276,93 @@ void sheetController::disectMeasure(const measureController& measure) {
   dm.addSpace(borderSpacing);
   
   displayMeasure.push_back(dm);
+}
+
+int sheetController::getDisplayAccType(int& DFAState, int noteAccType) {
+  switch(DFAState) {
+    case DA_STATE_CLEAR:
+      switch(noteAccType) {
+        case ACC_NONE:
+          DFAState = DA_STATE_CLEAR;
+          return ACC_NONE;
+        case ACC_SHARP:
+          DFAState = DA_STATE_SHARP;
+          return ACC_SHARP;
+        case ACC_FLAT:
+          DFAState = DA_STATE_FLAT;
+          return ACC_FLAT;
+      }
+      break;
+    case DA_STATE_SHARP:
+      switch(noteAccType) {
+        case ACC_NONE:
+          DFAState = DA_STATE_NATURAL;
+          return ACC_NATURAL;
+        case ACC_SHARP:
+          DFAState = DA_STATE_SHARP_MULT;
+          return ACC_NONE;
+        case ACC_FLAT:
+          DFAState = DA_STATE_FLAT;
+          return ACC_FLAT;
+      }
+      break;
+    case DA_STATE_FLAT:
+      switch(noteAccType) {
+        case ACC_NONE:
+          DFAState = DA_STATE_NATURAL;
+          return ACC_NATURAL;
+        case ACC_SHARP:
+          DFAState = DA_STATE_SHARP;
+          return ACC_SHARP;
+        case ACC_FLAT:
+          DFAState = DA_STATE_FLAT_MULT;
+          return ACC_NONE;
+      }
+      break;
+    case DA_STATE_NATURAL:
+      switch(noteAccType) {
+        case ACC_NONE:
+          DFAState = DA_STATE_CLEAR;
+          return ACC_NONE;
+        case ACC_SHARP:
+          DFAState = DA_STATE_SHARP;
+          return ACC_SHARP;
+        case ACC_FLAT:
+          DFAState = DA_STATE_FLAT;
+          return ACC_FLAT;
+      }
+      break;
+    case DA_STATE_SHARP_MULT:
+      switch(noteAccType) {
+        case ACC_NONE:
+          DFAState = DA_STATE_NATURAL;
+          return ACC_NATURAL;
+        case ACC_SHARP:
+          DFAState = DA_STATE_SHARP_MULT;
+          return ACC_NONE;
+        case ACC_FLAT:
+          DFAState = DA_STATE_FLAT;
+          return ACC_FLAT;
+      }
+      break;
+    case DA_STATE_FLAT_MULT:
+      switch(noteAccType) {
+        case ACC_NONE:
+          DFAState = DA_STATE_NATURAL;
+          return ACC_NATURAL;
+        case ACC_SHARP:
+          DFAState = DA_STATE_SHARP;
+          return ACC_SHARP;
+        case ACC_FLAT:
+          DFAState = DA_STATE_FLAT_MULT;
+          return ACC_NONE;
+      }
+      break;
+    default:
+      logW(LL_WARN, "invalid DFA state or accidental type for \
+                     display accidental calculation (state, type):", DFAState, noteAccType);
+      break;
+  }
+
+  return -1;
 }

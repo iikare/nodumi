@@ -60,6 +60,7 @@ class note {
 
     int type = NOTE_NONE;
     int accType = ACC_NONE;
+    int sheetY = MIN_NOTE_IDX;
 
     friend class trackController;
     vector<int> getLinePositions(note* now, note* next);

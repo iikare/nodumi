@@ -36,7 +36,7 @@ class sheetController {
     void drawNote(const sheetNote& noteData, int x, colorRGB col);
 
 
-    void disectMeasure(const measureController& measure);
+    void disectMeasure(measureController& measure);
 
     friend class midi;
 
@@ -46,6 +46,8 @@ class sheetController {
 
     void findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType);
     int findTimePartWidth(const int part); 
+
+    int getDisplayAccType(int& DFAState, int noteAccType);
 
     static constexpr int sharpHash[7]    = {1, 4, 0, 3, 6, 2, 5};
     static constexpr int sharpSpacing[7] = {0, 1, 0, 2, 4, 4, 5};

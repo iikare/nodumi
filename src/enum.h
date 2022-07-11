@@ -184,3 +184,13 @@ enum displayDirectionType {
   DISP_DOWN,
   DISP_NONE
 };
+
+enum displayAccStateType {
+  DA_STATE_CLEAR,
+  DA_STATE_SHARP,
+  DA_STATE_FLAT,
+  DA_STATE_NATURAL,
+  DA_STATE_SHARP_MULT,
+  DA_STATE_FLAT_MULT,
+  DA_STATE_NONE
+};

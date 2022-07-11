@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <set>
+#include "sheetnote.h"
 #include "enum.h"
 #include "note.h"
 
@@ -9,6 +10,18 @@ using std::vector;
 using std::set;
 using std::pair;
 using std::make_pair;
+
+struct noteCmp {
+    bool operator() (const sheetNote* a, const sheetNote* b) const {
+        return a->oriNote->y < b->oriNote->y;
+    }
+};
+
+struct chordCmp {
+    bool operator() (const pair<int, vector<sheetNote*>>& a, const pair<int, vector<sheetNote*>>& b) const {
+        return a.first < b.first;
+    }
+};
 
 class sheetMeasure {
   public:
@@ -19,33 +32,13 @@ class sheetMeasure {
 
     void addSpace(int space);
 
-  private:
-    vector<int> spacing;
-
-};
-
-struct noteCmp {
-    bool operator() (const note* a, const note* b) const {
-        return a->y < b->y;
-    }
-};
-
-struct chordCmp {
-    bool operator() (const pair<int, vector<note*>>& a, const pair<int, vector<note*>>& b) const {
-        return a.first < b.first;
-    }
-};
-
-class sheetChord {
-  public:
-
-
-    void addNote(note& n);
+    void buildChordMap(vector<sheetNote>& vecNote);
 
   
-    set<pair<int, vector<note*>>, chordCmp> chord;
+    vector<pair<int, vector<sheetNote*>>> chords;
 
   private:
+    vector<int> spacing;
 
 
 };
