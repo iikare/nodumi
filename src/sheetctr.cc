@@ -241,11 +241,15 @@ void sheetController::disectMeasure(const measureController& measure) {
   // left measure spacing
   dm.addSpace(borderSpacing);
 
+  sheetChord positions;
+
   //logQ("MEASURE", measure.getNumber(), "with length", measure.getTickLen());
   for (auto n : measure.displayNotes) {
     auto i = n.oriNote;
 
-    
+    positions.addNote(*i); 
+
+
     
   }
 
