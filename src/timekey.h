@@ -131,7 +131,7 @@ class keySig {
     int getAcc() const { return accidentals; }
     int getIndex() const { return startingIndex; }
 
-    bool isSharp() const { return accidentals > 0; }
+    bool isSharp() const { return accidentals >= 0; }
 
     int measure;
   private:

@@ -8,8 +8,12 @@ LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__
 #WINDOWS = -D__WINDOWS_MM__
 
 # use clang13 or higher
+
+ifeq ($(strip $(asan)),)
 NONSTD =
-#NONSTD =  -fsanitize=address -fno-omit-frame-pointer
+else # no asan
+NONSTD =  -fsanitize=address -fno-omit-frame-pointer
+endif
 
 ifeq ($(strip $(rel)),)
 RELFLAGS = -Og

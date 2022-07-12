@@ -146,6 +146,8 @@ void note::findKeyPos(const keySig& key) {
   int keyStart = key.getIndex();
   int noteIndex = (12 + ((9 + mappedPos) % 12) - keyStart) % 12;
 
+  int yMod = 0;
+
   // 0, 2, 4, 5, 7, 9, 11 are in key
   if (noteIndex == 0 || noteIndex == 2 || noteIndex == 4 || noteIndex == 5 || 
       noteIndex == 7 || noteIndex == 9 || noteIndex == 11) {
@@ -156,7 +158,16 @@ void note::findKeyPos(const keySig& key) {
     // accidental is based on current keysig accidental type
     accType = key.isSharp() ? accType = ACC_SHARP : accType = ACC_FLAT;
     //logQ("key", key.getAcc(), "noteIndex", noteIndex, "mapped", mappedPos);
+    if (key.isSharp()) {
+      yMod = -1;
+    }
+    else {
+      yMod = 0;
+    }
   }
+
+  // TODO: INCORPORATE KEYSIG INTO THIS
+  sheetY = MIDC_NOTE_IDX;
 }
 
 void note::findSize(const set<pair<int,int>, tickCmp>& tickSet)  {

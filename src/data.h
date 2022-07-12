@@ -5,6 +5,7 @@
 #define mVersion "0.01a"
 #define MIN_NOTE_IDX 21
 #define MAX_NOTE_IDX 108
+#define MIDC_NOTE_IDX 60
 #define NOTE_RANGE 88
 #define ITEM_HEIGHT 20
 #define ITEM_WIDTH 110
