@@ -244,15 +244,19 @@ void sheetController::disectMeasure(measureController& measure) {
   // each DFA set is unique to its measure
   // add "1" to size for inclusive bounding
   // TODO: make initial state depend on keysig accidental at that position
-  vector<int> presentDFAState(MAX_NOTE_IDX - MIN_NOTE_IDX + 1, DA_STATE_CLEAR); 
+  vector<int> presentDFAState(MAX_STAVE_IDX - MIN_STAVE_IDX + 1);
+  findDFAStartVector(presentDFAState, measure.currentKey); 
+
+
+  logQ(formatVector(presentDFAState));
 
   //logQ(measure.getNumber(), "has", dm.chords.size(), "chords");
   for (const auto& c : dm.chords) {
     for (const auto& n : c.second) {
 
       //int& keyPos = presentDFAState[n->oriNote->sheetY];
-      //n->displayAcc = getDisplayAccType(presentDFAState[n->oriNote->sheetY], n->oriNote->accType);
-      //logQ(presentDFAState[n->oriNote->sheetY], n->displayAcc, n->oriNote->accType);
+      n->displayAcc = getDisplayAccType(presentDFAState[mapSheetY(n->oriNote->sheetY)], n->oriNote->accType);
+      logQ(presentDFAState[mapSheetY(n->oriNote->sheetY)], n->displayAcc, n->oriNote->accType);
     }
 
     //logQ(formatVector(presentDFAState));
@@ -280,6 +284,23 @@ void sheetController::disectMeasure(measureController& measure) {
   dm.addSpace(borderSpacing);
   
   displayMeasure.push_back(dm);
+}
+
+void sheetController::findDFAStartVector(vector<int>& DFAState, const keySig& ks) {
+  //DFAState.resize(MAX_STAVE_IDX - MIN_STAVE_IDX + 1);
+
+
+  const int* keyStateTemplate = staveKeySigMap[ks.getKey()];
+
+  for (unsigned int idx = 0; idx < DFAState.size(); ++idx) {
+    int templateIdx = idx + abs(MIN_STAVE_IDX) + abs(MIN_STAVE_IDX) % 7;
+    DFAState[idx] = keyStateTemplate[templateIdx % 7]; 
+  }
+}
+
+int sheetController::mapSheetY(int sheetY) {
+  // input [0, MIN_STAVE_IDX + MAX_STAVE_IDX]
+  return sheetY + abs(MIN_STAVE_IDX);
 }
 
 int sheetController::getDisplayAccType(int& DFAState, int noteAccType) {

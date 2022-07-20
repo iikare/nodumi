@@ -153,7 +153,7 @@ void note::findKeyPos(const keySig& key) {
 
   sheetY = (octave - 4) * 7 + keyParams.offset + key.getStaveOffset();
   
-  logQ(keyParams.offset, keyParams.acc, sheetY);
+  //logQ(keyParams.offset, keyParams.acc, sheetY);
 }
 
 void note::findSize(const set<pair<int,int>, tickCmp>& tickSet)  {

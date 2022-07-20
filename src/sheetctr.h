@@ -46,8 +46,10 @@ class sheetController {
 
     void findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType);
     int findTimePartWidth(const int part); 
+    void findDFAStartVector(vector<int>& DFAState, const keySig& ks); 
 
     int getDisplayAccType(int& DFAState, int noteAccType);
+    int mapSheetY(int sheetY);
 
     static constexpr int sharpHash[7]    = {1, 4, 0, 3, 6, 2, 5};
     static constexpr int sharpSpacing[7] = {0, 1, 0, 2, 4, 4, 5};
@@ -68,4 +70,70 @@ class sheetController {
     static constexpr int accMax = 7;
 
     static constexpr int borderSpacing = 15;
+
+
+    // indexed to middle C (val:60, MIDC_NOTE_IDX)
+    int staveKeySigMap[15][7] = {
+                                                   { // KEYSIG_C 
+                                                     DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, 
+                                                     DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, 
+                                                   },
+                                                   { // KEYSIG_CSHARP  
+                                                     DA_STATE_SHARP, DA_STATE_SHARP, DA_STATE_SHARP, DA_STATE_SHARP, 
+                                                     DA_STATE_SHARP, DA_STATE_SHARP, DA_STATE_SHARP, 
+                                                   },
+                                                   { // KEYSIG_DFLAT 
+                                                     DA_STATE_CLEAR, DA_STATE_FLAT, DA_STATE_FLAT, DA_STATE_CLEAR, 
+                                                     DA_STATE_FLAT, DA_STATE_FLAT, DA_STATE_FLAT, 
+                                                   },
+                                                   { // KEYSIG_D  
+                                                     DA_STATE_SHARP, DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_SHARP, 
+                                                     DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, 
+                                                   },
+                                                   { // KEYSIG_EFLAT
+                                                     DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_FLAT, DA_STATE_CLEAR, 
+                                                     DA_STATE_CLEAR, DA_STATE_FLAT, DA_STATE_FLAT, 
+                                                   },
+                                                   { // KEYSIG_E  
+                                                     DA_STATE_SHARP, DA_STATE_SHARP, DA_STATE_CLEAR, DA_STATE_SHARP, 
+                                                     DA_STATE_SHARP, DA_STATE_CLEAR, DA_STATE_CLEAR, 
+                                                   },
+                                                   { // KEYSIG_F
+                                                     DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, 
+                                                     DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_FLAT, 
+                                                   },
+                                                   { // KEYSIG_FSHARP  
+                                                     DA_STATE_SHARP, DA_STATE_SHARP, DA_STATE_SHARP, DA_STATE_SHARP, 
+                                                     DA_STATE_SHARP, DA_STATE_SHARP, DA_STATE_CLEAR, 
+                                                   },
+                                                   { // KEYSIG_GFLAT
+                                                     DA_STATE_FLAT, DA_STATE_FLAT, DA_STATE_FLAT, DA_STATE_CLEAR, 
+                                                     DA_STATE_FLAT, DA_STATE_FLAT, DA_STATE_FLAT, 
+                                                   },
+                                                   { // KEYSIG_G
+                                                     DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_SHARP, 
+                                                     DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, 
+                                                   },
+                                                   { // KEYSIG_AFLAT  
+                                                     DA_STATE_CLEAR, DA_STATE_FLAT, DA_STATE_FLAT, DA_STATE_CLEAR, 
+                                                     DA_STATE_CLEAR, DA_STATE_FLAT, DA_STATE_FLAT, 
+                                                   },
+                                                   { // KEYSIG_A
+                                                     DA_STATE_SHARP, DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_SHARP, 
+                                                     DA_STATE_SHARP, DA_STATE_CLEAR, DA_STATE_CLEAR, 
+                                                   },
+                                                   { // KEYSIG_BFLAT
+                                                     DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_FLAT, DA_STATE_CLEAR, 
+                                                     DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_FLAT, 
+                                                   },
+                                                   { // KEYSIG_B 
+                                                     DA_STATE_SHARP, DA_STATE_SHARP, DA_STATE_CLEAR, DA_STATE_SHARP, 
+                                                     DA_STATE_SHARP, DA_STATE_SHARP, DA_STATE_CLEAR, 
+                                                   },
+                                                   { // KEYSIG_CFLAT 
+                                                     DA_STATE_FLAT, DA_STATE_FLAT, DA_STATE_FLAT, DA_STATE_FLAT, 
+                                                     DA_STATE_FLAT, DA_STATE_FLAT, DA_STATE_FLAT, 
+                                                   },
+                                                 };
+    static constexpr int staveKeySigMapLen = 7;
 };
