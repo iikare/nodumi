@@ -244,11 +244,11 @@ void sheetController::disectMeasure(measureController& measure) {
   // each DFA set is unique to its measure
   // add "1" to size for inclusive bounding
   // TODO: make initial state depend on keysig accidental at that position
-  vector<int> presentDFAState(MAX_STAVE_IDX - MIN_STAVE_IDX + 1);
+  vector<int> presentDFAState;
   findDFAStartVector(presentDFAState, measure.currentKey); 
 
 
-  logQ(formatVector(presentDFAState));
+  //logQ(formatVector(presentDFAState));
 
   //logQ(measure.getNumber(), "has", dm.chords.size(), "chords");
   for (const auto& c : dm.chords) {
@@ -256,7 +256,7 @@ void sheetController::disectMeasure(measureController& measure) {
 
       //int& keyPos = presentDFAState[n->oriNote->sheetY];
       n->displayAcc = getDisplayAccType(presentDFAState[mapSheetY(n->oriNote->sheetY)], n->oriNote->accType);
-      logQ(presentDFAState[mapSheetY(n->oriNote->sheetY)], n->displayAcc, n->oriNote->accType);
+      logQ("pos:", n->oriNote->sheetY,presentDFAState[mapSheetY(n->oriNote->sheetY)], n->displayAcc, n->oriNote->accType);
     }
 
     //logQ(formatVector(presentDFAState));
@@ -287,19 +287,22 @@ void sheetController::disectMeasure(measureController& measure) {
 }
 
 void sheetController::findDFAStartVector(vector<int>& DFAState, const keySig& ks) {
-  //DFAState.resize(MAX_STAVE_IDX - MIN_STAVE_IDX + 1);
+  DFAState.resize(MAX_STAVE_IDX - MIN_STAVE_IDX + 1);
 
 
   const int* keyStateTemplate = staveKeySigMap[ks.getKey()];
 
   for (unsigned int idx = 0; idx < DFAState.size(); ++idx) {
-    int templateIdx = idx + abs(MIN_STAVE_IDX) + abs(MIN_STAVE_IDX) % 7;
-    DFAState[idx] = keyStateTemplate[templateIdx % 7]; 
+    int templateIdx = idx + abs(MIN_STAVE_IDX) + (abs(MIN_STAVE_IDX) % 7);
+    // mark middle C
+    //int state = idx == -MIN_STAVE_IDX ? -1 : keyStateTemplate[(1 + templateIdx) % 7]; 
+    int state = keyStateTemplate[(1 + templateIdx) % 7]; 
+    DFAState[idx] = state;
   }
 }
 
 int sheetController::mapSheetY(int sheetY) {
-  // input [0, MIN_STAVE_IDX + MAX_STAVE_IDX]
+  // input [0, MIN_STAVE_IDX + MAX_STAVE_IDX + 1]
   return sheetY + abs(MIN_STAVE_IDX);
 }
 
@@ -384,8 +387,8 @@ int sheetController::getDisplayAccType(int& DFAState, int noteAccType) {
       }
       break;
     default:
-      logW(LL_WARN, "invalid DFA state or accidental type for \
-                     display accidental calculation (state, type):", DFAState, noteAccType);
+      logW(LL_WARN, "invalid DFA state or accidental type for",
+                    "display accidental calculation (state, type):", DFAState, noteAccType);
       break;
   }
 
