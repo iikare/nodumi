@@ -116,7 +116,7 @@ class keySig {
       return key == other.key;
     }
 
-    int getKey() {
+    int getKey() const {
       return key;
     }
 
@@ -130,6 +130,7 @@ class keySig {
     int getTick() const { return tick; }
     int getAcc() const { return accidentals; }
     int getIndex() const { return startingIndex; }
+    int getStaveOffset() const;
 
     bool isSharp() const { return accidentals >= 0; }
 

@@ -114,3 +114,41 @@ void keySig::findStartingIndex() {
       break;
   }
 }
+
+// stave offset from neutral C (in range 0-6)
+int keySig::getStaveOffset() const {
+  switch (key) {
+    case KEYSIG_C:
+      return 0;
+    case KEYSIG_G:
+      return 4;
+    case KEYSIG_D:
+      return 1;
+    case KEYSIG_A:
+      return 5;
+    case KEYSIG_E:
+      return 2;
+    case KEYSIG_B:
+      return 6;
+    case KEYSIG_FSHARP:
+      return 3;
+    case KEYSIG_CSHARP:
+      return 0;
+    case KEYSIG_F:
+      return 3;
+    case KEYSIG_BFLAT:
+      return 6;
+    case KEYSIG_EFLAT:
+      return 2;
+    case KEYSIG_AFLAT:
+      return 5;
+    case KEYSIG_DFLAT:
+      return 1;
+    case KEYSIG_GFLAT:
+      return 4;
+    case KEYSIG_CFLAT:
+      return 0;
+    default:
+      return 0;
+  }
+}

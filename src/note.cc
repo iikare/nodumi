@@ -142,32 +142,18 @@ vector<int> note::getLinePositions(note* now, note* next) {
 
 void note::findKeyPos(const keySig& key) {
   int mappedPos = y - MIN_NOTE_IDX;
-  //int octave = (9 + mappedPos) / 12;
+  int octave = (9 + mappedPos) / 12;
   int keyStart = key.getIndex();
   int noteIndex = (12 + ((9 + mappedPos) % 12) - keyStart) % 12;
 
-  int yMod = 0;
 
-  // 0, 2, 4, 5, 7, 9, 11 are in key
-  if (noteIndex == 0 || noteIndex == 2 || noteIndex == 4 || noteIndex == 5 || 
-      noteIndex == 7 || noteIndex == 9 || noteIndex == 11) {
-      accType = ACC_NONE;
-  }
-  else {
-    // indexes 1, 3, 6, 8, 10
-    // accidental is based on current keysig accidental type
-    accType = key.isSharp() ? accType = ACC_SHARP : accType = ACC_FLAT;
-    //logQ("key", key.getAcc(), "noteIndex", noteIndex, "mapped", mappedPos);
-    if (key.isSharp()) {
-      yMod = -1;
-    }
-    else {
-      yMod = 0;
-    }
-  }
+  auto keyParams = staveKeyMap[key.getKey()][noteIndex % 12]; 
 
-  // TODO: INCORPORATE KEYSIG INTO THIS
-  sheetY = MIDC_NOTE_IDX;
+  accType = keyParams.acc;
+
+  sheetY = (octave - 4) * 7 + keyParams.offset + key.getStaveOffset();
+  
+  logQ(keyParams.offset, keyParams.acc, sheetY);
 }
 
 void note::findSize(const set<pair<int,int>, tickCmp>& tickSet)  {

@@ -243,6 +243,7 @@ void sheetController::disectMeasure(measureController& measure) {
   // run a DFA for each valid midi key, advancing state based on new-note-to-midi-position values
   // each DFA set is unique to its measure
   // add "1" to size for inclusive bounding
+  // TODO: make initial state depend on keysig accidental at that position
   vector<int> presentDFAState(MAX_NOTE_IDX - MIN_NOTE_IDX + 1, DA_STATE_CLEAR); 
 
   //logQ(measure.getNumber(), "has", dm.chords.size(), "chords");
@@ -250,8 +251,8 @@ void sheetController::disectMeasure(measureController& measure) {
     for (const auto& n : c.second) {
 
       //int& keyPos = presentDFAState[n->oriNote->sheetY];
-      n->displayAcc = getDisplayAccType(presentDFAState[n->oriNote->sheetY], n->oriNote->accType);
-      logQ(presentDFAState[n->oriNote->sheetY], n->displayAcc, n->oriNote->accType);
+      //n->displayAcc = getDisplayAccType(presentDFAState[n->oriNote->sheetY], n->oriNote->accType);
+      //logQ(presentDFAState[n->oriNote->sheetY], n->displayAcc, n->oriNote->accType);
     }
 
     //logQ(formatVector(presentDFAState));
