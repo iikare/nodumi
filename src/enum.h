@@ -194,3 +194,18 @@ enum displayAccStateType {
   DA_STATE_FLAT_MULT,
   DA_STATE_NONE
 };
+
+enum flagType {
+  FLAGTYPE_STEM,
+  FLAGTYPE_8,
+  FLAGTYPE_16,
+  FLAGTYPE_32,
+  FLAGTYPE_64,
+  FLAGTYPE_NONE
+};
+
+enum flagDirType {
+  FLAG_UP,
+  FLAG_DOWN,
+  FLAG_NONE
+};

@@ -32,6 +32,7 @@ using std::thread;
 using std::ref;
 
 controller ctr;
+
 int main (int argc, char* argv[]) {
 
   // basic window setup
@@ -207,6 +208,9 @@ int main (int argc, char* argv[]) {
   menuctr.registerMenu(&colorSelect);
   
   // main program logic
+
+  // TODO: remove when done testing stave heights
+  int pug = 0;
 
   if (argc >= 2) {
     string filename = argv[1];
@@ -594,7 +598,8 @@ int main (int argc, char* argv[]) {
         drawSymbol(SYM_STAFF_BRACE, 480, 17.0f, float(ctr.menuHeight + ctr.barMargin) - 120, ctr.bgSheetNote);
         drawSymbol(SYM_CLEF_TREBLE, 155, 40.0f, ctr.menuHeight + ctr.barMargin - 47, ctr.bgSheetNote);
         drawSymbol(SYM_CLEF_BASS, 155, 40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 67), ctr.bgSheetNote);
-       
+      
+
 
         //noteData.sheetData.drawTimeSignature({3,4,0},80,ctr.bgSheetNote);
       
@@ -618,9 +623,23 @@ int main (int argc, char* argv[]) {
           clen+=ml;
           //logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);
         }
-        
+       
+        // temp sheetY control
+        if (IsKeyPressed(KEY_F)) { pug++; }
+        if (IsKeyPressed(KEY_J)) { pug--; }
+        logQ(pug);
+
+        // temp extra stave lines
+        for (auto i = -10; i < 10; i++) {
+
+          drawLineEx(400-20,ctr.barMargin+i*ctr.barWidth,400+20, ctr.barMargin+i*ctr.barWidth, 2,{255,0,0});
+          drawLineEx(400-20,ctr.barSpacing*2+ctr.barMargin+i*ctr.barWidth,400+20, 
+                            ctr.barSpacing*2+ctr.barMargin+i*ctr.barWidth, 2,{255,0,0});
+        }
+
         // middle C
-        noteData.sheetData.drawNote(noteData.measureMap[0].displayNotes[0],400, ctr.bgSheetNote);
+        note f; f.sheetY = pug; sheetNote q; q.oriNote = &f; q.stave = pug > 0 ? STAVE_TREBLE : STAVE_BASS;
+        noteData.sheetData.drawNote(q,400, ctr.bgSheetNote);
 
       }
       

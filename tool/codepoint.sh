@@ -3,6 +3,7 @@
 # ALL CODEPOINTS DEFINED HERE
 
 points=(
+        "SYM_EXTRA,         0xE002" 
         "SYM_STAFF_BRACE,   0xE000" 
         "SYM_CLEF_TREBLE,   0xE050" 
         "SYM_CLEF_BASS,     0xE062" 
@@ -19,6 +20,7 @@ points=(
         "SYM_HEAD_WHOLE,    0xE0A2" 
         "SYM_HEAD_HALF,     0xE0A3" 
         "SYM_HEAD_STD,      0xE0A4" 
+        "SYM_DOT,           0xE1E7" 
         "SYM_FLAG_8U,       0xE240" 
         "SYM_FLAG_8D,       0xE241" 
         "SYM_FLAG_16U,      0xE242" 

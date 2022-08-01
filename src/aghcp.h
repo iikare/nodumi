@@ -7,6 +7,7 @@
 using std::vector;
 
 vector<int> codepointSet = {
+  0xE002,
   0xE000,
   0xE050,
   0xE062,
@@ -23,6 +24,7 @@ vector<int> codepointSet = {
   0xE0A2,
   0xE0A3,
   0xE0A4,
+  0xE1E7,
   0xE240,
   0xE241,
   0xE242,

@@ -31,6 +31,9 @@ class sheetController {
    
     int getKeyWidth(const keySig& key);
     int getTimeWidth(const timeSig& key);
+    int getSymbolWidth(const int symbol);
+    int getSymbolWidth(const int flagType, const int dir);
+    int getSymbolType(const int noteType);
 
     // no beaming
     void drawNote(const sheetNote& noteData, int x, colorRGB col);
@@ -39,6 +42,7 @@ class sheetController {
     void disectMeasure(measureController& measure);
 
     friend class midi;
+    friend class sheetMeasure;
 
   private:
 
@@ -47,7 +51,12 @@ class sheetController {
     void findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType);
     int findTimePartWidth(const int part); 
     void findDFAStartVector(vector<int>& DFAState, const keySig& ks); 
+    int findStaveY(int sheetY, int stave);
 
+    static constexpr pair<int, int> getStaveRenderLimit() { return make_pair(staveFlagLimitMap[0][0], staveFlagLimitMap[1][0]); }
+    static constexpr int getFlagLimit(int flagType, int stave) {
+      return staveFlagLimitMap[stave][flagType == FLAGTYPE_NONE ? 0 : (flagType+1) % 6];
+    }
     int getDisplayAccType(int& DFAState, int noteAccType);
     int mapSheetY(int sheetY);
 
@@ -70,10 +79,24 @@ class sheetController {
     static constexpr int accMax = 7;
 
     static constexpr int borderSpacing = 15;
+    
+    static constexpr int stemWidth = 2;
+    static constexpr int dotSpacing = 4;
+    static constexpr int accSpacing = 4;
+    
+    static constexpr int placeholderWidth = 24;
 
+
+    // order: 0, 4, 8, 16, 32, 64
+    // limit is the sheetY that causes clipping when facing up
+    // first value is the overall limit (above/below will not be rendered)
+    static constexpr int staveFlagLimitMap[2][6] = {
+                                                     { 22, 18, 18, 18, 17, 15},
+                                                     {-22,-18,-18,-18,-15,-15},
+                                                   };
 
     // indexed to middle C (val:60, MIDC_NOTE_IDX)
-    int staveKeySigMap[15][7] = {
+    static constexpr int staveKeySigMap[15][7] = {
                                                    { // KEYSIG_C 
                                                      DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, 
                                                      DA_STATE_CLEAR, DA_STATE_CLEAR, DA_STATE_CLEAR, 

@@ -23,6 +23,23 @@ struct chordCmp {
     }
 };
 
+struct flagData {
+  int startY;
+  int endY;
+  int flagType;
+  int flagDir;
+};
+
+struct chordData {
+  int leftWidth;
+  int rightWidth;
+
+  vector<flagData> flags;
+
+  int getStemPosition() const { return leftWidth; }
+  int getSize() const { return leftWidth + rightWidth; }
+};
+
 class sheetMeasure {
   public:
 
@@ -31,10 +48,15 @@ class sheetMeasure {
     }
 
     void addSpace(int space);
+    bool hasStem(int chordNum) const;
+    int hasFlag(int chordNum) const;
+    int getFlagType(const int noteType) const;
 
     void buildChordMap(vector<sheetNote>& vecNote);
+    void buildFlagMap();
 
-  
+ 
+    vector<chordData> chordData;
     vector<pair<int, vector<sheetNote*>>> chords;
 
   private:

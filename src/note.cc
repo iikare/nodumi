@@ -162,3 +162,16 @@ void note::findSize(const set<pair<int,int>, tickCmp>& tickSet)  {
   //logQ(tickDuration, "map to notevalue", it->second);
   type = it->second;
 }
+
+bool note::hasDot() const {
+  switch(type) {
+    case NOTE_WHOLE_DOT:
+    case NOTE_HALF_DOT:
+    case NOTE_QUARTER_DOT:
+    case NOTE_8_DOT:
+    case NOTE_16_DOT:
+      return true;
+    default:
+      return false;
+  }
+}

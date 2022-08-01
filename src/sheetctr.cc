@@ -149,12 +149,26 @@ void sheetController::drawKeySignature(const keySig& key, int x, colorRGB col) {
 
 
 void sheetController::drawNote(const sheetNote& noteData, int x, colorRGB col) {
-  const int y = ctr.barMargin+ctr.barWidth*2;
-
+  const int y = findStaveY(noteData.oriNote->sheetY, noteData.stave);;
+//retun;
   // for centering
-  drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
+  //drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
+  //drawLineEx(x, 0,
+             //x, ctr.getHeight(), 1, ctr.bgNow);
 
-  drawSymbol(SYM_HEAD_STD, fSize, x, y+1, col);
+  drawLineEx(x, y-1, x, y+30, stemWidth, ctr.bgSheetNote);
+  int sym = SYM_HEAD_STD;
+  drawSymbol(sym, fSize, x+0*getSymbolWidth(sym)-stemWidth/2, y+2-ctr.barSpacing, col);
+  drawSymbol(SYM_FLAG_8D, fSize, x-+stemWidth/2, y+30+5-ctr.barSpacing, col);
+}
+
+int sheetController::findStaveY(int sheetY, int stave) {
+  if (stave == STAVE_TREBLE) {
+    return ctr.barMargin+ctr.barWidth*7-ctr.barWidth/2*sheetY;
+  }
+  else {
+    return ctr.barMargin+ctr.barSpacing+ctr.barWidth-ctr.barWidth/2*sheetY;
+  }
 }
 
 int sheetController::getKeyWidth(const keySig& key) {
@@ -239,34 +253,122 @@ void sheetController::disectMeasure(measureController& measure) {
   sheetMeasure dm;
   dm.buildChordMap(measure.displayNotes);
 
-
   // run a DFA for each valid midi key, advancing state based on new-note-to-midi-position values
   // each DFA set is unique to its measure
   // add "1" to size for inclusive bounding
-  // TODO: make initial state depend on keysig accidental at that position
   vector<int> presentDFAState;
   findDFAStartVector(presentDFAState, measure.currentKey); 
 
-
-  //logQ(formatVector(presentDFAState));
-
-  //logQ(measure.getNumber(), "has", dm.chords.size(), "chords");
-  for (const auto& c : dm.chords) {
-    for (const auto& n : c.second) {
-
+  // find true accidental type for each note
+  for (unsigned int ch = 0; const auto& c : dm.chords) {
+    for (unsigned int ct = 0; const auto& n : c.second) {
+      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
+        continue;
+      }
       //int& keyPos = presentDFAState[n->oriNote->sheetY];
       n->displayAcc = getDisplayAccType(presentDFAState[mapSheetY(n->oriNote->sheetY)], n->oriNote->accType);
-      logQ("pos:", n->oriNote->sheetY,presentDFAState[mapSheetY(n->oriNote->sheetY)], n->displayAcc, n->oriNote->accType);
+      //logQ("pos:", n->oriNote->sheetY,presentDFAState[mapSheetY(n->oriNote->sheetY)], n->displayAcc, n->oriNote->accType);
+      
+      if (n->oriNote->sheetY > 0) {
+        n->stave = STAVE_TREBLE;
+      }
+      else if (n->oriNote->sheetY < 0) {
+        n->stave = STAVE_BASS;
+      }
+      else {
+        //n->stave = STAVE_TREBLE;
+        ct >= c.second.size()/2 ? n->stave = STAVE_TREBLE : (ct != 0 ? n->stave = STAVE_BASS : n->stave = STAVE_TREBLE);
+      }
+      ct++;
     }
-
-    //logQ(formatVector(presentDFAState));
-    //logQ("chord", ch++, "@", c.first, "has", c.second.size(), "quantized notes");
+    ch++;
   }
 
+  dm.buildFlagMap();
+  
+  for (unsigned int ch = 0; const auto& c : dm.chords) {
+    int stavect = 0;
+    for (unsigned int ct = 0; const auto& n : c.second) {
+      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
+        continue;
+      }
+
+      if (ct != 0) {
+        if (n->stave != dm.chords[ch].second[ct-1]->stave) {
+          stavect = 0;
+        }
+      }
+      if (stavect != 0) {
+        if (n->oriNote->sheetY - dm.chords[ch].second[ct-1]->oriNote->sheetY < 2) {
+            n->left = !dm.chords[ch].second[ct-1]->left;
+        }
+      }
+      ct++;
+      stavect++;
+    }
+    ch++;
+  }
+ 
+  // TODO: incorporate flag widths into chord sizing detection
+
+  //calculate chord sizes
+  for (unsigned int ch = 0; const auto& c : dm.chords) {
+    //logQ("x");
+
+    int leftWidth = 0;
+    int rightWidth = 0;
+
+    int chordStemWidth = dm.hasStem(ch) ? stemWidth : 0;
+
+
+    for (const auto& n : c.second) {
+      int noteLW = 0;
+      int noteRW = 0;
+      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
+        noteLW = placeholderWidth/2;
+        noteRW = placeholderWidth/2;
+      }
+      else {
+        if (n->left) {
+          noteLW += getSymbolWidth(getSymbolType(n->oriNote->type))+chordStemWidth/2;
+        }
+        else {
+          noteRW += getSymbolWidth(getSymbolType(n->oriNote->type))+chordStemWidth/2;
+
+        }
+
+        if (n->oriNote->hasDot()) {
+          noteRW += getSymbolWidth(SYM_DOT) + dotSpacing;
+        }
+
+        noteLW += getSymbolWidth(getSymbolType(n->displayAcc)) + accSpacing;
+      }
+      leftWidth = max(leftWidth, noteLW);
+      rightWidth = max(rightWidth, noteRW);
+    }
+
+    // get flag widths
+   for (const auto& fStem : dm.chordData[ch].flags) {
+
+     int flagWidth = getSymbolWidth(fStem.flagType, fStem.flagDir);
+    
+     // in both directions, the flag width is added to right-of-stem
+     rightWidth = max(rightWidth, flagWidth);
+   }
+
+
+    dm.chordData[ch].leftWidth = leftWidth;
+    dm.chordData[ch].rightWidth = rightWidth;
+
+    ch++;
+  }
+
+  for (int z = 0; const auto& c : dm.chordData) {
+    logQ(z++, "has size", c.getSize());
+  }
 
   // left measure spacing
   dm.addSpace(borderSpacing);
-
 
   //logQ("MEASURE", measure.getNumber(), "with length", measure.getTickLen());
 
@@ -394,3 +496,110 @@ int sheetController::getDisplayAccType(int& DFAState, int noteAccType) {
 
   return -1;
 }
+
+int sheetController::getSymbolWidth(const int symbol) {
+
+  switch(symbol) {
+    case SYM_HEAD_WHOLE:
+      return 15;
+    case SYM_HEAD_HALF:
+      return 13;
+    case SYM_HEAD_STD:
+      return 13;
+    case SYM_FLAG_8U:
+      return 12;
+    case SYM_FLAG_8D:
+      return 13;
+    case SYM_FLAG_16U:
+      return 11;
+    case SYM_FLAG_16D:
+      return 13;
+    case SYM_FLAG_32U:
+      return 11;
+    case SYM_FLAG_32D:
+      return 13;
+    case SYM_FLAG_64U:
+      return 11;
+    case SYM_FLAG_64D:
+      return 13;
+    case SYM_ACC_FLAT:
+      return 8;
+    case SYM_ACC_NATURAL:
+      return 7;
+    case SYM_ACC_SHARP:
+      return 10;
+    case SYM_DOT:
+      return 4;
+    default:
+      logQ("invalid symbol:", symbol);
+      break;
+  }
+
+  return -1;
+}
+
+int sheetController::getSymbolWidth(const int flagType, const int dir) {
+  switch (flagType) {
+    case FLAGTYPE_STEM:
+      return stemWidth;
+    case FLAGTYPE_8:
+      switch (dir) {
+        case FLAG_UP:
+          return getSymbolWidth(SYM_FLAG_8U);
+        case FLAG_DOWN:
+          return getSymbolWidth(SYM_FLAG_8D);
+      }
+    case FLAGTYPE_16:
+      switch (dir) {
+        case FLAG_UP:
+          return getSymbolWidth(SYM_FLAG_16U);
+        case FLAG_DOWN:
+          return getSymbolWidth(SYM_FLAG_16D);
+      }
+    case FLAGTYPE_32:
+      switch (dir) {
+        case FLAG_UP:
+          return getSymbolWidth(SYM_FLAG_32U);
+        case FLAG_DOWN:
+          return getSymbolWidth(SYM_FLAG_32D);
+      }
+    case FLAGTYPE_64:
+      switch (dir) {
+        case FLAG_UP:
+          return getSymbolWidth(SYM_FLAG_64U);
+        case FLAG_DOWN:
+          return getSymbolWidth(SYM_FLAG_64D);
+      }
+    case FLAGTYPE_NONE:
+      return 0;
+  }
+
+  return -1;
+}
+
+int sheetController::getSymbolType(const int noteType) {
+  switch(noteType) {
+    case NOTE_LARGE:
+    case NOTE_WHOLE_DOT:
+    case NOTE_WHOLE:
+      return SYM_HEAD_WHOLE;
+    case NOTE_HALF_DOT:
+    case NOTE_HALF:
+      return SYM_HEAD_HALF;
+    case NOTE_QUARTER_DOT:
+    case NOTE_QUARTER:
+    case NOTE_8_DOT:
+    case NOTE_8:
+    case NOTE_16_DOT:
+    case NOTE_16:
+    case NOTE_32:
+    case NOTE_64:
+      return SYM_HEAD_STD;
+    default:
+      logQ("invalid note type:", noteType);
+      break;
+  }
+  
+  return -1;
+}
+

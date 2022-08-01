@@ -44,6 +44,7 @@ class note {
     void findKeyPos(const keySig& key);
 
     void findSize(const set<pair<int,int>, tickCmp>& tickSet);
+    bool hasDot() const;
     
     int number;
     int size; 
@@ -60,7 +61,7 @@ class note {
 
     int type = NOTE_NONE;
     int accType = ACC_NONE;
-    int sheetY = MIN_NOTE_IDX;
+    int sheetY = MIN_STAVE_IDX;
 
     friend class trackController;
     vector<int> getLinePositions(note* now, note* next);
