@@ -89,6 +89,16 @@ void controller::updateKeyState() {
 void controller::updateDimension() {
   if(IsWindowResized()) {
     // TODO: re-center the nowline on window resize
+    
+    if (livePlayState) {
+
+
+      // TODO: measure system for live input
+
+    }
+    else {
+      file.sheetData.findSheetPages(file.measureMap.size());
+    }
   }
 }
 

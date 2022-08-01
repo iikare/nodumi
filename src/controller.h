@@ -120,6 +120,9 @@ class controller {
     static constexpr int barSpacing  =   80;
     static constexpr int barMargin   =   49 + (sheetHeight-200)/2;
 
+    static constexpr int sheetSideMargin = 30;
+    static constexpr int sheetSymbolWidth = sheetSideMargin + 42;
+
     int livePlayOffset;
   
     

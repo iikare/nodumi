@@ -3,6 +3,7 @@
 #include <vector>
 #include <set>
 #include "sheetnote.h"
+#include "measure.h"
 #include "enum.h"
 #include "note.h"
 
@@ -55,12 +56,16 @@ class sheetMeasure {
     void buildChordMap(vector<sheetNote>& vecNote);
     void buildFlagMap();
 
+    void setParent(measureController& m) { measure = &m; }
+
  
     vector<chordData> chordData;
     vector<pair<int, vector<sheetNote*>>> chords;
+    measureController* measure;
 
   private:
     vector<int> spacing;
+
 
 
 };

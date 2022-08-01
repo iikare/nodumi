@@ -251,6 +251,7 @@ void sheetController::disectMeasure(measureController& measure) {
   //logQ("measure", measure.getNumber(), "has timesig", measure.currentTime.getTop(), measure.currentTime.getBottom());
   // preprocessing
   sheetMeasure dm;
+  dm.setParent(measure);
   dm.buildChordMap(measure.displayNotes);
 
   // run a DFA for each valid midi key, advancing state based on new-note-to-midi-position values
@@ -362,11 +363,6 @@ void sheetController::disectMeasure(measureController& measure) {
 
     ch++;
   }
-
-  for (int z = 0; const auto& c : dm.chordData) {
-    logQ(z++, "has size", c.getSize());
-  }
-
   // left measure spacing
   dm.addSpace(borderSpacing);
 
@@ -386,6 +382,52 @@ void sheetController::disectMeasure(measureController& measure) {
   dm.addSpace(borderSpacing);
   
   displayMeasure.push_back(dm);
+}
+
+int sheetController::findMeasureWidth(int measureNum) {
+  sheetMeasure& dm = displayMeasure[measureNum];
+
+  int width = 0;
+
+  for (const auto& ts : dm.measure->timeSignatures) {
+    width += getTimeWidth(ts);
+  }
+  for (const auto& ks : dm.measure->keySignatures) {
+    width += getKeyWidth(ks);
+  }
+
+  //int tickDist = dm.chords.size() < 2 ? 0 : __INT_MAX__;
+
+  for (unsigned int c = 0; c < dm.chords.size(); ++c) {
+    //if (c != 0) {
+      //tickDist = min(tickDist, i.first - dm.chords[c-1].first);
+    //}
+
+    width += dm.chordData[c].getSize();
+  }
+
+  //logQ("m", measureNum+1, "min dist.", tickDist, "width", width, "chords");
+
+  return width;
+}
+
+void sheetController::findSheetPages(int numMeasures) {
+  sheetPageSeparator.clear();
+  sheetPageSeparator.push_back(0);
+
+  int pageWidth = 0;
+  int measureWidth = 0;
+  int maxWidth = ctr.getWidth() - ctr.sheetSideMargin - ctr.sheetSymbolWidth;
+
+  for (int i = 0; i < numMeasures; ++i) { 
+    measureWidth = findMeasureWidth(i);
+    if (pageWidth + measureWidth > maxWidth) {
+      logQ("divider at", i-1, "extra space", maxWidth - pageWidth);
+      sheetPageSeparator.push_back(i-1);
+      pageWidth = 0;
+    }
+    pageWidth += measureWidth;
+  }
 }
 
 void sheetController::findDFAStartVector(vector<int>& DFAState, const keySig& ks) {

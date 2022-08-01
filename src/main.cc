@@ -209,9 +209,6 @@ int main (int argc, char* argv[]) {
   
   // main program logic
 
-  // TODO: remove when done testing stave heights
-  int pug = 0;
-
   if (argc >= 2) {
     string filename = argv[1];
 
@@ -583,15 +580,18 @@ int main (int argc, char* argv[]) {
         // stave lines
         for (int i = 0; i < 2; i++) {
           for (int j = 0; j < 5; j++) {
-            drawLineEx(30, ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth,
-                       ctr.getWidth() - 30, ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth, 1, ctr.bgDark);
+            drawLineEx(ctr.sheetSideMargin, 
+                       ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth,
+                       ctr.getWidth() - ctr.sheetSideMargin, 
+                       ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth, 
+                       1, ctr.bgDark);
           }
         }
         
         //// end lines
-        drawLineEx(30, ctr.menuHeight + ctr.barMargin, 30,
+        drawLineEx(ctr.sheetSideMargin, ctr.menuHeight + ctr.barMargin, ctr.sheetSideMargin,
                    ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
-        drawLineEx(ctr.getWidth() - 30, ctr.menuHeight + ctr.barMargin, ctr.getWidth() - 30,
+        drawLineEx(ctr.getWidth() - ctr.sheetSideMargin, ctr.menuHeight + ctr.barMargin, ctr.getWidth() - ctr.sheetSideMargin,
                    ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
 
         
@@ -600,47 +600,15 @@ int main (int argc, char* argv[]) {
         drawSymbol(SYM_CLEF_BASS, 155, 40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 67), ctr.bgSheetNote);
       
 
-
-        //noteData.sheetData.drawTimeSignature({3,4,0},80,ctr.bgSheetNote);
-      
-        //logQ("snugpug");
-        int p = 0;
-        int ml = 0;
-        int clen = 70;
-        for (/*int me = 0;*/ const auto& m : noteData.measureMap) {
-          ml = 0;
-          // keysig comes first
-          for (const auto& k : m.keySignatures) {
-            noteData.sheetData.drawKeySignature(k,clen+ml, ctr.bgSheetNote);
-            p++;
-            ml+=noteData.sheetData.getKeyWidth(k);
-          }
-          for (const auto& t : m.timeSignatures) {
-            noteData.sheetData.drawTimeSignature(t,clen+ml, ctr.bgSheetNote);
-            p++;
-            ml+=noteData.sheetData.getTimeWidth(t);
-          }
-          clen+=ml;
-          //logQ("measure", 1+me++, "has minimum NON-NOTE length", ml);
-        }
        
-        // temp sheetY control
-        if (IsKeyPressed(KEY_F)) { pug++; }
-        if (IsKeyPressed(KEY_J)) { pug--; }
-        logQ(pug);
+        if (IsKeyPressed(KEY_F)) {
+          noteData.sheetData.findSheetPages(noteData.measureMap.size());
+          
 
-        // temp extra stave lines
-        for (auto i = -10; i < 10; i++) {
-
-          drawLineEx(400-20,ctr.barMargin+i*ctr.barWidth,400+20, ctr.barMargin+i*ctr.barWidth, 2,{255,0,0});
-          drawLineEx(400-20,ctr.barSpacing*2+ctr.barMargin+i*ctr.barWidth,400+20, 
-                            ctr.barSpacing*2+ctr.barMargin+i*ctr.barWidth, 2,{255,0,0});
+          for (const auto& i : noteData.measureMap) {
+            //logQ(i.getLocation());
+          }
         }
-
-        // middle C
-        note f; f.sheetY = pug; sheetNote q; q.oriNote = &f; q.stave = pug > 0 ? STAVE_TREBLE : STAVE_BASS;
-        noteData.sheetData.drawNote(q,400, ctr.bgSheetNote);
-
       }
       
 

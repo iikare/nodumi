@@ -40,12 +40,15 @@ class sheetController {
 
 
     void disectMeasure(measureController& measure);
+    void findSheetPages(int numMeasures);
+    int findMeasureWidth(int measureNum);
 
     friend class midi;
     friend class sheetMeasure;
 
   private:
 
+    vector<int> sheetPageSeparator;
     vector<sheetMeasure> displayMeasure;
 
     void findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType);
