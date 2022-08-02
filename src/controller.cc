@@ -88,7 +88,6 @@ void controller::updateKeyState() {
 
 void controller::updateDimension() {
   if(IsWindowResized()) {
-    // TODO: re-center the nowline on window resize
     
     if (livePlayState) {
 
@@ -161,6 +160,27 @@ int controller::getMinTickLen() const {
     return file.getMinTickLen();
   }
 }
+
+int controller::getCurrentMeasure(int pos) const {
+  if (livePlayState) {
+    // TODO: reimplement when measures are added to live input data
+    return 0;
+  }
+  else {
+    if (pos >= (file.measureMap.end()-1)->getLocation()) {
+      return file.measureMap.size();
+    }
+    for (unsigned int i = 0; i < file.measureMap.size(); ++i) {
+      if (pos < file.measureMap[i].getLocation()-1) {
+        // account for 1-based indexing of measures
+        return i;
+      }
+    }
+  }
+  logW(LL_WARN, "invalid current measure");
+  return -1;
+}
+
 
 void controller::load(string path, 
                       bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,

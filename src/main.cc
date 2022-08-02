@@ -605,10 +605,8 @@ int main (int argc, char* argv[]) {
           noteData.sheetData.findSheetPages(noteData.measureMap.size());
           
 
-          for (const auto& i : noteData.measureMap) {
-            //logQ(i.getLocation());
-          }
         }
+          logQ("cloc", ctr.getCurrentMeasure(timeOffset));
       }
       
 

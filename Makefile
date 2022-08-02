@@ -3,7 +3,7 @@ C = clang
 #CC = x86_64-w64-mingw32-gcc-11.2.0 
 
 #LD =
-LD = -DLLVM_ENABLE_LLD=ON 
+LD = -fuse-ld=mold
 LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__ 
 #WINDOWS = -D__WINDOWS_MM__
 
@@ -16,17 +16,17 @@ NONSTD =  -fsanitize=address -fno-omit-frame-pointer
 endif
 
 ifeq ($(strip $(rel)),)
-RELFLAGS = -Og
+RELFLAGS = -Og -g
 else # release build
 RELFLAGS = -DNO_DEBUG -O3 -flto=thin
 endif
 
-CFLAGS = --std=c++20 -Wall -Wextra -g $(NONSTD) $(RELFLAGS) $(LD) $(LINUX) 
-CFLAGSOSD = --std=c99 -w -fpermissive -g $(LD) $(shell pkg-config --cflags gtk+-3.0) 
-CFLAGSRTM = $(CFLAGS) -w
-CFLAGSCIE = $(CFLAGS) -w
+CFLAGS = --std=c++20 -Wall -Wextra $(NONSTD) $(RELFLAGS) $(LINUX) 
+CFLAGSOSD = --std=c99  $(shell pkg-config --cflags gtk+-3.0) 
+CFLAGSRTM = $(CFLAGS) -w # suppress library warnings 
+CFLAGSCIE = $(CFLAGS) 
 
-LFLAGS = -lraylib -lasound -lpthread -ljack $(shell pkg-config --libs gtk+-3.0)
+LFLAGS = $(LD) -lraylib -lasound -lpthread -ljack $(shell pkg-config --libs gtk+-3.0)
 
 PREREQ_DIR=@mkdir -p $(@D)
 
