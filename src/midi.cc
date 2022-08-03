@@ -206,6 +206,8 @@ void midi::load(stringstream& buf) {
   tickSet.clear();
   itemStartSet.clear();
 
+  sheetData.reset();
+
   noteCount = 0;
   trackCount = 0;
   tpq = 0;

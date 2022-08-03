@@ -610,8 +610,6 @@ int main (int argc, char* argv[]) {
         //noteData.sheetData.findSheetPages();
         //logQ("cloc", ctr.getCurrentMeasure(timeOffset));
         //logQ("cloc", formatPair(noteData.sheetData.findSheetPageLimit(ctr.getCurrentMeasure(timeOffset))));
-        drawTextEx(to_string(noteData.sheetData.findSheetPageLimit(ctr.getCurrentMeasure(timeOffset)).first),
-                   {80 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*3}, ctr.bgSheetNote);
       }
       
 
@@ -1443,7 +1441,7 @@ int main (int argc, char* argv[]) {
 
     menuctr.updateMouse();
     menuctr.updateRenderStatus();
-    ctr.update();
+    ctr.update(timeOffset);
     
     // displays index of last clicked note  
     //logQ(clickNote);

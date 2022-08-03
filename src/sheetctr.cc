@@ -477,6 +477,8 @@ int sheetController::mapSheetY(int sheetY) {
 
 void sheetController::drawSheetPage() {
 
+        drawTextEx(to_string(findSheetPageLimit(ctr.getCurrentMeasure()).first),
+                   {80 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*3}, ctr.bgSheetNote);
 }
 
 int sheetController::getDisplayAccType(int& DFAState, int noteAccType) {

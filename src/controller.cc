@@ -80,10 +80,11 @@ void controller::unloadData() {
 }
 
 
-void controller::update() {
+void controller::update(int offset) {
   updateKeyState();
   updateDimension();
   updateFPS();
+  curMeasure = findCurrentMeasure(offset);
 }
 
 void controller::updateFPS() {
@@ -174,7 +175,11 @@ int controller::getMinTickLen() const {
   }
 }
 
-int controller::getCurrentMeasure(int pos) const {
+int controller::getCurrentMeasure() const {
+  return curMeasure;
+}
+
+int controller::findCurrentMeasure(int pos) const {
   if (livePlayState) {
     // TODO: reimplement when measures are added to live input data
     return 0;

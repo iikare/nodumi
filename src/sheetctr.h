@@ -21,28 +21,19 @@ class sheetController {
       for (auto& disp : displayMeasure) {
         disp.reset();
       }
+      sheetPageSeparator.clear();
+      displayMeasure.clear();
+
     }
 
     int getGlyphWidth(int codepoint, int size = fSize);
 
-    void drawTimeSignature(const timeSig& time, int x, colorRGB col);
-    
-    void drawKeySignature(const keySig& key, int x, colorRGB col);
-   
-    int getKeyWidth(const keySig& key);
-    int getTimeWidth(const timeSig& key);
-    int getSymbolWidth(const int symbol);
-    int getSymbolWidth(const int flagType, const int dir);
-    int getSymbolType(const int noteType);
-
+    // TODO: merge into chord drawing function
     // no beaming
     void drawNote(const sheetNote& noteData, int x, colorRGB col);
 
-
     void disectMeasure(measureController& measure);
     void findSheetPages();
-    int findMeasureWidth(int measureNum);
-    pair<int, int> findSheetPageLimit(int measureNum) const;
 
 
     void drawSheetPage();
@@ -54,11 +45,22 @@ class sheetController {
 
     vector<int> sheetPageSeparator;
     vector<sheetMeasure> displayMeasure;
+    
+    void drawTimeSignature(const timeSig& time, int x, colorRGB col);
+    void drawKeySignature(const keySig& key, int x, colorRGB col);
+   
+    int getKeyWidth(const keySig& key);
+    int getTimeWidth(const timeSig& key);
+    int getSymbolWidth(const int symbol);
+    int getSymbolWidth(const int flagType, const int dir);
+    int getSymbolType(const int noteType);
 
+    void findDFAStartVector(vector<int>& DFAState, const keySig& ks); 
     void findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType);
     int findTimePartWidth(const int part); 
-    void findDFAStartVector(vector<int>& DFAState, const keySig& ks); 
     int findStaveY(int sheetY, int stave);
+    int findMeasureWidth(int measureNum);
+    pair<int, int> findSheetPageLimit(int measureNum) const;
 
     static constexpr pair<int, int> getStaveRenderLimit() { return make_pair(staveFlagLimitMap[0][0], staveFlagLimitMap[1][0]); }
     static constexpr int getFlagLimit(int flagType, int stave) {

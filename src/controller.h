@@ -42,7 +42,7 @@ class controller {
 
     Font* getFont(string id, int size);
 
-    void update();
+    void update(int offset);
     void toggleLivePlay();
     void setCloseFlag();
     void load(string path, 
@@ -73,7 +73,7 @@ class controller {
     int getLastTime();
     int getTempo(int idx);
     int getMinTickLen() const;
-    int getCurrentMeasure(int pos) const;
+    int getCurrentMeasure() const;
     int getMeasureCount() const;
 
     int getWidth() const { return GetScreenWidth(); }
@@ -125,6 +125,7 @@ class controller {
     static constexpr int sheetSymbolWidth = sheetSideMargin + 42;
 
     int livePlayOffset;
+    int curMeasure;
     
     
     
@@ -132,6 +133,7 @@ class controller {
     void updateKeyState();
     void updateDimension();
     void updateFPS();
+    int findCurrentMeasure(int pos) const;
     
     bool programState = true;
     bool playState;
