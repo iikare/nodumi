@@ -40,8 +40,9 @@ class sheetController {
 
 
     void disectMeasure(measureController& measure);
-    void findSheetPages(int numMeasures);
+    void findSheetPages();
     int findMeasureWidth(int measureNum);
+    pair<int, int> findSheetPageLimit(int measureNum) const;
 
     friend class midi;
     friend class sheetMeasure;

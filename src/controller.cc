@@ -96,7 +96,7 @@ void controller::updateDimension() {
 
     }
     else {
-      file.sheetData.findSheetPages(file.measureMap.size());
+      file.sheetData.findSheetPages();
     }
   }
 }
@@ -179,6 +179,16 @@ int controller::getCurrentMeasure(int pos) const {
   }
   logW(LL_WARN, "invalid current measure");
   return -1;
+}
+
+int controller::getMeasureCount() const {
+  if (livePlayState) {
+    // TODO: reimplement when measures are added to live input data
+    return 0;
+  }
+  else {
+    return file.measureMap.size();
+  }
 }
 
 

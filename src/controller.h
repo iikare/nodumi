@@ -75,6 +75,7 @@ class controller {
     int getTempo(int idx);
     int getMinTickLen() const;
     int getCurrentMeasure(int pos) const;
+    int getMeasureCount() const;
 
     int getWidth() const { return GetScreenWidth(); }
     int getHeight() const { return GetScreenHeight(); }

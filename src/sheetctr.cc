@@ -411,7 +411,7 @@ int sheetController::findMeasureWidth(int measureNum) {
   return width;
 }
 
-void sheetController::findSheetPages(int numMeasures) {
+void sheetController::findSheetPages() {
   sheetPageSeparator.clear();
   sheetPageSeparator.push_back(0);
 
@@ -419,15 +419,40 @@ void sheetController::findSheetPages(int numMeasures) {
   int measureWidth = 0;
   int maxWidth = ctr.getWidth() - ctr.sheetSideMargin - ctr.sheetSymbolWidth;
 
-  for (int i = 0; i < numMeasures; ++i) { 
+  for (int i = 0; i < ctr.getMeasureCount(); ++i) { 
     measureWidth = findMeasureWidth(i);
+    logQ(i+1, measureWidth);
     if (pageWidth + measureWidth > maxWidth) {
-      logQ("divider at", i-1, "extra space", maxWidth - pageWidth);
-      sheetPageSeparator.push_back(i-1);
+      //logQ("divider at", i+1, "extra space", maxWidth - pageWidth);
+      sheetPageSeparator.push_back(i);
       pageWidth = 0;
     }
     pageWidth += measureWidth;
   }
+}
+
+pair<int, int> sheetController::findSheetPageLimit(int measureNum) const {
+  // return value is inclusive in interval [min, max]
+  pair<int, int> result = { 0, 0 };
+
+  if (sheetPageSeparator.empty()) {
+    return result;
+  }
+
+  if (measureNum > sheetPageSeparator[sheetPageSeparator.size()-1]) {
+    result.first = sheetPageSeparator[sheetPageSeparator.size()-1] + 1; // is 0-indexed
+    result.second = ctr.getMeasureCount();            // is 1-indexed
+  }
+  else {
+    for (unsigned int i = 0; i < sheetPageSeparator.size() - 1; ++i) {
+      if (measureNum > sheetPageSeparator[i]) {
+        result.first = sheetPageSeparator[i] + 1;
+        result.second = sheetPageSeparator[i + 1];
+      }
+    }
+  }
+
+  return result;
 }
 
 void sheetController::findDFAStartVector(vector<int>& DFAState, const keySig& ks) {

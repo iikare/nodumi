@@ -51,18 +51,6 @@ void trackController::reset() {
   noteIdxMap = {};
 }
 
-note* trackController::getNote(int idx) {
-  note* noteptr = nullptr;
-  try {
-    noteptr = noteIdxMap.at(idx);
-  }
-  catch (const std::out_of_range& e) {
-    //logII(LL_INFO, "note not found");
-    return nullptr;
-  }
-  return noteptr;
-}
-
 note* trackController::getLastNote() {
   if (noteIdxMap.size() == 0) {
     return nullptr;

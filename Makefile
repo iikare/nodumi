@@ -19,9 +19,11 @@ ifeq ($(strip $(rel)),)
 RELFLAGS = -Og -g
 else # release build
 RELFLAGS = -DNO_DEBUG -O3 -flto=thin
+LD += -flto=thin
 endif
 
 CFLAGS = --std=c++20 -Wall -Wextra $(NONSTD) $(RELFLAGS) $(LINUX) 
+CFLAGSSTD = $(CFLAGS) -fno-exceptions
 CFLAGSOSD = --std=c99  $(shell pkg-config --cflags gtk+-3.0) 
 CFLAGSRTM = $(CFLAGS) -w # suppress library warnings 
 CFLAGSCIE = $(CFLAGS) 
@@ -70,15 +72,15 @@ pre:
 
 $(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) | $(@D)
 	$(PREREQ_DIR)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) $(LFLAGS)
+	$(CC) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) $(LFLAGS)
 
 $(OBJS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
 	$(PREREQ_DIR)
-	$(CC) $(CFLAGS) -o $@ -c $< 
+	$(CC) $(CFLAGSSTD) -o $@ -c $< 
 
 $(OBJSMF): $(BUILDDIR)/%.o: $(MFDIR)/%.cpp
 	$(PREREQ_DIR)
-	$(CC) $(CFLAGS) -o $@ -c $< 
+	$(CC) $(CFLAGSSTD) -o $@ -c $< 
 
 $(OBJSOSD): $(BUILDDIR)/%.o: $(OSDDIR)/%.c
 	$(PREREQ_DIR)

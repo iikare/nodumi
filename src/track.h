@@ -19,7 +19,6 @@ class trackController {
     void insert(int idx, note* newNote);
     void reset();
     void fixLastNote();
-    note* getNote(int idx);
     int getNoteCount() { return noteCount; }
     double getAverageY() { return (double)noteSum/noteCount; }
 

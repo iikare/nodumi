@@ -425,6 +425,8 @@ void midi::load(stringstream& buf) {
 
     sheetData.disectMeasure(measure);
   }
+
+  sheetData.findSheetPages();
   //for (int m = 0; auto& measure : measureMap) {
     //logQ(measure.notes.size(), "notes in measure", 1+m++);
   //}

@@ -602,11 +602,15 @@ int main (int argc, char* argv[]) {
 
        
         if (IsKeyPressed(KEY_F)) {
-          noteData.sheetData.findSheetPages(noteData.measureMap.size());
           
 
         }
-          logQ("cloc", ctr.getCurrentMeasure(timeOffset));
+        //noteData.sheetData.findSheetPages();
+        //logQ("cloc", ctr.getCurrentMeasure(timeOffset));
+        //logQ("cloc", formatPair(noteData.sheetData.findSheetPageLimit(ctr.getCurrentMeasure(timeOffset))));
+        drawTextEx(to_string(noteData.sheetData.findSheetPageLimit(ctr.getCurrentMeasure(timeOffset)).first),
+                   {80 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*3}, ctr.bgSheetNote);
+        logQ(GetMonitorRefreshRate(GetCurrentMonitor()));
       }
       
 
