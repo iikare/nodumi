@@ -19,8 +19,8 @@ class trackController {
     void insert(int idx, note* newNote);
     void reset();
     void fixLastNote();
-    int getNoteCount() { return noteCount; }
-    double getAverageY() { return (double)noteSum/noteCount; }
+    int getNoteCount() const { return noteCount; }
+    double getAverageY() const { return (double)noteSum/noteCount; }
 
   private:
     note* getLastNote();

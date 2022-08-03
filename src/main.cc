@@ -600,6 +600,8 @@ int main (int argc, char* argv[]) {
         drawSymbol(SYM_CLEF_BASS, 155, 40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 67), ctr.bgSheetNote);
       
 
+        noteData.sheetData.drawSheetPage();
+
        
         if (IsKeyPressed(KEY_F)) {
           
@@ -610,7 +612,6 @@ int main (int argc, char* argv[]) {
         //logQ("cloc", formatPair(noteData.sheetData.findSheetPageLimit(ctr.getCurrentMeasure(timeOffset))));
         drawTextEx(to_string(noteData.sheetData.findSheetPageLimit(ctr.getCurrentMeasure(timeOffset)).first),
                    {80 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*3}, ctr.bgSheetNote);
-        logQ(GetMonitorRefreshRate(GetCurrentMonitor()));
       }
       
 
@@ -1442,7 +1443,7 @@ int main (int argc, char* argv[]) {
 
     menuctr.updateMouse();
     menuctr.updateRenderStatus();
-    ctr.updateKeyState();
+    ctr.update();
     
     // displays index of last clicked note  
     //logQ(clickNote);

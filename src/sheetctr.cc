@@ -475,6 +475,10 @@ int sheetController::mapSheetY(int sheetY) {
   return sheetY + abs(MIN_STAVE_IDX);
 }
 
+void sheetController::drawSheetPage() {
+
+}
+
 int sheetController::getDisplayAccType(int& DFAState, int noteAccType) {
   switch(DFAState) {
     case DA_STATE_CLEAR:

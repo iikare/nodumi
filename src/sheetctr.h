@@ -44,6 +44,9 @@ class sheetController {
     int findMeasureWidth(int measureNum);
     pair<int, int> findSheetPageLimit(int measureNum) const;
 
+
+    void drawSheetPage();
+
     friend class midi;
     friend class sheetMeasure;
 

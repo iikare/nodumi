@@ -42,8 +42,7 @@ class controller {
 
     Font* getFont(string id, int size);
 
-    void updateKeyState();
-    void updateDimension();
+    void update();
     void toggleLivePlay();
     void setCloseFlag();
     void load(string path, 
@@ -130,10 +129,16 @@ class controller {
     
     
   private:
+    void updateKeyState();
+    void updateDimension();
+    void updateFPS();
+    
     bool programState = true;
     bool playState;
     bool livePlayState;
-  
+ 
+    int curMon;
+
 
     unordered_map<string, pair<asset, map<int, Font>>> fontMap;
     

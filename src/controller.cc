@@ -80,6 +80,19 @@ void controller::unloadData() {
 }
 
 
+void controller::update() {
+  updateKeyState();
+  updateDimension();
+  updateFPS();
+}
+
+void controller::updateFPS() {
+  if (curMon != GetCurrentMonitor()) {
+    curMon = GetCurrentMonitor();
+    SetTargetFPS(GetMonitorRefreshRate(curMon));
+  }
+}
+
 void controller::updateKeyState() {
   if (WindowShouldClose()) {
     programState = false;
