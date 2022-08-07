@@ -48,9 +48,9 @@ void measureController::addNote(note& note) {
     //logQ("nonstandard tickpos with size", note.size, "on measure", note.measure, "rectified to", quantTick);
 
     // parameter displayAcc is not calculated at this step
-    displayNotes.push_back({quantTick, -1, STAVE_NONE, true, &note}); 
+    displayNotes.push_back({quantTick, -1, STAVE_NONE, true, false, &note}); 
   }
   else {
-    displayNotes.push_back({note.tick, -1, STAVE_NONE, true, &note}); 
+    displayNotes.push_back({note.tick, -1, STAVE_NONE, true, false, &note}); 
   }
 }

@@ -41,6 +41,9 @@ void sheetMeasure::buildFlagMap() {
           c.second[n]->oriNote->sheetY < sheetController::getStaveRenderLimit().second) {
         continue;
       }
+      if (c.second[n]->duplicate) {
+        continue;
+      }
       // ignore oversize notes
       if (c.second[n]->oriNote->type < NOTE_HALF_DOT) {
         continue;
@@ -86,6 +89,9 @@ void sheetMeasure::buildFlagMap() {
     for (auto nIt = c.second.rbegin(); nIt != c.second.rend(); ++nIt) {
       if ((*nIt)->oriNote->sheetY > sheetController::getStaveRenderLimit().first || 
           (*nIt)->oriNote->sheetY < sheetController::getStaveRenderLimit().second) {
+        continue;
+      }
+      if ((*nIt)->duplicate) {
         continue;
       }
       // ignore oversize notes

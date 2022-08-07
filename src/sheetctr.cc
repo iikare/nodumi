@@ -287,12 +287,27 @@ void sheetController::disectMeasure(measureController& measure) {
     ch++;
   }
 
+  // remove duplicate notes (rendering on same position)
+  for (unsigned int ch = 0; const auto& c : dm.chords) {
+    for (unsigned int ct = 0; const auto& n : c.second) {
+      if (ct > 0 && n->oriNote->sheetY - dm.chords[ch].second[ct-1]->oriNote->sheetY == 0) {
+          //n->displayAcc == dm.chords[ch].second[ct-1]->displayAcc) {
+        n->duplicate = true;
+      }
+      ct++;
+    }
+    ch++;
+  }
+
   dm.buildFlagMap();
   
   for (unsigned int ch = 0; const auto& c : dm.chords) {
     int stavect = 0;
     for (unsigned int ct = 0; const auto& n : c.second) {
       if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
+        continue;
+      }
+      if (n->duplicate) {
         continue;
       }
 
@@ -303,7 +318,7 @@ void sheetController::disectMeasure(measureController& measure) {
       }
       if (stavect != 0) {
         if (n->oriNote->sheetY - dm.chords[ch].second[ct-1]->oriNote->sheetY < 2) {
-            n->left = !dm.chords[ch].second[ct-1]->left;
+          n->left = !dm.chords[ch].second[ct-1]->left;
         }
       }
       ct++;
@@ -327,7 +342,10 @@ void sheetController::disectMeasure(measureController& measure) {
     for (const auto& n : c.second) {
       int noteLW = 0;
       int noteRW = 0;
-      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
+      if (n->duplicate) {
+        continue;
+      }
+      else if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
         noteLW = placeholderWidth/2;
         noteRW = placeholderWidth/2;
       }
@@ -344,7 +362,9 @@ void sheetController::disectMeasure(measureController& measure) {
           noteRW += getSymbolWidth(SYM_DOT) + dotSpacing;
         }
 
-        noteLW += getSymbolWidth(getSymbolType(n->displayAcc)) + accSpacing;
+        if (n->displayAcc != ACC_NONE) {
+          noteLW += getSymbolWidth(getSymbolType(n->displayAcc)) + accSpacing;
+        }
       }
       leftWidth = max(leftWidth, noteLW);
       rightWidth = max(rightWidth, noteRW);
@@ -381,7 +401,7 @@ void sheetController::disectMeasure(measureController& measure) {
 int sheetController::findMeasureWidth(int measureNum, bool includeSig) {
   sheetMeasure& dm = displayMeasure[measureNum];
 
-  int width = 0;
+  int width = sigSpacing*2; // default side spacing
 
   for (const auto& ts : dm.measure->timeSignatures) {
     width += getTimeWidth(ts);
@@ -498,6 +518,13 @@ void sheetController::drawSheetPage() {
   for (int m = measureRange.first; m <= measureRange.second; ++m) {
     //logQ(margin, spacingPositions, margin/spacingPositions, margin % spacingPositions, 
          //std::accumulate(spacingMargin.begin(), spacingMargin.end(), 0));
+
+
+    // beginning of measure spacing (not first measure)
+    if (m != measureRange.first) {
+      offset += sigSpacing;
+    }
+
     if (m == measureRange.first && displayMeasure[m-1].measure->keySignatures.empty()) {
       drawKeySignature(displayMeasure[m-1].measure->currentKey, offset); 
       offset += getKeyWidth(displayMeasure[m-1].measure->currentKey);
@@ -513,19 +540,64 @@ void sheetController::drawSheetPage() {
       }
     }
     
-    drawTextEx(to_string(m), {(float)offset , ctr.menuHeight + ctr.barMargin - ctr.barWidth*3}, ctr.bgSheetNote);
+    drawTextEx(to_string(m), {(float)offset+sigSpacing/2 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*1.75}, ctr.bgSheetNote);
 
     for (unsigned int ch = 0; ch < displayMeasure[m-1].chords.size(); ++ch) {
+      
+      int chordSize = displayMeasure[m-1].chordData[ch].getSize();
 
+      // spacing calculated only between chords
       if (ch != 0) {
         offset += spacingMargin[spacingIndex++];
       }
-
-      offset += displayMeasure[m-1].chordData[ch].getSize();
-
+      
       // TODO: draw chords WITH spacing
 
+      int stemPos = offset + displayMeasure[m-1].chordData[ch].getStemPosition();
+
+      for (unsigned int n = 0; n < displayMeasure[m-1].chords[ch].second.size(); ++n) {
+
+        sheetNote* note = displayMeasure[m-1].chords[ch].second[n];
+
+        const int y = findStaveY(note->oriNote->sheetY, note->stave);;
+        // for centering
+        //drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
+        //drawLineEx(x, 0,
+                   //x, ctr.getHeight(), 1, ctr.bgNow);
+
+        int noteSym = getSymbolType(note->oriNote->type);
+        int noteX = stemPos - stemWidth/2;
+        if (note->left) {
+          noteX = stemPos - getSymbolWidth(noteSym) + stemWidth/2;
+          
+        }
+
+
+
+        //drawLineEx(noteX, y-1, noteX, y+30, stemWidth, ctr.bgSheetNote);
+        drawSymbol(noteSym, fSize, noteX+0*getSymbolWidth(noteSym)-stemWidth/2, y+2-ctr.barSpacing, ctr.bgSheetNote);
+        //drawSymbol(SYM_FLAG_8D, fSize, noteX-+stemWidth/2, y+30+5-ctr.barSpacing, ctr.bgSheetNote);
+      }
+      
+
+
+      //logQ(displayMeasure[m-1].chordData[ch].flags.size());
+      for (int stc = 0; const auto& stem : displayMeasure[m-1].chordData[ch].flags) {
+        int stave = stc++ % 2 ? STAVE_BASS : STAVE_TREBLE; // hack for two flag chords
+        int lOffset = displayMeasure[m-1].chordData[ch].getStemPosition();
+        drawLineEx(offset+lOffset, findStaveY(stem.startY, stave),
+                   offset+lOffset, findStaveY(stem.endY, stave), 2, ctr.bgSheetNote);
+      }
+      drawLineEx(offset, ctr.menuHeight + ctr.barMargin,
+                 offset, ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgNow);
+
+      offset += chordSize;
+
+
     }
+
+    // end of measure spacing
+    offset += sigSpacing;
 
     // end of measure bars (except the end)
     if (m != measureRange.second) {

@@ -8,6 +8,7 @@ struct sheetNote {
   int displayAcc;
   int stave;
   bool left;
+  bool duplicate;
   note* oriNote;
 };
 
