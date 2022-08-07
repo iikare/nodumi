@@ -6,10 +6,6 @@
 
 using std::min;
 using std::max;
-
-void sheetMeasure::addSpace(int space) {
-  spacing.push_back(space);
-}
     
 void sheetMeasure::buildChordMap(vector<sheetNote>& vecNote) {
   // intermediate representation of chordmap (needs to be tick-sorted)

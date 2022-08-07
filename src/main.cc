@@ -584,15 +584,15 @@ int main (int argc, char* argv[]) {
                        ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth,
                        ctr.getWidth() - ctr.sheetSideMargin, 
                        ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth, 
-                       1, ctr.bgDark);
+                       1, ctr.bgSheetNote);
           }
         }
         
         //// end lines
         drawLineEx(ctr.sheetSideMargin, ctr.menuHeight + ctr.barMargin, ctr.sheetSideMargin,
-                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
+                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgSheetNote);
         drawLineEx(ctr.getWidth() - ctr.sheetSideMargin, ctr.menuHeight + ctr.barMargin, ctr.getWidth() - ctr.sheetSideMargin,
-                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgDark);
+                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgSheetNote);
 
         
         drawSymbol(SYM_STAFF_BRACE, 480, 17.0f, float(ctr.menuHeight + ctr.barMargin) - 120, ctr.bgSheetNote);

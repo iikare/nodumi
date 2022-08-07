@@ -44,11 +44,6 @@ struct chordData {
 class sheetMeasure {
   public:
 
-    void reset() {
-      spacing.clear();
-    }
-
-    void addSpace(int space);
     bool hasStem(int chordNum) const;
     int hasFlag(int chordNum) const;
     int getFlagType(const int noteType) const;
@@ -65,8 +60,4 @@ class sheetMeasure {
     measureController* measure;
 
   private:
-    vector<int> spacing;
-
-
-
 };

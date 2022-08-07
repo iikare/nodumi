@@ -365,24 +365,16 @@ void sheetController::disectMeasure(measureController& measure) {
 
     ch++;
   }
-  // left measure spacing
-  dm.addSpace(borderSpacing);
 
   //logQ("MEASURE", measure.getNumber(), "with length", measure.getTickLen());
 
 
 
   if (measure.notes.size() == 0) {
-    // fill space with rests
+    // TODO: fill space with rests
 
   }
 
-
-
-  // right measure spacing
-  // last item before ending this item
-  dm.addSpace(borderSpacing);
-  
   displayMeasure.push_back(dm);
 }
 
@@ -502,7 +494,7 @@ void sheetController::drawSheetPage() {
   vector<int> spacingExtra (spacingPositions - (abs(margin) % spacingPositions), margin / spacingPositions);
   spacingMargin.insert(spacingMargin.end(), spacingExtra.begin(), spacingExtra.end());
 
-
+  int spacingIndex = 0;
   for (int m = measureRange.first; m <= measureRange.second; ++m) {
     //logQ(margin, spacingPositions, margin/spacingPositions, margin % spacingPositions, 
          //std::accumulate(spacingMargin.begin(), spacingMargin.end(), 0));
@@ -520,13 +512,31 @@ void sheetController::drawSheetPage() {
         offset += getTimeWidth(ts) + sigSpacing;
       }
     }
+    
+    drawTextEx(to_string(m), {(float)offset , ctr.menuHeight + ctr.barMargin - ctr.barWidth*3}, ctr.bgSheetNote);
+
+    for (unsigned int ch = 0; ch < displayMeasure[m-1].chords.size(); ++ch) {
+
+      if (ch != 0) {
+        offset += spacingMargin[spacingIndex++];
+      }
+
+      offset += displayMeasure[m-1].chordData[ch].getSize();
+
+      // TODO: draw chords WITH spacing
+
+    }
+
+    // end of measure bars (except the end)
+    if (m != measureRange.second) {
+      drawLineEx(offset, ctr.menuHeight + ctr.barMargin,
+                 offset, ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgSheetNote);
+    }
 
 
   }
   //logQ(formatVector(spacingMargin));
 
-  drawTextEx(to_string(measureRange.first) + " " + to_string(measureRange.second),
-             {80 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*3}, ctr.bgSheetNote);
 }
 
 int sheetController::getDisplayAccType(int& DFAState, int noteAccType) {

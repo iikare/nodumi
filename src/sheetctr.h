@@ -18,12 +18,8 @@ class sheetController {
   public:
 
     void reset() {
-      for (auto& disp : displayMeasure) {
-        disp.reset();
-      }
       sheetPageSeparator.clear();
       displayMeasure.clear();
-
     }
 
     int getGlyphWidth(int codepoint, int size = fSize);
