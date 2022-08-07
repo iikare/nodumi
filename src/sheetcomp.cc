@@ -166,6 +166,12 @@ int sheetMeasure::hasFlag(int chordNum) const {
   return false;
 }
 
+int sheetMeasure::getSpacingCount() const {
+  if (chords.empty()) {
+    return 0;
+  }
+  return chords.size() - 1;
+}
 
 int sheetMeasure::getFlagType(const int noteType) const {
   switch(noteType) {

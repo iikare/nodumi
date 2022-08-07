@@ -10,9 +10,10 @@ int sheetController::getGlyphWidth(int codepoint, int size) {
   return GetGlyphInfo(*ctr.getFont("LELAND", size), codepoint).image.width;
 }
 
-void sheetController::drawTimeSignature(const timeSig& time, int x, colorRGB col) {
+void sheetController::drawTimeSignature(const timeSig& time, int x) {
   // y-coordinate is constant in respect to sheet controller parameters, not a user-callable parameter
   const int y = ctr.barMargin+ctr.barWidth*2;
+  const colorRGB col = ctr.bgSheetNote;
 
 
   // for centering
@@ -81,8 +82,9 @@ void sheetController::drawTimeSignature(const timeSig& time, int x, colorRGB col
   }
 }
 
-void sheetController::drawKeySignature(const keySig& key, int x, colorRGB col) {
+void sheetController::drawKeySignature(const keySig& key, int x) {
   const int y = ctr.barMargin+ctr.barWidth*2;
+  const colorRGB col = ctr.bgSheetNote;
 
   // for centering
   drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255,0,0});
@@ -384,16 +386,23 @@ void sheetController::disectMeasure(measureController& measure) {
   displayMeasure.push_back(dm);
 }
 
-int sheetController::findMeasureWidth(int measureNum) {
+int sheetController::findMeasureWidth(int measureNum, bool includeSig) {
   sheetMeasure& dm = displayMeasure[measureNum];
 
   int width = 0;
 
   for (const auto& ts : dm.measure->timeSignatures) {
     width += getTimeWidth(ts);
+    width += sigSpacing;
   }
   for (const auto& ks : dm.measure->keySignatures) {
     width += getKeyWidth(ks);
+    width += sigSpacing;
+  }
+
+  if (dm.measure->keySignatures.empty() && includeSig) {
+    width += getKeyWidth(dm.measure->currentKey);
+    width += sigSpacing;
   }
 
   //int tickDist = dm.chords.size() < 2 ? 0 : __INT_MAX__;
@@ -421,11 +430,12 @@ void sheetController::findSheetPages() {
 
   for (int i = 0; i < ctr.getMeasureCount(); ++i) { 
     measureWidth = findMeasureWidth(i);
-    logQ(i+1, measureWidth);
+    //logQ(i+1, measureWidth);
     if (pageWidth + measureWidth > maxWidth) {
       //logQ("divider at", i+1, "extra space", maxWidth - pageWidth);
       sheetPageSeparator.push_back(i);
       pageWidth = 0;
+      measureWidth = findMeasureWidth(i, true); // include current keysig
     }
     pageWidth += measureWidth;
   }
@@ -476,9 +486,47 @@ int sheetController::mapSheetY(int sheetY) {
 }
 
 void sheetController::drawSheetPage() {
+  int offset = ctr.sheetSymbolWidth;
 
-        drawTextEx(to_string(findSheetPageLimit(ctr.getCurrentMeasure()).first),
-                   {80 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*3}, ctr.bgSheetNote);
+  pair<int, int> measureRange = findSheetPageLimit(ctr.getCurrentMeasure());
+
+  int spacingPositions = 0;
+  int margin = ctr.getWidth() - ctr.sheetSideMargin - ctr.sheetSymbolWidth;
+
+  for (int m = measureRange.first; m <= measureRange.second; ++m) {
+    margin -= findMeasureWidth(m-1, m == measureRange.first);
+    spacingPositions += displayMeasure[m-1].getSpacingCount();
+  }
+
+  vector<int> spacingMargin (abs(margin) % spacingPositions, margin / spacingPositions + (margin > 0 ? 1 : -1));
+  vector<int> spacingExtra (spacingPositions - (abs(margin) % spacingPositions), margin / spacingPositions);
+  spacingMargin.insert(spacingMargin.end(), spacingExtra.begin(), spacingExtra.end());
+
+
+  for (int m = measureRange.first; m <= measureRange.second; ++m) {
+    //logQ(margin, spacingPositions, margin/spacingPositions, margin % spacingPositions, 
+         //std::accumulate(spacingMargin.begin(), spacingMargin.end(), 0));
+    if (m == measureRange.first && displayMeasure[m-1].measure->keySignatures.empty()) {
+      drawKeySignature(displayMeasure[m-1].measure->currentKey, offset); 
+      offset += getKeyWidth(displayMeasure[m-1].measure->currentKey);
+    }
+    else { 
+      for (const auto& ks : displayMeasure[m-1].measure->keySignatures) {
+        drawKeySignature(ks, offset); 
+        offset += getKeyWidth(ks) + sigSpacing;
+      }
+      for (const auto& ts : displayMeasure[m-1].measure->timeSignatures) {
+        drawTimeSignature(ts, offset); 
+        offset += getTimeWidth(ts) + sigSpacing;
+      }
+    }
+
+
+  }
+  //logQ(formatVector(spacingMargin));
+
+  drawTextEx(to_string(measureRange.first) + " " + to_string(measureRange.second),
+             {80 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*3}, ctr.bgSheetNote);
 }
 
 int sheetController::getDisplayAccType(int& DFAState, int noteAccType) {

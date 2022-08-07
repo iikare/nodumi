@@ -58,6 +58,7 @@ class sheetMeasure {
 
     void setParent(measureController& m) { measure = &m; }
 
+    int getSpacingCount() const;
  
     vector<chordData> chordData;
     vector<pair<int, vector<sheetNote*>>> chords;

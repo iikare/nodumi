@@ -46,8 +46,8 @@ class sheetController {
     vector<int> sheetPageSeparator;
     vector<sheetMeasure> displayMeasure;
     
-    void drawTimeSignature(const timeSig& time, int x, colorRGB col);
-    void drawKeySignature(const keySig& key, int x, colorRGB col);
+    void drawTimeSignature(const timeSig& time, int x);
+    void drawKeySignature(const keySig& key, int x);
    
     int getKeyWidth(const keySig& key);
     int getTimeWidth(const timeSig& key);
@@ -59,7 +59,7 @@ class sheetController {
     void findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType);
     int findTimePartWidth(const int part); 
     int findStaveY(int sheetY, int stave);
-    int findMeasureWidth(int measureNum);
+    int findMeasureWidth(int measureNum, bool includeSig = false);
     pair<int, int> findSheetPageLimit(int measureNum) const;
 
     static constexpr pair<int, int> getStaveRenderLimit() { return make_pair(staveFlagLimitMap[0][0], staveFlagLimitMap[1][0]); }
@@ -92,6 +92,7 @@ class sheetController {
     static constexpr int stemWidth = 2;
     static constexpr int dotSpacing = 4;
     static constexpr int accSpacing = 4;
+    static constexpr int sigSpacing = 4;
     
     static constexpr int placeholderWidth = 24;
 
