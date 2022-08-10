@@ -292,7 +292,13 @@ void sheetController::disectMeasure(measureController& measure) {
     for (unsigned int ct = 0; const auto& n : c.second) {
       if (ct > 0 && n->oriNote->sheetY - dm.chords[ch].second[ct-1]->oriNote->sheetY == 0) {
           //n->displayAcc == dm.chords[ch].second[ct-1]->displayAcc) {
-        n->duplicate = true;
+        n->visible = false;
+      }
+
+      // hide out-of-bounds notes
+      if ((n->oriNote->sheetY > getStaveRenderLimit().first || 
+          n->oriNote->sheetY < getStaveRenderLimit().second)) {
+        n->visible = false;
       }
       ct++;
     }
@@ -300,6 +306,9 @@ void sheetController::disectMeasure(measureController& measure) {
   }
 
   dm.buildFlagMap();
+
+
+  // TODO: redo left-detection using flagmap info
   
   for (unsigned int ch = 0; const auto& c : dm.chords) {
     int stavect = 0;
@@ -307,7 +316,7 @@ void sheetController::disectMeasure(measureController& measure) {
       if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
         continue;
       }
-      if (n->duplicate) {
+      if (!n->visible) {
         continue;
       }
 
@@ -342,10 +351,10 @@ void sheetController::disectMeasure(measureController& measure) {
     for (const auto& n : c.second) {
       int noteLW = 0;
       int noteRW = 0;
-      if (n->duplicate) {
+      if (!n->visible) {
         continue;
       }
-      else if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
+      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
         noteLW = placeholderWidth/2;
         noteRW = placeholderWidth/2;
       }
@@ -557,7 +566,12 @@ void sheetController::drawSheetPage() {
 
       for (unsigned int n = 0; n < displayMeasure[m-1].chords[ch].second.size(); ++n) {
 
+
         sheetNote* note = displayMeasure[m-1].chords[ch].second[n];
+
+        if (!note->visible) {
+          continue;
+        }
 
         const int y = findStaveY(note->oriNote->sheetY, note->stave);;
         // for centering
@@ -583,10 +597,10 @@ void sheetController::drawSheetPage() {
 
       //logQ(displayMeasure[m-1].chordData[ch].flags.size());
       for (int stc = 0; const auto& stem : displayMeasure[m-1].chordData[ch].flags) {
-        int stave = stc++ % 2 ? STAVE_BASS : STAVE_TREBLE; // hack for two flag chords
+        int stave = STAVE_TREBLE;//stc++ % 2 ? STAVE_BASS : STAVE_TREBLE; // hack for two flag chords
         int lOffset = displayMeasure[m-1].chordData[ch].getStemPosition();
-        drawLineEx(offset+lOffset, findStaveY(stem.startY, stave),
-                   offset+lOffset, findStaveY(stem.endY, stave), 2, ctr.bgSheetNote);
+        drawLineEx(offset+lOffset, findStaveY(stem.startY, stem.stave),
+                   offset+lOffset, findStaveY(stem.endY, stem.stave), 2, ctr.bgSheetNote);
       }
       drawLineEx(offset, ctr.menuHeight + ctr.barMargin,
                  offset, ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgNow);

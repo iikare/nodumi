@@ -29,6 +29,7 @@ struct flagData {
   int endY;
   int flagType;
   int flagDir;
+  int stave;
 };
 
 struct chordData {

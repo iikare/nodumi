@@ -41,7 +41,7 @@ void sheetMeasure::buildFlagMap() {
           c.second[n]->oriNote->sheetY < sheetController::getStaveRenderLimit().second) {
         continue;
       }
-      if (c.second[n]->duplicate) {
+      if (!c.second[n]->visible) {
         continue;
       }
       // ignore oversize notes
@@ -66,6 +66,7 @@ void sheetMeasure::buildFlagMap() {
         cFlag.startY = c.second[n]->oriNote->sheetY;
         cFlag.endY = cFlag.startY;
         cFlag.flagType = getFlagType(c.second[n]->oriNote->type);
+        cFlag.stave = STAVE_BASS;
 
       }
       else {
@@ -91,7 +92,7 @@ void sheetMeasure::buildFlagMap() {
           (*nIt)->oriNote->sheetY < sheetController::getStaveRenderLimit().second) {
         continue;
       }
-      if ((*nIt)->duplicate) {
+      if (!(*nIt)->visible) {
         continue;
       }
       // ignore oversize notes
@@ -116,6 +117,7 @@ void sheetMeasure::buildFlagMap() {
         cFlag.startY = (*nIt)->oriNote->sheetY;
         cFlag.endY = cFlag.startY;
         cFlag.flagType = getFlagType((*nIt)->oriNote->type);
+        cFlag.stave = STAVE_BASS;
 
       }
       else {
