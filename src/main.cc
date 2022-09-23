@@ -313,9 +313,16 @@ int main (int argc, char* argv[]) {
           float measureLineWidth = 0.5;
           int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
           double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
+          bool hideLine = false;
+          if (i + 1 < noteData.measureMap.size()) {
+            if (convertSSX(noteData.measureMap[i + 1].getLocation()) - measureLineX < 10) {
+              hideLine = true;
+            }
+          }
+                
           if (measureLineX + measureSpacing + 4 > 0) {
               
-            if (measureLine) {
+            if (measureLine && !hideLine) {
               if (pointInBox(ctr.getMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
                   !hoverType.containsLastFrame(HOVER_MENU)) {
                 measureLineWidth = 1;
