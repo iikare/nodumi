@@ -314,7 +314,7 @@ int main (int argc, char* argv[]) {
           int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
           double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
           bool hideLine = false;
-          if (i + 1 < noteData.measureMap.size()) {
+          if (i && i + 1 < noteData.measureMap.size()) {
             if (convertSSX(noteData.measureMap[i + 1].getLocation()) - measureLineX < 10) {
               hideLine = true;
             }
