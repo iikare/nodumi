@@ -337,8 +337,8 @@ int main (int argc, char* argv[]) {
 
 
             if (measureNumber) {
-              if (!i || convertSSX(noteData.measureMap[lastMeasureNum].getLocation()) + measureSpacing + 10 <
-                        measureLineX) {
+              int lastMeasureLocation = convertSSX(noteData.measureMap[lastMeasureNum].getLocation()); 
+              if ((!i || lastMeasureLocation + measureSpacing + 10 < measureLineX) && lastMeasureLocation < ctr.getWidth()) {
                 
                 // measure number / song time collision detection
                 Vector2 songTimeSize; 
@@ -350,18 +350,24 @@ int main (int argc, char* argv[]) {
                    songTimeSize = measureTextEx(getSongPercent(timeOffset, ctr.getLastTime()).c_str());
                    break;
                 }
-                
-                int measureLineTextAlpha = 255;
+               
+                double fadeWidth = 2.0*measureSpacing;
+                int measureLineTextAlpha = 255*(min(fadeWidth, ctr.getWidth()-measureLineX))/fadeWidth;
 
                 if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songTimeSize.x) {
                   measureLineTextAlpha = max(0.0,min(255.0, 
-                                                     255.0 * (1 -( songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
+                                                     255.0 * (1-(songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
+                }
+                else if (measureLineX < fadeWidth) {
+                  measureLineTextAlpha = 255*max(0.0, (min(fadeWidth, measureLineX+measureSpacing))/fadeWidth);
+
                 }
 
 
                 int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
                 drawTextEx(to_string(i + 1).c_str(), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
                 lastMeasureNum = i;
+                logQ(lastMeasureNum+1);
               }
             }
           }
