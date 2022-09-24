@@ -306,7 +306,8 @@ int main (int argc, char* argv[]) {
       }
 
       int lastMeasureNum = 0;
-      int measureSpacing = measureTextEx(to_string(noteData.measureMap.size() - 1).c_str()).x; 
+
+      double measureSpacing = measureTextEx(to_string(noteData.measureMap.size() - 1).c_str()).x; 
 
       if (measureLine || measureNumber) {
         for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
@@ -320,55 +321,50 @@ int main (int argc, char* argv[]) {
             }
           }
                 
-          if (measureLineX + measureSpacing + 4 > 0) {
-              
-            if (measureLine && !hideLine) {
-              if (pointInBox(ctr.getMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
-                  !hoverType.containsLastFrame(HOVER_MENU)) {
-                measureLineWidth = 1;
-                hoverType.add(HOVER_MEASURE);
+          if (measureLine && !hideLine) {
+            if (pointInBox(ctr.getMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
+                !hoverType.containsLastFrame(HOVER_MENU)) {
+              measureLineWidth = 1;
+              hoverType.add(HOVER_MEASURE);
+            }
+           
+            if (!nowLine || fabs(nowLineX - measureLineX) > 3) {  
+              drawLineEx(measureLineX, measureLineY,
+                         measureLineX, ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
+            }
+          }
+
+
+          if (measureNumber) {
+            double lastMeasureLocation = convertSSX(noteData.measureMap[lastMeasureNum].getLocation()); 
+            if (!i || lastMeasureLocation + measureSpacing + 10 < measureLineX) {
+              // measure number / song time collision detection
+              Vector2 songTimeSize = {0,0}; 
+              switch (songTimeType) {
+                case SONGTIME_ABSOLUTE:
+                 songTimeSize = measureTextEx(getSongTime(timeOffset, ctr.getLastTime()).c_str());
+                 break;
+                case SONGTIME_RELATIVE: 
+                 songTimeSize = measureTextEx(getSongPercent(timeOffset, ctr.getLastTime()).c_str());
+                 break;
               }
              
-              if (!nowLine || fabs(nowLineX - measureLineX) > 3) {  
-                drawLineEx(measureLineX, measureLineY,
-                           measureLineX, ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
+              double fadeWidth = 2.0*measureSpacing;
+              int measureLineTextAlpha = 255*(min(fadeWidth, ctr.getWidth()-measureLineX))/fadeWidth;
+
+              if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songTimeSize.x) {
+                measureLineTextAlpha = max(0.0,min(255.0, 
+                                                   255.0 * (1-(songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
               }
-            }
+              else if (measureLineX < fadeWidth) {
+                measureLineTextAlpha = 255*max(0.0, (min(fadeWidth, measureLineX+measureSpacing))/fadeWidth);
 
-
-            if (measureNumber) {
-              int lastMeasureLocation = convertSSX(noteData.measureMap[lastMeasureNum].getLocation()); 
-              if ((!i || lastMeasureLocation + measureSpacing + 10 < measureLineX) && lastMeasureLocation < ctr.getWidth()) {
-                
-                // measure number / song time collision detection
-                Vector2 songTimeSize; 
-                switch (songTimeType) {
-                  case SONGTIME_ABSOLUTE:
-                   songTimeSize = measureTextEx(getSongTime(timeOffset, ctr.getLastTime()).c_str());
-                   break;
-                  case SONGTIME_RELATIVE: 
-                   songTimeSize = measureTextEx(getSongPercent(timeOffset, ctr.getLastTime()).c_str());
-                   break;
-                }
-               
-                double fadeWidth = 2.0*measureSpacing;
-                int measureLineTextAlpha = 255*(min(fadeWidth, ctr.getWidth()-measureLineX))/fadeWidth;
-
-                if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songTimeSize.x) {
-                  measureLineTextAlpha = max(0.0,min(255.0, 
-                                                     255.0 * (1-(songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
-                }
-                else if (measureLineX < fadeWidth) {
-                  measureLineTextAlpha = 255*max(0.0, (min(fadeWidth, measureLineX+measureSpacing))/fadeWidth);
-
-                }
-
-
-                int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
-                drawTextEx(to_string(i + 1).c_str(), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
-                lastMeasureNum = i;
-                logQ(lastMeasureNum+1);
               }
+
+
+              int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
+              drawTextEx(to_string(i + 1).c_str(), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
+              lastMeasureNum = i;
             }
           }
         }
