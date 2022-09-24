@@ -13,6 +13,7 @@
 #include "menu.h"
 #include "data.h"
 #include "wrap.h"
+#include "lerp.h"
 #include "image.h"
 #include "color.h"
 #include "define.h"
@@ -75,7 +76,7 @@ int main (int argc, char* argv[]) {
 
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_BALL;
+  int displayMode = DISPLAY_PULSE;
   
   float nowLineX = ctr.getWidth()/2.0f;
 
@@ -161,7 +162,7 @@ int main (int argc, char* argv[]) {
   menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
   menuctr.registerMenu(&viewMenu);
   
-  vector<string> displayMenuContents = {"Standard", "Line", "Line (Circle)", "Ball"};
+  vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball"};
   menu displayMenu(ctr.getSize(), displayMenuContents, TYPE_SUB, 
                    viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
   menuctr.registerMenu(&displayMenu);
@@ -542,25 +543,32 @@ int main (int argc, char* argv[]) {
                         colorID = (ctr.notes->at(linePositions->at(j)).y - MIN_NOTE_IDX + tonicOffset) % 12 ;
                         break;
                     }
-                    if (convertSSX(linePositions->at(j + 1)) <= nowLineX && convertSSX(linePositions->at(j + 3)) > nowLineX) {
+                    float convSS[4] = {
+                                        static_cast<float>(convertSSX(linePositions->at(j+1))),
+                                        static_cast<float>(convertSSY(linePositions->at(j+2))),
+                                        static_cast<float>(convertSSX(linePositions->at(j+3))),
+                                        static_cast<float>(convertSSY(linePositions->at(j+4)))
+                                      };
+
+                    if (convSS[0] <= nowLineX && convSS[2] > nowLineX) {
                       noteOn = true;
                     }
                     else {
                       noteOn = false;
                     }
-                    if (pointInBox(ctr.getMousePosition(), pointToRect({(int)convertSSX(linePositions->at(j + 1)),
-                                   (int)convertSSY(linePositions->at(j + 2))}, {(int)convertSSX(linePositions->at(j + 3)),
-                                   (int)convertSSY(linePositions->at(j + 4))}))) {
+                    if (pointInBox(ctr.getMousePosition(), 
+                                   pointToRect(
+                                                {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
+                                                {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
+                                              ))) {
                       updateClickIndex();
                     }
                     if (noteOn) {
-                      drawLineEx(convertSSX(linePositions->at(j + 1)), convertSSY(linePositions->at(j + 2)),
-                                 convertSSX(linePositions->at(j + 3)), convertSSY(linePositions->at(j + 4)), 
+                      drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
                                  2, colorSetOn->at(colorID));
                     }
                     else {
-                      drawLineEx(convertSSX(linePositions->at(j + 1)), convertSSY(linePositions->at(j + 2)),
-                                 convertSSX(linePositions->at(j + 3)), convertSSY(linePositions->at(j + 4)), 
+                      drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
                                  2, colorSetOff->at(colorID));
                     }
                   }
@@ -569,7 +577,84 @@ int main (int argc, char* argv[]) {
             }
             break;
 
-          case DISPLAY_BALLLINE:
+          case DISPLAY_PULSE:
+            {
+              vector<int>* linePositions;
+              if (i == 0 && !ctr.getLiveState()) {
+                linePositions = noteData.getLineVerts();
+              }
+              else if (ctr.getLiveState()) {
+                vector<int> linePosRaw = ctr.notes->at(i).getLinePositions(&ctr.notes->at(i), 
+                                                                            ctr.notes->at(i).getNextChordRoot());
+                linePositions = &linePosRaw;
+              }
+              else { 
+                break;
+              }
+              if (!ctr.getLiveState() || (convertSSX(ctr.notes->at(i).getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
+                if (ctr.notes->at(i).isChordRoot()) {
+                  for (unsigned int j = 0; j < linePositions->size(); j += 5) {
+                    switch (colorMode) {
+                      case COLOR_PART:
+                        colorID = ctr.notes->at(linePositions->at(j)).track;
+                        break;
+                      case COLOR_VELOCITY:
+                        colorID = ctr.notes->at(linePositions->at(j)).velocity;
+                        break;
+                      case COLOR_TONIC:
+                        colorID = (ctr.notes->at(linePositions->at(j)).y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+                        break;
+                    }
+
+                    float convSS[4] = {
+                                        static_cast<float>(convertSSX(linePositions->at(j+1))),
+                                        static_cast<float>(convertSSY(linePositions->at(j+2))),
+                                        static_cast<float>(convertSSX(linePositions->at(j+3))),
+                                        static_cast<float>(convertSSY(linePositions->at(j+4)))
+                                      };
+
+                    if (convSS[0] <= nowLineX && convSS[2] > nowLineX) {
+                      noteOn = true;
+                    }
+                    else {
+                      noteOn = false;
+                    }
+                    if (pointInBox(ctr.getMousePosition(), 
+                                   pointToRect(
+                                                {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
+                                                {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
+                                              ))) {
+                      updateClickIndex();
+                    }
+                    if (noteOn) {
+                      drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
+                                 2, colorSetOn->at(colorID));
+                      drawRing({convSS[0], convSS[1]},
+                               0, 3, colorSetOn->at(colorID));
+                      drawRing({convSS[2], convSS[3]},
+                               0, 3, colorSetOn->at(colorID));
+                    }
+                    else {
+                      //drawLineEx(convertSSX(linePositions->at(j + 1)), convertSSY(linePositions->at(j + 2)),
+                                 //convertSSX(linePositions->at(j + 3)), convertSSY(linePositions->at(j + 4)), 
+                                 //2, colorSetOff->at(colorID));
+                      drawRing({convSS[0], convSS[1]},
+                               0, 3, colorSetOff->at(colorID));
+                      drawRing({convSS[2], convSS[3]},
+                               0, 3, colorSetOff->at(colorID));
+                    }
+
+                    int ringLimit = 40;
+                    if (nowLineX - convSS[0] < ringLimit && nowLineX - convSS[0] > 4) {
+                      drawRing({convSS[0], convSS[1]},
+                               nowLineX-convSS[0]-3, nowLineX-convSS[0], colorSetOn->at(colorID),
+                               floatLERP(0,255, (nowLineX-convSS[0])/static_cast<double>(ringLimit), INT_ICIRCULAR));
+                    }
+
+                  }
+                }
+              }
+            }
             break;
         }
       }
@@ -930,7 +1015,7 @@ int main (int argc, char* argv[]) {
               displayMode = DISPLAY_LINE;
               break;
             case 2:
-              displayMode = DISPLAY_BALLLINE;
+              displayMode = DISPLAY_PULSE;
               break;
             case 3:
               displayMode = DISPLAY_BALL;

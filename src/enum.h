@@ -61,6 +61,17 @@ enum assetType {
   ASSET_IMAGE,
 };
 
+enum lerpType {
+  INT_LINEAR,
+  INT_ILINEAR,
+  INT_QUADRATIC,
+  INT_IQUADRATIC,
+  INT_CIRCULAR,
+  INT_ICIRCULAR,
+  INT_SINE,
+  INT_ISINE
+};
+
 enum schemeType {
   SCHEME_TRACK,
   SCHEME_TONIC,
@@ -81,7 +92,7 @@ enum displayType {
   DISPLAY_LINE,
   DISPLAY_BAR,
   DISPLAY_BALL,
-  DISPLAY_BALLLINE
+  DISPLAY_PULSE
 };
 
 enum menuType {
