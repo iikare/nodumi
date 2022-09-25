@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <thread>
 #include <algorithm>
+#include <bit>
 #include <raylib.h>
 #include "../dpd/osdialog/osdialog.h"
 #include "aghfile.h"
@@ -31,6 +32,7 @@ using std::max;
 using std::to_string;
 using std::thread;
 using std::ref;
+using std::__countl_zero;
 
 controller ctr;
 
@@ -446,7 +448,7 @@ int main (int argc, char* argv[]) {
             break;
           case DISPLAY_BALL:
             {
-              float radius = 1 + 3 * log(cW);
+              float radius = -1 + 2 * (32 - __countl_zero(int(cW)));
               float maxRad = radius;
               float ballY = cY + 2;
               if (cX + cW + radius > 0 && cX - radius < ctr.getWidth()) {
@@ -553,12 +555,7 @@ int main (int argc, char* argv[]) {
                                         static_cast<float>(convertSSY((*linePositions)[j+4]))
                                       };
 
-                    if (convSS[0] <= nowLineX && convSS[2] > nowLineX) {
-                      noteOn = true;
-                    }
-                    else {
-                      noteOn = false;
-                    }
+                    noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
                     if (pointInBox(ctr.getMousePosition(), 
                                    pointToRect(
                                                 {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
@@ -616,12 +613,8 @@ int main (int argc, char* argv[]) {
                                         static_cast<float>(convertSSY((*linePositions)[j+4]))
                                       };
 
-                    if (convSS[0] <= nowLineX && convSS[2] > nowLineX) {
-                      noteOn = true;
-                    }
-                    else {
-                      noteOn = false;
-                    }
+                    noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
+
                     if (pointInBox(ctr.getMousePosition(), 
                                    pointToRect(
                                                 {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
@@ -631,33 +624,39 @@ int main (int argc, char* argv[]) {
                     }
                     if (noteOn) {
                       drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                                 2, (*colorSetOn)[colorID]);
+                                 3, (*colorSetOn)[colorID]);
                       drawRing({convSS[0], convSS[1]},
                                0, 3, (*colorSetOn)[colorID]);
                       drawRing({convSS[2], convSS[3]},
                                0, 3, (*colorSetOn)[colorID]);
                     }
                     else {
-                      //drawLineEx(convertSSX((*linePositions)[j + 1]), convertSSY((*linePositions)[j + 2]),
-                                 //convertSSX((*linePositions)[j + 3]), convertSSY((*linePositions)[j + 4]), 
-                                 //2, (*colorSetOff)[colorID]);
+                      if (clickTmp == (*linePositions)[j]) {
+                        drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
+                                   3, (*colorSetOff)[colorID]);
+                      }
                       drawRing({convSS[0], convSS[1]},
                                0, 3, (*colorSetOff)[colorID]);
                       drawRing({convSS[2], convSS[3]},
                                0, 3, (*colorSetOff)[colorID]);
                     }
 
-                    int ringLimit = 40;
+                    int ringLimit = 400;
+                    int ringDist = timeOffset - (*linePositions)[j+1];
 
-                    double ringRatio = (nowLineX-convSS[0])/static_cast<double>(ringLimit); 
+                    double ringRatio = ringDist/static_cast<double>(ringLimit); 
                     if (!run) {
                       // this effect has a run-down time of 1 second
                       ringRatio += min(1-ringRatio, ctr.getPauseTime());
                     }
                     //logQ(timeOffset, ((*linePositions)[j+1], (*linePositions)[j+2]));
-                    if (nowLineX - convSS[0] < ringLimit && nowLineX - convSS[0] > 4) {
+                    if (ringDist < ringLimit && ringDist > 4) {
+                      int noteLen = (*ctr.notes)[(*linePositions)[j]].duration * zoomLevel < 1 ? 
+                                  1 : (*ctr.notes)[(*linePositions)[j]].duration * zoomLevel;
+                      noteLen = noteLen ? 32 - __countl_zero(noteLen) : 0;
+                      double ringRad = floatLERP(6, 5*noteLen, ringRatio, INT_ILINEAR);
                       drawRing({convSS[0], convSS[1]},
-                               nowLineX-convSS[0]-3, nowLineX-convSS[0], (*colorSetOn)[colorID],
+                               ringRad-3, ringRad, (*colorSetOn)[colorID],
                                floatLERP(0,255, ringRatio, INT_ICIRCULAR));
 
                     }
