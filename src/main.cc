@@ -615,10 +615,14 @@ int main (int argc, char* argv[]) {
                       drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
                                  3, (*cSet)[colorID]);
                     }
-                    drawRing({convSS[0], convSS[1]},
-                             0, 3, (*cSet)[colorID]);
-                    drawRing({convSS[2], convSS[3]},
-                             0, 3, (*cSet)[colorID]);
+                    if (convSS[2] >= nowLineX) {
+                      drawRing({convSS[0], convSS[1]},
+                               0, 3, (*cSet)[colorID]);
+                    }
+                    if (convSS[0] <= nowLineX) {
+                      drawRing({convSS[2], convSS[3]},
+                               0, 3, (*cSet)[colorID]);
+                    }
 
                     int ringLimit = 400;
                     int ringDist = timeOffset - (*linePositions)[j+1];
