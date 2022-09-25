@@ -427,8 +427,6 @@ int main (int argc, char* argv[]) {
         switch (displayMode) {
           case DISPLAY_BAR:
             if (cX + cW > 0 && cX < ctr.getWidth()) {
-                
-
               if ((*ctr.notes)[i].isOn ||
                  (timeOffset >= (*ctr.notes)[i].x && 
                   timeOffset < (*ctr.notes)[i].x + (*ctr.notes)[i].duration)) {
@@ -438,12 +436,8 @@ int main (int argc, char* argv[]) {
                 updateClickIndex();
               }
 
-              if (noteOn) {
-                drawRectangle(cX, cY, cW, cH, (*colorSetOn)[colorID]);
-              }
-              else {
-                drawRectangle(cX, cY, cW, cH, (*colorSetOff)[colorID]);
-              }
+              auto cSet = noteOn ? colorSetOn : colorSetOff;
+              drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
             }
             break;
           case DISPLAY_BALL:
@@ -452,10 +446,9 @@ int main (int argc, char* argv[]) {
               float maxRad = radius;
               float ballY = cY + 2;
               if (cX + cW + radius > 0 && cX - radius < ctr.getWidth()) {
-
-                  if (cX < nowLineX - cW) {
-                    radius *= 0.3;
-                  }
+                if (cX < nowLineX - cW) {
+                  radius *= 0.3;
+                }
                 if ((*ctr.notes)[i].isOn ||
                    (timeOffset >= (*ctr.notes)[i].x && 
                     timeOffset < (*ctr.notes)[i].x + (*ctr.notes)[i].duration)) {
@@ -563,14 +556,9 @@ int main (int argc, char* argv[]) {
                                               ))) {
                       updateClickIndex((*linePositions)[j]);
                     }
-                    if (noteOn) {
-                      drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                                 2, (*colorSetOn)[colorID]);
-                    }
-                    else {
-                      drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                                 2, (*colorSetOff)[colorID]);
-                    }
+                    auto cSet = noteOn ? colorSetOn : colorSetOff;
+                    drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
+                               2, (*cSet)[colorID]);
                   }
                 }
               }
@@ -622,24 +610,15 @@ int main (int argc, char* argv[]) {
                                               ))) {
                       updateClickIndex((*linePositions)[j]);
                     }
-                    if (noteOn) {
+                    auto cSet = noteOn ? colorSetOn : colorSetOff;
+                    if (noteOn || clickTmp == (*linePositions)[j]) {
                       drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                                 3, (*colorSetOn)[colorID]);
-                      drawRing({convSS[0], convSS[1]},
-                               0, 3, (*colorSetOn)[colorID]);
-                      drawRing({convSS[2], convSS[3]},
-                               0, 3, (*colorSetOn)[colorID]);
+                                 3, (*cSet)[colorID]);
                     }
-                    else {
-                      if (clickTmp == (*linePositions)[j]) {
-                        drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                                   3, (*colorSetOff)[colorID]);
-                      }
-                      drawRing({convSS[0], convSS[1]},
-                               0, 3, (*colorSetOff)[colorID]);
-                      drawRing({convSS[2], convSS[3]},
-                               0, 3, (*colorSetOff)[colorID]);
-                    }
+                    drawRing({convSS[0], convSS[1]},
+                             0, 3, (*cSet)[colorID]);
+                    drawRing({convSS[2], convSS[3]},
+                             0, 3, (*cSet)[colorID]);
 
                     int ringLimit = 400;
                     int ringDist = timeOffset - (*linePositions)[j+1];
