@@ -19,6 +19,10 @@ double scaleInterpolationRatio(double ratio, int type) {
         return 1 - sin(ratio * M_PI / 2);
       case INT_SINE:
         return sin(ratio * M_PI / 2);
+      case INT_QUINT:
+        return ratio < 0.5 ? 16 * ratio * ratio * ratio * ratio * ratio : 1 - pow(-2 * ratio + 2, 5) / 2;
+      case INT_IQUINT:
+        return 1 - (ratio < 0.5 ? 16 * ratio * ratio * ratio * ratio * ratio : 1 - pow(-2 * ratio + 2, 5) / 2);
       case INT_ILINEAR:
         return 1-ratio;
       default:

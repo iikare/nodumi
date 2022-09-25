@@ -650,7 +650,7 @@ int main (int argc, char* argv[]) {
                       ringRatio += min(1-ringRatio, ctr.getPauseTime());
                     }
                     //logQ(timeOffset, ((*linePositions)[j+1], (*linePositions)[j+2]));
-                    if (ringDist < ringLimit && ringDist > 4) {
+                    if (ringDist <= ringLimit && ringDist > 4) {
                       int noteLen = (*ctr.notes)[(*linePositions)[j]].duration * zoomLevel < 1 ? 
                                   1 : (*ctr.notes)[(*linePositions)[j]].duration * zoomLevel;
                       noteLen = noteLen ? 32 - __countl_zero(noteLen) : 0;
