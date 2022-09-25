@@ -397,10 +397,10 @@ int main (int argc, char* argv[]) {
         int colorID = 0;
         bool noteOn = false;
         
-        const auto updateClickIndex = [&] {
+        const auto updateClickIndex = [&](int clickIndex = -1){
           noteOn ? clickOnTmp = true : clickOnTmp = false;
           noteOn = !noteOn;
-          clickTmp = i;
+          clickTmp = clickIndex == -1 ? i : clickIndex;
           hoverType.add(HOVER_NOTE);
         };
         
@@ -561,7 +561,7 @@ int main (int argc, char* argv[]) {
                                                 {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
                                                 {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
                                               ))) {
-                      updateClickIndex();
+                      updateClickIndex(linePositions->at(j));
                     }
                     if (noteOn) {
                       drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
@@ -624,7 +624,7 @@ int main (int argc, char* argv[]) {
                                                 {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
                                                 {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
                                               ))) {
-                      updateClickIndex();
+                      updateClickIndex(linePositions->at(j));
                     }
                     if (noteOn) {
                       drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
@@ -645,12 +645,19 @@ int main (int argc, char* argv[]) {
                     }
 
                     int ringLimit = 40;
+
+                    double ringRatio = (nowLineX-convSS[0])/static_cast<double>(ringLimit); 
+                    if (!run) {
+                      // this effect has a run-down time of 1 second
+                      ringRatio += min(1-ringRatio, ctr.getPauseTime());
+                    }
+                    logQ(timeOffset, linePositions->at(j+1), linePositions->at(j+2));
                     if (nowLineX - convSS[0] < ringLimit && nowLineX - convSS[0] > 4) {
                       drawRing({convSS[0], convSS[1]},
                                nowLineX-convSS[0]-3, nowLineX-convSS[0], colorSetOn->at(colorID),
-                               floatLERP(0,255, (nowLineX-convSS[0])/static_cast<double>(ringLimit), INT_ICIRCULAR));
-                    }
+                               floatLERP(0,255, ringRatio, INT_ICIRCULAR));
 
+                    }
                   }
                 }
               }
@@ -1535,8 +1542,8 @@ int main (int argc, char* argv[]) {
 
     menuctr.updateMouse();
     menuctr.updateRenderStatus();
-    ctr.update(timeOffset);
-    
+    ctr.update(timeOffset, run);
+   
     // displays index of last clicked note  
     //logQ(clickNote);
     

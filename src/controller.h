@@ -42,7 +42,8 @@ class controller {
 
     Font* getFont(string id, int size);
 
-    void update(int offset);
+    void update(int offset, bool runState);
+    double getPauseTime();
     void toggleLivePlay();
     void setCloseFlag();
     void load(string path, 
@@ -140,6 +141,7 @@ class controller {
     bool livePlayState;
  
     int curMon;
+    double pauseTime;
 
 
     unordered_map<string, pair<asset, map<int, Font>>> fontMap;

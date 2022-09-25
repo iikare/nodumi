@@ -80,11 +80,13 @@ void controller::unloadData() {
 }
 
 
-void controller::update(int offset) {
+void controller::update(int offset, bool runState) {
   updateKeyState();
   updateDimension();
   updateFPS();
   curMeasure = findCurrentMeasure(offset);
+
+  runState ? pauseTime = 0 : pauseTime += GetFrameTime();
 }
 
 void controller::updateFPS() {
@@ -115,6 +117,9 @@ void controller::updateDimension() {
   }
 }
 
+double controller::getPauseTime() {
+  return pauseTime;
+}
 
 void controller::toggleLivePlay() {
   if (setTrackOn.size() < 1) {
