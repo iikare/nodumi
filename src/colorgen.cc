@@ -29,8 +29,8 @@ void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>* on, vecto
   bg.invert();
   line.invert();
   for (unsigned int i = 0; i < on->size(); i++) {
-    (on->at(i)).invert();
-    (off->at(i)).invert();
+    ((*on)[i]).invert();
+    ((*off)[i]).invert();
   }
 }
 void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB) {

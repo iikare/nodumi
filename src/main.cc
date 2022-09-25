@@ -390,7 +390,7 @@ int main (int argc, char* argv[]) {
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
         
-        if (ctr.notes->at(i).x < currentBoundaries.first*0.9 && ctr.notes->at(i).x > currentBoundaries.second*1.1) {
+        if ((*ctr.notes)[i].x < currentBoundaries.first*0.9 && (*ctr.notes)[i].x > currentBoundaries.second*1.1) {
           continue;
         }
         
@@ -404,21 +404,21 @@ int main (int argc, char* argv[]) {
           hoverType.add(HOVER_NOTE);
         };
         
-        float cX = convertSSX(ctr.notes->at(i).x);
-        float cY = convertSSY(ctr.notes->at(i).y);
-        float cW = ctr.notes->at(i).duration * zoomLevel < 1 ? 1 : ctr.notes->at(i).duration * zoomLevel;
+        float cX = convertSSX((*ctr.notes)[i].x);
+        float cY = convertSSY((*ctr.notes)[i].y);
+        float cW = (*ctr.notes)[i].duration * zoomLevel < 1 ? 1 : (*ctr.notes)[i].duration * zoomLevel;
         float cH = (ctr.getHeight() - ctr.menuHeight) / 88;
        
         
         switch (colorMode) {
           case COLOR_PART:
-            colorID = ctr.notes->at(i).track;
+            colorID = (*ctr.notes)[i].track;
             break;
           case COLOR_VELOCITY:
-            colorID = ctr.notes->at(i).velocity;
+            colorID = (*ctr.notes)[i].velocity;
             break;
           case COLOR_TONIC:
-            colorID = (ctr.notes->at(i).y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+            colorID = ((*ctr.notes)[i].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
             break;
         }
         
@@ -427,8 +427,9 @@ int main (int argc, char* argv[]) {
             if (cX + cW > 0 && cX < ctr.getWidth()) {
                 
 
-              if (ctr.notes->at(i).isOn ||
-                 (timeOffset >= ctr.notes->at(i).x && timeOffset < ctr.notes->at(i).x + ctr.notes->at(i).duration)) {
+              if ((*ctr.notes)[i].isOn ||
+                 (timeOffset >= (*ctr.notes)[i].x && 
+                  timeOffset < (*ctr.notes)[i].x + (*ctr.notes)[i].duration)) {
                 noteOn = true;
               }
               if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !menuctr.mouseOnMenu()) {
@@ -436,10 +437,10 @@ int main (int argc, char* argv[]) {
               }
 
               if (noteOn) {
-                drawRectangle(cX, cY, cW, cH, colorSetOn->at(colorID));
+                drawRectangle(cX, cY, cW, cH, (*colorSetOn)[colorID]);
               }
               else {
-                drawRectangle(cX, cY, cW, cH, colorSetOff->at(colorID));
+                drawRectangle(cX, cY, cW, cH, (*colorSetOff)[colorID]);
               }
             }
             break;
@@ -453,10 +454,11 @@ int main (int argc, char* argv[]) {
                   if (cX < nowLineX - cW) {
                     radius *= 0.3;
                   }
-                if (ctr.notes->at(i).isOn ||
-                   (timeOffset >= ctr.notes->at(i).x && timeOffset < ctr.notes->at(i).x + ctr.notes->at(i).duration)) {
+                if ((*ctr.notes)[i].isOn ||
+                   (timeOffset >= (*ctr.notes)[i].x && 
+                    timeOffset < (*ctr.notes)[i].x + (*ctr.notes)[i].duration)) {
                   noteOn = true;
-                  radius *= (0.3f + 0.7f * (1.0f - float(timeOffset - ctr.notes->at(i).x) / ctr.notes->at(i).duration));
+                  radius *= (0.3f + 0.7f * (1.0f - float(timeOffset - (*ctr.notes)[i].x) / (*ctr.notes)[i].duration));
                 }
                 if (!menuctr.mouseOnMenu()) {
                   int realX = 0;
@@ -481,37 +483,37 @@ int main (int argc, char* argv[]) {
                 
                 if (noteOn) {
                   if (cX >= nowLineX) {
-                    drawRing({cX, ballY}, radius - 2, radius, colorSetOn->at(colorID));
+                    drawRing({cX, ballY}, radius - 2, radius, (*colorSetOn)[colorID]);
                   }
   
                   else if (cX + cW < nowLineX) {
-                    drawRing({cX + cW, ballY}, radius - 2, radius, colorSetOn->at(colorID));
+                    drawRing({cX + cW, ballY}, radius - 2, radius, (*colorSetOn)[colorID]);
                   }
                   else if (cX < nowLineX) {
-                    drawRing({cX, ballY}, radius - 2, radius, colorSetOn->at(colorID), 255*radius/maxRad);
-                    drawRing({nowLineX, ballY}, radius - 2, radius, colorSetOn->at(colorID));
+                    drawRing({cX, ballY}, radius - 2, radius, (*colorSetOn)[colorID], 255*radius/maxRad);
+                    drawRing({nowLineX, ballY}, radius - 2, radius, (*colorSetOn)[colorID]);
                     if (nowLineX - cX > 2 * radius) {
                       drawGradientLineH({cX + radius, ballY + 1}, {nowLineX - radius + 1, ballY + 1}, 
-                                        2, colorSetOn->at(colorID), 255, 255*radius/maxRad);
+                                        2, (*colorSetOn)[colorID], 255, 255*radius/maxRad);
                     }
                   }
                 }
                 else {
                   if (cX < nowLineX && cX + cW > nowLineX) {
-                    drawRing({cX, ballY}, radius - 2, radius, colorSetOff->at(colorID), 255*radius/maxRad);
-                    drawRing({nowLineX, ballY}, radius - 2, radius, colorSetOff->at(colorID));
+                    drawRing({cX, ballY}, radius - 2, radius, (*colorSetOff)[colorID], 255*radius/maxRad);
+                    drawRing({nowLineX, ballY}, radius - 2, radius, (*colorSetOff)[colorID]);
                     if (nowLineX - cX > 2 * radius) {
-                      drawLineEx(cX + radius, ballY + 1, nowLineX - radius, ballY + 1, 2, colorSetOff->at(colorID));
+                      drawLineEx(cX + radius, ballY + 1, nowLineX - radius, ballY + 1, 2, (*colorSetOff)[colorID]);
                     }
                   }
                   else if (cX < nowLineX) {
-                    drawRing({cX + cW, ballY}, radius - 2, radius, colorSetOff->at(colorID));
+                    drawRing({cX + cW, ballY}, radius - 2, radius, (*colorSetOff)[colorID]);
                   }
                   else {
-                    drawRing({cX, ballY}, radius - 2, radius, colorSetOff->at(colorID));
+                    drawRing({cX, ballY}, radius - 2, radius, (*colorSetOff)[colorID]);
                   }
                 }
-                //drawSymbol(SYM_TREBLE, 75, cX,cY, colorSetOff->at(colorID));
+                //drawSymbol(SYM_TREBLE, 75, cX,cY, (*colorSetOff)[colorID]);
               }
             }
             break;
@@ -522,32 +524,33 @@ int main (int argc, char* argv[]) {
                 linePositions = noteData.getLineVerts();
               }
               else if (ctr.getLiveState()) {
-                vector<int> linePosRaw = ctr.notes->at(i).getLinePositions(&ctr.notes->at(i), 
-                                                                            ctr.notes->at(i).getNextChordRoot());
+                vector<int> linePosRaw = (*ctr.notes)[i].getLinePositions(&(*ctr.notes)[i], 
+                                                                           (*ctr.notes)[i].getNextChordRoot());
+
                 linePositions = &linePosRaw;
               }
               else { 
                 break;
               }
-              if (!ctr.getLiveState() || (convertSSX(ctr.notes->at(i).getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
-                if (ctr.notes->at(i).isChordRoot()) {
+              if (!ctr.getLiveState() || (convertSSX((*ctr.notes)[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
+                if ((*ctr.notes)[i].isChordRoot()) {
                   for (unsigned int j = 0; j < linePositions->size(); j += 5) {
                     switch (colorMode) {
                       case COLOR_PART:
-                        colorID = ctr.notes->at(linePositions->at(j)).track;
+                        colorID = (*ctr.notes)[(*linePositions)[j]].track;
                         break;
                       case COLOR_VELOCITY:
-                        colorID = ctr.notes->at(linePositions->at(j)).velocity;
+                        colorID = (*ctr.notes)[(*linePositions)[j]].velocity;
                         break;
                       case COLOR_TONIC:
-                        colorID = (ctr.notes->at(linePositions->at(j)).y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+                        colorID = ((*ctr.notes)[(*linePositions)[j]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
                         break;
                     }
                     float convSS[4] = {
-                                        static_cast<float>(convertSSX(linePositions->at(j+1))),
-                                        static_cast<float>(convertSSY(linePositions->at(j+2))),
-                                        static_cast<float>(convertSSX(linePositions->at(j+3))),
-                                        static_cast<float>(convertSSY(linePositions->at(j+4)))
+                                        static_cast<float>(convertSSX((*linePositions)[j+1])),
+                                        static_cast<float>(convertSSY((*linePositions)[j+2])),
+                                        static_cast<float>(convertSSX((*linePositions)[j+3])),
+                                        static_cast<float>(convertSSY((*linePositions)[j+4]))
                                       };
 
                     if (convSS[0] <= nowLineX && convSS[2] > nowLineX) {
@@ -561,15 +564,15 @@ int main (int argc, char* argv[]) {
                                                 {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
                                                 {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
                                               ))) {
-                      updateClickIndex(linePositions->at(j));
+                      updateClickIndex((*linePositions)[j]);
                     }
                     if (noteOn) {
                       drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                                 2, colorSetOn->at(colorID));
+                                 2, (*colorSetOn)[colorID]);
                     }
                     else {
                       drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                                 2, colorSetOff->at(colorID));
+                                 2, (*colorSetOff)[colorID]);
                     }
                   }
                 }
@@ -584,33 +587,33 @@ int main (int argc, char* argv[]) {
                 linePositions = noteData.getLineVerts();
               }
               else if (ctr.getLiveState()) {
-                vector<int> linePosRaw = ctr.notes->at(i).getLinePositions(&ctr.notes->at(i), 
-                                                                            ctr.notes->at(i).getNextChordRoot());
+                vector<int> linePosRaw = (*ctr.notes)[i].getLinePositions(&(*ctr.notes)[i], 
+                                                                           (*ctr.notes)[i].getNextChordRoot());
                 linePositions = &linePosRaw;
               }
               else { 
                 break;
               }
-              if (!ctr.getLiveState() || (convertSSX(ctr.notes->at(i).getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
-                if (ctr.notes->at(i).isChordRoot()) {
+              if (!ctr.getLiveState() || (convertSSX((*ctr.notes)[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
+                if ((*ctr.notes)[i].isChordRoot()) {
                   for (unsigned int j = 0; j < linePositions->size(); j += 5) {
                     switch (colorMode) {
                       case COLOR_PART:
-                        colorID = ctr.notes->at(linePositions->at(j)).track;
+                        colorID = (*ctr.notes)[(*linePositions)[j]].track;
                         break;
                       case COLOR_VELOCITY:
-                        colorID = ctr.notes->at(linePositions->at(j)).velocity;
+                        colorID = (*ctr.notes)[(*linePositions)[j]].velocity;
                         break;
                       case COLOR_TONIC:
-                        colorID = (ctr.notes->at(linePositions->at(j)).y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+                        colorID = ((*ctr.notes)[(*linePositions)[j]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
                         break;
                     }
 
                     float convSS[4] = {
-                                        static_cast<float>(convertSSX(linePositions->at(j+1))),
-                                        static_cast<float>(convertSSY(linePositions->at(j+2))),
-                                        static_cast<float>(convertSSX(linePositions->at(j+3))),
-                                        static_cast<float>(convertSSY(linePositions->at(j+4)))
+                                        static_cast<float>(convertSSX((*linePositions)[j+1])),
+                                        static_cast<float>(convertSSY((*linePositions)[j+2])),
+                                        static_cast<float>(convertSSX((*linePositions)[j+3])),
+                                        static_cast<float>(convertSSY((*linePositions)[j+4]))
                                       };
 
                     if (convSS[0] <= nowLineX && convSS[2] > nowLineX) {
@@ -624,24 +627,24 @@ int main (int argc, char* argv[]) {
                                                 {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
                                                 {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
                                               ))) {
-                      updateClickIndex(linePositions->at(j));
+                      updateClickIndex((*linePositions)[j]);
                     }
                     if (noteOn) {
                       drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                                 2, colorSetOn->at(colorID));
+                                 2, (*colorSetOn)[colorID]);
                       drawRing({convSS[0], convSS[1]},
-                               0, 3, colorSetOn->at(colorID));
+                               0, 3, (*colorSetOn)[colorID]);
                       drawRing({convSS[2], convSS[3]},
-                               0, 3, colorSetOn->at(colorID));
+                               0, 3, (*colorSetOn)[colorID]);
                     }
                     else {
-                      //drawLineEx(convertSSX(linePositions->at(j + 1)), convertSSY(linePositions->at(j + 2)),
-                                 //convertSSX(linePositions->at(j + 3)), convertSSY(linePositions->at(j + 4)), 
-                                 //2, colorSetOff->at(colorID));
+                      //drawLineEx(convertSSX((*linePositions)[j + 1]), convertSSY((*linePositions)[j + 2]),
+                                 //convertSSX((*linePositions)[j + 3]), convertSSY((*linePositions)[j + 4]), 
+                                 //2, (*colorSetOff)[colorID]);
                       drawRing({convSS[0], convSS[1]},
-                               0, 3, colorSetOff->at(colorID));
+                               0, 3, (*colorSetOff)[colorID]);
                       drawRing({convSS[2], convSS[3]},
-                               0, 3, colorSetOff->at(colorID));
+                               0, 3, (*colorSetOff)[colorID]);
                     }
 
                     int ringLimit = 40;
@@ -651,10 +654,10 @@ int main (int argc, char* argv[]) {
                       // this effect has a run-down time of 1 second
                       ringRatio += min(1-ringRatio, ctr.getPauseTime());
                     }
-                    logQ(timeOffset, linePositions->at(j+1), linePositions->at(j+2));
+                    //logQ(timeOffset, ((*linePositions)[j+1], (*linePositions)[j+2]));
                     if (nowLineX - convSS[0] < ringLimit && nowLineX - convSS[0] > 4) {
                       drawRing({convSS[0], convSS[1]},
-                               nowLineX-convSS[0]-3, nowLineX-convSS[0], colorSetOn->at(colorID),
+                               nowLineX-convSS[0]-3, nowLineX-convSS[0], (*colorSetOn)[colorID],
                                floatLERP(0,255, ringRatio, INT_ICIRCULAR));
 
                     }
@@ -785,10 +788,10 @@ int main (int argc, char* argv[]) {
       switch (selectType) {
         case SELECT_NOTE:
           if (clickOn) {
-            ctr.setTrackOn[ctr.notes->at(clickNote).track] = colorSelect.getColor();
+            ctr.setTrackOn[(*ctr.notes)[clickNote].track] = colorSelect.getColor();
           }
           else {
-            ctr.setTrackOff[ctr.notes->at(clickNote).track] = colorSelect.getColor();
+            ctr.setTrackOff[(*ctr.notes)[clickNote].track] = colorSelect.getColor();
           }
           break;
         case SELECT_BG:
@@ -1411,7 +1414,7 @@ int main (int argc, char* argv[]) {
               }
               break;
             case 2:
-              tonicOffset = (ctr.notes->at(clickNote).y - MIN_NOTE_IDX + tonicOffset) % 12;
+              tonicOffset = ((*ctr.notes)[clickNote].y - MIN_NOTE_IDX + tonicOffset) % 12;
               break;
           }
           break;
@@ -1451,9 +1454,9 @@ int main (int argc, char* argv[]) {
           int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
 
           if (clickNote != -1) {
-            rightX = round(nowLineX + (ctr.notes->at(clickNote).x - timeOffset) * zoomLevel);
+            rightX = round(nowLineX + ((*ctr.notes)[clickNote].x - timeOffset) * zoomLevel);
             rightY = (ctr.getHeight() - round((ctr.getHeight() - ctr.menuHeight) * 
-                      static_cast<double>(ctr.notes->at(clickNote).y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+                      static_cast<double>((*ctr.notes)[clickNote].y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           }
           
           // find coordinate to draw right click menu
@@ -1469,14 +1472,14 @@ int main (int argc, char* argv[]) {
             selectType = SELECT_NOTE;
             rightMenuContents[1] = "Change Part Color";
             rightMenu.update(rightMenuContents);
-            rightMenu.setContent(getNoteInfo(ctr.notes->at(clickNote).track, ctr.notes->at(clickNote).y - MIN_NOTE_IDX), 0);
+            rightMenu.setContent(getNoteInfo((*ctr.notes)[clickNote].track, (*ctr.notes)[clickNote].y - MIN_NOTE_IDX), 0);
             
             // set note color for color wheel
             if (clickOn) {
-              colorSelect.setColor(ctr.setTrackOn[ctr.notes->at(clickNote).track]);
+              colorSelect.setColor(ctr.setTrackOn[(*ctr.notes)[clickNote].track]);
             }
             else{
-              colorSelect.setColor(ctr.setTrackOff[ctr.notes->at(clickNote).track]);
+              colorSelect.setColor(ctr.setTrackOff[(*ctr.notes)[clickNote].track]);
             }
           }
           else {
