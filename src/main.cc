@@ -561,7 +561,7 @@ int main (int argc, char* argv[]) {
                       updateClickIndex((*linePositions)[j]);
                     }
                     auto cSet = noteOn ? colorSetOn : colorSetOff;
-                    if (convSS[2] - convSS[0] > 5) {
+                    if (convSS[2] - convSS[0] > 3) {
                       drawLineBezier(convSS[0], convSS[1], convSS[2], convSS[3],
                                  2, (*cSet)[colorID]);
                     }
