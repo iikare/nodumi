@@ -78,7 +78,7 @@ int main (int argc, char* argv[]) {
 
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_PULSE;
+  int displayMode = DISPLAY_BALL;
   
   float nowLineX = ctr.getWidth()/2.0f;
 
@@ -530,6 +530,16 @@ int main (int argc, char* argv[]) {
               if (!ctr.getLiveState() || (convertSSX((*ctr.notes)[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
                 if ((*ctr.notes)[i].isChordRoot()) {
                   for (unsigned int j = 0; j < linePositions->size(); j += 5) {
+                    float convSS[4] = {
+                                        static_cast<float>(convertSSX((*linePositions)[j+1])),
+                                        static_cast<float>(convertSSY((*linePositions)[j+2])),
+                                        static_cast<float>(convertSSX((*linePositions)[j+3])),
+                                        static_cast<float>(convertSSY((*linePositions)[j+4]))
+                                      };
+
+                    if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
+                       continue;
+                    }
                     switch (colorMode) {
                       case COLOR_PART:
                         colorID = (*ctr.notes)[(*linePositions)[j]].track;
@@ -541,12 +551,6 @@ int main (int argc, char* argv[]) {
                         colorID = ((*ctr.notes)[(*linePositions)[j]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
                         break;
                     }
-                    float convSS[4] = {
-                                        static_cast<float>(convertSSX((*linePositions)[j+1])),
-                                        static_cast<float>(convertSSY((*linePositions)[j+2])),
-                                        static_cast<float>(convertSSX((*linePositions)[j+3])),
-                                        static_cast<float>(convertSSY((*linePositions)[j+4]))
-                                      };
 
                     noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
                     if (pointInBox(ctr.getMousePosition(), 
@@ -557,8 +561,14 @@ int main (int argc, char* argv[]) {
                       updateClickIndex((*linePositions)[j]);
                     }
                     auto cSet = noteOn ? colorSetOn : colorSetOff;
-                    drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                               2, (*cSet)[colorID]);
+                    if (convSS[2] - convSS[0] > 5) {
+                      drawLineBezier(convSS[0], convSS[1], convSS[2], convSS[3],
+                                 2, (*cSet)[colorID]);
+                    }
+                    else {
+                      drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
+                                 2, (*cSet)[colorID]);
+                    }
                   }
                 }
               }
@@ -582,6 +592,16 @@ int main (int argc, char* argv[]) {
               if (!ctr.getLiveState() || (convertSSX((*ctr.notes)[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
                 if ((*ctr.notes)[i].isChordRoot()) {
                   for (unsigned int j = 0; j < linePositions->size(); j += 5) {
+                    float convSS[4] = {
+                                        static_cast<float>(convertSSX((*linePositions)[j+1])),
+                                        static_cast<float>(convertSSY((*linePositions)[j+2])),
+                                        static_cast<float>(convertSSX((*linePositions)[j+3])),
+                                        static_cast<float>(convertSSY((*linePositions)[j+4]))
+                                      };
+
+                    if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
+                       continue;
+                    }
                     switch (colorMode) {
                       case COLOR_PART:
                         colorID = (*ctr.notes)[(*linePositions)[j]].track;
@@ -593,13 +613,6 @@ int main (int argc, char* argv[]) {
                         colorID = ((*ctr.notes)[(*linePositions)[j]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
                         break;
                     }
-
-                    float convSS[4] = {
-                                        static_cast<float>(convertSSX((*linePositions)[j+1])),
-                                        static_cast<float>(convertSSY((*linePositions)[j+2])),
-                                        static_cast<float>(convertSSX((*linePositions)[j+3])),
-                                        static_cast<float>(convertSSY((*linePositions)[j+4]))
-                                      };
 
                     noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
 
@@ -616,22 +629,27 @@ int main (int argc, char* argv[]) {
                       double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
                       bool nowNote = convSS[0] <= nowLineX && convSS[2] > nowLineX;
                       drawLineEx(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) : convSS[0],
-                                 nowNote ? newY - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) : convSS[1], 
-                                 nowNote ? nowLineX  - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
-                                 nowNote ? newY      - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
-                                 //nowNote ? nowLineX : convSS[2],
-                                 //nowNote ? newY : convSS[3],
+                                 nowNote ? newY     - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) : convSS[1], 
+                                 nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
+                                 nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
                                  3, (*cSet)[colorID]);
-                      drawRing({nowNote ? convSS[0] + floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) : convSS[0],
-                                nowNote ? convSS[1] + floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) : convSS[1]}, 
-                               0, 1, (*cSet)[colorID]);
+                      drawRing({float(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) 
+                                              : convSS[0]),
+                                float(nowNote ? newY - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) 
+                                              : convSS[1])}, 
+                               0, 1.5, (*cSet)[colorID]);
+                      drawRing({float(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) 
+                                              : convSS[0]),
+                                float(nowNote ? newY - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) 
+                                              : convSS[1])}, 
+                               0, 1.5, (*cSet)[colorID]);
                     }
                     
                     if (convSS[2] >= nowLineX) {
                       drawRing({convSS[0], convSS[1]},
                                0, 3, (*cSet)[colorID]);
                     }
-                    if (convSS[0] <= nowLineX) {
+                    if (convSS[2] <= nowLineX) {
                       drawRing({convSS[2], convSS[3]},
                                0, 3, (*cSet)[colorID]);
                     }
@@ -650,6 +668,7 @@ int main (int argc, char* argv[]) {
                                   1 : (*ctr.notes)[(*linePositions)[j]].duration * zoomLevel;
                       noteLen = noteLen ? 32 - __countl_zero(noteLen) : 0;
                       double ringRad = floatLERP(6, 5*noteLen, ringRatio, INT_ILINEAR);
+
                       drawRing({convSS[0], convSS[1]},
                                ringRad-3, ringRad, (*colorSetOn)[colorID],
                                floatLERP(0,255, ringRatio, INT_ICIRCULAR));
