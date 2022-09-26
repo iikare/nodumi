@@ -194,6 +194,8 @@ void midiInput::update() {
       convertEvents();
       updatePosition();
     }
+    // TODO: consider optimization
+    ctr.liveInput.noteStream.buildLineMap();
   }
   else {
     // shift even when midi input is disconnected

@@ -300,8 +300,10 @@ int main (int argc, char* argv[]) {
      
       if (showImage) {
         ctr.image.draw();
-        if (ctr.getMousePosition().x > ctr.image.getX() && ctr.getMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
-          if (ctr.getMousePosition().y > ctr.image.getY() && ctr.getMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
+        if (ctr.getMousePosition().x > ctr.image.getX() && 
+            ctr.getMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
+          if (ctr.getMousePosition().y > ctr.image.getY() && 
+              ctr.getMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
             //logQ(ctr.image.getWidth(), ctr.image.getHeight()); 
             hoverType.add(HOVER_IMAGE); 
           } 
@@ -392,7 +394,7 @@ int main (int argc, char* argv[]) {
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
         
-        if ((*ctr.notes)[i].x < currentBoundaries.first*0.9 && (*ctr.notes)[i].x > currentBoundaries.second*1.1) {
+        if ((*ctr.getNotes())[i].x < currentBoundaries.first*0.9 && (*ctr.getNotes())[i].x > currentBoundaries.second*1.1) {
           continue;
         }
         
@@ -406,30 +408,30 @@ int main (int argc, char* argv[]) {
           hoverType.add(HOVER_NOTE);
         };
         
-        float cX = convertSSX((*ctr.notes)[i].x);
-        float cY = convertSSY((*ctr.notes)[i].y);
-        float cW = (*ctr.notes)[i].duration * zoomLevel < 1 ? 1 : (*ctr.notes)[i].duration * zoomLevel;
+        float cX = convertSSX((*ctr.getNotes())[i].x);
+        float cY = convertSSY((*ctr.getNotes())[i].y);
+        float cW = (*ctr.getNotes())[i].duration * zoomLevel < 1 ? 1 : (*ctr.getNotes())[i].duration * zoomLevel;
         float cH = (ctr.getHeight() - ctr.menuHeight) / 88;
        
         
         switch (colorMode) {
           case COLOR_PART:
-            colorID = (*ctr.notes)[i].track;
+            colorID = (*ctr.getNotes())[i].track;
             break;
           case COLOR_VELOCITY:
-            colorID = (*ctr.notes)[i].velocity;
+            colorID = (*ctr.getNotes())[i].velocity;
             break;
           case COLOR_TONIC:
-            colorID = ((*ctr.notes)[i].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+            colorID = ((*ctr.getNotes())[i].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
             break;
         }
         
         switch (displayMode) {
           case DISPLAY_BAR:
             if (cX + cW > 0 && cX < ctr.getWidth()) {
-              if ((*ctr.notes)[i].isOn ||
-                 (timeOffset >= (*ctr.notes)[i].x && 
-                  timeOffset < (*ctr.notes)[i].x + (*ctr.notes)[i].duration)) {
+              if ((*ctr.getNotes())[i].isOn ||
+                 (timeOffset >= (*ctr.getNotes())[i].x && 
+                  timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
                 noteOn = true;
               }
               if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !menuctr.mouseOnMenu()) {
@@ -449,11 +451,11 @@ int main (int argc, char* argv[]) {
                 if (cX < nowLineX - cW) {
                   radius *= 0.3;
                 }
-                if ((*ctr.notes)[i].isOn ||
-                   (timeOffset >= (*ctr.notes)[i].x && 
-                    timeOffset < (*ctr.notes)[i].x + (*ctr.notes)[i].duration)) {
+                if ((*ctr.getNotes())[i].isOn ||
+                   (timeOffset >= (*ctr.getNotes())[i].x && 
+                    timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
                   noteOn = true;
-                  radius *= (0.3f + 0.7f * (1.0f - float(timeOffset - (*ctr.notes)[i].x) / (*ctr.notes)[i].duration));
+                  radius *= (0.3f + 0.7f * (1.0f - float(timeOffset - (*ctr.getNotes())[i].x) / (*ctr.getNotes())[i].duration));
                 }
                 if (!menuctr.mouseOnMenu()) {
                   int realX = 0;
@@ -470,7 +472,8 @@ int main (int argc, char* argv[]) {
                     updateClickIndex();
                   }
                   else if (realX == nowLineX && (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, ballY) < radius ||
-                           pointInBox(ctr.getMousePosition(), (rect) {int(cX), int(ballY) - 2, max(int(nowLineX - cX), 0), 4}))) {
+                           pointInBox(ctr.getMousePosition(), 
+                                      (rect) {int(cX), int(ballY) - 2, max(int(nowLineX - cX), 0), 4}))) {
                     updateClickIndex();
                   }
                 }
@@ -519,16 +522,16 @@ int main (int argc, char* argv[]) {
                 linePositions = noteData.getLineVerts();
               }
               else if (ctr.getLiveState()) {
-                vector<int> linePosRaw = (*ctr.notes)[i].getLinePositions(&(*ctr.notes)[i], 
-                                                                           (*ctr.notes)[i].getNextChordRoot());
+                vector<int> linePosRaw = (*ctr.getNotes())[i].getLinePositions(&(*ctr.getNotes())[i], 
+                                                                           (*ctr.getNotes())[i].getNextChordRoot());
 
                 linePositions = &linePosRaw;
               }
               else { 
                 break;
               }
-              if (!ctr.getLiveState() || (convertSSX((*ctr.notes)[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
-                if ((*ctr.notes)[i].isChordRoot()) {
+              if (!ctr.getLiveState() || (convertSSX((*ctr.getNotes())[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
+                if ((*ctr.getNotes())[i].isChordRoot()) {
                   for (unsigned int j = 0; j < linePositions->size(); j += 5) {
                     float convSS[4] = {
                                         static_cast<float>(convertSSX((*linePositions)[j+1])),
@@ -542,13 +545,13 @@ int main (int argc, char* argv[]) {
                     }
                     switch (colorMode) {
                       case COLOR_PART:
-                        colorID = (*ctr.notes)[(*linePositions)[j]].track;
+                        colorID = (*ctr.getNotes())[(*linePositions)[j]].track;
                         break;
                       case COLOR_VELOCITY:
-                        colorID = (*ctr.notes)[(*linePositions)[j]].velocity;
+                        colorID = (*ctr.getNotes())[(*linePositions)[j]].velocity;
                         break;
                       case COLOR_TONIC:
-                        colorID = ((*ctr.notes)[(*linePositions)[j]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+                        colorID = ((*ctr.getNotes())[(*linePositions)[j]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
                         break;
                     }
 
@@ -582,15 +585,15 @@ int main (int argc, char* argv[]) {
                 linePositions = noteData.getLineVerts();
               }
               else if (ctr.getLiveState()) {
-                vector<int> linePosRaw = (*ctr.notes)[i].getLinePositions(&(*ctr.notes)[i], 
-                                                                           (*ctr.notes)[i].getNextChordRoot());
+                vector<int> linePosRaw = (*ctr.getNotes())[i].getLinePositions(&(*ctr.getNotes())[i], 
+                                                                           (*ctr.getNotes())[i].getNextChordRoot());
                 linePositions = &linePosRaw;
               }
               else { 
                 break;
               }
-              if (!ctr.getLiveState() || (convertSSX((*ctr.notes)[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
-                if ((*ctr.notes)[i].isChordRoot()) {
+              if (!ctr.getLiveState() || (convertSSX((*ctr.getNotes())[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
+                if ((*ctr.getNotes())[i].isChordRoot()) {
                   for (unsigned int j = 0; j < linePositions->size(); j += 5) {
                     float convSS[4] = {
                                         static_cast<float>(convertSSX((*linePositions)[j+1])),
@@ -604,13 +607,13 @@ int main (int argc, char* argv[]) {
                     }
                     switch (colorMode) {
                       case COLOR_PART:
-                        colorID = (*ctr.notes)[(*linePositions)[j]].track;
+                        colorID = (*ctr.getNotes())[(*linePositions)[j]].track;
                         break;
                       case COLOR_VELOCITY:
-                        colorID = (*ctr.notes)[(*linePositions)[j]].velocity;
+                        colorID = (*ctr.getNotes())[(*linePositions)[j]].velocity;
                         break;
                       case COLOR_TONIC:
-                        colorID = ((*ctr.notes)[(*linePositions)[j]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+                        colorID = ((*ctr.getNotes())[(*linePositions)[j]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
                         break;
                     }
 
@@ -664,8 +667,8 @@ int main (int argc, char* argv[]) {
                     }
                     //logQ(timeOffset, ((*linePositions)[j+1], (*linePositions)[j+2]));
                     if (ringDist <= ringLimit && ringDist > 4) {
-                      int noteLen = (*ctr.notes)[(*linePositions)[j]].duration * zoomLevel < 1 ? 
-                                  1 : (*ctr.notes)[(*linePositions)[j]].duration * zoomLevel;
+                      int noteLen = (*ctr.getNotes())[(*linePositions)[j]].duration * zoomLevel < 1 ? 
+                                  1 : (*ctr.getNotes())[(*linePositions)[j]].duration * zoomLevel;
                       noteLen = noteLen ? 32 - __countl_zero(noteLen) : 0;
                       double ringRad = floatLERP(6, 5*noteLen, ringRatio, INT_ILINEAR);
 
@@ -801,10 +804,10 @@ int main (int argc, char* argv[]) {
       switch (selectType) {
         case SELECT_NOTE:
           if (clickOn) {
-            ctr.setTrackOn[(*ctr.notes)[clickNote].track] = colorSelect.getColor();
+            ctr.setTrackOn[(*ctr.getNotes())[clickNote].track] = colorSelect.getColor();
           }
           else {
-            ctr.setTrackOff[(*ctr.notes)[clickNote].track] = colorSelect.getColor();
+            ctr.setTrackOff[(*ctr.getNotes())[clickNote].track] = colorSelect.getColor();
           }
           break;
         case SELECT_BG:
@@ -1427,7 +1430,7 @@ int main (int argc, char* argv[]) {
               }
               break;
             case 2:
-              tonicOffset = ((*ctr.notes)[clickNote].y - MIN_NOTE_IDX + tonicOffset) % 12;
+              tonicOffset = ((*ctr.getNotes())[clickNote].y - MIN_NOTE_IDX + tonicOffset) % 12;
               break;
           }
           break;
@@ -1467,9 +1470,9 @@ int main (int argc, char* argv[]) {
           int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
 
           if (clickNote != -1) {
-            rightX = round(nowLineX + ((*ctr.notes)[clickNote].x - timeOffset) * zoomLevel);
+            rightX = round(nowLineX + ((*ctr.getNotes())[clickNote].x - timeOffset) * zoomLevel);
             rightY = (ctr.getHeight() - round((ctr.getHeight() - ctr.menuHeight) * 
-                      static_cast<double>((*ctr.notes)[clickNote].y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+                      static_cast<double>((*ctr.getNotes())[clickNote].y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           }
           
           // find coordinate to draw right click menu
@@ -1485,22 +1488,25 @@ int main (int argc, char* argv[]) {
             selectType = SELECT_NOTE;
             rightMenuContents[1] = "Change Part Color";
             rightMenu.update(rightMenuContents);
-            rightMenu.setContent(getNoteInfo((*ctr.notes)[clickNote].track, (*ctr.notes)[clickNote].y - MIN_NOTE_IDX), 0);
+            rightMenu.setContent(getNoteInfo((*ctr.getNotes())[clickNote].track, 
+                                             (*ctr.getNotes())[clickNote].y - MIN_NOTE_IDX), 0);
             
             // set note color for color wheel
             if (clickOn) {
-              colorSelect.setColor(ctr.setTrackOn[(*ctr.notes)[clickNote].track]);
+              colorSelect.setColor(ctr.setTrackOn[(*ctr.getNotes())[clickNote].track]);
             }
             else{
-              colorSelect.setColor(ctr.setTrackOff[(*ctr.notes)[clickNote].track]);
+              colorSelect.setColor(ctr.setTrackOff[(*ctr.getNotes())[clickNote].track]);
             }
           }
           else {
-            if (sheetMusicDisplay && pointInBox(ctr.getMousePosition(), (rect){0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight})) {
+            if (sheetMusicDisplay && pointInBox(ctr.getMousePosition(), 
+                                                (rect){0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight})) {
               selectType = SELECT_SHEET;
               colorSelect.setColor(ctr.bgSheet);
             }
-            else if (pointInBox(ctr.getMousePosition(), {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight})) {
+            else if (pointInBox(ctr.getMousePosition(), 
+                                {int(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight})) {
               selectType = SELECT_LINE;
               rightMenuContents[1] = "Change Line Color";
               colorSelect.setColor(ctr.bgNow);
@@ -1509,7 +1515,8 @@ int main (int argc, char* argv[]) {
               bool measureSelected = false;
               for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
                 double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
-                if (pointInBox(ctr.getMousePosition(), {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
+                if (pointInBox(ctr.getMousePosition(), 
+                               {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
                     !menuctr.mouseOnMenu()) {
                   measureSelected = true;
                   break; 

@@ -27,6 +27,7 @@ int midi::getTempo(int offset) {
 
 void midi::buildLineMap() {
   vector<int> tmpVerts;
+  lineVerts.clear();
   for (unsigned int i = 0; i < notes.size(); i++) {
     if (notes[i].isChordRoot()) {
       tmpVerts = notes[i].getLinePositions(&notes[i], notes[i].getNextChordRoot());

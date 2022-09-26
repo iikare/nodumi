@@ -69,6 +69,7 @@ class controller {
     bool getPlayState() { return playState; }
     bool getLiveState() { return livePlayState; }
 
+    vector<note>* getNotes();
     int getTrackCount();
     int getNoteCount();
     int getLastTime();
@@ -93,7 +94,6 @@ class controller {
     stringstream midiData;
     imageController image;
 
-    vector<note>* notes;
 
     vector<colorRGB> setTrackOn;
     vector<colorRGB> setTrackOff;
@@ -142,6 +142,8 @@ class controller {
  
     int curMon;
     double pauseTime;
+    
+    vector<note>* notes;
 
 
     unordered_map<string, pair<asset, map<int, Font>>> fontMap;

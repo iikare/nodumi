@@ -87,6 +87,8 @@ class midi {
     vector<measureController> measureMap;
 
     vector<pair<int, double>> trackHeightMap;
+
+    friend class midiInput;
     
   private:
     vector<pair<double, int>> tempoMap;
