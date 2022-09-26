@@ -612,7 +612,11 @@ int main (int argc, char* argv[]) {
                     }
                     auto cSet = noteOn ? colorSetOn : colorSetOff;
                     if (noteOn || clickTmp == (*linePositions)[j]) {
-                      drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
+                      int newY = (convSS[3]-convSS[1])*(nowLineX-convSS[0])/(convSS[2]-convSS[0]) + convSS[1];
+                      bool nowNote = convSS[0] <= nowLineX && convSS[2] > nowLineX;
+                      drawLineEx(convSS[0], convSS[1], 
+                                 nowNote ? nowLineX : convSS[2],
+                                 nowNote ? newY : convSS[3],
                                  3, (*cSet)[colorID]);
                     }
                     if (convSS[2] >= nowLineX) {
