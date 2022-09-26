@@ -1,8 +1,12 @@
 #include "wrap.h"
 
-void drawLine(int xi, int yi, int xf, int yf, const colorRGB& col) {
+void drawLine(float xi, float yi, float xf, float yf, const colorRGB& col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   DrawLine(xi, yi, xf, yf, color);
+}
+void drawLineEx(float xi, float yi, float xf, float yf, float thick, const colorRGB& col) {
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
+  DrawLineEx((const Vector2){(float)xi, (float)yi}, (const Vector2){(float)xf, (float)yf}, thick, color);
 }
 void clearBackground(const colorRGB& col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
@@ -11,10 +15,6 @@ void clearBackground(const colorRGB& col) {
 void drawRectangle(float x, float y, float w, float h, const colorRGB& col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   DrawRectangleV({x, y}, {w, h}, color);
-}
-void drawLineEx(int xi, int yi, int xf, int yf, float thick, const colorRGB& col) {
-  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
-  DrawLineEx((const Vector2){(float)xi, (float)yi}, (const Vector2){(float)xf, (float)yf}, thick, color);
 }
 
 void drawTextEx(const string& msg, const Vector2& pos, const colorRGB& col, unsigned char alpha, int size, const string& font) {

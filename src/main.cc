@@ -332,8 +332,8 @@ int main (int argc, char* argv[]) {
             }
            
             if (!nowLine || fabs(nowLineX - measureLineX) > 3) {  
-              drawLineEx(measureLineX, measureLineY,
-                         measureLineX, ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
+              drawLineEx(static_cast<int>(measureLineX), measureLineY,
+                         static_cast<int>(measureLineX), ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
             }
           }
 
@@ -612,13 +612,21 @@ int main (int argc, char* argv[]) {
                     }
                     auto cSet = noteOn ? colorSetOn : colorSetOff;
                     if (noteOn || clickTmp == (*linePositions)[j]) {
-                      int newY = (convSS[3]-convSS[1])*(nowLineX-convSS[0])/(convSS[2]-convSS[0]) + convSS[1];
+                      double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
+                      double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
                       bool nowNote = convSS[0] <= nowLineX && convSS[2] > nowLineX;
-                      drawLineEx(convSS[0], convSS[1], 
-                                 nowNote ? nowLineX : convSS[2],
-                                 nowNote ? newY : convSS[3],
+                      drawLineEx(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) : convSS[0],
+                                 nowNote ? newY - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) : convSS[1], 
+                                 nowNote ? nowLineX  - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
+                                 nowNote ? newY      - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
+                                 //nowNote ? nowLineX : convSS[2],
+                                 //nowNote ? newY : convSS[3],
                                  3, (*cSet)[colorID]);
+                      drawRing({nowNote ? convSS[0] + floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) : convSS[0],
+                                nowNote ? convSS[1] + floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) : convSS[1]}, 
+                               0, 1, (*cSet)[colorID]);
                     }
+                    
                     if (convSS[2] >= nowLineX) {
                       drawRing({convSS[0], convSS[1]},
                                0, 3, (*cSet)[colorID]);

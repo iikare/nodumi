@@ -11,8 +11,8 @@ using std::string;
 
 void clearBackground(const colorRGB& col);
 void drawRectangle(float x, float y, float w, float h, const colorRGB& col);
-void drawLine(int xi, int yi, int xf, int yf, const colorRGB& col);
-void drawLineEx(int xi, int yi, int xf, int yf, float thick, const colorRGB& col);
+void drawLine(float xi, float yi, float xf, float yf, const colorRGB& col);
+void drawLineEx(float xi, float yi, float xf, float yf, float thick, const colorRGB& col);
 
 void drawTextEx(const string& msg, const Vector2& pos, const colorRGB& col, 
                 unsigned char alpha = 255, int size = 14, const string& font = DEFAULT_FONT);
