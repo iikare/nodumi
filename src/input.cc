@@ -1,7 +1,10 @@
+#include<bitset>
 #include "input.h"
 #include "data.h"
 #include "controller.h"
 #include "define.h"
+
+using std::bitset;
 
 midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
   midiIn = new RtMidiIn();
@@ -78,8 +81,15 @@ vector<string> midiInput::getPorts() {
 }
 
 bool midiInput::updateQueue() {
-  timestamp = midiIn->getMessage(&msgQueue);
-
+  int tempTS = midiIn->getMessage(&msgQueue);
+  if (isUntimedQueue()) {
+    timestamp += GetFrameTime();
+    ctr.livePlayOffset += GetFrameTime() * 500;
+  }
+  else {
+    timestamp = tempTS;
+  }
+    
 
   for (long unsigned int i = 0; i < msgQueue.size(); i++) {
     if ((int)msgQueue[i] != 248 && (int)msgQueue[i] != 254){ 
@@ -97,12 +107,28 @@ bool midiInput::updateQueue() {
   return false;
 }
 
+bool midiInput::isUntimedQueue() {
+  bool noShift = true;
+  for (long unsigned int i = 0; i < msgQueue.size(); i++) { 
+    if (msgQueue[i] == 0b11111000) {
+      noShift = false;
+      break;
+    }
+  }
+  return noShift;
+}
+
 void midiInput::convertEvents() {
   //-timestamp * 100 * noteStream->getTimeScale()
+  //logQ(" ");
+  
+
+  logQ(ctr.livePlayOffset, timestamp);
   for (long unsigned int i = 0; i < msgQueue.size(); i++) { 
+    //logQ(bitset<8>(msgQueue[i]));
     if (msgQueue[i] == 0b11111000) { // 248: clock signal
       //cerr << "shift by " << timestamp*100 << endl;
-      ctr.livePlayOffset += fmax(0, timestamp) * 100;
+      ctr.livePlayOffset += fmax(0, timestamp) * 500;
     }
     else if (msgQueue[i] == 0b10010000) { // 144: note on/off
       if (msgQueue[i + 2] != 0) { // if note on
@@ -171,6 +197,6 @@ void midiInput::update() {
   }
   else {
     // shift even when midi input is disconnected
-    ctr.livePlayOffset += GetFrameTime();
+    ctr.livePlayOffset += GetFrameTime() * 500;
   }
 }

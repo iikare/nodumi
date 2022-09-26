@@ -125,7 +125,7 @@ class controller {
     static constexpr int sheetSideMargin = 30;
     static constexpr int sheetSymbolWidth = sheetSideMargin + 42;
 
-    int livePlayOffset;
+    double livePlayOffset;
     int curMeasure;
     
     

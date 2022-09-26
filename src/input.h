@@ -31,6 +31,7 @@ class midiInput {
     void convertEvents();
     void updatePosition();
     bool updateQueue();
+    bool isUntimedQueue();
     int findNoteIndex(int key);
     
     RtMidiIn* midiIn;
