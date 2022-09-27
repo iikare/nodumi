@@ -58,7 +58,8 @@ OBJSRTM = $(patsubst $(RTMDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSRTM))
 SRCSCIE = $(CIEDIR)/CIEDE2000.cpp
 OBJSCIE = $(patsubst $(CIEDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSCIE))
 
-all: 
+all:
+	@mkdir -p ./src/agh
 	@$(MAKE) --no-print-directory pre
 	@$(MAKE) --no-print-directory $(NAME)
 	@./tool/generate.sh 
