@@ -1,8 +1,13 @@
 #pragma once
 
+#if defined(LOCRAY)
+  #include "../dpd/raylib/src/raylib.h"
+#else
+  #include <raylib.h>
+#endif
+
 #include <cmath>
 #include <iostream>
-#include <raylib.h>
 
 using std::ostream;
 

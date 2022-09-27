@@ -1,7 +1,12 @@
 #pragma once
 
+#if defined(LOCRAY)
+  #include "../dpd/raylib/src/raylib.h"
+#else
+  #include <raylib.h>
+#endif
+
 #include <string>
-#include <raylib.h>
 #include "define.h"
 #include "color.h"
 #include "data.h"

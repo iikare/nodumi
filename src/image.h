@@ -1,6 +1,10 @@
 #pragma once
 
-#include <raylib.h>
+#if defined(LOCRAY)
+  #include "../dpd/raylib/src/raylib.h"
+#else
+  #include <raylib.h>
+#endif
 #include <string>
 #include <vector>
 #include "box.h"

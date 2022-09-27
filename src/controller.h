@@ -1,10 +1,15 @@
 #pragma once
 
+#if defined(LOCRAY)
+  #include "../dpd/raylib/src/raylib.h"
+#else
+  #include <raylib.h>
+#endif
+
 #include <vector>
 #include <unordered_map>
 #include <functional>
 #include <sstream>
-#include <raylib.h>
 #include "midi.h"
 #include "misc.h"
 #include "data.h"

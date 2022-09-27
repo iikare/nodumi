@@ -1,6 +1,11 @@
+#if defined(LOCRAY)
+  #include "../dpd/raylib/src/raylib.h"
+#else
+  #include <raylib.h>
+#endif
+
 #include <algorithm>
 #include <iterator>
-#include <raylib.h>
 #include "measure.h"
 #include "data.h"
 #include "define.h"

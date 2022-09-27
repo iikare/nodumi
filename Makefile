@@ -1,69 +1,89 @@
-CC = clang++
-C = clang
-#CC = x86_64-w64-mingw32-gcc-11.2.0 
-
-#LD =
-LD = -fuse-ld=mold
-LINUX = -D__LINUX_ALSA__ -D__UNIX_JACK__ 
-#WINDOWS = -D__WINDOWS_MM__
-
-# use clang13 or higher
-
 ifeq ($(strip $(asan)),)
-NONSTD =
+NONSTD=
 else # no asan
-NONSTD =  -fsanitize=address -fno-omit-frame-pointer
+NONSTD=-fsanitize=address -fno-omit-frame-pointer
+endif
+
+ifeq ($(strip $(arch)),)
+
+CXX=clang++
+C=clang
+LD=-fuse-ld=mold
+CFLAGSOSD=--std=c99  $(shell pkg-config --cflags gtk+-3.0) 
+LFLAGSOSD=$(shell pkg-config --libs gtk+-3.0)
+SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_gtk3.c
+DEPDEF=-D__LINUX_ALSA__ -D__UNIX_JACK__
+
+else ifeq ($(strip $(arch)),win)
+
+CXX=x86_64-w64-mingw32-g++
+CC=x86_64-w64-mingw32-ld
+C=x86_64-w64-mingw32-gcc
+#LD=-fuse-ld=mold
+CFLAGSOSD=--std=c99
+LFLAGSOSD=-lwinmm -lcomdlg32 -lgdi32 -L./dpd/raylib/src
+SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_win.c
+DEPDEF=-D__WINDOWS_MM__ -DLOCRAY -D_USE_MATH_DEFINES
+
 endif
 
 ifeq ($(strip $(rel)),)
-RELFLAGS = -Og -g
+RELFLAGS=-Og -g
 else # release build
-RELFLAGS = -DNO_DEBUG -O3 -flto=thin
+RELFLAGS=-DNO_DEBUG -O3 -flto=thin
 LD += -flto=thin
 endif
 
-CFLAGS = --std=c++20 -Wall -Wextra $(NONSTD) $(RELFLAGS) $(LINUX) 
-CFLAGSSTD = $(CFLAGS) -fno-exceptions
-CFLAGSOSD = --std=c99  $(shell pkg-config --cflags gtk+-3.0) 
-CFLAGSRTM = $(CFLAGS) -w # suppress library warnings 
-CFLAGSCIE = $(CFLAGS) 
 
-LFLAGS = $(LD) -lraylib -lasound -lpthread -ljack $(shell pkg-config --libs gtk+-3.0)
+CFLAGS=--std=c++20 -Wall -Wextra $(NONSTD) $(RELFLAGS) $(DEPDEF)
+CFLAGSSTD=$(CFLAGS) -fno-exceptions
+CFLAGSRTM=$(CFLAGS) -w # suppress library warnings 
+CFLAGSCIE=$(CFLAGS) 
+
+ifeq ($(strip $(arch)),)
+LFLAGS=$(LD) -lraylib -lasound -lpthread -ljack $(LFLAGSOSD) 
+else ifeq ($(strip $(arch)),win)
+LFLAGS= -lraylib -lpthread $(LFLAGSOSD) 
+endif
 
 PREREQ_DIR=@mkdir -p $(@D)
 
-MFDIR = dpd/midifile
-OSDDIR = dpd/osdialog
-RTMDIR = dpd/rtmidi
-CIEDIR = dpd/CIEDE2000
-SRCDIR = src
-BUILDDIR = build
-BINDIR = bin
+MFDIR=dpd/midifile
+OSDDIR=dpd/osdialog
+RTMDIR=dpd/rtmidi
+CIEDIR=dpd/CIEDE2000
+SRCDIR=src
+BUILDDIR=build
+BINDIR=bin
 
-NAME =  $(addprefix $(BINDIR)/, nodumi)
+NAME= $(addprefix $(BINDIR)/, nodumi)
 
-SRCS = $(wildcard $(SRCDIR)/*.cc)
-OBJS = $(patsubst $(SRCDIR)/%.cc, $(BUILDDIR)/%.o, $(SRCS))
+SRCS=$(wildcard $(SRCDIR)/*.cc)
+OBJS=$(patsubst $(SRCDIR)/%.cc, $(BUILDDIR)/%.o, $(SRCS))
 
-SRCSMF = $(wildcard $(MFDIR)/*.cpp)
-OBJSMF = $(patsubst $(MFDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSMF))
+SRCSMF=$(wildcard $(MFDIR)/*.cpp)
+OBJSMF=$(patsubst $(MFDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSMF))
 
-SRCSOSD = $(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_gtk3.c
-#SRCSOSD = $(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_win.c
-OBJSOSD = $(patsubst $(OSDDIR)/%.c, $(BUILDDIR)/%.o, $(SRCSOSD))
+#SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_win.c
+OBJSOSD=$(patsubst $(OSDDIR)/%.c, $(BUILDDIR)/%.o, $(SRCSOSD))
 
-SRCSRTM = $(RTMDIR)/RtMidi.cpp
-OBJSRTM = $(patsubst $(RTMDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSRTM))
+SRCSRTM=$(RTMDIR)/RtMidi.cpp
+OBJSRTM=$(patsubst $(RTMDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSRTM))
 
-SRCSCIE = $(CIEDIR)/CIEDE2000.cpp
-OBJSCIE = $(patsubst $(CIEDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSCIE))
+SRCSCIE=$(CIEDIR)/CIEDE2000.cpp
+OBJSCIE=$(patsubst $(CIEDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSCIE))
 
 all:
 	@mkdir -p ./src/agh
+ifeq ($(strip $(arch)),win)
+	@./tool/cross.sh
+endif
 	@$(MAKE) --no-print-directory pre
 	@$(MAKE) --no-print-directory $(NAME)
-	@./tool/generate.sh 
-
+	@./tool/generate.sh
+ifeq ($(strip $(arch)),win)
+	@$(MAKE) --no-print-directory --silent cleanbuild
+endif
 re: clean
 	@$(MAKE) --no-print-directory
 
@@ -73,15 +93,15 @@ pre:
 
 $(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) | $(@D)
 	$(PREREQ_DIR)
-	$(CC) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) $(LFLAGS)
+	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) $(LFLAGS)
 
 $(OBJS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
 	$(PREREQ_DIR)
-	$(CC) $(CFLAGSSTD) -o $@ -c $< 
+	$(CXX) $(CFLAGSSTD) -o $@ -c $< 
 
 $(OBJSMF): $(BUILDDIR)/%.o: $(MFDIR)/%.cpp
 	$(PREREQ_DIR)
-	$(CC) $(CFLAGSSTD) -o $@ -c $< 
+	$(CXX) $(CFLAGSSTD) -o $@ -c $< 
 
 $(OBJSOSD): $(BUILDDIR)/%.o: $(OSDDIR)/%.c
 	$(PREREQ_DIR)
@@ -89,18 +109,25 @@ $(OBJSOSD): $(BUILDDIR)/%.o: $(OSDDIR)/%.c
 
 $(OBJSRTM): $(BUILDDIR)/%.o: $(RTMDIR)/%.cpp
 	$(PREREQ_DIR)
-	$(CC) $(CFLAGSRTM) -o $@ -c $< 
+	$(CXX) $(CFLAGSRTM) -o $@ -c $< 
 
 $(OBJSCIE): $(BUILDDIR)/%.o: $(CIEDIR)/%.cpp
 	$(PREREQ_DIR)
-	$(CC) $(CFLAGSCIE) -o $@ -c $< 
+	$(CXX) $(CFLAGSCIE) -o $@ -c $< 
 
 clean:
 	@echo
 	@echo "cleaning old build files"
 	@echo
-	rm -f build/*.o $(NAME)
+	@$(MAKE) --no-print-directory cleanbuild
+	@$(MAKE) --no-print-directory cleanexec
+
+cleanbuild:
+	rm -f build/*.o
 	rm -f src/agh/*
+
+cleanexec:
+	rm -f $(NAME) $(NAME).exe
 
 .PHONY: all clean
 

@@ -1,6 +1,11 @@
 #pragma once
 
-#include <raylib.h>
+#if defined(LOCRAY)
+  #include "../dpd/raylib/src/raylib.h"
+#else
+  #include <raylib.h>
+#endif
+
 #include "log.h"
 #include "enum.h"
 

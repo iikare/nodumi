@@ -1,10 +1,15 @@
+#if defined(LOCRAY)
+  #include "../dpd/raylib/src/raylib.h"
+#else
+  #include <raylib.h>
+#endif
+
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <thread>
 #include <algorithm>
 #include <bit>
-#include <raylib.h>
 #include "../dpd/osdialog/osdialog.h"
 #include "aghfile.h"
 #include "enum.h"

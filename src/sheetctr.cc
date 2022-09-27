@@ -766,6 +766,7 @@ int sheetController::getSymbolWidth(const int flagType, const int dir) {
         case FLAG_DOWN:
           return getSymbolWidth(SYM_FLAG_8D);
       }
+      return 0;
     case FLAGTYPE_16:
       switch (dir) {
         case FLAG_UP:
@@ -773,6 +774,7 @@ int sheetController::getSymbolWidth(const int flagType, const int dir) {
         case FLAG_DOWN:
           return getSymbolWidth(SYM_FLAG_16D);
       }
+      return 0;
     case FLAGTYPE_32:
       switch (dir) {
         case FLAG_UP:
@@ -780,6 +782,7 @@ int sheetController::getSymbolWidth(const int flagType, const int dir) {
         case FLAG_DOWN:
           return getSymbolWidth(SYM_FLAG_32D);
       }
+      return 0;
     case FLAGTYPE_64:
       switch (dir) {
         case FLAG_UP:
@@ -787,6 +790,7 @@ int sheetController::getSymbolWidth(const int flagType, const int dir) {
         case FLAG_DOWN:
           return getSymbolWidth(SYM_FLAG_64D);
       }
+      return 0;
     case FLAGTYPE_NONE:
       return 0;
   }
