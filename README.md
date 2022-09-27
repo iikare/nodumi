@@ -32,6 +32,8 @@ The current build script assumes you are building on a Linux environment with ra
 Note that CIEDE2000 is only required if `COLDIST_CIE00` is defined at compile-time, and you wish to use the CIEDE2000 
 deltaE color-distance algorithm in generating a color palette from a background image.
 
+Keep in mind that Windows support is currently in an experimental stage, so expect weird quirks and bugs.
+
 # build
 Don't forget to `git clone --recurse-submodules` when obtaining the source code!
 
