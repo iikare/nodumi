@@ -197,6 +197,9 @@ int controller::findCurrentMeasure(int pos) const {
     return 0;
   }
   else {
+    if (file.measureMap.size() == 0) {
+      return 0;
+    }
     if (pos >= (file.measureMap.end()-1)->getLocation()) {
       return file.measureMap.size();
     }
