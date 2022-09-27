@@ -725,7 +725,9 @@ int main (int argc, char* argv[]) {
         drawSymbol(SYM_CLEF_BASS, 155, 40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 67), ctr.bgSheetNote);
       
 
-        noteData.sheetData.drawSheetPage();
+        if (noteData.measureMap.size() != 0) {
+          noteData.sheetData.drawSheetPage();
+        }
 
        
         if (IsKeyPressed(KEY_F)) {
