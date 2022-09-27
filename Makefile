@@ -21,7 +21,7 @@ CC=x86_64-w64-mingw32-ld
 C=x86_64-w64-mingw32-gcc
 #LD=-fuse-ld=mold
 CFLAGSOSD=--std=c99
-LFLAGSOSD=-lwinmm -lcomdlg32 -lgdi32 -L./dpd/raylib/src
+LFLAGSOSD=-lwinmm -lcomdlg32 -lgdi32
 SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_win.c
 DEPDEF=-D__WINDOWS_MM__ -DLOCRAY -D_USE_MATH_DEFINES
 
@@ -43,7 +43,7 @@ CFLAGSCIE=$(CFLAGS)
 ifeq ($(strip $(arch)),)
 LFLAGS=$(LD) -lraylib -lasound -lpthread -ljack $(LFLAGSOSD) 
 else ifeq ($(strip $(arch)),win)
-LFLAGS= -lraylib -lpthread $(LFLAGSOSD) 
+LFLAGS= -static -static-libgcc -static-libstdc++ -L./dpd/raylib/src -lraylib -lpthread $(LFLAGSOSD) 
 endif
 
 PREREQ_DIR=@mkdir -p $(@D)
@@ -75,15 +75,19 @@ OBJSCIE=$(patsubst $(CIEDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSCIE))
 
 all:
 	@mkdir -p ./src/agh
+
 ifeq ($(strip $(arch)),win)
 	@./tool/cross.sh
 endif
+
 	@$(MAKE) --no-print-directory pre
 	@$(MAKE) --no-print-directory $(NAME)
 	@./tool/generate.sh
+
 ifeq ($(strip $(arch)),win)
 	@$(MAKE) --no-print-directory --silent cleanbuild
 endif
+
 re: clean
 	@$(MAKE) --no-print-directory
 
