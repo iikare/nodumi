@@ -1262,6 +1262,9 @@ int main (int argc, char* argv[]) {
                 zoomLevel *= 1.0/3.0;
               }
               ctr.toggleLivePlay();
+              if (!ctr.getLiveState() && curFileType == FILE_NONE) {
+                timeOffset = 0;
+              }
               break;
             case 4:
               break;
