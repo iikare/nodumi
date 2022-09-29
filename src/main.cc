@@ -626,7 +626,7 @@ int main (int argc, char* argv[]) {
                     if (noteOn || clickTmp == (*linePositions)[j]) {
                       double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
                       double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
-                      bool nowNote = convSS[0] <= nowLineX && convSS[2] > nowLineX;
+                      bool nowNote = clickTmp == (*linePositions)[j] ? false : noteOn;
                       drawLineEx(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) : convSS[0],
                                  nowNote ? newY     - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) : convSS[1], 
                                  nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
@@ -677,7 +677,8 @@ int main (int argc, char* argv[]) {
 
                       if (ringRatio > 0) {
                         drawRing({convSS[0], convSS[1]},
-                                 ringRad-3, ringRad, (*colorSetOn)[colorID],
+                                 ringRad-3, ringRad, 
+                                 colorLERP((*colorSetOn)[colorID], (*colorSetOff)[colorID], ringRatio, INT_ICIRCULAR),
                                  floatLERP(0,255, ringRatio, INT_ICIRCULAR));
                       }
 

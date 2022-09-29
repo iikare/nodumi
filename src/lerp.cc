@@ -42,6 +42,14 @@ Color colorLERP(Color a, Color b, double ratio, int type) {
   
 }
 
+colorRGB colorLERP(colorRGB a, colorRGB b, double ratio, int type) {
+  ratio = scaleInterpolationRatio(ratio, type);
+
+  return colorRGB((a.r*(1-ratio)+b.r*(ratio)),
+                  (a.g*(1-ratio)+b.g*(ratio)),
+                  (a.b*(1-ratio)+b.b*(ratio)));
+}
+
 float floatLERP(float a, float b, double ratio, int type) {
   ratio = scaleInterpolationRatio(ratio, type);
 
