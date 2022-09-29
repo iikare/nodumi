@@ -50,24 +50,24 @@ class controller {
     void update(int offset, bool runState);
     void toggleLivePlay();
     void setCloseFlag();
-    void load(string path, 
-                          bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
-                          bool& measureLine, bool& measureNumber, 
+    void load(string path, fileType& fType, 
+              bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
+              bool& measureLine, bool& measureNumber, 
 
-                          int& colorMode, int& displayMode,
+              int& colorMode, int& displayMode,
 
-                          int& songTimeType, int& tonicOffset, 
+              int& songTimeType, int& tonicOffset, 
 
-                          double& zoomLevel);
-    void save(string path, 
-                          bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay,
-                          bool measureLine, bool measureNumber, 
+              double& zoomLevel);
+    void save(string path,
+              bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay,
+              bool measureLine, bool measureNumber, 
 
-                          int colorMode, int displayMode,
+              int colorMode, int displayMode,
 
-                          int songTimeType, int tonicOffset, 
+              int songTimeType, int tonicOffset, 
 
-                          double zoomLevel);
+              double zoomLevel);
 
     bool getProgramState() { return programState; }
     bool getPlayState() { return playState; }
@@ -130,6 +130,9 @@ class controller {
 
     static constexpr int sheetSideMargin = 30;
     static constexpr int sheetSymbolWidth = sheetSideMargin + 42;
+
+    static constexpr int prefWidth   =   700;
+    static constexpr int prefHeight  =   500;
 
     double livePlayOffset;
     int curMeasure;

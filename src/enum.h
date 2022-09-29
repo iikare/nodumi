@@ -73,6 +73,12 @@ enum lerpType {
   INT_ISINE
 };
 
+enum fileType {
+  FILE_MIDI,
+  FILE_MKI,
+  FILE_NONE
+};
+
 enum schemeType {
   SCHEME_TRACK,
   SCHEME_TONIC,

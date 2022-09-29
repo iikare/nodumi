@@ -185,7 +185,7 @@ int controller::getTempo(int idx) {
 int controller::getMinTickLen() const {
   if (livePlayState) {
     // TODO: find/calculate default MIDI TPQ for live devices
-    return 120;
+    return 1;
   }
   else {
     return file.getMinTickLen();
@@ -230,7 +230,7 @@ int controller::getMeasureCount() const {
 }
 
 
-void controller::load(string path, 
+void controller::load(string path, fileType& fType, 
                       bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
                       bool& measureLine, bool& measureNumber, 
 
@@ -470,6 +470,9 @@ void controller::load(string path,
 
     }
 
+    // last, set MKI loaded flag
+    fType = FILE_MKI;
+
   }
   else {
     logW(LL_INFO, "load midi:", path);
@@ -479,6 +482,9 @@ void controller::load(string path,
     getColorScheme(KEY_COUNT, setVelocityOn, setVelocityOff);
     getColorScheme(TONIC_COUNT, setTonicOn, setTonicOff);
     getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
+
+    // last, set non-MKI loaded flag
+    fType = FILE_MIDI;
   }
   
   auto end = std::chrono::system_clock::now();

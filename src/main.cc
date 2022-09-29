@@ -75,6 +75,7 @@ int main (int argc, char* argv[]) {
   bool colorSquare = false;
   bool colorCircle = false;
   bool sheetMusicDisplay = false;
+  bool preferenceDisplay = false;
  
   bool measureLine = true;
   bool measureNumber = true;
@@ -109,6 +110,8 @@ int main (int argc, char* argv[]) {
   char* savenameC = nullptr;
   string savename = "";
   osdialog_filters* savetypes = osdialog_filters_parse("mki:mki");
+
+  fileType curFileType = FILE_NONE; 
 
   // data selector
   midi& noteData = ctr.liveInput.noteStream;
@@ -236,7 +239,7 @@ int main (int argc, char* argv[]) {
       timeOffset = 0;
       pauseOffset = 0;
 
-      ctr.load(filename, 
+      ctr.load(filename, curFileType,
                nowLine,  showFPS,  showImage,  sheetMusicDisplay,
                measureLine,  measureNumber, 
                colorMode,  displayMode,
@@ -756,29 +759,24 @@ int main (int argc, char* argv[]) {
                   measureTextEx(FPSText.c_str()).x - 4, 4, ctr.bgDark);
       }
 
-      //fileMenu.draw();
       menuctr.renderAll();
 
-  
-    //logQ("maxtime", ctr.getLastTime());
 
-    //logQ("bounds", formatPair(inverseSSX()));
-    drawSymbol(SYM_REST_16, 155, convertSSX(inverseSSX().first), 320, ctr.bgNow);
-    drawSymbol(SYM_CLEF_TREBLE, 155, 
-               convertSSX(inverseSSX().second)-noteData.sheetData.getGlyphWidth(SYM_CLEF_TREBLE,155), 320, ctr.bgNow);
+      if (preferenceDisplay) {
+        const int prefSideMargin = ctr.getWidth() - ctr.prefWidth;
+        const int prefTopMargin = ctr.getHeight() - ctr.prefHeight;
+        drawRectangle(prefSideMargin/2, prefTopMargin/2, ctr.prefWidth, ctr.prefHeight, ctr.bgMenu);  
+        
+
+        drawTextEx("Preferences", prefSideMargin/2 + 6, prefTopMargin/2 + 6, ctr.bgDark, 255, 18);
+      }
+
+
+      //logQ("bounds", formatPair(inverseSSX()));
+      drawSymbol(SYM_REST_16, 155, convertSSX(inverseSSX().first), 320, ctr.bgNow);
+      drawSymbol(SYM_CLEF_TREBLE, 155, 
+                 convertSSX(inverseSSX().second)-noteData.sheetData.getGlyphWidth(SYM_CLEF_TREBLE,155), 320, ctr.bgNow);
     
-
-    //logQ(noteData.tpq);
-    //for (auto i : noteData.notes) {
-      //std::cerr << i.tick << " " ;
-    //}
-    //cerr << endl;
-
-    //logQ("timeOffset", timeOffset);
-    //logQ("timeOffset*zoomLevel", timeOffset*zoomLevel);
-    
-
-
     EndDrawing();
 
 
@@ -963,6 +961,7 @@ int main (int argc, char* argv[]) {
                 filename = static_cast<string>(filenameC);
                 newFile = true; 
               }
+              free(filenameC);
 
               menuctr.hideAll();
               break;
@@ -975,23 +974,36 @@ int main (int argc, char* argv[]) {
                 showImage = true; 
                 viewMenu.setContent("Hide Background", 4);
               }
+              free(imagenameC);
 
               break;
             case 3:
-              savenameC = fileDialog(OSDIALOG_SAVE, savetypes);
-              if (savenameC != nullptr) {
-                savename = static_cast<string>(savenameC);
-             
-                if (savename.size() < 4 || savename.substr(savename.size() - 4) != ".mki") {
-                  savename += ".mki";
-                }
-
-
+              if (ctr.getPlayState()) {
+                break; 
+              }
+              if (curFileType == FILE_MKI) {
                 ctr.save(savename, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
                          colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+                break;
               }
-              break;
+              [[fallthrough]];
             case 4:
+              if (!ctr.getPlayState()) {
+                savenameC = fileDialog(OSDIALOG_SAVE, savetypes);
+                if (savenameC != nullptr) {
+                  savename = static_cast<string>(savenameC);
+               
+                  if (savename.size() < 4 || savename.substr(savename.size() - 4) != ".mki") {
+                    savename += ".mki";
+                  }
+
+
+                  ctr.save(savename, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
+                           colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+                  curFileType = FILE_MKI;
+                }
+                free(savenameC);
+              }
               break;
             case 5:
                 ctr.setCloseFlag(); 
@@ -1022,6 +1034,7 @@ int main (int argc, char* argv[]) {
               sheetMusicDisplay ? ctr.barHeight = ctr.menuHeight + ctr.sheetHeight : ctr.barHeight = ctr.menuHeight;
               break;
             case 2:
+              preferenceDisplay = !preferenceDisplay;
               break;
             case 3:
               break;
@@ -1574,17 +1587,9 @@ int main (int argc, char* argv[]) {
     menuctr.updateMouse();
     menuctr.updateRenderStatus();
     ctr.update(timeOffset, run);
-  
+
     // displays index of last clicked note  
     //logQ(clickNote);
-    
-    //logQ("in:", formatVector(inputMenuContents));
-    //logQ("out:", formatVector(outputMenuContents));
-
-    //drawSymbol(SYM_TREBLE, 175, 100,300, ctr.bgSheet);
-    //drawSymbol(SYM_HEAD_WHOLE, 375, 100,100, ctr.bgSheet);
-
-    
   }
 
   ctr.unloadData();

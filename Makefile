@@ -5,7 +5,7 @@ NONSTD=-fsanitize=address -fno-omit-frame-pointer
 endif
 
 ifeq ($(strip $(prof)),)
-NONSTD=
+#NONSTD+=
 else # for valgrind bug reading DWARF-5 format w/ clang 14
 NONSTD+=-gdwarf-4
 endif

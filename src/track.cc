@@ -10,7 +10,7 @@ void trackController::insert(int idx, note* newNote) {
     return;
   }
   if (tail != nullptr && tail->x > newNote->x) {
-    logW(LL_WARN, "mismatched note on track", newNote->track," (", tail->x, " → ", newNote->x, ")");
+    logW(LL_WARN, "mismatched note on track", newNote->track, "(", tail->x, "→", newNote->x, ")");
   }
   if (head == nullptr) {
     head = newNote;
