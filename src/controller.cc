@@ -88,7 +88,14 @@ void controller::update(int offset, bool runState) {
   updateFPS();
   curMeasure = findCurrentMeasure(offset);
 
-  runState ? pauseTime = 0 : pauseTime += GetFrameTime();
+  if(runState) {
+    runTime += GetFrameTime(); 
+    pauseTime = 0; 
+  }
+  else {
+    runTime = 0;
+    pauseTime += GetFrameTime();
+  }
 }
 
 void controller::updateFPS() {
@@ -117,10 +124,6 @@ void controller::updateDimension() {
       file.sheetData.findSheetPages();
     }
   }
-}
-
-double controller::getPauseTime() {
-  return pauseTime;
 }
 
 void controller::toggleLivePlay() {

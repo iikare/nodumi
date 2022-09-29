@@ -48,7 +48,6 @@ class controller {
     Font* getFont(string id, int size);
 
     void update(int offset, bool runState);
-    double getPauseTime();
     void toggleLivePlay();
     void setCloseFlag();
     void load(string path, 
@@ -73,6 +72,8 @@ class controller {
     bool getProgramState() { return programState; }
     bool getPlayState() { return playState; }
     bool getLiveState() { return livePlayState; }
+    double getRunTime() { return runTime; }
+    double getPauseTime() { return pauseTime; }
 
     vector<note>* getNotes();
     int getTrackCount();
@@ -146,6 +147,7 @@ class controller {
     bool livePlayState;
  
     int curMon;
+    double runTime;
     double pauseTime;
     
     vector<note>* notes;

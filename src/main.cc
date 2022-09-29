@@ -65,6 +65,7 @@ int main (int argc, char* argv[]) {
   double zoomLevel = 0.125;
   double timeOffset = 0;
   const double shiftC = 2.5;
+  double pauseOffset = 0;
 
   // play settings
   bool run = false;
@@ -236,6 +237,7 @@ int main (int argc, char* argv[]) {
       newFile = false;
       run = false;
       timeOffset = 0;
+      pauseOffset = 0;
 
       ctr.load(filename, 
                nowLine,  showFPS,  showImage,  sheetMusicDisplay,
@@ -655,9 +657,16 @@ int main (int argc, char* argv[]) {
                     int ringDist = timeOffset - (*linePositions)[j+1];
 
                     double ringRatio = ringDist/static_cast<double>(ringLimit); 
-                    if (!run) {
+                    if (run && (*linePositions)[j+1] < pauseOffset && timeOffset >= pauseOffset) {
+                      ringRatio = 0;
+                    }
+                    else if (ctr.getPauseTime()<1 && timeOffset == pauseOffset){// || (*linePositions)[j+1] >= pauseOffset) {
                       // this effect has a run-down time of 1 second
                       ringRatio += min(1-ringRatio, ctr.getPauseTime());
+                    }
+                    else if ((*linePositions)[j+1] < pauseOffset && timeOffset == pauseOffset) {
+                      ringRatio = 0;
+                      //ringRatio *= max(ctr.getRunTime(), 1.0);
                     }
                     //logQ(timeOffset, ((*linePositions)[j+1], (*linePositions)[j+2]));
                     if (ringDist <= ringLimit && ringDist > 4) {
@@ -666,9 +675,11 @@ int main (int argc, char* argv[]) {
                       noteLen = noteLen ? 32 - __countl_zero(noteLen) : 0;
                       double ringRad = floatLERP(6, 5*noteLen, ringRatio, INT_ILINEAR);
 
-                      drawRing({convSS[0], convSS[1]},
-                               ringRad-3, ringRad, (*colorSetOn)[colorID],
-                               floatLERP(0,255, ringRatio, INT_ICIRCULAR));
+                      if (ringRatio > 0) {
+                        drawRing({convSS[0], convSS[1]},
+                                 ringRad-3, ringRad, (*colorSetOn)[colorID],
+                                 floatLERP(0,255, ringRatio, INT_ICIRCULAR));
+                      }
 
                     }
                   }
@@ -787,6 +798,7 @@ int main (int argc, char* argv[]) {
       else {
         timeOffset = ctr.getLastTime();
         run = false;
+        pauseOffset = timeOffset;
       }
     }
 
@@ -854,7 +866,10 @@ int main (int argc, char* argv[]) {
       }
     }
     if (IsKeyPressed(KEY_SPACE)) {
-      run = !run; 
+      if (timeOffset != ctr.getLastTime()) {
+        run = !run; 
+        pauseOffset = timeOffset;
+      }
     }
     if (IsKeyDown(KEY_LEFT)) {
       if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
@@ -929,6 +944,7 @@ int main (int argc, char* argv[]) {
     }
     if (IsKeyDown(KEY_END)) {
       timeOffset = ctr.getLastTime();
+      pauseOffset = timeOffset;
     }
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       switch(fileMenu.getActiveElement()) {
@@ -1561,7 +1577,7 @@ int main (int argc, char* argv[]) {
     menuctr.updateMouse();
     menuctr.updateRenderStatus();
     ctr.update(timeOffset, run);
-   
+  
     // displays index of last clicked note  
     //logQ(clickNote);
     
