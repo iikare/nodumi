@@ -25,10 +25,6 @@ bool pointInBox(Vector2 pt, rect box);
 bool pointInBox(point pt, rect box);
 rect pointToRect(point a, point b);
 
-
-void getMenuLocation(int mainW, int mainH, int cnX, int cnY, int& rcX, int& rcY, const int rcW, const int rcH);
-void getColorSelectLocation(int mainW, int mainH, int& cpX, int& cpY, int rcX, int rcY, int xBuf, int yBuf);
-
 string colorToHex(colorRGB col);
 
 string getNoteInfo(int noteTrack, int notePos);

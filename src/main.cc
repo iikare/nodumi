@@ -1502,11 +1502,8 @@ int main (int argc, char* argv[]) {
           }
           
           // find coordinate to draw right click menu
-          getMenuLocation(ctr.getWidth(), ctr.getHeight(), ctr.getMouseX(), ctr.getMouseY(),
-                              rightX, rightY, rightMenu.getWidth(), rightMenu.getHeight());
-          getColorSelectLocation(ctr.getWidth(), ctr.getHeight(), colorX, colorY,
-                                 rightX, rightY, rightMenu.getWidth(),
-                                 rightMenu.getHeight());
+          rightMenu.findMenuLocation(rightX, rightY);
+          rightMenu.findColorSelectLocation(colorX, colorY, rightX, rightY);
           
           colorSelect.setXY(colorX, colorY);
 

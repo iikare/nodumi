@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include "enum.h"
@@ -487,5 +488,111 @@ void menu::draw() {
         drawTextEx(getContent(i).c_str(), getItemX(i) + 4, getItemY(i) + 5, ctr.bgDark);
       }
     }
+  }
+}
+
+void menu::findMenuLocation(int& rcX, int& rcY) {
+
+  // note: this function finds the menu starting point (X, Y) and stores them in
+  // rcX / rxY 
+
+  int mainXMin = MENU_MARGIN;
+  int mainXMax = ctr.getWidth() - MENU_MARGIN;
+  int mainYMin = MAIN_MENU_HEIGHT + MENU_MARGIN;
+  int mainYMax = ctr.getHeight() - MENU_MARGIN;
+  
+
+  if (ctr.getMouseY() + getHeight() > mainYMax) {
+    // the menu would go off the bottom of the screen, set the bounds to end at the bottom margin
+    rcY = mainYMax - getHeight();
+  }
+  else if (ctr.getMouseY() < mainYMin) {
+    // menu starts in top margin space, set bound to top margin
+    rcY = mainYMin;
+  }
+  else {
+    // the menu can start at the note Y value
+    rcY = ctr.getMouseY(); 
+  }
+
+  if (ctr.getMouseX() + getWidth() > mainXMax){
+    // menu would go off the side of the screen, set it to end at right margin
+    rcX = mainXMax - getWidth();
+  }
+  else if (ctr.getMouseX() < mainXMin) {
+    // menu starts in left margin space, make it start at left margin
+    rcX = mainXMin;
+  }
+  else{
+    // the menu can start at the note Y value
+    rcX = ctr.getMouseX();
+  }
+}
+void menu::findColorSelectLocation(int& cpX, int& cpY, int rcX, int rcY) {
+
+  cpX = rcX;
+  cpY = rcY;
+
+  int mainXMin = MENU_MARGIN;
+  int mainXMax = ctr.getWidth() - MENU_MARGIN;
+  int mainYMin = MAIN_MENU_HEIGHT + MENU_MARGIN;
+  int mainYMax = ctr.getHeight() - MENU_MARGIN;
+  
+  int cX = cpX + width/2;
+  int cY = cpY + height/2;
+  int sX = COLOR_WIDTH + width;
+  int sY = COLOR_WIDTH + height;
+
+  cpX = cX - COLOR_WIDTH/2;
+  cpY = cY - COLOR_HEIGHT/2;
+
+  bool isXMax = cpX + sX > mainXMax;
+  bool isXMin = cpX - sX < mainXMin;
+  bool isYMax = cpY + sY > mainYMax;
+  bool isYMin = cpY - sY < mainYMin;
+
+  double ratio = static_cast<double>(width)/height;
+
+  if (isXMax + isXMin + isYMax + isYMin <= 1) {
+    if (isXMax) {
+      cpX -= sX;
+    }
+    else if (isXMin) {
+      cpX += sX;
+    }
+
+    if (isYMax) {
+      cpY -= sY;
+    }
+    else if (isYMin) {
+      cpY += sY;
+    }
+    else if (cpX > ctr.getWidth()/2) {
+      cpX -= sX;
+    }
+    else {
+      cpX += sX;
+    }
+
+  }
+  else if (isXMin && isYMin) {   
+    // top left corner
+    cpY += sX/ratio + height;
+    cpX += sX;
+  }
+  else if (isXMin && isYMax) {
+    // bottom left corner
+    cpY -= sX/ratio + height;
+    cpX += sX;
+  }
+  else if (isXMax && isYMin) {
+    // top right corner
+    cpY += sX/ratio + height;
+    cpX -= sX;
+  }
+  else if (isXMax && isYMax) {
+    // bottom right corner
+    cpY -= sX/ratio + height;
+    cpX -= sX;
   }
 }

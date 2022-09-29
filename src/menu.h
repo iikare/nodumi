@@ -66,6 +66,10 @@ class menu {
     void setColor(colorRGB col);
     
     void findActiveElement(point xy);
+    
+    void findMenuLocation(int& rcX, int& rcY);
+    void findColorSelectLocation(int& cpX, int& cpY, int rcX, int rcY);
+
 
     void update(vector<string> itemNames);
     
