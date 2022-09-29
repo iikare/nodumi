@@ -1,7 +1,13 @@
 ifeq ($(strip $(asan)),)
 NONSTD=
-else # no asan
+else # use address sanitizer
 NONSTD=-fsanitize=address -fno-omit-frame-pointer
+endif
+
+ifeq ($(strip $(prof)),)
+NONSTD=
+else # for valgrind bug reading DWARF-5 format w/ clang 14
+NONSTD+=-gdwarf-4
 endif
 
 ifeq ($(strip $(arch)),)

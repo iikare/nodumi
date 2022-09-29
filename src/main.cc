@@ -1555,7 +1555,6 @@ int main (int argc, char* argv[]) {
       }
     }
     if (menuctr.mouseOnMenu() || pointInBox(ctr.getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
-      drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
       hoverType.add(HOVER_MENU);
     }
 
