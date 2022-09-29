@@ -1,4 +1,3 @@
-#include <iostream>
 #include <bitset>
 #include <cmath>
 #include "note.h"
@@ -6,8 +5,6 @@
 #include "midi.h"
 #include "log.h"
 
-using std::cerr;
-using std::endl;
 using std::pow;
 
 note* note::getNextNote() {

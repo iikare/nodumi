@@ -1,4 +1,3 @@
-#include <iostream>
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -9,8 +8,6 @@
 #include "wrap.h"
 #include "box.h"
 
-using std::cerr;
-using std::endl;
 using std::string;
 using std::min;
 using std::max;

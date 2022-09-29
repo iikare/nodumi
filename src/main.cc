@@ -26,9 +26,6 @@
 #include "menuctr.h"
 #include "controller.h"
 
-using std::cerr;
-using std::cout;
-using std::endl;
 using std::string;
 using std::vector;
 using std::unordered_map;

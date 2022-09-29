@@ -1,9 +1,6 @@
 #include <sys/stat.h>
 #include <algorithm>
-#include <iostream>
-#include <fstream>
 #include <iomanip>
-#include <sstream>
 #include "misc.h"
 #include "data.h"
 #include "log.h"
@@ -11,7 +8,6 @@
 using std::min;
 using std::max;
 using std::stringstream;
-using std::ifstream;
 using std::hex;
 
 double getDistance(int x1, int y1, int x2, int y2) {

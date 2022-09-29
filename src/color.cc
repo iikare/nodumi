@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <iostream>
 #include <cmath>
 #include "color.h"
 #include "misc.h"
@@ -7,8 +6,6 @@
 
 using std::min;
 using std::max;
-using std::cerr;
-using std::endl;
 using std::ostream;
 
 colorRGB::colorRGB() : r(0), g(0), b(0) {}

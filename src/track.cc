@@ -1,11 +1,8 @@
 #include <string>
-#include <iostream>
 #include "track.h"
 
 using std::to_string;
 using std::pair;
-using std::cout;
-using std::endl;
 
 void trackController::insert(int idx, note* newNote) {
   if (newNote == nullptr) {
