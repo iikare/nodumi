@@ -1,6 +1,8 @@
 #include "controller.h"
 #include <stdlib.h>
 #include <bitset>
+#include <chrono>
+#include <system_error>
 #include "define.h"
 
 
@@ -240,6 +242,7 @@ void controller::load(string path,
     return;
   }
 
+  auto start = std::chrono::system_clock::now();
 
   if (isMKI(path)) {
     // open input file
@@ -474,6 +477,10 @@ void controller::load(string path,
     getColorScheme(TONIC_COUNT, setTonicOn, setTonicOff);
     getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
   }
+  
+  auto end = std::chrono::system_clock::now();
+  std::chrono::duration<double> elapsedTime = end - start;
+  logW(LL_INFO, "elapsed time:", elapsedTime.count(), "seconds");
 }
 
 void controller::save(string path, 

@@ -377,8 +377,9 @@ bool isValidPath(string path) {
   string ext = path.length() > 3 ? path.substr(path.size() - 3) : path;
   
   if (ext != "mid" && ext != "mki") {
-    logW(LL_WARN, "invalid file extension:", path);
-    logW(LL_WARN, "assuming default extension (mid)");
+    //logW(LL_WARN, "invalid file extension:", path);
+    //logW(LL_WARN, "assuming default extension (mid)");
+    return false;
   }
 
 

@@ -83,7 +83,7 @@ int main (int argc, char* argv[]) {
 
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_BALL;
+  int displayMode = DISPLAY_PULSE;
   
   float nowLineX = ctr.getWidth()/2.0f;
 
@@ -227,7 +227,8 @@ int main (int argc, char* argv[]) {
              colorMode,  displayMode,
              songTimeType,  tonicOffset, 
              zoomLevel);
-     
+    
+
     // load an image if supplied
     if (argc == 3) {
       string imagePath = argv[2];
