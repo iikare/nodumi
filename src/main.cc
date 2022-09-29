@@ -988,7 +988,7 @@ int main (int argc, char* argv[]) {
               }
               [[fallthrough]];
             case 4:
-              if (!ctr.getPlayState()) {
+              if (!ctr.getPlayState() && curFileType != FILE_NONE) {
                 savenameC = fileDialog(OSDIALOG_SAVE, savetypes);
                 if (savenameC != nullptr) {
                   savename = static_cast<string>(savenameC);
