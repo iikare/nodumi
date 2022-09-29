@@ -214,31 +214,19 @@ int main (int argc, char* argv[]) {
   vector<string> colorSelectContents = {"Color Select"};
   menu colorSelect(ctr.getSize(), colorSelectContents, TYPE_COLOR, -100,-100, &rightMenu, 1); 
   menuctr.registerMenu(&colorSelect);
-  
-  // main program logic
 
   if (argc >= 2) {
-    string filename = argv[1];
-
-
-    ctr.load(filename, 
-             nowLine,  showFPS,  showImage,  sheetMusicDisplay,
-             measureLine,  measureNumber, 
-             colorMode,  displayMode,
-             songTimeType,  tonicOffset, 
-             zoomLevel);
-    
+    newFile = true;
+    filename = argv[1];
 
     // load an image if supplied
     if (argc == 3) {
-      string imagePath = argv[2];
-      ctr.image.load(imagePath);
+      newImage = true;
+      imagename = argv[2];
     }
   }
-  
-   
 
-
+  // main program logic
   while (ctr.getProgramState()) {
 
     // the now line IS variable
