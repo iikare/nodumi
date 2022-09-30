@@ -36,8 +36,16 @@ endif
 ifeq ($(strip $(rel)),)
 RELFLAGS=-Og -g
 else # release build
-RELFLAGS=-DNO_DEBUG -O3 -flto=thin
+RELFLAGS=-DNO_DEBUG -O3 
+
+# thinLTO doesn't exist for cross-compiler
+ifeq ($(strip $(arch)),)
+RELFLAGS+=-flto=thin
 LD += -flto=thin
+else ifeq ($(strip $(arch)),win)
+LFLAGS+=-mwindows # remove console window 
+endif
+
 endif
 
 
@@ -47,9 +55,9 @@ CFLAGSRTM=$(CFLAGS) -w # suppress library warnings
 CFLAGSCIE=$(CFLAGS) 
 
 ifeq ($(strip $(arch)),)
-LFLAGS=$(LD) -lraylib -lasound -lpthread -ljack $(LFLAGSOSD) 
+LFLAGS+=$(LD) -lraylib -lasound -lpthread -ljack $(LFLAGSOSD) 
 else ifeq ($(strip $(arch)),win)
-LFLAGS= -static -static-libgcc -static-libstdc++ -L./dpd/raylib/src -lraylib -lpthread $(LFLAGSOSD) data/misc/i.res 
+LFLAGS+= -static -static-libgcc -static-libstdc++ -L./dpd/raylib/src -lraylib -lpthread $(LFLAGSOSD) data/misc/i.res 
 endif
 
 PREREQ_DIR=@mkdir -p $(@D)
