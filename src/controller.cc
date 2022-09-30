@@ -21,6 +21,15 @@ void controller::initData(vector<asset>& assets) {
       case ASSET_FONT:
         fontMap.insert(make_pair(item.assetName, make_pair(item, map<int, Font>())));
         break;
+      case ASSET_IMAGE:
+
+        if (item.assetName == "ICON") {
+         Image tmpImg = LoadImageFromMemory(".png", item.data, item.dataLen);
+         SetWindowIcon(tmpImg);
+         UnloadImage(tmpImg);
+        }
+
+        break;
     }
   }
 }

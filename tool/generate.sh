@@ -17,7 +17,7 @@ if [ $# -gt 0 ]
 then
 
   # tally files
-  convert=("./data/font/")
+  convert=("./data/font/" "./data/img/")
   retype("")
 
   tfiles="0"
