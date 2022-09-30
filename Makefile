@@ -19,7 +19,6 @@ CFLAGSOSD=--std=c99  $(shell pkg-config --cflags gtk+-3.0)
 LFLAGSOSD=$(shell pkg-config --libs gtk+-3.0)
 SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_gtk3.c
 DEPDEF=-D__LINUX_ALSA__ -D__UNIX_JACK__
-FINAL=
 
 else ifeq ($(strip $(arch)),win)
 
@@ -31,7 +30,6 @@ CFLAGSOSD=--std=c99
 LFLAGSOSD=-lwinmm -lcomdlg32 -lgdi32
 SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_win.c
 DEPDEF=-D__WINDOWS_MM__ -DLOCRAY -D_USE_MATH_DEFINES 
-FINAL=data/misc/i.res
 
 endif
 
@@ -51,7 +49,7 @@ CFLAGSCIE=$(CFLAGS)
 ifeq ($(strip $(arch)),)
 LFLAGS=$(LD) -lraylib -lasound -lpthread -ljack $(LFLAGSOSD) 
 else ifeq ($(strip $(arch)),win)
-LFLAGS= -static -static-libgcc -static-libstdc++ -L./dpd/raylib/src -lraylib -lpthread $(LFLAGSOSD) 
+LFLAGS= -static -static-libgcc -static-libstdc++ -L./dpd/raylib/src -lraylib -lpthread $(LFLAGSOSD) data/misc/i.res 
 endif
 
 PREREQ_DIR=@mkdir -p $(@D)
@@ -105,7 +103,7 @@ pre:
 
 $(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) | $(@D)
 	$(PREREQ_DIR)
-	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) $(LFLAGS) $(FINAL)
+	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) $(LFLAGS)
 
 $(OBJS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
 	$(PREREQ_DIR)
