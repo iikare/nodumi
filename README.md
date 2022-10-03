@@ -1,4 +1,4 @@
-# nodumi - graphical MIDI visualizer
+# nodumi - real-time MIDI visualizer
 
 <img align="left" src="https://user-images.githubusercontent.com/13582030/193442487-40aadaf9-0b11-4309-907b-e481856bcb1d.svg" width="130px">
 
