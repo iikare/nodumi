@@ -23,6 +23,8 @@
 #define MUSIC_FONT   "LELAND"
 #define TEXT_SPACING 0
 
+#define SITE_LINK "https://iika.re/nodumi/"
+
 
 #define TONIC_COUNT 12
 #define KEY_COUNT 128

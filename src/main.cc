@@ -79,6 +79,7 @@ int main (int argc, char* argv[]) {
   bool colorCircle = false;
   bool sheetMusicDisplay = false;
   bool preferenceDisplay = false;
+  bool infoDisplay = false;
  
   bool measureLine = true;
   bool measureNumber = true;
@@ -205,6 +206,10 @@ int main (int argc, char* argv[]) {
   menu schemeMenu(ctr.getSize(), schemeMenuContents, TYPE_SUB, 
                   colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(1), &colorMenu, 1);
   menuctr.registerMenu(&schemeMenu);
+  
+  vector<string> infoMenuContents= {"Info", "Program Info", "Help"};
+  menu infoMenu(ctr.getSize(), infoMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
+  menuctr.registerMenu(&infoMenu);
 
   vector<string> paletteMenuContents = {"Default", "From Background"};
   menu paletteMenu(ctr.getSize(), paletteMenuContents, TYPE_SUB, 
@@ -773,6 +778,15 @@ int main (int argc, char* argv[]) {
         
 
         drawTextEx("Preferences", prefSideMargin/2 + 6, prefTopMargin/2 + 6, ctr.bgDark, 255, 18);
+      }
+      
+      if (infoDisplay) {
+        const int infoSideMargin = ctr.getWidth() - ctr.infoWidth;
+        const int infoTopMargin = ctr.getHeight() - ctr.infoHeight;
+        drawRectangle(infoSideMargin/2, infoTopMargin/2, ctr.infoWidth, ctr.infoHeight, ctr.bgMenu);  
+        
+
+        drawTextEx("Info", infoSideMargin/2 + 6, infoTopMargin/2 + 6, ctr.bgDark, 255, 18);
       }
 
 
@@ -1382,6 +1396,30 @@ int main (int argc, char* argv[]) {
                break;
              case 5:
                break;
+          }
+          break;
+      }
+      switch(infoMenu.getActiveElement()) {
+        case -1:
+          if (!infoMenu.childOpen()) {
+            infoMenu.render = false;
+          }
+          break;
+        case 0:
+          infoMenu.render = !infoMenu.render;
+          break;
+        default:
+          if (!infoMenu.render) {
+            break;
+          }
+          switch(infoMenu.getActiveElement()) {
+            case 1:
+              infoDisplay = !infoDisplay;
+              break;
+            case 2:
+              infoMenu.render = false;
+              OpenURL(SITE_LINK);
+              break;
           }
           break;
       }

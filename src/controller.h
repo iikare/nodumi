@@ -135,6 +135,9 @@ class controller {
     static constexpr int prefWidth   =   700;
     static constexpr int prefHeight  =   500;
 
+    static constexpr int infoWidth   =   400;
+    static constexpr int infoHeight  =   250;
+
     double livePlayOffset;
     int curMeasure;
     
