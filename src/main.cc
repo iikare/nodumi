@@ -126,9 +126,6 @@ int main (int argc, char* argv[]) {
   bool clickOn = false;
   bool clickOnTmp = false;
 
-  // menu controller
-  menuController menuctr = menuController();
-
   // screen space conversion functions
   const auto convertSSX = [&] (int value) {
     return nowLineX + (value - timeOffset) * zoomLevel;
@@ -162,67 +159,67 @@ int main (int argc, char* argv[]) {
 
   // menu objects
   vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Exit"};
-  menu fileMenu(ctr.getSize(), fileMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
-  menuctr.registerMenu(&fileMenu);
+  menu fileMenu(ctr.getSize(), fileMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  ctr.menu->registerMenu(&fileMenu);
    
   vector<string> editMenuContents = {"Edit", "Enable Sheet Music", "Preferences"};
-  menu editMenu(ctr.getSize(), editMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
-  menuctr.registerMenu(&editMenu);
+  menu editMenu(ctr.getSize(), editMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  ctr.menu->registerMenu(&editMenu);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Display Song Time:", "Hide Now Line", 
                                      "Hide Measure Line", "Hide Measure Number", "Hide Background", "Show FPS"};
-  menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
-  menuctr.registerMenu(&viewMenu);
+  menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  ctr.menu->registerMenu(&viewMenu);
   
   vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball"};
   menu displayMenu(ctr.getSize(), displayMenuContents, TYPE_SUB, 
                    viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
-  menuctr.registerMenu(&displayMenu);
+  ctr.menu->registerMenu(&displayMenu);
 
   vector<string> songMenuContents = {"Relative", "Absolute"};
   menu songMenu(ctr.getSize(), songMenuContents, TYPE_SUB, 
                 viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(2), &viewMenu, 2);
-  menuctr.registerMenu(&songMenu);
+  ctr.menu->registerMenu(&songMenu);
 
   vector<string> midiMenuContents = {"Midi", "Input", "Output", "Enable Live Play"};
-  menu midiMenu(ctr.getSize(), midiMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
-  menuctr.registerMenu(&midiMenu);
+  menu midiMenu(ctr.getSize(), midiMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  ctr.menu->registerMenu(&midiMenu);
 
   vector<string> inputMenuContents = {""};
   menu inputMenu(ctr.getSize(), inputMenuContents, TYPE_SUB, 
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(1), &midiMenu, 1);
-  menuctr.registerMenu(&inputMenu);
+  ctr.menu->registerMenu(&inputMenu);
 
   vector<string> outputMenuContents = {""};
   menu outputMenu(ctr.getSize(), outputMenuContents, TYPE_SUB, 
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(2), &midiMenu, 2);
-  menuctr.registerMenu(&outputMenu);
+  ctr.menu->registerMenu(&outputMenu);
   
   vector<string> colorMenuContents = {"Color", "Color By:", "Color Scheme:", "Swap Colors", "Invert Color Scheme"};
-  menu colorMenu(ctr.getSize(), colorMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
-  menuctr.registerMenu(&colorMenu);
+  menu colorMenu(ctr.getSize(), colorMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  ctr.menu->registerMenu(&colorMenu);
    
   vector<string> schemeMenuContents = {"Part", "Velocity", "Tonic"};
   menu schemeMenu(ctr.getSize(), schemeMenuContents, TYPE_SUB, 
                   colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(1), &colorMenu, 1);
-  menuctr.registerMenu(&schemeMenu);
+  ctr.menu->registerMenu(&schemeMenu);
   
   vector<string> infoMenuContents= {"Info", "Program Info", "Help"};
-  menu infoMenu(ctr.getSize(), infoMenuContents, TYPE_MAIN, menuctr.getOffset(), 0);
-  menuctr.registerMenu(&infoMenu);
+  menu infoMenu(ctr.getSize(), infoMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  ctr.menu->registerMenu(&infoMenu);
 
   vector<string> paletteMenuContents = {"Default", "From Background"};
   menu paletteMenu(ctr.getSize(), paletteMenuContents, TYPE_SUB, 
                    colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(2), &colorMenu, 2);
-  menuctr.registerMenu(&paletteMenu);
+  ctr.menu->registerMenu(&paletteMenu);
   
   vector<string> rightMenuContents = {"Info", "Change Part Color", "Set Tonic"};
   menu rightMenu(ctr.getSize(), rightMenuContents, TYPE_RIGHT, -100,-100); 
-  menuctr.registerMenu(&rightMenu);
+  ctr.menu->registerMenu(&rightMenu);
   
   vector<string> colorSelectContents = {"Color Select"};
   menu colorSelect(ctr.getSize(), colorSelectContents, TYPE_COLOR, -100,-100, &rightMenu, 1); 
-  menuctr.registerMenu(&colorSelect);
+  ctr.menu->registerMenu(&colorSelect);
 
   if (argc >= 2) {
     newFile = true;
@@ -384,7 +381,7 @@ int main (int argc, char* argv[]) {
         float nowLineWidth = 0.5;
         int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
         if (pointInBox(ctr.getMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) && 
-            !menuctr.mouseOnMenu()) {
+            !ctr.menu->mouseOnMenu()) {
           nowLineWidth = 1;
           hoverType.add(HOVER_NOW);
         }
@@ -438,7 +435,7 @@ int main (int argc, char* argv[]) {
                   timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
                 noteOn = true;
               }
-              if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !menuctr.mouseOnMenu()) {
+              if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
                 updateClickIndex();
               }
 
@@ -461,7 +458,7 @@ int main (int argc, char* argv[]) {
                   noteOn = true;
                   radius *= (0.3f + 0.7f * (1.0f - float(timeOffset - (*ctr.getNotes())[i].x) / (*ctr.getNotes())[i].duration));
                 }
-                if (!menuctr.mouseOnMenu()) {
+                if (!ctr.menu->mouseOnMenu()) {
                   int realX = 0;
                   if (cX > nowLineX) {
                     realX = cX;
@@ -768,7 +765,7 @@ int main (int argc, char* argv[]) {
                   measureTextEx(FPSText.c_str()).x - 4, 4, ctr.bgDark);
       }
 
-      menuctr.renderAll();
+      ctr.menu->renderAll();
 
 
       if (preferenceDisplay) {
@@ -981,7 +978,7 @@ int main (int argc, char* argv[]) {
               }
               free(filenameC);
 
-              menuctr.hideAll();
+              ctr.menu->hideAll();
               break;
             case 2:
               imagenameC = fileDialog(OSDIALOG_OPEN, imagetypes);
@@ -1529,9 +1526,9 @@ int main (int argc, char* argv[]) {
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
       clickNote = clickTmp;
       clickOn = clickOnTmp;
-      menuctr.hideAll();
+      ctr.menu->hideAll();
 
-      if (!menuctr.mouseOnMenu()) {
+      if (!ctr.menu->mouseOnMenu()) {
         if (!pointInBox(ctr.getMousePosition(), (rect){0, 0, ctr.getWidth(), 20})) {
           
           int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
@@ -1581,7 +1578,7 @@ int main (int argc, char* argv[]) {
                 double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
                 if (pointInBox(ctr.getMousePosition(), 
                                {int(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
-                    !menuctr.mouseOnMenu()) {
+                    !ctr.menu->mouseOnMenu()) {
                   measureSelected = true;
                   break; 
                 }
@@ -1622,12 +1619,10 @@ int main (int argc, char* argv[]) {
         }
       }
     }
-    if (menuctr.mouseOnMenu() || pointInBox(ctr.getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
+    if (ctr.menu->mouseOnMenu() || pointInBox(ctr.getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
       hoverType.add(HOVER_MENU);
     }
 
-    menuctr.updateMouse();
-    menuctr.updateRenderStatus();
     ctr.update(timeOffset, nowLineX, run);
 
     // displays index of last clicked note  

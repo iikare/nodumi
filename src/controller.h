@@ -25,21 +25,13 @@ using std::vector;
 using std::unordered_map;
 using std::stringstream;
 
+class menuController;
+
 class controller {
   public:
-    controller() : midiData() {
-      file = midi();
-      image = imageController();
-      programState = true;
-      playState = false;
-      livePlayState = false;
-      livePlayOffset = 0;
-      notes = &file.notes;
-      
-      getColorScheme(128, setVelocityOn, setVelocityOff);
-      getColorScheme(12, setTonicOn, setTonicOff);
-      getColorScheme(1, setTrackOn, setTrackOff);
-    }
+
+    controller();
+    ~controller();
 
     void initData(vector<asset>& assets);
     void unloadData();
@@ -100,6 +92,7 @@ class controller {
 
     stringstream midiData;
     imageController image;
+    menuController* menu;
 
 
     vector<colorRGB> setTrackOn;

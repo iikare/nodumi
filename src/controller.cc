@@ -4,7 +4,7 @@
 #include <chrono>
 #include <system_error>
 #include "define.h"
-
+#include "menuctr.h"
 
 using std::ofstream;
 using std::stringstream;
@@ -15,6 +15,23 @@ using std::move;
 // shared across load/save routines
 constexpr int imageBlockSize = 20;
 
+controller::controller() : midiData() {
+  file = midi();
+  image = imageController();
+  menu = new menuController();
+  programState = true;
+  playState = false;
+  livePlayState = false;
+  livePlayOffset = 0;
+  notes = &file.notes;
+  
+  getColorScheme(128, setVelocityOn, setVelocityOff);
+  getColorScheme(12, setTonicOn, setTonicOff);
+  getColorScheme(1, setTrackOn, setTrackOff);
+}
+controller::~controller() {
+  delete menu;
+}
 void controller::initData(vector<asset>& assets) {
   for (const auto& item : assets) {
     switch(item.assetType) {
@@ -113,6 +130,8 @@ void controller::unloadData() {
 
 
 void controller::update(int offset, double& nowLineX, bool runState) {
+  menu->updateMouse();
+  menu->updateRenderStatus();
   updateKeyState();
   updateDimension(nowLineX);
   updateFPS();
