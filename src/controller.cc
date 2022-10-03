@@ -126,6 +126,9 @@ void controller::unloadData() {
       UnloadFont(font.second);
     }
   }
+  for (const auto& image : imageMap) {
+    UnloadTexture(image.second);
+  }
   ctr.image.unload();
 }
 

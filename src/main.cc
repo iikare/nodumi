@@ -801,7 +801,8 @@ int main (int argc, char* argv[]) {
                            static_cast<float>(infoTopMargin/2 + borderMargin)};
         DrawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3, WHITE);
         
-        drawTextEx(string("Build Date: ") + BUILD_DATE, infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight+10, ctr.bgDark, 255, 16);
+        drawTextEx(string("Build Date: ") + BUILD_DATE, 
+                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight+10, ctr.bgDark, 255, 14);
       }
 
 
