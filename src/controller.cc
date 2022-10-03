@@ -69,7 +69,7 @@ Font* controller::getFont(string id, int size) {
     int* loc = nullptr;
 
     // special handling for SMuFL font
-    if (tmpFontAsset.assetName == "LELAND") {
+    if (tmpFontAsset.assetName == MUSIC_FONT) {
       loc = codepointSet.data();
       lim = codepointSet.size();
     }
