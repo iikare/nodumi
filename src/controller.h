@@ -48,7 +48,7 @@ class controller {
     Font* getFont(string id, int size);
     Texture2D& getImage(string imageIdentifier);
 
-    void update(int offset, bool runState);
+    void update(int offset, double& nowLineX, bool runState);
     void toggleLivePlay();
     void setCloseFlag();
     void load(string path, fileType& fType, 
@@ -142,10 +142,12 @@ class controller {
     
   private:
     void updateKeyState();
-    void updateDimension();
+    void updateDimension(double& nowLineX);
     void updateFPS();
     int findCurrentMeasure(int pos) const;
     
+    int lastWidth = 0;
+
     bool programState = true;
     bool playState;
     bool livePlayState;

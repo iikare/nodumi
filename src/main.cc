@@ -87,7 +87,7 @@ int main (int argc, char* argv[]) {
   int tonicOffset = 0;
   int displayMode = DISPLAY_PULSE;
   
-  float nowLineX = ctr.getWidth()/2.0f;
+  double nowLineX = ctr.getWidth()/2.0f;
 
   string FPSText = "";
 
@@ -488,9 +488,9 @@ int main (int argc, char* argv[]) {
                   }
                   else if (cX < nowLineX) {
                     drawRing({cX, ballY}, radius - 2, radius, (*colorSetOn)[colorID], 255*radius/maxRad);
-                    drawRing({nowLineX, ballY}, radius - 2, radius, (*colorSetOn)[colorID]);
+                    drawRing({static_cast<float>(nowLineX), ballY}, radius - 2, radius, (*colorSetOn)[colorID]);
                     if (nowLineX - cX > 2 * radius) {
-                      drawGradientLineH({cX + radius, ballY + 1}, {nowLineX - radius + 1, ballY + 1}, 
+                      drawGradientLineH({cX + radius, ballY + 1}, {static_cast<float>(nowLineX) - radius + 1, ballY + 1}, 
                                         2, (*colorSetOn)[colorID], 255, 255*radius/maxRad);
                     }
                   }
@@ -498,7 +498,7 @@ int main (int argc, char* argv[]) {
                 else {
                   if (cX < nowLineX && cX + cW > nowLineX) {
                     drawRing({cX, ballY}, radius - 2, radius, (*colorSetOff)[colorID], 255*radius/maxRad);
-                    drawRing({nowLineX, ballY}, radius - 2, radius, (*colorSetOff)[colorID]);
+                    drawRing({static_cast<float>(nowLineX), ballY}, radius - 2, radius, (*colorSetOff)[colorID]);
                     if (nowLineX - cX > 2 * radius) {
                       drawLineEx(cX + radius, ballY + 1, nowLineX - radius, ballY + 1, 2, (*colorSetOff)[colorID]);
                     }
@@ -1590,7 +1590,7 @@ int main (int argc, char* argv[]) {
 
     menuctr.updateMouse();
     menuctr.updateRenderStatus();
-    ctr.update(timeOffset, run);
+    ctr.update(timeOffset, nowLineX, run);
 
     // displays index of last clicked note  
     //logQ(clickNote);

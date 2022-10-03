@@ -112,9 +112,9 @@ void controller::unloadData() {
 }
 
 
-void controller::update(int offset, bool runState) {
+void controller::update(int offset, double& nowLineX, bool runState) {
   updateKeyState();
-  updateDimension();
+  updateDimension(nowLineX);
   updateFPS();
   curMeasure = findCurrentMeasure(offset);
 
@@ -126,6 +126,11 @@ void controller::update(int offset, bool runState) {
     runTime = 0;
     pauseTime += GetFrameTime();
   }
+
+  if (lastWidth != getWidth()) {
+    lastWidth = getWidth();
+  }
+
 }
 
 void controller::updateFPS() {
@@ -141,8 +146,10 @@ void controller::updateKeyState() {
   }
 }
 
-void controller::updateDimension() {
+void controller::updateDimension(double& nowLineX) {
   if(IsWindowResized()) {
+
+    nowLineX = getWidth() * nowLineX / lastWidth;
     
     if (livePlayState) {
 
