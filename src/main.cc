@@ -46,9 +46,9 @@ int main (int argc, char* argv[]) {
   // debug
   //SetTraceLogLevel(LOG_TRACE);
   
-
+  string windowTitle = string(mName) + " " + string(mVersion);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
-  InitWindow(mWidth, mHeight, (string("nodumi ") + string(mVersion)).c_str());
+  InitWindow(mWidth, mHeight, windowTitle.c_str());
   SetTargetFPS(60);
   SetExitKey(KEY_F7);
   SetWindowMinSize(mWidth, mHeight);
@@ -781,16 +781,34 @@ int main (int argc, char* argv[]) {
         const int infoSideMargin = ctr.getWidth() - ctr.infoWidth;
         const int infoTopMargin = ctr.getHeight() - ctr.infoHeight;
         drawRectangle(infoSideMargin/2, infoTopMargin/2, ctr.infoWidth, ctr.infoHeight, ctr.bgMenu);  
-        
+       
 
-        drawTextEx("Info", infoSideMargin/2 + 6, infoTopMargin/2 + 6, ctr.bgDark, 255, 18);
+        int iconTextSize = 30;
+        int iconTextAdjust = 10;
+        double borderMargin = 20;
+        double iconScale = 0.3;
+        Vector2 iconTextVec = measureTextEx(windowTitle, iconTextSize);
+        double iconTextHeight = iconTextVec.y;
+        double iconBoxWidth = iconTextVec.x + ctr.getImage("ICON").width*iconScale +
+                              borderMargin*2 - iconTextAdjust;
+        double iconBoxHeight = ctr.getImage("ICON").height*iconScale + borderMargin;
+        double iconTextX = infoSideMargin/2 + (ctr.infoWidth - iconBoxWidth)/2 + 
+                           ctr.getImage("ICON").width*iconScale + borderMargin - iconTextAdjust;
+        double iconTextY = infoTopMargin/2 + ctr.getImage("ICON").height*iconScale/2 + borderMargin - iconTextHeight/2;
+        drawTextEx(windowTitle, iconTextX, iconTextY, ctr.bgIcon, 255, iconTextSize);
+
+        Vector2 iconPos = {static_cast<float>(infoSideMargin/2 + (ctr.infoWidth-iconBoxWidth)/2 + borderMargin), 
+                           static_cast<float>(infoTopMargin/2 + borderMargin)};
+        DrawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3, WHITE);
+        
+        drawTextEx(string("Build Date: ") + BUILD_DATE, infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight+10, ctr.bgDark, 255, 16);
       }
 
 
       //logQ("bounds", formatPair(inverseSSX()));
-      drawSymbol(SYM_REST_16, 155, convertSSX(inverseSSX().first), 320, ctr.bgNow);
-      drawSymbol(SYM_CLEF_TREBLE, 155, 
-                 convertSSX(inverseSSX().second)-noteData.sheetData.getGlyphWidth(SYM_CLEF_TREBLE,155), 320, ctr.bgNow);
+      //drawSymbol(SYM_REST_16, 155, convertSSX(inverseSSX().first), 320, ctr.bgNow);
+      //drawSymbol(SYM_CLEF_TREBLE, 155, 
+                 //convertSSX(inverseSSX().second)-noteData.sheetData.getGlyphWidth(SYM_CLEF_TREBLE,155), 320, ctr.bgNow);
     
     EndDrawing();
 

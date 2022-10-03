@@ -51,6 +51,7 @@ void controller::initData(vector<asset>& assets) {
           }
 
           Texture2D tmpTex = LoadTextureFromImage(tmpImg);
+          SetTextureFilter(tmpTex, TEXTURE_FILTER_BILINEAR);
 
           UnloadImage(tmpImg);
 

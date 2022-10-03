@@ -77,9 +77,9 @@ class controller {
     int getCurrentMeasure() const;
     int getMeasureCount() const;
 
-    int getWidth() const { return GetScreenWidth(); }
-    int getHeight() const { return GetScreenHeight(); }
-    point getSize() const { return {GetScreenWidth(), GetScreenHeight()}; }
+    int getWidth() const { return GetRenderWidth(); }
+    int getHeight() const { return GetRenderHeight(); }
+    point getSize() const { return {GetRenderWidth(), GetRenderHeight()}; }
     point getMousePosition() const; 
     int getMouseX() const { return getMousePosition().x; }; 
     int getMouseY() const { return getMousePosition().y; }; 
@@ -112,6 +112,7 @@ class controller {
     colorRGB bgSheet =        colorRGB(255, 252, 242);
     colorRGB bgSheetNote =    colorRGB(0  , 0  , 0  );
     colorRGB bgMeasure =      colorRGB(155, 155, 155);
+    colorRGB bgIcon =         colorRGB(34 , 115, 150);
 
     static constexpr int menuHeight  =   20;
     static constexpr int sheetHeight =   250;
@@ -128,8 +129,8 @@ class controller {
     static constexpr int prefWidth   =   700;
     static constexpr int prefHeight  =   500;
 
-    static constexpr int infoWidth   =   400;
-    static constexpr int infoHeight  =   250;
+    static constexpr int infoWidth   =   500;
+    static constexpr int infoHeight  =   300;
 
     double livePlayOffset;
     int curMeasure;

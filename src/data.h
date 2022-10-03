@@ -2,6 +2,7 @@
 
 #define mWidth 1280
 #define mHeight 740
+#define mName "nodumi"
 #define mVersion "0.01a"
 #define MIN_NOTE_IDX 21
 #define MAX_NOTE_IDX 108
