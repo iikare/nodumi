@@ -22,13 +22,25 @@ void controller::initData(vector<asset>& assets) {
         fontMap.insert(make_pair(item.assetName, make_pair(item, map<int, Font>())));
         break;
       case ASSET_IMAGE:
+      {
+        auto it = imageMap.find(item.assetName);
+        if (it == imageMap.end()) {
+          // asset not already loaded, so we should load it
+          //Texture2D tmpTex = LoadTexture(item.path.c_str());
+          Image tmpImg = LoadImageFromMemory(".png", item.data, item.dataLen);
 
-        if (item.assetName == "ICON") {
-         Image tmpImg = LoadImageFromMemory(".png", item.data, item.dataLen);
-         SetWindowIcon(tmpImg);
-         UnloadImage(tmpImg);
-        }
+          if (item.assetName == "ICON") {
+            SetWindowIcon(tmpImg);
+          }
 
+          Texture2D tmpTex = LoadTextureFromImage(tmpImg);
+
+          UnloadImage(tmpImg);
+
+          //add to image map for future reference
+          imageMap.insert(make_pair(item.assetName, tmpTex));
+        }      
+      }
         break;
     }
   }
@@ -79,6 +91,15 @@ Font* controller::getFont(string id, int size) {
   return &fit->second.second.find(size)->second;
   
   
+}
+
+Texture2D& controller::getImage(string imageIdentifier) {
+  auto it = imageMap.find(imageIdentifier);
+  if (it == imageMap.end()){
+    logW(LL_CRIT, "attempt to load unloaded image w/ identifier: " + imageIdentifier);
+    //exit(1);
+  }
+  return it->second; 
 }
 
 void controller::unloadData() {

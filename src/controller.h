@@ -46,6 +46,7 @@ class controller {
 
 
     Font* getFont(string id, int size);
+    Texture2D& getImage(string imageIdentifier);
 
     void update(int offset, bool runState);
     void toggleLivePlay();
@@ -157,6 +158,7 @@ class controller {
 
 
     unordered_map<string, pair<asset, map<int, Font>>> fontMap;
+    unordered_map <string, Texture2D> imageMap;
     
 
 };

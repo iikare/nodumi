@@ -53,8 +53,10 @@ int main (int argc, char* argv[]) {
   SetExitKey(KEY_F7);
   SetWindowMinSize(mWidth, mHeight);
 
+  
   // no packed executable data can be loaded before this point
   ctr.initData(assetSet);
+
   
  
   // program-wide variables 
