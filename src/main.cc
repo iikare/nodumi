@@ -628,8 +628,8 @@ int main (int argc, char* argv[]) {
                       updateClickIndex((*linePositions)[j]);
                     }
                     auto cSet = noteOn ? colorSetOn : colorSetOff;
+                    double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
                     if (noteOn || clickTmp == (*linePositions)[j]) {
-                      double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
                       double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
                       bool nowNote = clickTmp == (*linePositions)[j] ? false : noteOn;
                       drawLineEx(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) : convSS[0],
@@ -650,8 +650,9 @@ int main (int argc, char* argv[]) {
                     }
                     
                     if (convSS[2] >= nowLineX) {
+                      int ringFadeAlpha = noteOn ? 255*(1-nowRatio) : 255;
                       drawRing({convSS[0], convSS[1]},
-                               0, 3, (*cSet)[colorID]);
+                               0, 3, (*cSet)[colorID], ringFadeAlpha);
                     }
                     if (convSS[2] <= nowLineX) {
                       drawRing({convSS[2], convSS[3]},
