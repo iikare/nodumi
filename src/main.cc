@@ -787,7 +787,7 @@ int main (int argc, char* argv[]) {
           }
 
           float nowRatio = (timeOffset-(*ctr.getNotes())[idx].x)/((*ctr.getNotes())[idx].duration);
-          float pitchRatio = 1-nowRatio;
+          float pitchRatio = 0.2+0.8*(1-nowRatio);
           int binScale = 10*(1+log(1+(*ctr.getNotes())[idx].duration));
 
           //logQ((*ctr.getNotes())[idx].y, freq, bins.size());
@@ -798,6 +798,13 @@ int main (int argc, char* argv[]) {
             for (unsigned int bin = 0; bin < bins.size(); ++bin) {
               double fftBinLen = harmonicsCoefficient[harmonicScale]*binScale*pitchRatio * 
                                  fftAC(freq*harmonicScale, bins[bin].first);
+              
+              // pseudo-random numerically stable offset
+              fftBinLen *= 1+0.3*pow((ctr.getPSR() % 
+                                      static_cast<int>(bins[bin].first)) / 
+                                      bins[bin].first - 0.5, 2);
+
+              
               int startX = FFT_BIN_WIDTH*(bin + 1);
               //logQ(bins[bin].first, fftBinLen); 
               

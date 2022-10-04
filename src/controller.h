@@ -67,6 +67,7 @@ class controller {
     bool getLiveState() { return livePlayState; }
     double getRunTime() { return runTime; }
     double getPauseTime() { return pauseTime; }
+    int getPSR() { return psrValue; }
 
     vector<note>* getNotes();
     int getTrackCount();
@@ -134,6 +135,7 @@ class controller {
 
     double livePlayOffset;
     int curMeasure;
+
     
     
     
@@ -152,6 +154,8 @@ class controller {
     int curMon;
     double runTime;
     double pauseTime;
+    
+    int psrValue = 0;
     
     vector<note>* notes;
 

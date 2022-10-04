@@ -62,6 +62,8 @@ void controller::initData(vector<asset>& assets) {
         break;
     }
   }
+
+  srand(time(0));
 }
 
 Font* controller::getFont(string id, int size) {
@@ -154,6 +156,10 @@ void controller::update(int offset, double& nowLineX, bool runState) {
     lastWidth = getWidth();
   }
 
+  if (runState) {
+    // persistent randomness for animation
+    psrValue = rand();
+  }
 }
 
 void controller::updateFPS() {
