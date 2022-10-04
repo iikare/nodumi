@@ -788,7 +788,7 @@ int main (int argc, char* argv[]) {
 
           float nowRatio = (timeOffset-(*ctr.getNotes())[idx].x)/((*ctr.getNotes())[idx].duration);
           float pitchRatio = 0.2+0.8*(1-nowRatio);
-          int binScale = 10*(1+log(1+(*ctr.getNotes())[idx].duration));
+          int binScale = 5+5*(1+log(1+(*ctr.getNotes())[idx].duration));
 
           //logQ((*ctr.getNotes())[idx].y, freq, bins.size());
           // simulate harmonics
@@ -796,14 +796,15 @@ int main (int argc, char* argv[]) {
           const vector<double> harmonicsCoefficient = {0.04, 0.1, 1, 0.1, 0.04};
           for (unsigned int harmonicScale = 0; harmonicScale <= harmonics.size(); ++harmonicScale) {
             for (unsigned int bin = 0; bin < bins.size(); ++bin) {
+              if (freq*harmonics[harmonicScale] < FFT_MIN_FREQ ||
+                  freq*harmonics[harmonicScale] > FFT_MAX_FREQ) {
+                continue;
+              }
               double fftBinLen = harmonicsCoefficient[harmonicScale]*binScale*pitchRatio * 
-                                 fftAC(freq*harmonicScale, bins[bin].first);
+                                 fftAC(freq*harmonics[harmonicScale], bins[bin].first);
               
               // pseudo-random numerically stable offset
-              fftBinLen *= 1+0.3*pow((ctr.getPSR() % 
-                                      static_cast<int>(bins[bin].first)) / 
-                                      bins[bin].first - 0.5, 2);
-
+              fftBinLen *= 1+0.3*pow((ctr.getPSR() % static_cast<int>(bins[bin].first)) / bins[bin].first - 0.5, 2);
               
               int startX = FFT_BIN_WIDTH*(bin + 1);
               //logQ(bins[bin].first, fftBinLen); 

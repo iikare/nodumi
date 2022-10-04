@@ -75,6 +75,9 @@ void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorV
       swap(colorVecB[i], colorVecB[weight[i].first]);
     }
   } 
+
+  // for bright color
+  swap(colorVecA, colorVecB);
 }
 
 void getColorSchemeImage(schemeType type, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB,
