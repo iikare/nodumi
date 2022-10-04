@@ -650,7 +650,7 @@ int main (int argc, char* argv[]) {
                     }
                     
                     if (convSS[2] >= nowLineX) {
-                      int ringFadeAlpha = noteOn ? 255*(1-nowRatio) : 255;
+                      double ringFadeAlpha = noteOn ? 255*(1-nowRatio) : 255;
                       drawRing({convSS[0], convSS[1]},
                                0, 3, (*cSet)[colorID], ringFadeAlpha);
                     }
