@@ -1,6 +1,7 @@
 #include <sys/stat.h>
 #include <algorithm>
 #include <iomanip>
+#include <cmath>
 #include "misc.h"
 #include "data.h"
 #include "log.h"
@@ -9,6 +10,10 @@ using std::min;
 using std::max;
 using std::stringstream;
 using std::hex;
+
+double getFundamental(int y) {
+  return pow(2, (y-69)/12.0) * 440;
+}
 
 double getDistance(int x1, int y1, int x2, int y2) {
   double deltaX = abs(x1 - x2);

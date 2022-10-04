@@ -86,7 +86,7 @@ int main (int argc, char* argv[]) {
 
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_PULSE;
+  int displayMode = DISPLAY_FFT;
   
   double nowLineX = ctr.getWidth()/2.0f;
 
@@ -182,7 +182,7 @@ int main (int argc, char* argv[]) {
   menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(&viewMenu);
   
-  vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball"};
+  vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball", "FFT"};
   menu displayMenu(ctr.getSize(), displayMenuContents, TYPE_SUB, 
                    viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
   ctr.menu->registerMenu(&displayMenu);
@@ -413,6 +413,7 @@ int main (int argc, char* argv[]) {
       
 
       pair<double, double> currentBoundaries = inverseSSX();
+      vector<int> curNote;
 
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
@@ -718,8 +719,72 @@ int main (int argc, char* argv[]) {
               }
             }
             break;
+          case DISPLAY_FFT:
+            if (cX + cW > 0 && cX < ctr.getWidth()) {
+              bool drawFFT = false;
+              if ((*ctr.getNotes())[i].isOn ||
+                 (timeOffset >= (*ctr.getNotes())[i].x && 
+                  timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
+                noteOn = true;
+                drawFFT = true;
+              }
+              if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
+                updateClickIndex();
+              }
+
+              auto cSet = noteOn ? colorSetOn : colorSetOff;
+              drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
+
+
+              if(drawFFT) {
+                curNote.push_back((*ctr.getNotes())[i].y);
+              }
+
+              
+
+              
+
+            }
+              break;
         }
       }
+
+      // render FFT lines after notes
+      if (displayMode == DISPLAY_FFT) {
+
+        int nBins = ctr.getWidth()/FFT_BIN_WIDTH - 2;
+
+        // frequency, height
+        vector<pair<double, int>> bins(nBins, make_pair(0.0,0));
+
+        double binFreq = log10(FFT_MAX_FREQ/FFT_MIN_FREQ)/(nBins-1);
+
+
+        for (unsigned int bin = 0; bin < bins.size(); ++bin) {
+
+          bins[bin].first = 20*pow(10, bin*binFreq);
+          
+        }
+
+
+        for (const auto& y : curNote) {
+          double freq = getFundamental(y);
+
+  
+          // fft/autocorrelation here
+
+          //logQ(y, freq, bins.size());
+          for (unsigned int bin = 0; bin < bins.size(); ++bin) {
+            double fftBinLen = 10*log10(bins[bin].first/freq);
+            int startX = FFT_BIN_WIDTH*(bin + 1);
+            drawLineEx(startX,ctr.getHeight(),startX,ctr.getHeight()-fftBinLen,1,WHITE);
+            bins[bin].second += fftBinLen;
+          }
+        }
+        
+
+      }
+
 
       // menu bar rendering
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
@@ -1136,6 +1201,8 @@ int main (int argc, char* argv[]) {
               displayMode = DISPLAY_BALL;
               break;
             case 4:
+              displayMode = DISPLAY_FFT;
+              break;
               break;
             case 5:
               break;

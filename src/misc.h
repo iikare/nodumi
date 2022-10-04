@@ -16,6 +16,8 @@ using std::vector;
 using std::string;
 using std::to_string;
 
+double getFundamental(int y);
+
 double getDistance(int x1, int y1, int x2, int y2);
 
 colorHSV RGBtoHSV(const colorRGB& rgb);

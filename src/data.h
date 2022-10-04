@@ -34,6 +34,9 @@
 #define KMEANS_ITERATIONS 2
 #define MAX_UNIQUE_COLORS 10000
 
+#define FFT_MIN_FREQ 20
+#define FFT_MAX_FREQ 44100
+#define FFT_BIN_WIDTH 100
 
 // already defined in <raylib.h>
 //#define RAD2DEG M_PI/180.0f
