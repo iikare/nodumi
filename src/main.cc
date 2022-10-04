@@ -787,7 +787,7 @@ int main (int argc, char* argv[]) {
           }
 
           float nowRatio = (timeOffset-(*ctr.getNotes())[idx].x)/((*ctr.getNotes())[idx].duration);
-          float pitchRatio = pow(1-nowRatio,2)-pow(nowRatio,4)/10;
+          float pitchRatio = 1-nowRatio;
           int binScale = 10*(1+log(1+(*ctr.getNotes())[idx].duration));
 
           //logQ((*ctr.getNotes())[idx].y, freq, bins.size());
