@@ -22,7 +22,7 @@ using std::stringstream;
 
 class imageController {
   public:
-    imageController() : img(),  imgTex(), isLoaded(false), canMove(false),
+    imageController() : image(),  imageTex(), isLoaded(false), canMove(false),
                         position({0,0}), base({0,0}), offset({0,0}), scale(1), defaultScale(1), meanV(0), numColors(0),
                         rawPixelData(), imageFormat(IMAGE_NONE), buf() {};
 
@@ -30,10 +30,10 @@ class imageController {
     void unload();
 
     void draw();
-    void changeScale(float scaleOffset);
+    void changeScale(double scaleOffset);
 
     vector<kMeansPoint> getRawData();
-    float getMeanValue();
+    double getMeanValue();
     int getNumColors();
 
 
@@ -42,8 +42,8 @@ class imageController {
 
     int getX() { return position.x + offset.x; }
     int getY() { return position.y + offset.y; }
-    int getWidth() { return isLoaded ? img.width * scale : -1; }
-    int getHeight() { return isLoaded ? img.height * scale : -1; }
+    int getWidth() { return isLoaded ? image.width * scale : -1; }
+    int getHeight() { return isLoaded ? image.height * scale : -1; }
 
     
     void updatePosition();
@@ -58,18 +58,19 @@ class imageController {
     void load(stringstream& byteData, int byteSize, int format);
 
 
-    Image img;
-    Texture2D imgTex;
+    Image image;
+    Texture2D imageTex;
     
     bool isLoaded;
     bool canMove;
 
-    point position;
+    // must be floating-point for scale-in-place to work
+    Vector2 position;
     point base;
     point offset;
-    float scale;
-    float defaultScale;
-    float meanV;
+    double scale;
+    double defaultScale;
+    double meanV;
     int numColors;
 
     vector<kMeansPoint> rawPixelData;

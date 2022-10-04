@@ -12,9 +12,9 @@ void imageController::load(string path) {
 
   unload();
 
-  img = LoadImage(path.c_str());
+  image = LoadImage(path.c_str());
 
-  if (img.data == nullptr) {
+  if (image.data == nullptr) {
     logW(LL_WARN, "image with path", path, "failed to load!");
   }
 
@@ -63,7 +63,7 @@ void imageController::load(stringstream& byteData, int byteSize, int format) {
       return;
   }
 
-  img = LoadImageFromMemory(ext.c_str(), reinterpret_cast<const unsigned char*>(byteData.str().c_str()), byteSize);
+  image = LoadImageFromMemory(ext.c_str(), reinterpret_cast<const unsigned char*>(byteData.str().c_str()), byteSize);
 
   process();
 }
@@ -71,8 +71,8 @@ void imageController::load(stringstream& byteData, int byteSize, int format) {
 void imageController::process() {
 
   // find default scale
-  if (img.width > ctr.getWidth() || img.height > ctr.getHeight()) {
-    scale = 1.0/max((float)img.width/ctr.getWidth(), (float)img.height/ctr.getHeight());
+  if (image.width > ctr.getWidth() || image.height > ctr.getHeight()) {
+    scale = 1.0/max((double)image.width/ctr.getWidth(), (double)image.height/ctr.getHeight());
     defaultScale = scale;
   } 
 
@@ -82,8 +82,8 @@ void imageController::process() {
   position = {0,0};
 
 
-  imgTex = LoadTextureFromImage(img);
-  SetTextureFilter(imgTex, TEXTURE_FILTER_BILINEAR);
+  imageTex = LoadTextureFromImage(image);
+  SetTextureFilter(imageTex, TEXTURE_FILTER_BILINEAR);
   
   isLoaded = true;
 
@@ -91,8 +91,8 @@ void imageController::process() {
 }
 void imageController::unload() {
  if (isLoaded) {
-    UnloadImage(img);
-    UnloadTexture(imgTex);
+    UnloadImage(image);
+    UnloadTexture(imageTex);
     
     position = {0, 0};
     offset = {0, 0};
@@ -114,7 +114,7 @@ void imageController::unload() {
 
 void imageController::draw() {
   if (isLoaded) {
-    DrawTextureEx(imgTex, {(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, 0, scale, WHITE);
+    DrawTextureEx(imageTex, {(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, 0, scale, WHITE);
     //DrawRectangle((float)position.x + (float)offset.x, (float)position.y + (float)offset.y, 
                   //getWidth(), getHeight(), {100,100,100,100});
   }
@@ -122,8 +122,8 @@ void imageController::draw() {
 
 void imageController::updatePosition() {
   if (canMove) {
-    float xBounds = min(max(0, (int)ctr.getMousePosition().x), ctr.getWidth());
-    float yBounds = min(max(ctr.topHeight, (int)ctr.getMousePosition().y), ctr.getHeight()); 
+    double xBounds = min(max(0, ctr.getMousePosition().x), ctr.getWidth());
+    double yBounds = min(max(ctr.topHeight, ctr.getMousePosition().y), ctr.getHeight()); 
 
     offset.x = xBounds - base.x;
     offset.y = yBounds - base.y;
@@ -151,9 +151,27 @@ void imageController::finalizePosition() {
 
 }
 
-void imageController::changeScale(float scaleOffset) { 
-  scale = min(max(0.1f*defaultScale, (float)scale + scaleOffset* scale/defaultScale), 10.0f*defaultScale);
-  //logQ("newscale", scale);
+void imageController::changeScale(double scaleOffset) { 
+  double oldScale = scale;
+  double oldWidth = getWidth();
+  double oldHeight = getHeight();
+
+  scale = min(max(0.1*defaultScale, scale + scaleOffset * scale/defaultScale), 10.0*defaultScale);
+
+  double diffScale = scale - oldScale;
+
+  double expX = diffScale*image.width;
+  double expY = diffScale*image.height;
+  double ratioX = (ctr.getMouseX() - position.x)/oldWidth;
+  double ratioY = (ctr.getMouseY() - position.y)/oldHeight;
+  
+  //logQ("xy", ratioX, ratioY, expX, expY);
+
+  if (IsKeyDown(KEY_F)) {scale = oldScale; }
+  else {
+  position.x -= ratioX*expX;
+  position.y -= ratioY*expY;
+  }
 }
 
 vector<kMeansPoint> imageController::getRawData() {
@@ -163,29 +181,34 @@ vector<kMeansPoint> imageController::getRawData() {
 void imageController::createRawData() {
   rawPixelData.clear();
 
-  Image copy = ImageCopy(img);
+  Image copy = ImageCopy(image);
   constexpr int baseWidth = 100;
-  ImageResizeNN(&copy, baseWidth, baseWidth * (float)img.width/img.height);
+  ImageResizeNN(&copy, baseWidth, baseWidth * (double)image.width/image.height);
   
   vector<colorRGB> uniqueColors;
 
   if (isLoaded) {
     // use original image values to prevent effects from scaling
-    for (int x = 0; x < copy.width; ++x) {
-      for (int y = 0; y < copy.height; ++y) {
-        //logQ(colorRGB(GetImageColor(copy, x, y))); 
-        Color tmpColorR = GetImageColor(copy, x, y);
-        colorRGB tmpColor = {(double)tmpColorR.r, (double)tmpColorR.g, (double)tmpColorR.b};
-        meanV += tmpColor.getHSV().v;
-        rawPixelData.push_back(kMeansPoint(tmpColor));
-        
-        if (uniqueColors.size() < MAX_UNIQUE_COLORS && 
-            find(uniqueColors.begin(), uniqueColors.end(), tmpColor) == uniqueColors.end()) {
-          uniqueColors.push_back(tmpColor);
-        }
+    (void) [&] { // for premature break
+      for (int x = 0; x < copy.width; ++x) {
+        for (int y = 0; y < copy.height; ++y) {
+          if (uniqueColors.size() >= MAX_UNIQUE_COLORS) {
+            return;
+          }
+          //logQ(colorRGB(GetImageColor(copy, x, y))); 
+          Color tmpColorR = GetImageColor(copy, x, y);
+          colorRGB tmpColor = {(double)tmpColorR.r, (double)tmpColorR.g, (double)tmpColorR.b};
+          meanV += tmpColor.getHSV().v;
+          rawPixelData.push_back(kMeansPoint(tmpColor));
+          
+          if (uniqueColors.size() < MAX_UNIQUE_COLORS && 
+              find(uniqueColors.begin(), uniqueColors.end(), tmpColor) == uniqueColors.end()) {
+            uniqueColors.push_back(tmpColor);
+          }
 
-      }
-    } 
+        }
+      } 
+    };
   }
   
   meanV /= (copy.width*copy.height);
@@ -196,7 +219,7 @@ void imageController::createRawData() {
 
 }
 
-float imageController::getMeanValue() {
+double imageController::getMeanValue() {
   return meanV;
 }
 
