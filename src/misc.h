@@ -17,6 +17,7 @@ using std::string;
 using std::to_string;
 
 double getFundamental(int y);
+double fftAC(double f_1, double f_2);
 
 double getDistance(int x1, int y1, int x2, int y2);
 

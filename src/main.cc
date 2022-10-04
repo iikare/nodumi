@@ -737,7 +737,7 @@ int main (int argc, char* argv[]) {
 
 
               if(drawFFT) {
-                curNote.push_back((*ctr.getNotes())[i].y);
+                curNote.push_back(i);
               }
 
               
@@ -765,20 +765,48 @@ int main (int argc, char* argv[]) {
           bins[bin].first = 20*pow(10, bin*binFreq);
           
         }
+        
 
 
-        for (const auto& y : curNote) {
-          double freq = getFundamental(y);
+        for (const auto& idx : curNote) {
+          double freq = getFundamental((*ctr.getNotes())[idx].y);
 
+          int colorID = 0;
   
           // fft/autocorrelation here
+          switch (colorMode) {
+            case COLOR_PART:
+              colorID = (*ctr.getNotes())[idx].track;
+              break;
+            case COLOR_VELOCITY:
+              colorID = (*ctr.getNotes())[idx].velocity;
+              break;
+            case COLOR_TONIC:
+              colorID = ((*ctr.getNotes())[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+              break;
+          }
 
-          //logQ(y, freq, bins.size());
-          for (unsigned int bin = 0; bin < bins.size(); ++bin) {
-            double fftBinLen = 10*log10(bins[bin].first/freq);
-            int startX = FFT_BIN_WIDTH*(bin + 1);
-            drawLineEx(startX,ctr.getHeight(),startX,ctr.getHeight()-fftBinLen,1,WHITE);
-            bins[bin].second += fftBinLen;
+          float nowRatio = (timeOffset-(*ctr.getNotes())[idx].x)/((*ctr.getNotes())[idx].duration);
+          float pitchRatio = pow(1-nowRatio,2)-pow(nowRatio,4)/10;
+          int binScale = 10*(1+log(1+(*ctr.getNotes())[idx].duration));
+
+          //logQ((*ctr.getNotes())[idx].y, freq, bins.size());
+          // simulate harmonics
+          const vector<double> harmonics = {0.25, 0.5, 1, 2, 4};
+          const vector<double> harmonicsCoefficient = {0.04, 0.1, 1, 0.1, 0.04};
+          for (unsigned int harmonicScale = 0; harmonicScale <= harmonics.size(); ++harmonicScale) {
+            for (unsigned int bin = 0; bin < bins.size(); ++bin) {
+              double fftBinLen = harmonicsCoefficient[harmonicScale]*binScale*pitchRatio * 
+                                 fftAC(freq*harmonicScale, bins[bin].first);
+              int startX = FFT_BIN_WIDTH*(bin + 1);
+              //logQ(bins[bin].first, fftBinLen); 
+              
+
+
+              drawLineEx(startX,ctr.getHeight(),startX,ctr.getHeight()-fftBinLen,1, (*colorSetOn)[colorID]);
+              
+              bins[bin].second += fftBinLen;
+            }
           }
         }
         
