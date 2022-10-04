@@ -828,9 +828,9 @@ int main (int argc, char* argv[]) {
         DrawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3, WHITE);
         
         drawTextEx(string("Build Date: ") + BUILD_DATE, 
-                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin, ctr.bgDark, 255);
+                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2, ctr.bgDark, 255);
         drawTextEx(string("Ver. ") + W_VER, 
-                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin+16, ctr.bgDark, 255);
+                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2+16, ctr.bgDark, 255);
       }
 
 
