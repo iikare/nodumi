@@ -37,7 +37,7 @@
 #define FFT_MIN_FREQ 20
 #define FFT_MAX_FREQ 44100
 #define FFT_BIN_WIDTH 10
-#define FFT_AC_BINS 32
+#define FFT_AC_BINS 8
 
 // already defined in <raylib.h>
 //#define RAD2DEG M_PI/180.0f
