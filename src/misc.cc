@@ -83,11 +83,8 @@ bool pointInBox(Vector2 pt, rect box) {
   return pointInBox((point){static_cast<int>(pt.x), static_cast<int>(pt.y)}, box);
 }
 bool pointInBox(point pt, rect box) {
-  if (pt.x >= box.x && pt.x < box.x + box.width &&
-      pt.y >= box.y && pt.y < box.y + box.height) {
-    return true;
-  }
-  return false;
+  return pt.x >= box.x && pt.x < box.x + box.width &&
+         pt.y >= box.y && pt.y < box.y + box.height;
 }
 
 string getNoteInfo(int noteTrack, int notePos) {

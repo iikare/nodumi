@@ -27,7 +27,7 @@ class colorHSV {
     void operator = (const colorHSV& col);
     bool operator == (const colorHSV& col);
 
-    friend ostream& operator << (ostream& out, colorHSV color);
+    friend ostream& operator << (ostream& out, const colorHSV& color);
     
     double h;
     double s;
@@ -51,7 +51,7 @@ class colorRGB {
     
     void invert();
 
-    friend ostream& operator << (ostream& out, colorRGB color);
+    friend ostream& operator << (ostream& out, const colorRGB& color);
 
     double r;
     double g;
@@ -71,7 +71,7 @@ class colorLAB {
     bool operator == (const colorLAB& col);
     bool operator != (const colorLAB& col);
     
-    friend ostream& operator << (ostream& out, colorLAB color);
+    friend ostream& operator << (ostream& out, const colorLAB& color);
 
     double l;
     double a;

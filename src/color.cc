@@ -14,7 +14,7 @@ colorRGB::colorRGB(double red, double green, double blue) : r(red), g(green), b(
 
 colorRGB::colorRGB(const Color& col) : r(col.r), g(col.g), b(col.b) {}
 
-ostream& operator << (ostream& out, colorRGB color) {
+ostream& operator << (ostream& out, const colorRGB& color) {
   out << "{" << color.r << ", " << color.g << ", " << color.b << "} (RGB)";
   return out;
 }
@@ -70,7 +70,7 @@ colorHSV::colorHSV(const colorHSV& col) {
   v = col.v;
 }
 
-ostream& operator << (ostream& out, colorHSV color) {
+ostream& operator << (ostream& out, const colorHSV& color) {
   out << "{" << color.h << ", " << color.s << ", " << color.v << "} (HSV)";
   return out;
 }
@@ -169,6 +169,7 @@ colorLAB colorRGB::getLAB() {
   result.b = 200*(fYY_n-fZZ_n);
 
   #ifndef NO_DEBUG
+
   if (result.l < 0 || result.l > 100) { logQ("l out of bounds:", result.l); }
   if (fabs(result.a) > 128) { logQ("a out of bounds:", result.a); }
   if (fabs(result.b) > 128) { logQ("b out of bounds:", result.b); }
@@ -264,7 +265,7 @@ bool colorLAB::operator != (const colorLAB& col) {
   return !(l == col.l && a == col.a && b == col.b); 
 }
 
-ostream& operator << (ostream& out, colorLAB color) {
+ostream& operator << (ostream& out, const colorLAB& color) {
   out << "{" << color.l << ", " << color.a << ", " << color.b << "} (LAB)";
   return out;
 }

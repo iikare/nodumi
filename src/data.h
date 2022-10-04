@@ -1,9 +1,9 @@
 #pragma once
 
-#define mWidth 1280
-#define mHeight 740
-#define mName "nodumi"
-#define mVersion "0.01a"
+#define W_WIDTH 1280
+#define W_HEIGHT 740
+#define W_NAME "nodumi"
+#define W_VER "0.01a"
 #define MIN_NOTE_IDX 21
 #define MAX_NOTE_IDX 108
 #define MIDC_NOTE_IDX 60

@@ -121,8 +121,10 @@ enum hoverType {
   HOVER_NOTE,
   HOVER_IMAGE,
   HOVER_MEASURE,
+  HOVER_LINE,
   HOVER_SHEET,
   HOVER_MENU,
+  HOVER_DIALOG,
   HOVER_BG, //default, should not be added
   HOVER_NONE
 };
