@@ -32,6 +32,16 @@ controller::controller() : midiData() {
 controller::~controller() {
   delete menu;
 }
+
+
+void controller::init(vector<asset>& assets) {
+  srand(time(0));
+  
+  initData(assets);
+  
+  updateFFTBins();
+}
+
 void controller::initData(vector<asset>& assets) {
   for (const auto& item : assets) {
     switch(item.assetType) {
@@ -63,7 +73,6 @@ void controller::initData(vector<asset>& assets) {
     }
   }
 
-  srand(time(0));
 }
 
 Font* controller::getFont(string id, int size) {
@@ -178,6 +187,8 @@ void controller::updateKeyState() {
 void controller::updateDimension(double& nowLineX) {
   if(IsWindowResized()) {
 
+    updateFFTBins();
+
     nowLineX = getWidth() * nowLineX / lastWidth;
     
     if (livePlayState) {
@@ -189,6 +200,19 @@ void controller::updateDimension(double& nowLineX) {
     else {
       file.sheetData.findSheetPages();
     }
+  }
+}
+
+void controller::updateFFTBins() {
+  int nBins = getWidth()/FFT_BIN_WIDTH - 2;
+  double binFreq = log10(FFT_MAX_FREQ/FFT_MIN_FREQ)/(nBins-1);
+
+  // frequency, height
+  fftbins.clear();
+  fftbins.resize(nBins, make_pair(0.0,0));
+
+  for (unsigned int bin = 0; bin < fftbins.size(); ++bin) {
+    fftbins[bin].first = 20*pow(10, bin*binFreq);
   }
 }
 
@@ -251,7 +275,7 @@ int controller::getTempo(int idx) {
 int controller::getMinTickLen() const {
   if (livePlayState) {
     // TODO: find/calculate default MIDI TPQ for live devices
-    return 1;
+    return 60;
   }
   else {
     return file.getMinTickLen();

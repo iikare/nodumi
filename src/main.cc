@@ -55,7 +55,7 @@ int main (int argc, char* argv[]) {
 
   
   // no packed executable data can be loaded before this point
-  ctr.initData(assetSet);
+  ctr.init(assetSet);
 
   
  
@@ -740,14 +740,12 @@ int main (int argc, char* argv[]) {
               if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
                 updateClickIndex();
               }
-              
               if(drawFFT) {
                 curNote.push_back(i);
               }
 
               auto cSet = noteOn ? colorSetOn : colorSetOff;
               drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
-
             }
               break;
         }
@@ -755,28 +753,9 @@ int main (int argc, char* argv[]) {
 
       // render FFT lines after notes
       if (displayMode == DISPLAY_FFT) {
-
-        int nBins = ctr.getWidth()/FFT_BIN_WIDTH - 2;
-
-        // frequency, height
-        vector<pair<double, int>> bins(nBins, make_pair(0.0,0));
-
-        double binFreq = log10(FFT_MAX_FREQ/FFT_MIN_FREQ)/(nBins-1);
-
-
-        for (unsigned int bin = 0; bin < bins.size(); ++bin) {
-
-          bins[bin].first = 20*pow(10, bin*binFreq);
-          
-        }
-        
-
-
         for (const auto& idx : curNote) {
           double freq = getFundamental((*ctr.getNotes())[idx].y);
-
           int colorID = getColorSet(idx);
-
           float nowRatio = (timeOffset-(*ctr.getNotes())[idx].x)/((*ctr.getNotes())[idx].duration);
           float pitchRatio = 0;
           if (nowRatio > 0.25 && nowRatio < 0) {
@@ -788,41 +767,33 @@ int main (int argc, char* argv[]) {
           else if (nowRatio < 1.25) {
             pitchRatio = 3.2*pow(nowRatio-1.25,2);
           }
-
           int binScale = 2+5*(1+log(1+(*ctr.getNotes())[idx].duration)) +
                          (15/128)*(((*ctr.getNotes())[idx].velocity)+1);
 
-          //logQ((*ctr.getNotes())[idx].y, freq, bins.size());
+          //logQ((*ctr.getNotes())[idx].y, freq, ctr.fftbins.size());
           // simulate harmonics
           const vector<double> harmonics = {0.25, 0.5, 1, 2, 4};
           const vector<double> harmonicsCoefficient = {0.04, 0.1, 1, 0.1, 0.04};
           for (unsigned int harmonicScale = 0; harmonicScale <= harmonics.size(); ++harmonicScale) {
-            for (unsigned int bin = 0; bin < bins.size(); ++bin) {
+            for (unsigned int bin = 0; bin < ctr.fftbins.size(); ++bin) {
               if (freq*harmonics[harmonicScale] < FFT_MIN_FREQ ||
                   freq*harmonics[harmonicScale] > FFT_MAX_FREQ) {
                 continue;
               }
               double fftBinLen = harmonicsCoefficient[harmonicScale]*binScale*pitchRatio * 
-                                 fftAC(freq*harmonics[harmonicScale], bins[bin].first);
+                                 fftAC(freq*harmonics[harmonicScale], ctr.fftbins[bin].first);
               
               // pseudo-random numerically stable offset
-              fftBinLen *= 1+0.7*pow((ctr.getPSR() % static_cast<int>(bins[bin].first)) / bins[bin].first - 0.5, 2);
+              fftBinLen *= 1+0.7*pow((ctr.getPSR() % static_cast<int>(ctr.fftbins[bin].first)) / ctr.fftbins[bin].first - 0.5, 2);
               
               int startX = FFT_BIN_WIDTH*(bin + 1);
-              //logQ(bins[bin].first, fftBinLen); 
               
-
-
+              ctr.fftbins[bin].second += fftBinLen;
               drawLineEx(startX,ctr.getHeight(),startX,ctr.getHeight()-fftBinLen,1, (*colorSetOn)[colorID]);
-              
-              bins[bin].second += fftBinLen;
             }
           }
         }
-        
-
       }
-
 
       // menu bar rendering
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  

@@ -33,7 +33,7 @@ class controller {
     controller();
     ~controller();
 
-    void initData(vector<asset>& assets);
+    void init(vector<asset>& assets);
     void unloadData();
 
 
@@ -94,6 +94,8 @@ class controller {
     stringstream midiData;
     imageController image;
     menuController* menu;
+        
+    vector<pair<double, int>> fftbins;
 
 
     vector<colorRGB> setTrackOn;
@@ -140,9 +142,12 @@ class controller {
     
     
   private:
+    void initData(vector<asset>& assets);
+    
     void updateKeyState();
     void updateDimension(double& nowLineX);
     void updateFPS();
+    void updateFFTBins();
     int findCurrentMeasure(int pos) const;
     
     int lastWidth = 0;
