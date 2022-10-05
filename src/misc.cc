@@ -272,6 +272,11 @@ bool isMKI(string path) {
   return ext == "mki";
 }
 
+string getExtension(string path) {
+  transform(path.begin(), path.end(), path.begin(), ::tolower);
+  return path.length() > 3 ? path.substr(path.size() - 3) : path;
+}
+
 bool isValidPath(string path) {
   struct stat info;
   // file doesn't exist in filesystem
@@ -282,7 +287,7 @@ bool isValidPath(string path) {
   transform(path.begin(), path.end(), path.begin(), ::tolower);
   string ext = path.length() > 3 ? path.substr(path.size() - 3) : path;
   
-  if (ext != "mid" && ext != "mki") {
+  if (ext != "mid" && ext != "mki" && ext != "jpg" && ext != "png") {
     //logW(LL_WARN, "invalid file extension:", path);
     //logW(LL_WARN, "assuming default extension (mid)");
     return false;

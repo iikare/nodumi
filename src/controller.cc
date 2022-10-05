@@ -144,7 +144,8 @@ void controller::unloadData() {
 }
 
 
-void controller::update(int offset, double& nowLineX, bool runState) {
+void controller::update(int offset, double& nowLineX, bool runState,
+                        bool& newFile, bool& newImage, string& filename, string& imagename) {
   menu->updateMouse();
   menu->updateRenderStatus();
   updateKeyState();
@@ -169,6 +170,9 @@ void controller::update(int offset, double& nowLineX, bool runState) {
     // persistent randomness for animation
     psrValue = rand();
   }
+
+  updateDroppedFiles(newFile, newImage, filename, imagename);
+                
 }
 
 void controller::updateFPS() {
@@ -213,6 +217,36 @@ void controller::updateFFTBins() {
 
   for (unsigned int bin = 0; bin < fftbins.size(); ++bin) {
     fftbins[bin].first = 20*pow(10, bin*binFreq);
+  }
+}
+
+void controller::updateDroppedFiles(bool& newFile, bool& newImage, string& filename, string& imagename) {
+  if (IsFileDropped()) {
+    FilePathList dropFile = LoadDroppedFiles();
+    unsigned int dropLimit = 2;
+
+    if (dropFile.count > 2) {
+      logW(LL_WARN, "excess files dropped - max:", dropLimit);
+    }
+
+    for (unsigned int idx = 0; idx < min(dropLimit, dropFile.count); ++idx) {
+      if (isValidPath(dropFile.paths[idx])) {
+        string ext = getExtension(dropFile.paths[idx]);
+        if (ext == "mid" || ext == "mki") {
+          if (!newFile) {
+            newFile = true;
+            filename = dropFile.paths[idx];
+          }
+        }
+        else if (ext == "png" || ext == "jpg") {
+          if (!newImage) {
+            newImage = true;
+            imagename = dropFile.paths[idx];
+          }
+        }
+      }
+    }
+    UnloadDroppedFiles(dropFile); 
   }
 }
 

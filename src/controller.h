@@ -40,7 +40,8 @@ class controller {
     Font* getFont(string id, int size);
     Texture2D& getImage(string imageIdentifier);
 
-    void update(int offset, double& nowLineX, bool runState);
+    void update(int offset, double& nowLineX, bool runState,
+                bool& newFile, bool& newImage, string& filename, string& imagename);
     void toggleLivePlay();
     void setCloseFlag();
     void load(string path, fileType& fType, 
@@ -148,6 +149,7 @@ class controller {
     void updateDimension(double& nowLineX);
     void updateFPS();
     void updateFFTBins();
+    void updateDroppedFiles(bool& newFile, bool& newImage, string& filename, string& imagename);
     int findCurrentMeasure(int pos) const;
     
     int lastWidth = 0;

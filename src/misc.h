@@ -40,5 +40,6 @@ vector<string>& formatPortName(vector<string>& ports);
 
 bool isMKI(string path);
 bool isValidPath(string path);
+string getExtension(string path);
 
 string toHex(int dec);
