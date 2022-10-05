@@ -410,7 +410,35 @@ int main (int argc, char* argv[]) {
         drawLineEx(nowLineX, nowLineY, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow);
       }
 
-      
+      auto getColorSet = [&](int idx, vector<int>* lp = nullptr) {
+        switch(displayMode) {
+          case DISPLAY_FFT:
+            [[fallthrough]];
+          case DISPLAY_BAR:
+            [[fallthrough]];
+          case DISPLAY_BALL:
+            switch (colorMode) {
+              case COLOR_PART:
+                return (*ctr.getNotes())[idx].track;
+              case COLOR_VELOCITY:
+                return (*ctr.getNotes())[idx].velocity;
+              case COLOR_TONIC:
+                return ((*ctr.getNotes())[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+            }
+          case DISPLAY_PULSE:
+            [[fallthrough]];
+          case DISPLAY_LINE:
+            switch (colorMode) {
+              case COLOR_PART:
+                return (*ctr.getNotes())[(*lp)[idx]].track;
+              case COLOR_VELOCITY:
+                return (*ctr.getNotes())[(*lp)[idx]].velocity;
+              case COLOR_TONIC:
+                return ((*ctr.getNotes())[(*lp)[idx]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+            }
+        }
+        return 0;
+      };
 
       pair<double, double> currentBoundaries = inverseSSX();
       vector<int> curNote;
@@ -422,7 +450,6 @@ int main (int argc, char* argv[]) {
           continue;
         }
         
-        int colorID = 0;
         bool noteOn = false;
         
         const auto updateClickIndex = [&](int clickIndex = -1){
@@ -440,36 +467,29 @@ int main (int argc, char* argv[]) {
         float cH = (ctr.getHeight() - ctr.menuHeight) / 88;
        
         
-        switch (colorMode) {
-          case COLOR_PART:
-            colorID = (*ctr.getNotes())[i].track;
-            break;
-          case COLOR_VELOCITY:
-            colorID = (*ctr.getNotes())[i].velocity;
-            break;
-          case COLOR_TONIC:
-            colorID = ((*ctr.getNotes())[i].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
-            break;
-        }
         
         switch (displayMode) {
           case DISPLAY_BAR:
-            if (cX + cW > 0 && cX < ctr.getWidth()) {
-              if ((*ctr.getNotes())[i].isOn ||
-                 (timeOffset >= (*ctr.getNotes())[i].x && 
-                  timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
-                noteOn = true;
-              }
-              if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
-                updateClickIndex();
-              }
+            {
+              int colorID = getColorSet(i);
+              if (cX + cW > 0 && cX < ctr.getWidth()) {
+                if ((*ctr.getNotes())[i].isOn ||
+                   (timeOffset >= (*ctr.getNotes())[i].x && 
+                    timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
+                  noteOn = true;
+                }
+                if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
+                  updateClickIndex();
+                }
 
-              auto cSet = noteOn ? colorSetOn : colorSetOff;
-              drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
+                auto cSet = noteOn ? colorSetOn : colorSetOff;
+                drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
+              }
             }
             break;
           case DISPLAY_BALL:
             {
+              int colorID = getColorSet(i);
               float radius = -1 + 2 * (32 - __countl_zero(int(cW)));
               float maxRad = radius;
               float ballY = cY + 2;
@@ -559,6 +579,7 @@ int main (int argc, char* argv[]) {
               if (!ctr.getLiveState() || (convertSSX((*ctr.getNotes())[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
                 if ((*ctr.getNotes())[i].isChordRoot()) {
                   for (unsigned int j = 0; j < linePositions->size(); j += 5) {
+                    int colorID = getColorSet(j,linePositions);
                     float convSS[4] = {
                                         static_cast<float>(convertSSX((*linePositions)[j+1])),
                                         static_cast<float>(convertSSY((*linePositions)[j+2])),
@@ -568,17 +589,6 @@ int main (int argc, char* argv[]) {
 
                     if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
                        continue;
-                    }
-                    switch (colorMode) {
-                      case COLOR_PART:
-                        colorID = (*ctr.getNotes())[(*linePositions)[j]].track;
-                        break;
-                      case COLOR_VELOCITY:
-                        colorID = (*ctr.getNotes())[(*linePositions)[j]].velocity;
-                        break;
-                      case COLOR_TONIC:
-                        colorID = ((*ctr.getNotes())[(*linePositions)[j]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
-                        break;
                     }
 
                     noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
@@ -621,6 +631,7 @@ int main (int argc, char* argv[]) {
               if (!ctr.getLiveState() || (convertSSX((*ctr.getNotes())[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
                 if ((*ctr.getNotes())[i].isChordRoot()) {
                   for (unsigned int j = 0; j < linePositions->size(); j += 5) {
+                    int colorID = getColorSet(j,linePositions);
                     float convSS[4] = {
                                         static_cast<float>(convertSSX((*linePositions)[j+1])),
                                         static_cast<float>(convertSSY((*linePositions)[j+2])),
@@ -630,17 +641,6 @@ int main (int argc, char* argv[]) {
 
                     if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
                        continue;
-                    }
-                    switch (colorMode) {
-                      case COLOR_PART:
-                        colorID = (*ctr.getNotes())[(*linePositions)[j]].track;
-                        break;
-                      case COLOR_VELOCITY:
-                        colorID = (*ctr.getNotes())[(*linePositions)[j]].velocity;
-                        break;
-                      case COLOR_TONIC:
-                        colorID = ((*ctr.getNotes())[(*linePositions)[j]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
-                        break;
                     }
 
                     noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
@@ -722,27 +722,31 @@ int main (int argc, char* argv[]) {
           case DISPLAY_FFT:
             if (cX + cW > 0 && cX < ctr.getWidth()) {
               bool drawFFT = false;
+              double fftStretchRatio = 1.25;
+              int colorID = getColorSet(i); 
               if ((*ctr.getNotes())[i].isOn ||
                  (timeOffset >= (*ctr.getNotes())[i].x && 
                   timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
                 noteOn = true;
                 drawFFT = true;
               }
+              else if ((timeOffset >= (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration && 
+                        timeOffset < (*ctr.getNotes())[i].x + fftStretchRatio*(*ctr.getNotes())[i].duration) ||
+                       (timeOffset < (*ctr.getNotes())[i].x && 
+                        timeOffset >= (*ctr.getNotes())[i].x - ctr.getMinTickLen())) {
+                
+                drawFFT = true;
+              }
               if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
                 updateClickIndex();
               }
-
-              auto cSet = noteOn ? colorSetOn : colorSetOff;
-              drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
-
-
+              
               if(drawFFT) {
                 curNote.push_back(i);
               }
 
-              
-
-              
+              auto cSet = noteOn ? colorSetOn : colorSetOff;
+              drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
 
             }
               break;
@@ -771,24 +775,22 @@ int main (int argc, char* argv[]) {
         for (const auto& idx : curNote) {
           double freq = getFundamental((*ctr.getNotes())[idx].y);
 
-          int colorID = 0;
-  
-          // fft/autocorrelation here
-          switch (colorMode) {
-            case COLOR_PART:
-              colorID = (*ctr.getNotes())[idx].track;
-              break;
-            case COLOR_VELOCITY:
-              colorID = (*ctr.getNotes())[idx].velocity;
-              break;
-            case COLOR_TONIC:
-              colorID = ((*ctr.getNotes())[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
-              break;
-          }
+          int colorID = getColorSet(idx);
 
           float nowRatio = (timeOffset-(*ctr.getNotes())[idx].x)/((*ctr.getNotes())[idx].duration);
-          float pitchRatio = 0.2+0.8*(1-nowRatio);
-          int binScale = 5+5*(1+log(1+(*ctr.getNotes())[idx].duration));
+          float pitchRatio = 0;
+          if (nowRatio > 0.25 && nowRatio < 0) {
+            pitchRatio = pow(2*nowRatio+1,8);
+          }
+          else if (nowRatio < 1) {
+            pitchRatio = 1-1.8*pow(nowRatio,2)/2.25;
+          }
+          else if (nowRatio < 1.25) {
+            pitchRatio = 3.2*pow(nowRatio-1.25,2);
+          }
+
+          int binScale = 2+5*(1+log(1+(*ctr.getNotes())[idx].duration)) +
+                         (15/128)*(((*ctr.getNotes())[idx].velocity)+1);
 
           //logQ((*ctr.getNotes())[idx].y, freq, bins.size());
           // simulate harmonics
@@ -804,7 +806,7 @@ int main (int argc, char* argv[]) {
                                  fftAC(freq*harmonics[harmonicScale], bins[bin].first);
               
               // pseudo-random numerically stable offset
-              fftBinLen *= 1+0.3*pow((ctr.getPSR() % static_cast<int>(bins[bin].first)) / bins[bin].first - 0.5, 2);
+              fftBinLen *= 1+0.7*pow((ctr.getPSR() % static_cast<int>(bins[bin].first)) / bins[bin].first - 0.5, 2);
               
               int startX = FFT_BIN_WIDTH*(bin + 1);
               //logQ(bins[bin].first, fftBinLen); 
