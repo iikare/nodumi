@@ -722,7 +722,7 @@ int main (int argc, char* argv[]) {
           case DISPLAY_FFT:
             if (cX + cW > 0 && cX < ctr.getWidth()) {
               bool drawFFT = false;
-              double fftStretchRatio = 1.25;
+              double fftStretchRatio = 1.25;          //TODO: make fft-selection semi-duration-invariant
               int colorID = getColorSet(i); 
               if ((*ctr.getNotes())[i].isOn ||
                  (timeOffset >= (*ctr.getNotes())[i].x && 
@@ -764,8 +764,8 @@ int main (int argc, char* argv[]) {
           else if (nowRatio < 1) {
             pitchRatio = 1-1.8*pow(nowRatio,2)/2.25;
           }
-          else if (nowRatio < 1.25) {
-            pitchRatio = 3.2*pow(nowRatio-1.25,2);
+          else if (nowRatio < 1.25) {                   // TODO: smoothen interpolation functions
+            pitchRatio = 3.2*pow(nowRatio-1.25,2);      // TODO: make function duration-invariant
           }
           int binScale = 2+5*(1+log(1+(*ctr.getNotes())[idx].duration)) +
                          (15/128)*(((*ctr.getNotes())[idx].velocity)+1);
@@ -784,6 +784,11 @@ int main (int argc, char* argv[]) {
                                  fftAC(freq*harmonics[harmonicScale], ctr.fftbins[bin].first);
               
               // pseudo-random numerically stable offset
+              
+              // TODO: vary PSR by frequency (in a better way)
+              
+              // TODO: implement spectral rolloff in decay (based on BIN FREQ v. spectral rolloff curve)
+              
               fftBinLen *= 1+0.7*pow((ctr.getPSR() % static_cast<int>(ctr.fftbins[bin].first)) / ctr.fftbins[bin].first - 0.5, 2);
               
               int startX = FFT_BIN_WIDTH*(bin + 1);
