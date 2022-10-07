@@ -772,9 +772,11 @@ int main (int argc, char* argv[]) {
 
           //logQ((*ctr.getNotes())[idx].y, freq, ctr.fftbins.size());
           // simulate harmonics
-          const vector<double> harmonics = {0.25, 0.5, 1, 2, 4};
-          const vector<double> harmonicsCoefficient = {0.04, 0.1, 1, 0.1, 0.04};
-          for (unsigned int harmonicScale = 0; harmonicScale <= harmonics.size(); ++harmonicScale) {
+          constexpr double harmonics[5] = {0.25, 0.5, 1, 2, 4};
+          constexpr double harmonicsCoefficient[5] = {0.04, 0.1, 1, 0.1, 0.04};
+          constexpr int harmonicsSize = 5;
+
+          for (unsigned int harmonicScale = 0; harmonicScale <= harmonicsSize; ++harmonicScale) {
             for (unsigned int bin = 0; bin < ctr.fftbins.size(); ++bin) {
               if (freq*harmonics[harmonicScale] < FFT_MIN_FREQ ||
                   freq*harmonics[harmonicScale] > FFT_MAX_FREQ) {
