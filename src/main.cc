@@ -785,11 +785,10 @@ int main (int argc, char* argv[]) {
               
               // pseudo-random numerically stable offset
               
-              // TODO: vary PSR by frequency (in a better way)
-              
               // TODO: implement spectral rolloff in decay (based on BIN FREQ v. spectral rolloff curve)
               
-              fftBinLen *= 1+0.7*pow((ctr.getPSR() % static_cast<int>(ctr.fftbins[bin].first)) / ctr.fftbins[bin].first - 0.5, 2);
+              fftBinLen *= 1+0.7*pow(((ctr.getPSR() ^ static_cast<int>(ctr.fftbins[bin].first)) % 
+                                      static_cast<int>(ctr.fftbins[bin].first)) / ctr.fftbins[bin].first - 0.5, 2);
               
               int startX = FFT_BIN_WIDTH*(bin + 1);
               
