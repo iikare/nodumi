@@ -722,7 +722,7 @@ int main (int argc, char* argv[]) {
           case DISPLAY_FFT:
             if (cX + cW > 0 && cX < ctr.getWidth()) {
               bool drawFFT = false;
-              double fftStretchRatio = 1.25;          //TODO: make fft-selection semi-duration-invariant
+              double fftStretchRatio = 1.78;          //TODO: make fft-selection semi-duration-invariant
               int colorID = getColorSet(i); 
               if ((*ctr.getNotes())[i].isOn ||
                  (timeOffset >= (*ctr.getNotes())[i].x && 
@@ -756,19 +756,19 @@ int main (int argc, char* argv[]) {
         for (const auto& idx : curNote) {
           double freq = getFundamental((*ctr.getNotes())[idx].y);
           int colorID = getColorSet(idx);
-          float nowRatio = (timeOffset-(*ctr.getNotes())[idx].x)/((*ctr.getNotes())[idx].duration);
-          float pitchRatio = 0;
-          if (nowRatio > 0.25 && nowRatio < 0) {
-            pitchRatio = pow(2*nowRatio+1,8);
+          double nowRatio = (timeOffset-(*ctr.getNotes())[idx].x)/((*ctr.getNotes())[idx].duration);
+          double pitchRatio = 0;
+          if (nowRatio > -0.25 && nowRatio < 0) {
+            pitchRatio = 16*pow(nowRatio+0.25,2);
           }
           else if (nowRatio < 1) {
-            pitchRatio = 1-1.8*pow(nowRatio,2)/2.25;
+            pitchRatio = 1-1.8*pow(nowRatio,2)/4.5;
           }
-          else if (nowRatio < 1.25) {                   // TODO: smoothen interpolation functions
-            pitchRatio = 3.2*pow(nowRatio-1.25,2);      // TODO: make function duration-invariant
+          else if (nowRatio < 1.78) {                   // TODO: smoothen interpolation functions
+            pitchRatio = 1.0*pow(nowRatio-1.78,2);      // TODO: make function duration-invariant
           }
           int binScale = 2+5*(1+log(1+(*ctr.getNotes())[idx].duration)) +
-                         (15/128)*(((*ctr.getNotes())[idx].velocity)+1);
+                         (15.0/128)*(((*ctr.getNotes())[idx].velocity)+1);
 
           //logQ((*ctr.getNotes())[idx].y, freq, ctr.fftbins.size());
           // simulate harmonics
