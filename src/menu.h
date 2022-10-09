@@ -111,6 +111,8 @@ class menu {
     Texture2D squareTex;
     Texture2D ringTex;
 
+    void setRingColor();
+
     static constexpr float circleRatio = 0.425;
     static constexpr float circleWidth = 0.075;
     static constexpr float squareDim = (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * 1.414;

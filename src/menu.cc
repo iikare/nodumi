@@ -318,9 +318,7 @@ void menu::setAngle() {
     angle = atan2(-deltaY, deltaX) * 180.0/M_PI + 180;
     angle = fmod(angle, 360.0);
 
-    Color a = ColorFromHSV(angle,1,1);//{244.0f/255.0f,0.0f/255.0f,244.0f/255.0f};
-    Vector3 col = {static_cast<float>(a.r/255.0f), static_cast<float>(a.g/255.0f), static_cast<float>(a.b/255.0f)};
-    ctr.setShaderValue("SH_SQUARE", "blend_color", col);
+    setRingColor();
   }
 }
 
@@ -350,8 +348,9 @@ void menu::setColor(colorRGB col) {
   
   if (col.r == 0 && col.g == 0 && col.b == 0) {
     angle = 0;
-    //pX = 0;
+    pX = 0;
     pY = squareDim + 1;
+    setRingColor();
     return;
   }
 
@@ -361,10 +360,7 @@ void menu::setColor(colorRGB col) {
   pX = round(colHSV.s * squareDim);
   pY = (1.0 - min(1.0, colHSV.v/255.0)) * (squareDim + 1);
 
-  Color a = ColorFromHSV(angle,1,1);//{244.0f/255.0f,0.0f/255.0f,244.0f/255.0f};
-  Vector3 colV = {static_cast<float>(a.r/255.0f), static_cast<float>(a.g/255.0f), static_cast<float>(a.b/255.0f)};
-  ctr.setShaderValue("SH_SQUARE", "blend_color", colV);
-  
+  setRingColor();
 }
 
 colorRGB menu::getColor() {
@@ -375,7 +371,17 @@ colorRGB menu::getColor() {
   col.s = (pX/squareDim);
   col.v = round((255 - (pY)/squareDim * 255));
 
+
+
   return HSVtoRGB(col);
+}
+
+void menu::setRingColor() {
+  if (type == TYPE_COLOR) {
+    Color a = ColorFromHSV(angle,1,1);//{244.0f/255.0f,0.0f/255.0f,244.0f/255.0f};
+    Vector3 colV = {static_cast<float>(a.r/255.0f), static_cast<float>(a.g/255.0f), static_cast<float>(a.b/255.0f)};
+    ctr.setShaderValue("SH_SQUARE", "blend_color", colV);
+  }
 }
 
 void menu::draw() {
