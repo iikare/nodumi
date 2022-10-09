@@ -901,11 +901,11 @@ int main (int argc, char* argv[]) {
         double iconTextX = infoSideMargin/2 + (ctr.infoWidth - iconBoxWidth)/2 + 
                            ctr.getImage("ICON").width*iconScale + borderMargin - iconTextAdjust;
         double iconTextY = infoTopMargin/2 + ctr.getImage("ICON").height*iconScale/2 + borderMargin - iconTextHeight/2;
-        drawTextEx(W_NAME, iconTextX, iconTextY, ctr.bgIcon, 255, iconTextSize);
 
+        drawTextEx(W_NAME, iconTextX, iconTextY, ctr.bgIcon, 255, iconTextSize);
         Vector2 iconPos = {static_cast<float>(infoSideMargin/2 + (ctr.infoWidth-iconBoxWidth)/2 + borderMargin), 
                            static_cast<float>(infoTopMargin/2 + borderMargin)};
-        DrawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3, WHITE);
+        drawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3);
         
         drawTextEx(string("Build Date: ") + BUILD_DATE, 
                    infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2, ctr.bgDark);

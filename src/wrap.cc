@@ -65,6 +65,10 @@ void drawGradientLineH(const Vector2& a, const Vector2& b, float thick, const co
   DrawRectangleGradientH(a.x, a.y-thick/2.0 , b.x-a.x, thick , colorB, colorA);
 }
 
+void drawTextureEx(const Texture2D& tex, const Vector2& pos, float rot, float scale) {
+  DrawTextureEx(tex, pos, rot, scale, WHITE); 
+}
+
 const Vector2 measureTextEx(const string& msg, int size, const string& font) {
   Font* ft = ctr.getFont(font, size);
   if (ft != nullptr) {

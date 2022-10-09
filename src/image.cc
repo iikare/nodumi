@@ -2,6 +2,7 @@
 #include "define.h"
 #include "image.h"
 #include "enum.h"
+#include "wrap.h"
 #include "log.h"
 
 using std::min;
@@ -114,9 +115,7 @@ void imageController::unload() {
 
 void imageController::draw() {
   if (isLoaded) {
-    DrawTextureEx(imageTex, {(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, 0, scale, WHITE);
-    //DrawRectangle((float)position.x + (float)offset.x, (float)position.y + (float)offset.y, 
-                  //getWidth(), getHeight(), {100,100,100,100});
+    drawTextureEx(imageTex, Vector2{(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, 0, scale);
   }
 }
 

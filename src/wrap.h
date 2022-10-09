@@ -32,5 +32,7 @@ void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col
 void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col, float alpha);
 void drawGradientLineH(const Vector2& a, const Vector2& b, float thick, const colorRGB& col, float alphaA, float alphaB);
 
+void drawTextureEx(const Texture2D& tex, const Vector2& pos, float rot = 0.0f, float scale = 1.0f);
+
 const Vector2 measureTextEx(const string& msg, int size = 14, const string& font = DEFAULT_FONT);
 

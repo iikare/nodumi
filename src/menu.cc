@@ -421,12 +421,10 @@ void menu::draw() {
       drawRectangle(x, y, COLOR_WIDTH, COLOR_HEIGHT, ctr.bgMenu);
       
       for (int i = 0; i < 360; i++) {
-        //DrawCircleSectorLines({x + COLOR_WIDTH/2.0f, y + COLOR_HEIGHT/2.0f},
-        //                      circleRatio * COLOR_WIDTH, i, i + 1, 3, ColorFromHSV({float(i), 1, 1}));
         double rad = i * M_PI / 180;
-        DrawLineEx({circleX, circleY},
-                   {float(circleX + circleRatio * COLOR_WIDTH * cos(rad)),
-                   float(circleY + circleRatio * COLOR_WIDTH * sin(rad))},
+        drawLineEx(circleX, circleY,
+                   float(circleX + circleRatio * COLOR_WIDTH * cos(rad)),
+                   float(circleY + circleRatio * COLOR_WIDTH * sin(rad)),
                    2.0f, ColorFromHSV(float(360 - i), 1, 1));
       }
     
@@ -440,12 +438,12 @@ void menu::draw() {
                     0.5f + float(sqX / squareDim), 0.5f + float(-sqY / squareDim)));
         }
       }
-      DrawRing({float(circleX - squareDim/2.0 + pX), float(circleY - squareDim/2.0 + pY)}, 
-               0.0f, 5.0f, 0.0f, 360.0f, 2, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f)); 
+      drawRing({float(circleX - squareDim/2.0 + pX), float(circleY - squareDim/2.0 + pY)}, 
+               0.0f, 5.0f, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f)); 
       
-      DrawRing({float(circleX + (circleRatio - circleWidth/2.0) * COLOR_WIDTH * cos(angle * M_PI/180.0)),
+      drawRing({float(circleX + (circleRatio - circleWidth/2.0) * COLOR_WIDTH * cos(angle * M_PI/180.0)),
                 float(circleY - (circleRatio - circleWidth/2.0) * COLOR_HEIGHT * sin(angle * M_PI/180.0))},
-                0.0f, 5.0f, 0.0f, 360.0f, 2, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f)); 
+                0.0f, 5.0f, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f)); 
       
       drawRectangle(x + COLOR_WIDTH - 36, y + COLOR_HEIGHT - 36, 36, 36, getColor());
 
