@@ -25,10 +25,13 @@ class menuController {
     void renderAll();
     void hideAll();
 
+    void unloadData();
+
     bool mouseOnMenu();
 
     void updateMouse();
     void updateRenderStatus();
+    void updateDimension();
     
     int getOffset() { return mainMenuOffset; }
   private:

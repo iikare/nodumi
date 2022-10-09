@@ -47,8 +47,16 @@ class controller {
     Shader& getShader(const string& shaderIdentifier);
     shaderData& getShaderData(const string& shaderIdentifier);
 
+    void beginShaderMode(const string& shaderIdentifier) { BeginShaderMode(getShader(shaderIdentifier)); }
+    void endShaderMode() { EndShaderMode(); }
+
     template <class T>
-    void setShaderValue(const string& shader, const string& uf, T& val);
+    void setShaderValue(const string& shader, const string& uf, const T& val) {
+      //logQ("FUNCTION DISABLED");
+      //return;
+      getShaderData(shader).setShaderValue(uf, val);
+    }
+
 
     void update(int offset, double& nowLineX, bool runState,
                 bool& newFile, bool& newImage, string& filename, string& imagename);

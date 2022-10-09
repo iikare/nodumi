@@ -38,6 +38,13 @@ void controller::init(vector<asset>& assetSet) {
   srand(time(0));
   
   initData(assetSet);
+
+  // must be done after asset loading
+  Vector2 u_resolution = {static_cast<float>(getWidth()), static_cast<float>(getHeight())};
+  setShaderValue("SH_COLOR", "u_resolution", u_resolution);
+
+  Vector3 startCol = {1.0f, 0.0f, 0.0f};
+  setShaderValue("SH_COLOR", "blend_color", startCol);
   
   updateFFTBins();
 }
@@ -174,11 +181,6 @@ Shader& controller::getShader(const string& shaderIdentifier) {
   return getShaderData(shaderIdentifier).getShader();
 }
 
-template <class T>
-void controller::setShaderValue(const string& shader, const string& uf, T& val) {
-  getShaderData(shader).setShaderValue(uf, val);
-}
-
 void controller::unloadData() {
   for (const auto& item : fontMap) {
     for (const auto& font : item.second.second) {
@@ -191,7 +193,8 @@ void controller::unloadData() {
   for (auto& shaderData: shaderMap) {
     shaderData.second.unloadData();
   }
-  image.unload();
+  menu->unloadData();
+  image.unloadData();
 }
 
 
@@ -242,7 +245,11 @@ void controller::updateKeyState() {
 void controller::updateDimension(double& nowLineX) {
   if(IsWindowResized()) {
 
+    menu->updateDimension();
     updateFFTBins();
+
+    Vector2 u_resolution = {static_cast<float>(getWidth()), static_cast<float>(getHeight())};
+    setShaderValue("SH_COLOR", "u_resolution", u_resolution);
 
     nowLineX = getWidth() * nowLineX / lastWidth;
     

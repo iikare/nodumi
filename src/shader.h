@@ -15,6 +15,7 @@
 using std::map;
 using std::vector;
 using std::string;
+using std::is_same;
 
 
 class shaderData {
@@ -25,8 +26,20 @@ class shaderData {
     Shader& getShader() { return shader; }
 
     template <class T>
-    void setShaderValue(string& uf, T& val);
-       
+    void setShaderValue(const string& uf, const T& val) {
+      // verify types
+      static_assert(is_same<T, Vector2>::value || 
+                    is_same<T, Vector3>::value || 
+                    is_same<T, float>::value, 
+                    "invalid type passed to uniform");
+
+      auto it = typeMap.find(uf);
+      if (it == typeMap.end()) {
+        logW(LL_WARN, name, "- attempt to modify non-existent uniform:", uf);
+        return;
+      }
+      SetShaderValue(shader, GetShaderLocation(shader, uf.c_str()), &val, it->second);
+    }
 
     void unloadData();
 
@@ -36,7 +49,7 @@ class shaderData {
     
     Shader shader;
    
-    // map uniform name to both (a) location, (b) input type
-    map<string, pair<int, int>> typeMap;
+    // map uniform name to input type
+    map<string, int> typeMap;
 
 };

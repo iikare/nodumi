@@ -87,6 +87,24 @@ menu::menu(point XY, vector<string> itemNames, int menuType, int menuX, int menu
   if (type == TYPE_MAIN) {
     mainSize = 8 + 1 + measureTextEx(itemNames[0].c_str()).x;
   }
+  if (type == TYPE_COLOR) {
+    // load square texture
+    Image i = GenImageColor(ctr.getWidth(), ctr.getHeight(), WHITE);
+    squareTex = LoadTextureFromImage(i);
+    UnloadImage(i);
+
+    Vector2 box = {squareDim, squareDim};
+    ctr.setShaderValue("SH_COLOR", "box_dim", box);
+  }
+}
+
+void menu::updateDimension() {
+  if (type == TYPE_COLOR) {
+    UnloadTexture(squareTex);
+    Image i = GenImageColor(ctr.getWidth(), ctr.getHeight(), WHITE);
+    squareTex = LoadTextureFromImage(i);
+    UnloadImage(i);
+  }
 }
 
 int menu::getItemX(int idx) {
@@ -131,6 +149,12 @@ void menu::setXY(int nX, int nY) {
   for (int i = 0; i < itemCount; i++) {
     items[i].setX(x);
     items[i].setY(y + i * ITEM_HEIGHT);
+  }
+  if (type == TYPE_COLOR) {
+    const float circleX = x + COLOR_WIDTH/2.0f;
+    const float circleY = y + COLOR_HEIGHT/2.0f;
+    Vector2 box_pos = {circleX-squareDim/2.0f, circleY-squareDim/2.0f};
+    ctr.setShaderValue("SH_COLOR", "box_pos", box_pos);
   }
 }
 
@@ -205,6 +229,12 @@ void menu::update(vector<string> itemNames){
   }
 }
 
+void menu::unloadData() {
+  if (type == TYPE_COLOR) {
+    UnloadTexture(squareTex);
+  }
+}
+
 rect menu::getBox(int idx) {
   rect result = {0, 0, 0, 0};
   if (idx == -1) {
@@ -266,9 +296,6 @@ vector<int> menu::findOpenChildMenu() {
 
 void menu::setSquare() {
 
-  const float circleRatio = 0.425;
-  const float circleWidth = 0.075;
-  const float squareDim = (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * sqrt(2);
   const float circleX = x + COLOR_WIDTH/2.0f;
   const float circleY = y + COLOR_HEIGHT/2.0f;
   
@@ -279,10 +306,6 @@ void menu::setSquare() {
 }
 
 rect menu::getSquare() {
-  
-  const float circleRatio = 0.425;
-  const float circleWidth = 0.075;
-  const float squareDim = (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * sqrt(2);
   const float circleX = x + COLOR_WIDTH/2.0f;
   const float circleY = y + COLOR_HEIGHT/2.0f;
 
@@ -305,6 +328,10 @@ void menu::setAngle() {
     int deltaY = circleY - ctr.getMouseY();
     angle = atan2(-deltaY, deltaX) * 180.0/M_PI + 180;
     angle = fmod(angle, 360.0);
+
+    Color a = ColorFromHSV(angle,1,1);//{244.0f/255.0f,0.0f/255.0f,244.0f/255.0f};
+    Vector3 col = {static_cast<float>(a.r/255.0f), static_cast<float>(a.g/255.0f), static_cast<float>(a.b/255.0f)};
+    ctr.setShaderValue("SH_COLOR", "blend_color", col);
   }
 }
 
@@ -331,10 +358,6 @@ bool menu::clickCircle(int circleType) {
 }
     
 void menu::setColor(colorRGB col) {
-
-  const float circleRatio = 0.425;
-  const float circleWidth = 0.075;
-  const float squareDim = (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * sqrt(2);
   
   if (col.r == 0 && col.g == 0 && col.b == 0) {
     angle = 0;
@@ -349,13 +372,11 @@ void menu::setColor(colorRGB col) {
   pX = round(colHSV.s * squareDim);
   pY = (1.0 - min(1.0, colHSV.v/255.0)) * (squareDim + 1);
 
+  
 }
 
 colorRGB menu::getColor() {
   
-  const float circleRatio = 0.425;
-  const float circleWidth = 0.075;
-  const float squareDim = (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * sqrt(2);
   colorHSV col;
   
   col.h = angle;
@@ -412,9 +433,6 @@ void menu::draw() {
   else if (type == TYPE_COLOR) {
     if (render) {
       
-      const float circleRatio = 0.425;
-      const float circleWidth = 0.075;
-      const float squareDim = (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * sqrt(2);
       const float circleX = x + COLOR_WIDTH/2.0f;
       const float circleY = y + COLOR_HEIGHT/2.0f;
 
@@ -430,14 +448,11 @@ void menu::draw() {
     
       drawCircle(circleX, circleY, (circleRatio - circleWidth) * COLOR_WIDTH, ctr.bgMenu);
       
-      drawCircle(circleX, circleY, (circleRatio - circleWidth) * COLOR_WIDTH, ctr.bgMenu);
+      ctr.beginShaderMode("SH_COLOR");
+        drawTextureEx(squareTex, {0.0f, 0.0f});
+      ctr.endShaderMode();
 
-      for (int sqX = -squareDim/2.0; sqX < squareDim/2.0; sqX++) {
-        for (int sqY = -squareDim/2.0; sqY < squareDim/2.0; sqY++) {
-          DrawPixel(circleX + sqX, circleY + sqY, ColorFromHSV(float(angle),
-                    0.5f + float(sqX / squareDim), 0.5f + float(-sqY / squareDim)));
-        }
-      }
+
       drawRing({float(circleX - squareDim/2.0 + pX), float(circleY - squareDim/2.0 + pY)}, 
                0.0f, 5.0f, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f)); 
       

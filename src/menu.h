@@ -72,6 +72,8 @@ class menu {
 
 
     void update(vector<string> itemNames);
+    void updateDimension();
+    void unloadData();
     
     void addChildMenu(menu* child);
     void hideChildMenu();
@@ -106,4 +108,10 @@ class menu {
     double angle = 0;
     vector<menuItem> items;
     vector<menu*> childMenu;
+
+    Texture2D squareTex;
+
+    static constexpr float circleRatio = 0.425;
+    static constexpr float circleWidth = 0.075;
+    static constexpr float squareDim = (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * 1.414;
 };

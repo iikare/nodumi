@@ -11,7 +11,7 @@ using std::max;
 void imageController::load(string path) {
   //logW(LL_INFO, "load image:", path);
 
-  unload();
+  unloadData();
 
   image = LoadImage(path.c_str());
 
@@ -43,7 +43,7 @@ void imageController::load(string path) {
 void imageController::load(stringstream& byteData, int byteSize, int format) {
 
 
-  unload();
+  unloadData();
 
   buf.str("");
   buf.clear();
@@ -90,7 +90,7 @@ void imageController::process() {
 
   createRawData();
 }
-void imageController::unload() {
+void imageController::unloadData() {
  if (isLoaded) {
     UnloadImage(image);
     UnloadTexture(imageTex);

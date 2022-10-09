@@ -27,7 +27,7 @@ class imageController {
                         rawPixelData(), imageFormat(IMAGE_NONE), buf() {};
 
     void load(string path);
-    void unload();
+    void unloadData();
 
     void draw();
     void changeScale(double scaleOffset);

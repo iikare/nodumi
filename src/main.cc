@@ -44,7 +44,7 @@ int main (int argc, char* argv[]) {
   SetTraceLogLevel(LOG_WARNING);
 
   // debug
-  //SetTraceLogLevel(LOG_TRACE);
+  SetTraceLogLevel(LOG_INFO);
   
   string windowTitle = string(W_NAME) + " " + string(W_VER);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -1624,7 +1624,7 @@ int main (int argc, char* argv[]) {
                 else {
                   if (rightMenu.getContent(0) == "Remove Image") {
                     //logQ("attempted to remove image: size:");
-                    ctr.image.unload();
+                    ctr.image.unloadData();
                     rightMenu.render = false;
                   }
                   else {
