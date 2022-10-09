@@ -89,19 +89,7 @@ menu::menu(point XY, vector<string> itemNames, int menuType, int menuX, int menu
   }
   if (type == TYPE_COLOR) {
     // load square texture
-    Image i = GenImageColor(ctr.getWidth(), ctr.getHeight(), WHITE);
-    squareTex = LoadTextureFromImage(i);
-    UnloadImage(i);
-
-    Vector2 box = {squareDim, squareDim};
-    ctr.setShaderValue("SH_COLOR", "box_dim", box);
-  }
-}
-
-void menu::updateDimension() {
-  if (type == TYPE_COLOR) {
-    UnloadTexture(squareTex);
-    Image i = GenImageColor(ctr.getWidth(), ctr.getHeight(), WHITE);
+    Image i = GenImageColor(squareDim, squareDim, WHITE);
     squareTex = LoadTextureFromImage(i);
     UnloadImage(i);
   }
@@ -149,12 +137,6 @@ void menu::setXY(int nX, int nY) {
   for (int i = 0; i < itemCount; i++) {
     items[i].setX(x);
     items[i].setY(y + i * ITEM_HEIGHT);
-  }
-  if (type == TYPE_COLOR) {
-    const float circleX = x + COLOR_WIDTH/2.0f;
-    const float circleY = y + COLOR_HEIGHT/2.0f;
-    Vector2 box_pos = {circleX-squareDim/2.0f, circleY-squareDim/2.0f};
-    ctr.setShaderValue("SH_COLOR", "box_pos", box_pos);
   }
 }
 
@@ -331,7 +313,7 @@ void menu::setAngle() {
 
     Color a = ColorFromHSV(angle,1,1);//{244.0f/255.0f,0.0f/255.0f,244.0f/255.0f};
     Vector3 col = {static_cast<float>(a.r/255.0f), static_cast<float>(a.g/255.0f), static_cast<float>(a.b/255.0f)};
-    ctr.setShaderValue("SH_COLOR", "blend_color", col);
+    ctr.setShaderValue("SH_SQUARE", "blend_color", col);
   }
 }
 
@@ -448,8 +430,8 @@ void menu::draw() {
     
       drawCircle(circleX, circleY, (circleRatio - circleWidth) * COLOR_WIDTH, ctr.bgMenu);
       
-      ctr.beginShaderMode("SH_COLOR");
-        drawTextureEx(squareTex, {0.0f, 0.0f});
+      ctr.beginShaderMode("SH_SQUARE");
+        drawTextureEx(squareTex, {circleX-squareDim/2.0f, circleY-squareDim/2.0f});
       ctr.endShaderMode();
 
 

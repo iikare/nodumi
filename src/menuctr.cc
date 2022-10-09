@@ -47,11 +47,6 @@ void menuController::updateRenderStatus() {
     }
   }
 }
-void menuController::updateDimension() {
-  for (const auto& i : menuSet) {
-    i->updateDimension();
-  }
-}
 
 void menuController::unloadData() {
   for (const auto& i : menuSet) {

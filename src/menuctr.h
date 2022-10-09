@@ -31,7 +31,6 @@ class menuController {
 
     void updateMouse();
     void updateRenderStatus();
-    void updateDimension();
     
     int getOffset() { return mainMenuOffset; }
   private:

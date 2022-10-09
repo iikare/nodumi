@@ -39,12 +39,8 @@ void controller::init(vector<asset>& assetSet) {
   
   initData(assetSet);
 
-  // must be done after asset loading
-  Vector2 u_resolution = {static_cast<float>(getWidth()), static_cast<float>(getHeight())};
-  setShaderValue("SH_COLOR", "u_resolution", u_resolution);
-
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
-  setShaderValue("SH_COLOR", "blend_color", startCol);
+  setShaderValue("SH_SQUARE", "blend_color", startCol);
   
   updateFFTBins();
 }
@@ -245,11 +241,7 @@ void controller::updateKeyState() {
 void controller::updateDimension(double& nowLineX) {
   if(IsWindowResized()) {
 
-    menu->updateDimension();
     updateFFTBins();
-
-    Vector2 u_resolution = {static_cast<float>(getWidth()), static_cast<float>(getHeight())};
-    setShaderValue("SH_COLOR", "u_resolution", u_resolution);
 
     nowLineX = getWidth() * nowLineX / lastWidth;
     

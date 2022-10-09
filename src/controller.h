@@ -52,8 +52,6 @@ class controller {
 
     template <class T>
     void setShaderValue(const string& shader, const string& uf, const T& val) {
-      //logQ("FUNCTION DISABLED");
-      //return;
       getShaderData(shader).setShaderValue(uf, val);
     }
 

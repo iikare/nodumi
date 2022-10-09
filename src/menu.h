@@ -72,7 +72,6 @@ class menu {
 
 
     void update(vector<string> itemNames);
-    void updateDimension();
     void unloadData();
     
     void addChildMenu(menu* child);
