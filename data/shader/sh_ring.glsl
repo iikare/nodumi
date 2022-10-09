@@ -31,11 +31,19 @@ void main() {
     }
     
     float alpha = 1.0f;
+    float alpha_dist = 0.01f;
     
     float dist = distance(fragTexCoord, vec2(0.5f, 0.5f));
-    if (dist > ring_len ||
-        dist < ring_len - ring_width) {
+
+    if (dist > ring_len+alpha_dist ||
+        dist < ring_len - ring_width-alpha_dist) {
       discard;
+    }
+    else if (dist < ring_len+alpha_dist && dist > ring_len) {
+      alpha = (1.0f/alpha_dist)*(ring_len+alpha_dist-dist);
+    }
+    else if (dist > ring_len-ring_width-alpha_dist && dist < ring_len - ring_width) {
+      alpha = (1.0f/alpha_dist)*(dist-(ring_len-ring_width-alpha_dist));
     }
     
     float h = -atan(fragTexCoord.y-0.5, fragTexCoord.x-0.5)/(2*M_PI);
