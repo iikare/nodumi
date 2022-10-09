@@ -10,7 +10,6 @@
 #include "define.h"
 #include "color.h"
 #include "data.h"
-#include "../dpd/osdialog/osdialog.h"
 
 using std::string;
 
@@ -35,4 +34,3 @@ void drawGradientLineH(const Vector2& a, const Vector2& b, float thick, const co
 
 const Vector2 measureTextEx(const string& msg, int size = 14, const string& font = DEFAULT_FONT);
 
-char* fileDialog(osdialog_file_action action, osdialog_filters* filters, const char* cdir = ".", const char* defName = nullptr);

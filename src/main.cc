@@ -1102,7 +1102,7 @@ int main (int argc, char* argv[]) {
           }
           switch(fileMenu.getActiveElement()) {
             case 1:
-              filenameC = fileDialog(OSDIALOG_OPEN, filetypes);
+              filenameC = ctr.fileDialog(OSDIALOG_OPEN, filetypes);
               
               if (filenameC != nullptr) {
                 filename = static_cast<string>(filenameC);
@@ -1113,7 +1113,7 @@ int main (int argc, char* argv[]) {
               ctr.menu->hideAll();
               break;
             case 2:
-              imagenameC = fileDialog(OSDIALOG_OPEN, imagetypes);
+              imagenameC = ctr.fileDialog(OSDIALOG_OPEN, imagetypes);
               if (imagenameC != nullptr) {
                 imagename = static_cast<string>(imagenameC);
                 newImage = true;
@@ -1136,7 +1136,7 @@ int main (int argc, char* argv[]) {
               [[fallthrough]];
             case 4:
               if (!ctr.getPlayState() && curFileType != FILE_NONE) {
-                savenameC = fileDialog(OSDIALOG_SAVE, savetypes);
+                savenameC = ctr.fileDialog(OSDIALOG_SAVE, savetypes);
                 if (savenameC != nullptr) {
                   savename = static_cast<string>(savenameC);
                

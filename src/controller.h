@@ -20,6 +20,7 @@
 #include "kmeans.h"
 #include "output.h"
 #include "colorgen.h"
+#include "../dpd/osdialog/osdialog.h"
 
 using std::vector;
 using std::unordered_map;
@@ -36,6 +37,9 @@ class controller {
     void init(vector<asset>& assets);
     void unloadData();
 
+
+    char* fileDialog(osdialog_file_action action, osdialog_filters* filters, 
+                     const char* cdir = ".", const char* defName = nullptr);
 
     Font* getFont(string id, int size);
     Texture2D& getImage(string imageIdentifier);

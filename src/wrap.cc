@@ -70,16 +70,3 @@ const Vector2 measureTextEx(const string& msg, int size, const string& font) {
   return MeasureTextEx(*ft, msg.c_str(), ft->baseSize, TEXT_SPACING);
 }
 
-char* fileDialog(osdialog_file_action action, osdialog_filters* filters, const char* cdir, const char* defName) {
- 
-  // prevent buffer overrun while osdialog blocks the main thread 
-  if (ctr.getLiveState()) {
-    ctr.liveInput.pauseInput();
-  }
-
-  return osdialog_file(action, cdir, defName, filters);
-  
-  if (ctr.getLiveState()) {
-    ctr.liveInput.resumeInput();
-  }
-}

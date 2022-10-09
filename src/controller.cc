@@ -75,6 +75,20 @@ void controller::initData(vector<asset>& assets) {
 
 }
 
+char* controller::fileDialog(osdialog_file_action action, osdialog_filters* filters, const char* cdir, const char* defName) {
+ 
+  // prevent buffer overrun while osdialog blocks the main thread 
+  if (getLiveState()) {
+    liveInput.pauseInput();
+  }
+
+  return osdialog_file(action, cdir, defName, filters);
+  
+  if (getLiveState()) {
+    liveInput.resumeInput();
+  }
+}
+
 Font* controller::getFont(string id, int size) {
   // find if a font with this id exists
   auto fit = fontMap.find(id);
@@ -140,7 +154,7 @@ void controller::unloadData() {
   for (const auto& image : imageMap) {
     UnloadTexture(image.second);
   }
-  ctr.image.unload();
+  image.unload();
 }
 
 
@@ -273,7 +287,7 @@ vector<note>* controller::getNotes() {
   if (livePlayState) {
     return &liveInput.noteStream.notes;
   }
-  return &ctr.file.notes;
+  return &file.notes;
 }
 
 int controller::getTrackCount() {
