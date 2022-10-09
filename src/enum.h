@@ -61,6 +61,7 @@ enum assetType {
   ASSET_IMAGE,
 };
 
+
 enum lerpType {
   INT_LINEAR,
   INT_ILINEAR,

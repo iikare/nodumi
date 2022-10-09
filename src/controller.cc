@@ -34,16 +34,16 @@ controller::~controller() {
 }
 
 
-void controller::init(vector<asset>& assets) {
+void controller::init(vector<asset>& assetSet) {
   srand(time(0));
   
-  initData(assets);
+  initData(assetSet);
   
   updateFFTBins();
 }
 
-void controller::initData(vector<asset>& assets) {
-  for (const auto& item : assets) {
+void controller::initData(vector<asset>& assetSet) {
+  for (const auto& item : assetSet) {
     switch(item.assetType) {
       case ASSET_FONT:
         fontMap.insert(make_pair(item.assetName, make_pair(item, map<int, Font>())));
@@ -70,6 +70,22 @@ void controller::initData(vector<asset>& assets) {
         }      
       }
         break;
+
+      case ASSET_SHADER: 
+        {
+          auto it = shaderMap.find(item.assetName);
+
+          if (it == shaderMap.end()) {
+            // asset not already loaded, so we should load it
+
+            shaderData tmpShaderData(item);
+
+
+            //add to shader map for future reference
+            shaderMap.insert(make_pair(item.assetName, tmpShaderData));
+          }
+        }
+        break;
     }
   }
 
@@ -89,7 +105,7 @@ char* controller::fileDialog(osdialog_file_action action, osdialog_filters* filt
   }
 }
 
-Font* controller::getFont(string id, int size) {
+Font* controller::getFont(const string& id, int size) {
   // find if a font with this id exists
   auto fit = fontMap.find(id);
   if (fit == fontMap.end()) {
@@ -136,13 +152,31 @@ Font* controller::getFont(string id, int size) {
   
 }
 
-Texture2D& controller::getImage(string imageIdentifier) {
+Texture2D& controller::getImage(const string& imageIdentifier) {
   auto it = imageMap.find(imageIdentifier);
   if (it == imageMap.end()){
     logW(LL_CRIT, "attempt to load unloaded image w/ identifier: " + imageIdentifier);
     //exit(1);
   }
   return it->second; 
+}
+
+shaderData& controller::getShaderData(const string& shaderIdentifier) {
+  auto it = shaderMap.find(shaderIdentifier);
+  if (it == shaderMap.end()){
+    logW(LL_CRIT, "attempt to load unloaded shader w/ identifier: " + shaderIdentifier);
+    //exit(1);
+  }
+  return it->second; 
+}
+
+Shader& controller::getShader(const string& shaderIdentifier) {
+  return getShaderData(shaderIdentifier).getShader();
+}
+
+template <class T>
+void controller::setShaderValue(const string& shader, const string& uf, T& val) {
+  getShaderData(shader).setShaderValue(uf, val);
 }
 
 void controller::unloadData() {
@@ -153,6 +187,9 @@ void controller::unloadData() {
   }
   for (const auto& image : imageMap) {
     UnloadTexture(image.second);
+  }
+  for (auto& shaderData: shaderMap) {
+    shaderData.second.unloadData();
   }
   image.unload();
 }

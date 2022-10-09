@@ -776,7 +776,7 @@ int main (int argc, char* argv[]) {
           constexpr double harmonicsCoefficient[5] = {0.04, 0.1, 1, 0.1, 0.04};
           constexpr int harmonicsSize = 5;
 
-          for (unsigned int harmonicScale = 0; harmonicScale <= harmonicsSize; ++harmonicScale) {
+          for (unsigned int harmonicScale = 0; harmonicScale < harmonicsSize; ++harmonicScale) {
             for (unsigned int bin = 0; bin < ctr.fftbins.size(); ++bin) {
               if (freq*harmonics[harmonicScale] < FFT_MIN_FREQ ||
                   freq*harmonics[harmonicScale] > FFT_MAX_FREQ) {

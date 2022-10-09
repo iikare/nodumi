@@ -19,6 +19,7 @@
 #include "color.h"
 #include "kmeans.h"
 #include "output.h"
+#include "shader.h"
 #include "colorgen.h"
 #include "../dpd/osdialog/osdialog.h"
 
@@ -34,15 +35,20 @@ class controller {
     controller();
     ~controller();
 
-    void init(vector<asset>& assets);
+    void init(vector<asset>& assetSet);
     void unloadData();
 
 
     char* fileDialog(osdialog_file_action action, osdialog_filters* filters, 
                      const char* cdir = ".", const char* defName = nullptr);
 
-    Font* getFont(string id, int size);
-    Texture2D& getImage(string imageIdentifier);
+    Font* getFont(const string& id, int size);
+    Texture2D& getImage(const string& imageIdentifier);
+    Shader& getShader(const string& shaderIdentifier);
+    shaderData& getShaderData(const string& shaderIdentifier);
+
+    template <class T>
+    void setShaderValue(const string& shader, const string& uf, T& val);
 
     void update(int offset, double& nowLineX, bool runState,
                 bool& newFile, bool& newImage, string& filename, string& imagename);
@@ -147,7 +153,7 @@ class controller {
     
     
   private:
-    void initData(vector<asset>& assets);
+    void initData(vector<asset>& assetSet);
     
     void updateKeyState();
     void updateDimension(double& nowLineX);
@@ -173,6 +179,7 @@ class controller {
 
     unordered_map<string, pair<asset, map<int, Font>>> fontMap;
     unordered_map <string, Texture2D> imageMap;
+    unordered_map <string, shaderData> shaderMap;
     
 
 };

@@ -1,6 +1,13 @@
 #pragma once
 
+#if defined(LOCRAY)
+  #include "../dpd/raylib/src/raylib.h"
+#else
+  #include <raylib.h>
+#endif
+
 #include <string>
+#include "uniform.h"
 #include "enum.h"
 #include "log.h"
 
@@ -10,15 +17,22 @@ using std::string;
 
 class asset {
   public:
-    asset(int a, string b, unsigned char* data, unsigned int dataLen) {
+    asset(int a, const char* b, unsigned char* data, unsigned int dataLen) {
       assetType = a;
       assetName = b;
       this->data = data;
       this->dataLen = dataLen;
+    }
+    asset(int a, string b, unsigned char* data, vector<uniform> uniforms) {
+      assetType = a;
+      assetName = b;
+      this->data = data;
+      shaderUniforms = uniforms;
     }
 
     int assetType;
     string assetName;
     unsigned char* data;
     unsigned int dataLen;
+    vector<uniform> shaderUniforms = {};
 };
