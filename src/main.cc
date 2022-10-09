@@ -326,11 +326,9 @@ int main (int argc, char* argv[]) {
               ctr.getMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
             if (ctr.getMousePosition().y > ctr.image.getY() && 
                 ctr.getMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
-              //logQ(ctr.image.getWidth(), ctr.image.getHeight()); 
+
               hoverType.add(HOVER_IMAGE); 
-              logQ("hoverimage");
             }
-            else {logQ("nohov");}
           }
         }
       }
@@ -910,9 +908,25 @@ int main (int argc, char* argv[]) {
         DrawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3, WHITE);
         
         drawTextEx(string("Build Date: ") + BUILD_DATE, 
-                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2, ctr.bgDark, 255);
+                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2, ctr.bgDark);
         drawTextEx(string("Ver. ") + W_VER, 
-                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2+16, ctr.bgDark, 255);
+                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2+16, ctr.bgDark);
+        
+        string copySym = "©";
+        string copy = " iika-re 2020-" + string(COPY_YEAR);
+        string license = "Licensed under GPLv3";
+
+        int copySymSize = 22;
+        double copySymWidth = measureTextEx(copySym, copySymSize).x;
+        double copyWidth = measureTextEx(copy).x;
+        double licenseWidth = measureTextEx(license).x;
+
+        drawTextEx(copySym, infoSideMargin/2+ctr.infoWidth-borderMargin-copySymWidth-copyWidth, 
+                   iconPos.y+iconBoxHeight-borderMargin/2 + 2, ctr.bgDark, 255, copySymSize);
+        drawTextEx(copy, infoSideMargin/2+ctr.infoWidth-borderMargin-copyWidth, 
+                   iconPos.y+iconBoxHeight-borderMargin/2, ctr.bgDark);
+        drawTextEx(license, infoSideMargin/2+ctr.infoWidth-borderMargin-licenseWidth, 
+                   iconPos.y+iconBoxHeight-borderMargin/2+16, ctr.bgDark);
       }
 
 
