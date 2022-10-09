@@ -328,7 +328,9 @@ int main (int argc, char* argv[]) {
                 ctr.getMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
               //logQ(ctr.image.getWidth(), ctr.image.getHeight()); 
               hoverType.add(HOVER_IMAGE); 
-            } 
+              logQ("hoverimage");
+            }
+            else {logQ("nohov");}
           }
         }
       }
@@ -1727,15 +1729,12 @@ int main (int argc, char* argv[]) {
                 rightMenuContents[1] = "Change Line Color";
                 colorSelect.setColor(ctr.bgMeasure);
               }
-              else if (ctr.image.exists()) {
-                if (!hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET, HOVER_DIALOG) && 
-                    !hoverType.containsLastFrame(HOVER_MENU)) {
-                  if (hoverType.contains(HOVER_IMAGE)) {
+              else if (ctr.image.exists() &&
+                      (!hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET, HOVER_DIALOG) && 
+                       !hoverType.containsLastFrame(HOVER_MENU) && hoverType.contains(HOVER_IMAGE))) { 
                     selectType = SELECT_NONE; // no color change on image
                     rightMenuContents[1] = "Remove Image";
                     //logQ("rightclicked on image");
-                  }
-                }
               }
               else if (!hoverType.contains(HOVER_DIALOG)) {
                 selectType = SELECT_BG;

@@ -67,6 +67,10 @@ void drawGradientLineH(const Vector2& a, const Vector2& b, float thick, const co
 
 const Vector2 measureTextEx(const string& msg, int size, const string& font) {
   Font* ft = ctr.getFont(font, size);
-  return MeasureTextEx(*ft, msg.c_str(), ft->baseSize, TEXT_SPACING);
+  if (ft != nullptr) {
+    return MeasureTextEx(*ft, msg.c_str(), ft->baseSize, TEXT_SPACING);
+  }
+
+  return {0.0f, 0.0f};
 }
 
