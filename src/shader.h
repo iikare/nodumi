@@ -34,9 +34,9 @@ class shaderData {
                     is_same<T, float>::value, 
                     "invalid type passed to uniform");
 
-      constexpr int ufType = is_same<T, Vector2>::value ? SHADER_UNIFORM_VEC2 :
-                             is_same<T, Vector3>::value ? SHADER_UNIFORM_VEC3 :
-                             is_same<T, float>::value ? SHADER_UNIFORM_FLOAT : 255; // unused value
+      constexpr int ufType = is_same<T, Vector2>::value ? SHADER_UNIFORM_VEC2  :
+                             is_same<T, Vector3>::value ? SHADER_UNIFORM_VEC3  :
+                             is_same<T, float>::value   ? SHADER_UNIFORM_FLOAT : 255; // unused value
 
       auto it = typeMap.find(uf);
       if (it == typeMap.end()) {

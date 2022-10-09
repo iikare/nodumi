@@ -45,7 +45,6 @@ class controller {
     Font* getFont(const string& id, int size);
     Texture2D& getImage(const string& imageIdentifier);
     Shader& getShader(const string& shaderIdentifier);
-    shaderData& getShaderData(const string& shaderIdentifier);
 
     void beginShaderMode(const string& shaderIdentifier) { BeginShaderMode(getShader(shaderIdentifier)); }
     void endShaderMode() { EndShaderMode(); }
@@ -167,6 +166,8 @@ class controller {
     void updateFFTBins();
     void updateDroppedFiles(bool& newFile, bool& newImage, string& filename, string& imagename);
     int findCurrentMeasure(int pos) const;
+    
+    shaderData& getShaderData(const string& shaderIdentifier);
     
     int lastWidth = 0;
 
