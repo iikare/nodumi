@@ -109,6 +109,7 @@ class menu {
     vector<menu*> childMenu;
 
     Texture2D squareTex;
+    Texture2D ringTex;
 
     static constexpr float circleRatio = 0.425;
     static constexpr float circleWidth = 0.075;

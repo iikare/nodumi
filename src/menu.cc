@@ -92,6 +92,13 @@ menu::menu(point XY, vector<string> itemNames, int menuType, int menuX, int menu
     Image i = GenImageColor(squareDim, squareDim, WHITE);
     squareTex = LoadTextureFromImage(i);
     UnloadImage(i);
+    
+    i = GenImageColor(COLOR_WIDTH, COLOR_HEIGHT, WHITE);
+    ringTex = LoadTextureFromImage(i);
+    UnloadImage(i);
+    
+    ctr.setShaderValue("SH_RING", "ring_len", circleRatio); 
+    ctr.setShaderValue("SH_RING", "ring_width", circleWidth); 
   }
 }
 
@@ -354,6 +361,9 @@ void menu::setColor(colorRGB col) {
   pX = round(colHSV.s * squareDim);
   pY = (1.0 - min(1.0, colHSV.v/255.0)) * (squareDim + 1);
 
+  Color a = ColorFromHSV(angle,1,1);//{244.0f/255.0f,0.0f/255.0f,244.0f/255.0f};
+  Vector3 colV = {static_cast<float>(a.r/255.0f), static_cast<float>(a.g/255.0f), static_cast<float>(a.b/255.0f)};
+  ctr.setShaderValue("SH_SQUARE", "blend_color", colV);
   
 }
 
@@ -420,15 +430,9 @@ void menu::draw() {
 
       drawRectangle(x, y, COLOR_WIDTH, COLOR_HEIGHT, ctr.bgMenu);
       
-      for (int i = 0; i < 360; i++) {
-        double rad = i * M_PI / 180;
-        drawLineEx(circleX, circleY,
-                   float(circleX + circleRatio * COLOR_WIDTH * cos(rad)),
-                   float(circleY + circleRatio * COLOR_WIDTH * sin(rad)),
-                   2.0f, ColorFromHSV(float(360 - i), 1, 1));
-      }
-    
-      drawCircle(circleX, circleY, (circleRatio - circleWidth) * COLOR_WIDTH, ctr.bgMenu);
+      ctr.beginShaderMode("SH_RING");
+        drawTextureEx(ringTex, {static_cast<float>(x), static_cast<float>(y)});
+      ctr.endShaderMode();
       
       ctr.beginShaderMode("SH_SQUARE");
         drawTextureEx(squareTex, {circleX-squareDim/2.0f, circleY-squareDim/2.0f});

@@ -1,11 +1,7 @@
 #version 330
 
-// Input vertex attributes (from vertex shader)
 in vec2 fragTexCoord;
 
-// Input uniform values
-uniform sampler2D texture0;
-uniform vec4 colDiffuse;
 uniform vec3 blend_color;
 
 out vec4 finalColor;
@@ -26,8 +22,7 @@ vec3 hsv2rgb(vec3 c) {
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
-void main()
-{
+void main() {
     float scaleS = (fragTexCoord.x);
     float scaleV = 1.0f - (fragTexCoord.y);
 
