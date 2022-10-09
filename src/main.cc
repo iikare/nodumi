@@ -776,6 +776,13 @@ int main (int argc, char* argv[]) {
           constexpr double harmonicsCoefficient[5] = {0.04, 0.1, 1, 0.1, 0.04};
           constexpr int harmonicsSize = 5;
 
+
+          for (unsigned int bin = 0; bin < ctr.fftbins.size(); ++bin) {
+            ctr.fftbins[bin].second = 0;
+          }
+
+
+          bool foundNote = false;
           for (unsigned int harmonicScale = 0; harmonicScale < harmonicsSize; ++harmonicScale) {
             for (unsigned int bin = 0; bin < ctr.fftbins.size(); ++bin) {
               if (freq*harmonics[harmonicScale] < FFT_MIN_FREQ ||
@@ -793,9 +800,24 @@ int main (int argc, char* argv[]) {
                                       static_cast<int>(ctr.fftbins[bin].first)) / ctr.fftbins[bin].first - 0.5, 2);
               
               int startX = FFT_BIN_WIDTH*(bin + 1);
+             
+              auto cSet = colorSetOn;
+
+              //collision
+              if (!foundNote && !hoverType.contains(HOVER_DIALOG) && pointInBox(ctr.getMousePosition(), 
+                             {startX-3, static_cast<int>(ctr.getHeight()-ctr.fftbins[bin].second-fftBinLen), 
+                              7,        static_cast<int>(fftBinLen)})) {
+                foundNote = true;
+                cSet = colorSetOff;
+                hoverType.add(HOVER_NOTE);
+                clickOnTmp = true;
+                clickTmp = idx;
+
+              }
               
+              drawLineEx(startX,ctr.getHeight()-ctr.fftbins[bin].second,
+                         startX,ctr.getHeight()-ctr.fftbins[bin].second-fftBinLen,1, (*cSet)[colorID]);
               ctr.fftbins[bin].second += fftBinLen;
-              drawLineEx(startX,ctr.getHeight(),startX,ctr.getHeight()-fftBinLen,1, (*colorSetOn)[colorID]);
             }
           }
         }
