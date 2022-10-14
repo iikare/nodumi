@@ -46,7 +46,7 @@ int main (int argc, char* argv[]) {
   SetTraceLogLevel(LOG_WARNING);
 
   // debug
-  SetTraceLogLevel(LOG_INFO);
+  //SetTraceLogLevel(LOG_INFO);
   
   string windowTitle = string(W_NAME) + " " + string(W_VER);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -340,11 +340,31 @@ int main (int argc, char* argv[]) {
       
       switch(displayMode) {
         case DISPLAY_VORONOI:
-          {
+          if (ctr.getFrameCounter() != 0) {
+            vector<Vector2>& voronoi_vertex_data = voronoiVertex;
+            vector<colorRGB>& voronoi_color_data = voronoiColor;
+
+            vector<Vector2> voronoi_vertex_resampled;
+            vector<colorRGB> voronoi_color_resampled;
+
+            if (voronoiVertex.size() > VORONOI_MAX_POINTS) {
+              voronoi_vertex_resampled.resize(VORONOI_MAX_POINTS);
+              voronoi_color_resampled.resize(VORONOI_MAX_POINTS);
+
+              // sample points
+              double sampleRatio = voronoiVertex.size()/static_cast<double>(VORONOI_MAX_POINTS);
+              for (auto i = 0; i < VORONOI_MAX_POINTS; ++i) {
+                voronoi_vertex_resampled[i] = voronoiVertex[int(i*sampleRatio)];
+                voronoi_color_resampled[i] = voronoiColor[int(i*sampleRatio)];
+              }
+
+              voronoi_vertex_data = voronoi_vertex_resampled;
+              voronoi_color_data = voronoi_color_resampled;
+            }
             int voroSize = min(static_cast<int>(voronoiVertex.size()), VORONOI_MAX_POINTS);
             ctr.setShaderValue("SH_VORONOI", "vertex_count", voroSize);
-            ctr.setShaderValue("SH_VORONOI", "vertex_data", voronoiVertex, voroSize);
-            ctr.setShaderValue("SH_VORONOI", "vertex_color", voronoiColor, voroSize);
+            ctr.setShaderValue("SH_VORONOI", "vertex_data", voronoi_vertex_data, voroSize);
+            ctr.setShaderValue("SH_VORONOI", "vertex_color", voronoi_color_data, voroSize);
 
             ctr.beginShaderMode("SH_VORONOI");
 
@@ -537,7 +557,9 @@ int main (int argc, char* argv[]) {
                 voronoiColor.push_back((*cSet)[colorID]);
 
 
-                drawCircle(cX, cY, 10, (*cSet)[colorID]);
+                float radius = -1 + 2 * (32 - __countl_zero(int(cW)));
+                drawCircle(cX, cY+cH, radius+2, ctr.bgDark);
+                drawCircle(cX, cY+cH, radius, (*cSet)[colorID]);
               }
             }
             break;

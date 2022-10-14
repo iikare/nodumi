@@ -84,6 +84,7 @@ class controller {
     double getRunTime() { return runTime; }
     double getPauseTime() { return pauseTime; }
     int getPSR() { return psrValue; }
+    unsigned int getFrameCounter() { return frameCounter; }
 
     vector<note>* getNotes();
     int getTrackCount();
@@ -175,7 +176,8 @@ class controller {
     bool programState = true;
     bool playState;
     bool livePlayState;
- 
+
+    unsigned int frameCounter = 0;
     int curMon;
     double runTime;
     double pauseTime;

@@ -203,6 +203,8 @@ void controller::unloadData() {
 
 void controller::update(int offset, double& nowLineX, bool runState,
                         bool& newFile, bool& newImage, string& filename, string& imagename) {
+  frameCounter++;
+
   menu->updateMouse();
   menu->updateRenderStatus();
   updateKeyState();

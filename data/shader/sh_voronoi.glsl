@@ -28,8 +28,6 @@ void main() {
     vec3 color = vertex_color[min_index];
     color -= vec3(min_dist*1.0f);
 
-    color += 1.0f-step(0.002f, min_dist);
-
     color = clamp(color, 0.0f, 1.0f);
     finalColor = vec4(color,1.0f);
 }
