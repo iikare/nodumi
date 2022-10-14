@@ -102,7 +102,7 @@ enum displayType {
   DISPLAY_BALL,
   DISPLAY_PULSE,
   DISPLAY_FFT,
-  DISPLAY_SHADE,
+  DISPLAY_VORONOI,
 };
 
 enum menuType {

@@ -39,6 +39,8 @@
 #define FFT_BIN_WIDTH 10
 #define FFT_AC_BINS 8
 
+#define VORONOI_MAX_POINTS 496
+
 // already defined in <raylib.h>
 //#define RAD2DEG M_PI/180.0f
 //#define DEG2RAD 180.0f/M_PI

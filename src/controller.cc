@@ -24,6 +24,7 @@ controller::controller() : midiData() {
   livePlayState = false;
   livePlayOffset = 0;
   notes = &file.notes;
+    
   
   getColorScheme(128, setVelocityOn, setVelocityOff);
   getColorScheme(12, setTonicOn, setTonicOff);
@@ -42,10 +43,9 @@ void controller::init(vector<asset>& assetSet) {
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
   setShaderValue("SH_SQUARE", "blend_color", startCol);
 
-  Image shaderImage = GenImageColor(1,1,{255,255,255,255});
-  shaderTex = LoadTextureFromImage(shaderImage);
-  UnloadImage(shaderImage);
-  SetShapesTexture(shaderTex, (Rectangle){ 0.0f, 0.0f, 1.0f, 1.0f });
+  Image i = GenImageColor(ctr.getWidth(), ctr.getHeight()-ctr.menuHeight, WHITE);
+  voroTex = LoadTextureFromImage(i);
+  UnloadImage(i);
   
   updateFFTBins();
 }
@@ -197,7 +197,7 @@ void controller::unloadData() {
   menu->unloadData();
   image.unloadData();
 
-  UnloadTexture(shaderTex);
+  UnloadTexture(voroTex);
 }
 
 
@@ -248,7 +248,13 @@ void controller::updateKeyState() {
 void controller::updateDimension(double& nowLineX) {
   if(IsWindowResized()) {
 
+    UnloadTexture(voroTex);
+    Image i = GenImageColor(ctr.getWidth(), ctr.getHeight()-ctr.menuHeight, WHITE);
+    voroTex = LoadTextureFromImage(i);
+    UnloadImage(i);
     updateFFTBins();
+
+
 
     nowLineX = getWidth() * nowLineX / lastWidth;
     

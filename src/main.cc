@@ -88,7 +88,7 @@ int main (int argc, char* argv[]) {
 
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_FFT;
+  int displayMode = DISPLAY_VORONOI;
   
   double nowLineX = ctr.getWidth()/2.0f;
 
@@ -184,7 +184,7 @@ int main (int argc, char* argv[]) {
   menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(&viewMenu);
   
-  vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball", "FFT", "Shade"};
+  vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball", "FFT", "Voronoi"};
   menu displayMenu(ctr.getSize(), displayMenuContents, TYPE_SUB, 
                    viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
   ctr.menu->registerMenu(&displayMenu);
@@ -244,6 +244,9 @@ int main (int argc, char* argv[]) {
       imagename = argv[2];
     }
   }
+
+  vector<Vector2> voronoiVertex;
+  vector<colorRGB> voronoiColor;
 
   // main program logic
   while (ctr.getProgramState()) {
@@ -334,6 +337,29 @@ int main (int argc, char* argv[]) {
           }
         }
       }
+      
+      switch(displayMode) {
+        case DISPLAY_VORONOI:
+          {
+            int voroSize = min(static_cast<int>(voronoiVertex.size()), VORONOI_MAX_POINTS);
+            ctr.setShaderValue("SH_VORONOI", "vertex_count", voroSize);
+            ctr.setShaderValue("SH_VORONOI", "vertex_data", voronoiVertex, voroSize);
+            ctr.setShaderValue("SH_VORONOI", "vertex_color", voronoiColor, voroSize);
+
+            ctr.beginShaderMode("SH_VORONOI");
+
+            //for (auto i : voronoiVertex) {
+              //logQ(i.x, i.y);
+            //}
+
+            drawTextureEx(ctr.voroTex, {0, static_cast<float>(ctr.menuHeight+(sheetMusicDisplay ? ctr.sheetHeight : 0))});
+            ctr.endShaderMode();
+          }
+          break;
+        default:
+          break;
+      }
+
 
       int lastMeasureNum = 0;
 
@@ -350,6 +376,7 @@ int main (int argc, char* argv[]) {
               hideLine = true;
             }
           }
+
                 
           if (measureLine && !hideLine) {
             if (pointInBox(ctr.getMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
@@ -416,6 +443,8 @@ int main (int argc, char* argv[]) {
         switch(displayMode) {
           case DISPLAY_FFT:
             [[fallthrough]];
+          case DISPLAY_VORONOI:
+            [[fallthrough]];
           case DISPLAY_BAR:
             [[fallthrough]];
           case DISPLAY_BALL:
@@ -445,14 +474,8 @@ int main (int argc, char* argv[]) {
       pair<double, double> currentBoundaries = inverseSSX();
       vector<int> curNote;
 
-      // shader <-> display mode map
-      switch(displayMode) {
-        case DISPLAY_SHADE:
-          ctr.beginShaderMode("SH_SHADE"); 
-          break;
-        default:
-          break;
-      }
+      voronoiVertex.clear();
+      voronoiColor.clear();
 
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
@@ -496,7 +519,7 @@ int main (int argc, char* argv[]) {
               }
             }
             break;
-          case DISPLAY_SHADE:
+          case DISPLAY_VORONOI:
             {
               int colorID = getColorSet(i);
               if (cX + cW > 0 && cX < ctr.getWidth()) {
@@ -505,13 +528,16 @@ int main (int argc, char* argv[]) {
                     timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
                   noteOn = true;
                 }
-                if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
-                  updateClickIndex();
-                }
+
 
                 auto cSet = noteOn ? colorSetOn : colorSetOff;
-                ctr.setShaderValue("SH_SHADE", "blend_color", (*cSet)[colorID]);
-                drawRectangle(cX, cY, cW, cH, {0,0,0});
+                
+
+                voronoiVertex.push_back({cX/ctr.getWidth(), 1-cY/ctr.getHeight()});
+                voronoiColor.push_back((*cSet)[colorID]);
+
+
+                drawCircle(cX, cY, 10, (*cSet)[colorID]);
               }
             }
             break;
@@ -851,17 +877,6 @@ int main (int argc, char* argv[]) {
         }
       }
       
-      // shader <-> display mode map
-      switch(displayMode) {
-        case DISPLAY_SHADE:
-          ctr.endShaderMode(); 
-          break;
-        default:
-          break;
-      }
-
-      // nothing past this point is subject to display shader rendering
-
       // menu bar rendering
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
 
@@ -1296,7 +1311,7 @@ int main (int argc, char* argv[]) {
               displayMode = DISPLAY_FFT;
               break;
             case 5:
-              displayMode = DISPLAY_SHADE;
+              displayMode = DISPLAY_VORONOI;
               break;
             case 6:
               break;

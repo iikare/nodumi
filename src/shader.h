@@ -28,20 +28,36 @@ class shaderData {
     Shader& getShader() { return shader; }
 
     template <class T>
-    void setShaderValue(const string& uf, const T& val) {
+    void setShaderValue(const string& uf, const T& val, const int num = -1) {
       // verify types
-      static_assert(is_same<T, Vector2>::value || 
-                    is_same<T, Vector3>::value || 
-                    is_same<T, colorRGB>::value || 
-                    is_same<T, float>::value, 
+      static_assert(is_same<T, Vector2>::value   || 
+                    is_same<T, Vector3>::value   || 
+                    is_same<T, colorRGB>::value  || 
+                    is_same<T, float>::value     || 
+                    is_same<T, int>::value       || 
+                    is_same<T, vector<Vector2>>::value  || 
+                    is_same<T, vector<Vector3>>::value  || 
+                    is_same<T, vector<colorRGB>>::value || 
+                    is_same<T, vector<float>>::value    || 
+                    is_same<T, vector<int>>::value, 
                     "invalid type passed to uniform");
 
-      constexpr int ufType = is_same<T, Vector2>::value  ? SHADER_UNIFORM_VEC2  :
-                             is_same<T, Vector3>::value  ? SHADER_UNIFORM_VEC3  :
-                             is_same<T, colorRGB>::value ? SHADER_UNIFORM_VEC3  :      // cast to float
-                             is_same<T, float>::value    ? SHADER_UNIFORM_FLOAT : 255; // unused value
-                                                                                       //
-      constexpr bool isCRGB = is_same<T, colorRGB>::value;
+      constexpr int ufType = is_same<T, Vector2>::value  || is_same<T, vector<Vector2>>::value  ? SHADER_UNIFORM_VEC2  :
+                             is_same<T, Vector3>::value  || is_same<T, vector<Vector3>>::value  ? SHADER_UNIFORM_VEC3  :
+                             // cast to float
+                             is_same<T, colorRGB>::value || is_same<T, vector<colorRGB>>::value ? SHADER_UNIFORM_VEC3  : 
+                             is_same<T, float>::value    || is_same<T, vector<float>>::value    ? SHADER_UNIFORM_FLOAT :
+                             // 255 - unused value
+                             is_same<T, int>::value      || is_same<T, vector<int>>::value      ? SHADER_UNIFORM_INT   : 255;
+
+      constexpr bool isVecType = is_same<T, vector<Vector2>>::value  ||
+                                 is_same<T, vector<Vector3>>::value  ||
+                                 is_same<T, vector<colorRGB>>::value ||
+                                 is_same<T, vector<float>>::value    ||
+                                 is_same<T, vector<int>>::value;
+
+
+      constexpr bool isCRGB = is_same<T, colorRGB>::value || is_same<T, vector<colorRGB>>::value;
 
       auto it = typeMap.find(uf);
       if (it == typeMap.end()) {
@@ -53,12 +69,44 @@ class shaderData {
         return;
       }
 
-      if constexpr (isCRGB) {
-        Vector3 conv = {static_cast<float>(val.r/255.0f), static_cast<float>(val.g/255.0f), static_cast<float>(val.b/255.0f)};
-        SetShaderValue(shader, GetShaderLocation(shader, uf.c_str()), &conv, it->second); 
+      if (isVecType) {
+        if (num != -1 && num <= 0) {
+          logW(LL_WARN, name, "- invalid uniform array passed with size", num);
+          return;
+        }
       }
       else {
-        SetShaderValue(shader, GetShaderLocation(shader, uf.c_str()), &val, it->second);
+        if (num != -1) {
+          logW(LL_WARN, name, "- invalid size parameter", num, "for non-variable uniform");
+          return;
+        }
+      }
+
+      if constexpr (isCRGB) {
+        if constexpr (isVecType) {
+          //logQ("call to CRGB V", name, it->second, num); 
+          vector<Vector3> vec_col;
+          for (const auto& col : val) {
+            vec_col.push_back({static_cast<float>(col.r/255.0f), 
+                               static_cast<float>(col.g/255.0f), 
+                               static_cast<float>(col.b/255.0f)});
+  
+          }
+          SetShaderValueV(shader, GetShaderLocation(shader, uf.c_str()), vec_col.data(), it->second, num); 
+        }
+        else {
+          Vector3 conv = {static_cast<float>(val.r/255.0f), static_cast<float>(val.g/255.0f), static_cast<float>(val.b/255.0f)};
+          SetShaderValue(shader, GetShaderLocation(shader, uf.c_str()), &conv, it->second); 
+        }
+      }
+      else {
+        if constexpr (isVecType) {
+          //logQ("call to V", name, it->second, num); 
+          SetShaderValueV(shader, GetShaderLocation(shader, uf.c_str()), val.data(), it->second, num);
+        }
+        else {
+          SetShaderValue(shader, GetShaderLocation(shader, uf.c_str()), &val, it->second);
+        }
       }
     }
 

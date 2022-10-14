@@ -162,7 +162,8 @@ then
         echo "\";">> "./src/agh/$nfile.h"
         
         typefin="ASSET_SHADER"
-        uniforms=($(cat $file | grep -i "^uniform" | grep -v "texture0\|colDiffuse" | sed 's/uniform \(.*\)/\1/g' | sed 's/;//g'))
+        uniforms=($(cat $file | grep -i "^uniform" | grep -v "texture0\|colDiffuse" | 
+                    sed 's/uniform \(.*\)/\1/g' | sed -E 's/(.*)\[.*\]/\1/g' | sed 's/;//g'))
         
         uniformidx=0
         uniforms_final=()

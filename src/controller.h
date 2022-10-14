@@ -50,8 +50,8 @@ class controller {
     void endShaderMode() { EndShaderMode(); }
 
     template <class T>
-    void setShaderValue(const string& shader, const string& uf, const T& val) {
-      getShaderData(shader).setShaderValue(uf, val);
+    void setShaderValue(const string& shader, const string& uf, const T& val, const int num = -1) {
+      getShaderData(shader).setShaderValue(uf, val, num);
     }
 
 
@@ -155,6 +155,7 @@ class controller {
     int curMeasure;
 
     
+    Texture2D voroTex;    // for rendering shader effects
     
     
   private:
@@ -180,7 +181,6 @@ class controller {
     double pauseTime;
     
     int psrValue = 0;
-    Texture2D shaderTex;    // for rendering drawRectangle with shader
 
     vector<note>* notes;
 
