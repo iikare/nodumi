@@ -2,8 +2,10 @@
 
 #if defined(LOCRAY)
   #include "../dpd/raylib/src/raylib.h"
+  #include "../dpd/raylib/src/rlgl.h"
 #else
   #include <raylib.h>
+  #include <rlgl.h>
 #endif
 
 #include <vector>
@@ -48,6 +50,9 @@ class controller {
 
     void beginShaderMode(const string& shaderIdentifier) { BeginShaderMode(getShader(shaderIdentifier)); }
     void endShaderMode() { EndShaderMode(); }
+
+    void beginBlendMode(int a, int b, int c);
+    void endBlendMode();
 
     template <class T>
     void setShaderValue(const string& shader, const string& uf, const T& val, const int num = -1) {

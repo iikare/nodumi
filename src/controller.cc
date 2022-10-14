@@ -3,6 +3,7 @@
 #include <bitset>
 #include <chrono>
 #include <system_error>
+#include <GLFW/glfw3.h>
 #include "define.h"
 #include "menuctr.h"
 
@@ -200,6 +201,13 @@ void controller::unloadData() {
   UnloadTexture(voroTex);
 }
 
+void controller::beginBlendMode(int a, int b, int c) {
+  rlSetBlendFactors(a, b, c);
+  BeginBlendMode(BLEND_CUSTOM);
+}
+void controller::endBlendMode() {
+  EndBlendMode();
+}
 
 void controller::update(int offset, double& nowLineX, bool runState,
                         bool& newFile, bool& newImage, string& filename, string& imagename) {

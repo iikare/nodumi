@@ -12,6 +12,7 @@
 #include <thread>
 #include <algorithm>
 #include <bit>
+#include <GLFW/glfw3.h>
 #include "../dpd/osdialog/osdialog.h"
 #include "aghfile.h"
 #include "enum.h"
@@ -385,6 +386,10 @@ int main (int argc, char* argv[]) {
 
       double measureSpacing = measureTextEx(to_string(noteData.measureMap.size() - 1).c_str()).x; 
 
+      if (displayMode == DISPLAY_VORONOI) {
+      }
+
+
       if (measureLine || measureNumber) {
         for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
           float measureLineWidth = 0.5;
@@ -411,6 +416,12 @@ int main (int argc, char* argv[]) {
             }
           }
 
+          switch(displayMode) {
+            case DISPLAY_VORONOI:
+              ctr.beginBlendMode(GL_ONE_MINUS_DST_COLOR, GL_ZERO, GL_ADD);
+              ctr.beginShaderMode("SH_INVERT");
+              break;
+          }
 
           if (measureNumber) {
             double lastMeasureLocation = convertSSX(noteData.measureMap[lastMeasureNum].getLocation()); 
@@ -446,6 +457,14 @@ int main (int argc, char* argv[]) {
           }
         }
       }
+
+      switch(displayMode) {
+        case DISPLAY_VORONOI:
+          ctr.endShaderMode();
+          ctr.endBlendMode();
+          break;
+      }
+
     
 
       if (nowLine) {
@@ -524,43 +543,42 @@ int main (int argc, char* argv[]) {
           case DISPLAY_BAR:
             {
               int colorID = getColorSet(i);
-              if (cX + cW > 0 && cX < ctr.getWidth()) {
-                if ((*ctr.getNotes())[i].isOn ||
-                   (timeOffset >= (*ctr.getNotes())[i].x && 
-                    timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
-                  noteOn = true;
-                }
-                if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
-                  updateClickIndex();
-                }
-
-                auto cSet = noteOn ? colorSetOn : colorSetOff;
-                drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
+              if ((*ctr.getNotes())[i].isOn ||
+                 (timeOffset >= (*ctr.getNotes())[i].x && 
+                  timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
+                noteOn = true;
               }
+              if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
+                updateClickIndex();
+              }
+
+              auto cSet = noteOn ? colorSetOn : colorSetOff;
+              drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
             }
             break;
           case DISPLAY_VORONOI:
             {
               int colorID = getColorSet(i);
-              if (cX + cW > 0 && cX < ctr.getWidth()) {
-                if ((*ctr.getNotes())[i].isOn ||
-                   (timeOffset >= (*ctr.getNotes())[i].x && 
-                    timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
-                  noteOn = true;
-                }
-
-
-                auto cSet = noteOn ? colorSetOn : colorSetOff;
-                
-
-                voronoiVertex.push_back({cX/ctr.getWidth(), 1-cY/ctr.getHeight()});
-                voronoiColor.push_back((*cSet)[colorID]);
-
-
-                float radius = -1 + 2 * (32 - __countl_zero(int(cW)));
-                drawCircle(cX, cY+cH, radius+2, ctr.bgDark);
-                drawCircle(cX, cY+cH, radius, (*cSet)[colorID]);
+              if ((*ctr.getNotes())[i].isOn ||
+                 (timeOffset >= (*ctr.getNotes())[i].x && 
+                  timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
+                noteOn = true;
               }
+
+              float radius = -1 + 2 * (32 - __countl_zero(int(cW)));
+              if (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, cY + cH) < radius + 2) {
+                updateClickIndex();
+              }
+
+
+              auto cSet = noteOn ? colorSetOn : colorSetOff;
+              
+
+              voronoiVertex.push_back({cX/ctr.getWidth(), 1-cY/ctr.getHeight()});
+              voronoiColor.push_back((*cSet)[colorID]);
+
+              drawCircle(cX, cY+cH, radius+2, ctr.bgDark);
+              drawCircle(cX, cY+cH, radius, (*cSet)[colorID]);
             }
             break;
           case DISPLAY_BALL:
