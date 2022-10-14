@@ -41,6 +41,11 @@ void controller::init(vector<asset>& assetSet) {
 
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
   setShaderValue("SH_SQUARE", "blend_color", startCol);
+
+  Image shaderImage = GenImageColor(1,1,{255,255,255,255});
+  shaderTex = LoadTextureFromImage(shaderImage);
+  UnloadImage(shaderImage);
+  SetShapesTexture(shaderTex, (Rectangle){ 0.0f, 0.0f, 1.0f, 1.0f });
   
   updateFFTBins();
 }
@@ -191,6 +196,8 @@ void controller::unloadData() {
   }
   menu->unloadData();
   image.unloadData();
+
+  UnloadTexture(shaderTex);
 }
 
 

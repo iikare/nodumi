@@ -1,7 +1,9 @@
 #if defined(LOCRAY)
   #include "../dpd/raylib/src/raylib.h"
+  #include "../dpd/raylib/src/rlgl.h"
 #else
   #include <raylib.h>
+  #include <rlgl.h>
 #endif
 
 #include <string>
@@ -182,7 +184,7 @@ int main (int argc, char* argv[]) {
   menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(&viewMenu);
   
-  vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball", "FFT"};
+  vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball", "FFT", "Shade"};
   menu displayMenu(ctr.getSize(), displayMenuContents, TYPE_SUB, 
                    viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
   ctr.menu->registerMenu(&displayMenu);
@@ -443,6 +445,15 @@ int main (int argc, char* argv[]) {
       pair<double, double> currentBoundaries = inverseSSX();
       vector<int> curNote;
 
+      // shader <-> display mode map
+      switch(displayMode) {
+        case DISPLAY_SHADE:
+          ctr.beginShaderMode("SH_SHADE"); 
+          break;
+        default:
+          break;
+      }
+
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
         
@@ -465,9 +476,7 @@ int main (int argc, char* argv[]) {
         float cY = convertSSY((*ctr.getNotes())[i].y);
         float cW = (*ctr.getNotes())[i].duration * zoomLevel < 1 ? 1 : (*ctr.getNotes())[i].duration * zoomLevel;
         float cH = (ctr.getHeight() - ctr.menuHeight) / 88;
-       
-        
-        
+
         switch (displayMode) {
           case DISPLAY_BAR:
             {
@@ -484,6 +493,25 @@ int main (int argc, char* argv[]) {
 
                 auto cSet = noteOn ? colorSetOn : colorSetOff;
                 drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
+              }
+            }
+            break;
+          case DISPLAY_SHADE:
+            {
+              int colorID = getColorSet(i);
+              if (cX + cW > 0 && cX < ctr.getWidth()) {
+                if ((*ctr.getNotes())[i].isOn ||
+                   (timeOffset >= (*ctr.getNotes())[i].x && 
+                    timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
+                  noteOn = true;
+                }
+                if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
+                  updateClickIndex();
+                }
+
+                auto cSet = noteOn ? colorSetOn : colorSetOff;
+                ctr.setShaderValue("SH_SHADE", "blend_color", (*cSet)[colorID]);
+                drawRectangle(cX, cY, cW, cH, {0,0,0});
               }
             }
             break;
@@ -822,6 +850,17 @@ int main (int argc, char* argv[]) {
           }
         }
       }
+      
+      // shader <-> display mode map
+      switch(displayMode) {
+        case DISPLAY_SHADE:
+          ctr.endShaderMode(); 
+          break;
+        default:
+          break;
+      }
+
+      // nothing past this point is subject to display shader rendering
 
       // menu bar rendering
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  
@@ -1256,8 +1295,16 @@ int main (int argc, char* argv[]) {
             case 4:
               displayMode = DISPLAY_FFT;
               break;
-              break;
             case 5:
+              displayMode = DISPLAY_SHADE;
+              break;
+            case 6:
+              break;
+            case 7:
+              break;
+            case 8:
+              break;
+            case 9:
               break;
           }
           break;

@@ -101,7 +101,8 @@ enum displayType {
   DISPLAY_BAR,
   DISPLAY_BALL,
   DISPLAY_PULSE,
-  DISPLAY_FFT
+  DISPLAY_FFT,
+  DISPLAY_SHADE,
 };
 
 enum menuType {

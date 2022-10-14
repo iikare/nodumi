@@ -180,8 +180,10 @@ class controller {
     double pauseTime;
     
     int psrValue = 0;
-    
+    Texture2D shaderTex;    // for rendering drawRectangle with shader
+
     vector<note>* notes;
+
 
 
     unordered_map<string, pair<asset, map<int, Font>>> fontMap;
