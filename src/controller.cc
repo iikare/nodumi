@@ -3,7 +3,6 @@
 #include <bitset>
 #include <chrono>
 #include <system_error>
-#include <GLFW/glfw3.h>
 #include "define.h"
 #include "menuctr.h"
 

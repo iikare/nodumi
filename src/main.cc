@@ -4,6 +4,8 @@
 #else
   #include <raylib.h>
   #include <rlgl.h>
+  // temp. hack for blend modes
+  #include <GLFW/glfw3.h>
 #endif
 
 #include <string>
@@ -12,7 +14,6 @@
 #include <thread>
 #include <algorithm>
 #include <bit>
-#include <GLFW/glfw3.h>
 #include "../dpd/osdialog/osdialog.h"
 #include "aghfile.h"
 #include "enum.h"
@@ -418,8 +419,10 @@ int main (int argc, char* argv[]) {
 
           switch(displayMode) {
             case DISPLAY_VORONOI:
+#if !defined(LOCRAY)
               ctr.beginBlendMode(GL_ONE_MINUS_DST_COLOR, GL_ZERO, GL_ADD);
               ctr.beginShaderMode("SH_INVERT");
+#endif
               break;
           }
 
@@ -460,8 +463,10 @@ int main (int argc, char* argv[]) {
 
       switch(displayMode) {
         case DISPLAY_VORONOI:
+#if !defined(LOCRAY)
           ctr.endShaderMode();
           ctr.endBlendMode();
+#endif
           break;
       }
 
@@ -557,7 +562,7 @@ int main (int argc, char* argv[]) {
             }
             break;
           case DISPLAY_VORONOI:
-            {
+            if (cX > -ctr.getWidth() && cX + cW < 3*ctr.getWidth()){
               int colorID = getColorSet(i);
               if ((*ctr.getNotes())[i].isOn ||
                  (timeOffset >= (*ctr.getNotes())[i].x && 
