@@ -25,10 +25,8 @@ void colorRGB::setRGB(double red, double green, double blue) {
   b = blue;
 }
 
-void colorRGB::setRGB (colorHSV hsv) {
-  // implementation of HSV->RGB algorithm
-  
-  *this = HSVtoRGB(hsv);
+void colorRGB::setRGB (const colorHSV& hsv) {
+  *this = hsv.getRGB();
 }
 
 bool colorRGB::operator == (const colorRGB& col) {
@@ -43,8 +41,32 @@ void colorRGB::invert() {
 
 colorHSV colorRGB::getHSV () const {
   // implementation of RGB->HSV algorithm
+  colorHSV output;
+
+  double value = max({r, g, b});
+  double minv = min({r, g, b});
+  double chroma =  value - minv;
+  double hue = 0;
+  double saturation = chroma / value;
+
+  // nonzero hue if nonzero chroma
+  if (chroma != 0) {
+    if (r == value) {
+      // red is max
+      hue = fmod(((g - b) / chroma), 6.0 ) * 60;
+    }
+    else if (g == value) {
+      // green is max
+      hue = (((b - r) / chroma) + 2) * 60;
+    }
+    else if (b == value) {
+      // blue is min
+      hue = (((r - g) / chroma) + 4) * 60;
+    }
+  }
   
-  return RGBtoHSV(*this); 
+  output.setHSV(hue, saturation, value);
+  return output;
 }
 
 colorHSV::colorHSV() : h(0), s(0), v(0) {}
@@ -85,6 +107,38 @@ void colorHSV::invert() {
   h = 255 - h;
   s = 255 - s;
   v = 255 - v;
+}
+
+colorRGB colorHSV::getRGB() const {
+  // implementation of HSV->RGB algorithm
+  colorRGB output;
+
+  double chroma = s * v;
+  double m = v - chroma;
+  double x = chroma * (1 - fabs(fmod((h / 60), 2) - 1));
+
+  if (h >= 0 && h <= 60) {
+    output.setRGB(chroma + m, x + m, m);
+  }
+  else if (h > 60 && h <= 120) {
+    output.setRGB(x + m, chroma + m, m);
+  }
+  else if (h > 120 && h <= 180) {
+    output.setRGB(m, chroma + m, x + m);
+  }
+  else if (h > 180 && h <= 240) {
+    output.setRGB(m, x + m, chroma + m);
+  }
+  else if (h > 240 && h <= 300) {
+    output.setRGB(x + m, m, chroma + m);
+  }
+  else if (h > 300 && h <= 360) {
+    output.setRGB(chroma + m, m, x + m);
+  }
+  else {
+    output.setRGB(m, m, m);
+  }
+  return output;
 }
 
 colorLAB colorRGB::getLAB() const {

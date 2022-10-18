@@ -15,17 +15,23 @@
 using std::vector;
 using std::string;
 using std::to_string;
+using std::is_same;
 
 double getFundamental(int y);
 double fftAC(double f_1, double f_2);
 
 double getDistance(int x1, int y1, int x2, int y2);
 
-colorHSV RGBtoHSV(const colorRGB& rgb);
-colorRGB HSVtoRGB(const colorHSV& hsv);
-
-bool pointInBox(Vector2 pt, rect box);
-bool pointInBox(point pt, rect box);
+template<class T>
+bool pointInBox(T pt, rect box) {
+  if constexpr (is_same<T, Vector2>::value || is_same<T, point>::value) {
+    return static_cast<int>(pt.x) >= box.x && static_cast<int>(pt.x) < box.x + box.width &&
+           static_cast<int>(pt.y) >= box.y && static_cast<int>(pt.y) < box.y + box.height;
+  }
+  
+  logW(LL_WARN, "call to", __func__, "using invalid type", typeid(T).name());
+  return false;
+}
 rect pointToRect(point a, point b);
 
 string colorToHex(colorRGB col);

@@ -235,13 +235,13 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
       colorHSV tmpHSV = colorVecB[i].getHSV();
       tmpHSV.v = min(255.0f, (float)tmpHSV.v*valScale);
       
-      colorVecA[i] = HSVtoRGB(tmpHSV);
+      colorVecA[i] = tmpHSV.getRGB();
     }
     else {
       colorHSV tmpHSV = colorVecA[i].getHSV();
       tmpHSV.v = max(0.0f, (float)tmpHSV.v*(1.0f/valScale));
 
-      colorVecB[i] = HSVtoRGB(tmpHSV);
+      colorVecB[i] = tmpHSV.getRGB();
 
     }
   }

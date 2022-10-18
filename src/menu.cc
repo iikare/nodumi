@@ -354,7 +354,7 @@ void menu::setColor(const colorRGB& col) {
     return;
   }
 
-  colorHSV colHSV = RGBtoHSV(col);
+  colorHSV colHSV = col.getHSV();
   
   angle = colHSV.h;
   pX = round(colHSV.s * squareDim);
@@ -373,7 +373,7 @@ colorRGB menu::getColor() {
 
 
 
-  return HSVtoRGB(col);
+  return col.getRGB();
 }
 
 void menu::setRingColor() {

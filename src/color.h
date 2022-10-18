@@ -12,6 +12,7 @@
 using std::ostream;
 
 class colorLAB;
+class colorRGB;
 
 class colorHSV {
   public:
@@ -20,6 +21,7 @@ class colorHSV {
     colorHSV(const colorHSV& col);
 
     void setHSV(double hue, double sat, double val);
+    colorRGB getRGB() const;
 
     void invert();
 
@@ -41,13 +43,13 @@ class colorRGB {
     colorRGB(const Color& col);
     colorRGB(const colorLAB& col);
 
-    colorHSV getHSV() const ;
+    colorHSV getHSV() const; 
     colorLAB getLAB() const;
 
     bool operator == (const colorRGB& col);
 
     void setRGB(double red, double green, double blue);
-    void setRGB(colorHSV hsv);
+    void setRGB(const colorHSV& hsv);
     
     void invert();
 
