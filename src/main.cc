@@ -582,8 +582,9 @@ int main (int argc, char* argv[]) {
               voronoiVertex.push_back({cX/ctr.getWidth(), 1-cY/ctr.getHeight()});
               voronoiColor.push_back((*cSet)[colorID]);
 
-              drawCircle(cX, cY+cH, radius+2, ctr.bgDark);
-              drawCircle(cX, cY+cH, radius, (*cSet)[colorID]);
+              drawRing({cX, cY+cH}, radius-1, radius+2, ctr.bgDark);
+              drawRing({cX, cY+cH}, 0, radius, (*cSet)[colorID]);
+              //drawCircle(cX, cY+cH, radius, (*cSet)[colorID]);
             }
             break;
           case DISPLAY_BALL:
