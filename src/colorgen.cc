@@ -37,7 +37,7 @@ void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorV
   getColorScheme(n, colorVecA, colorVecB, tmp);
 }
 
-void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, vector<pair<int, double>>& weight) {
+void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, const vector<pair<int, double>>& weight) {
   
   // check zero n
   if (!n) {

@@ -11,7 +11,7 @@ using std::pair;
 void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>* on, vector<colorRGB>* off);
 
 void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB);
-void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, vector<pair<int, double>>& weight);
+void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, const vector<pair<int, double>>& weight);
 
 void getColorSchemeImage(schemeType type, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB,
                          const vector<pair<int, double>>& weight = {});

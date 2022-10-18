@@ -5,7 +5,7 @@
 
 
 
-double kMeansPoint::distance(kMeansPoint& point) {
+double kMeansPoint::distance(const kMeansPoint& point) {
 
   // data       -> A
   // point.data -> B

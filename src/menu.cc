@@ -35,7 +35,7 @@ int menuItem::getHeight() {
   return height;
 }
 
-void menuItem::setContent(string nContent) {
+void menuItem::setContent(const string& nContent) {
   content = nContent;
 }
 
@@ -130,7 +130,7 @@ int menu::getActiveElement() {
   return activeElement;
 }
 
-void menu::setContent(string nContent, int idx) {
+void menu::setContent(const string& nContent, int idx) {
   if (idx >= itemCount || idx < 0) {
     logW(LL_WARN, "attempted to set menu item", nContent, "at menu index", idx);
     return;
@@ -201,7 +201,7 @@ void menu::findActiveElement(point XY) {
   }
 }
 
-void menu::update(vector<string> itemNames){
+void menu::update(const vector<string>& itemNames){
   
   activeElement = -1;
   itemCount = itemNames.size();
@@ -344,7 +344,7 @@ bool menu::clickCircle(int circleType) {
 
 }
     
-void menu::setColor(colorRGB col) {
+void menu::setColor(const colorRGB& col) {
   
   if (col.r == 0 && col.g == 0 && col.b == 0) {
     angle = 0;

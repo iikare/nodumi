@@ -12,9 +12,6 @@ using std::bitset;
 using std::make_pair;
 using std::move;
 
-// shared across load/save routines
-constexpr int imageBlockSize = 20;
-
 controller::controller() : midiData() {
   file = midi();
   image = imageController();
@@ -50,7 +47,7 @@ void controller::init(vector<asset>& assetSet) {
   updateFFTBins();
 }
 
-void controller::initData(vector<asset>& assetSet) {
+void controller::initData(const vector<asset>& assetSet) {
   for (const auto& item : assetSet) {
     switch(item.assetType) {
       case ASSET_FONT:

@@ -157,6 +157,9 @@ class controller {
     static constexpr int infoWidth   =   500;
     static constexpr int infoHeight  =   268;
 
+    // shared across load/save routines
+    static constexpr int imageBlockSize = 20;
+
     double livePlayOffset;
     int curMeasure;
 
@@ -165,7 +168,7 @@ class controller {
     
     
   private:
-    void initData(vector<asset>& assetSet);
+    void initData(const vector<asset>& assetSet);
     
     void updateKeyState();
     void updateDimension(double& nowLineX);

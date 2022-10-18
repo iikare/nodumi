@@ -27,7 +27,7 @@ class menuItem {
     int getWidth();
     int getHeight();
 
-    void setContent(string nContent);
+    void setContent(const string& nContent);
     void setX(int nX);
     void setY(int nY);
     void setWidth(int nWidth);
@@ -59,11 +59,11 @@ class menu {
     colorRGB getColor();
 
     void setXY(int nX, int nY);
-    void setContent(string nContent, int idx);
+    void setContent(const string& nContent, int idx);
     void setActiveElement(int idx);
     void setSquare();
     void setAngle();
-    void setColor(colorRGB col);
+    void setColor(const colorRGB& col);
     
     void findActiveElement(point xy);
     
@@ -71,7 +71,7 @@ class menu {
     void findColorSelectLocation(int& cpX, int& cpY, int rcX, int rcY);
 
 
-    void update(vector<string> itemNames);
+    void update(const vector<string>& itemNames);
     void unloadData();
     
     void addChildMenu(menu* child);

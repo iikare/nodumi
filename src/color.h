@@ -41,8 +41,8 @@ class colorRGB {
     colorRGB(const Color& col);
     colorRGB(const colorLAB& col);
 
-    colorHSV getHSV();
-    colorLAB getLAB();
+    colorHSV getHSV() const ;
+    colorLAB getLAB() const;
 
     bool operator == (const colorRGB& col);
 
@@ -62,7 +62,7 @@ class colorLAB {
   public:
 
     colorLAB() : l(0), a(0), b(0) {}
-    colorLAB(colorRGB color);
+    colorLAB(const colorRGB& color);
     colorLAB(float l, float a, float b) { this->l = l; this->a = a; this->b=b; }
     colorLAB(const colorLAB& other) { l = other.l; a = other.a; b = other.b; }
 

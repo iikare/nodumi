@@ -14,14 +14,14 @@ class kMeansPoint {
   public:
 
   kMeansPoint() : data(), cluster(-1), cDist(__DBL_MAX__) {}
-  kMeansPoint(colorRGB color) : data(color.getLAB()), cluster(-1), cDist(__DBL_MAX__) {}
-  kMeansPoint(colorLAB color) : data(color), cluster(-1), cDist(__DBL_MAX__) {}
+  kMeansPoint(const colorRGB& color) : data(color.getLAB()), cluster(-1), cDist(__DBL_MAX__) {}
+  kMeansPoint(const colorLAB& color) : data(color), cluster(-1), cDist(__DBL_MAX__) {}
   kMeansPoint(float l, float a, float b) : data(l,a,b), cluster(-1), cDist(__DBL_MAX__) {}
-  kMeansPoint(Color color) : data(color), cluster(-1), cDist(__DBL_MAX__) {}
+  kMeansPoint(const Color& color) : data(color), cluster(-1), cDist(__DBL_MAX__) {}
   
   colorLAB data;
   int cluster = -1;
   double cDist;
 
-  double distance(kMeansPoint& point);
+  double distance(const kMeansPoint& point);
 };

@@ -26,7 +26,7 @@ class imageController {
                         position({0,0}), base({0,0}), offset({0,0}), scale(1), defaultScale(1), meanV(0), numColors(0),
                         rawPixelData(), imageFormat(IMAGE_NONE), buf() {};
 
-    void load(string path);
+    void load(const string& path);
     void unloadData();
 
     void draw();

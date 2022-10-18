@@ -41,7 +41,7 @@ void colorRGB::invert() {
   b = 255 - b;
 }
 
-colorHSV colorRGB::getHSV () {
+colorHSV colorRGB::getHSV () const {
   // implementation of RGB->HSV algorithm
   
   return RGBtoHSV(*this); 
@@ -87,7 +87,7 @@ void colorHSV::invert() {
   v = 255 - v;
 }
 
-colorLAB colorRGB::getLAB() {
+colorLAB colorRGB::getLAB() const {
   
   colorLAB result;
 
@@ -242,7 +242,7 @@ colorRGB::colorRGB(const colorLAB& col) {
 
 
 
-colorLAB::colorLAB(colorRGB color) {
+colorLAB::colorLAB(const colorRGB& color) {
 
   colorLAB col = color.getLAB();
  

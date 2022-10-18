@@ -32,23 +32,23 @@ double scaleInterpolationRatio(double ratio, int type) {
   }
 }
 
-Color colorLERP(Color a, Color b, double ratio, int type) {
-  ratio = scaleInterpolationRatio(ratio, type);
+//Color colorLERP(const Color& a, const Color& b, double ratio, int type) {
+  //ratio = scaleInterpolationRatio(ratio, type);
   
-  return (Color) {(unsigned char)(a.r*(1-ratio)+b.r*(ratio)),
-                  (unsigned char)(a.g*(1-ratio)+b.g*(ratio)),
-                  (unsigned char)(a.b*(1-ratio)+b.b*(ratio)),
-                  (unsigned char)(a.a*(1-ratio)+b.a*(ratio))}; 
+  //return (Color) {(unsigned char)(a.r*(1-ratio)+b.r*(ratio)),
+                  //(unsigned char)(a.g*(1-ratio)+b.g*(ratio)),
+                  //(unsigned char)(a.b*(1-ratio)+b.b*(ratio)),
+                  //(unsigned char)(a.a*(1-ratio)+b.a*(ratio))}; 
   
-}
+//}
 
-colorRGB colorLERP(colorRGB a, colorRGB b, double ratio, int type) {
-  ratio = scaleInterpolationRatio(ratio, type);
+//colorRGB colorLERP(const colorRGB& a, const colorRGB& b, double ratio, int type) {
+  //ratio = scaleInterpolationRatio(ratio, type);
 
-  return colorRGB((a.r*(1-ratio)+b.r*(ratio)),
-                  (a.g*(1-ratio)+b.g*(ratio)),
-                  (a.b*(1-ratio)+b.b*(ratio)));
-}
+  //return colorRGB((a.r*(1-ratio)+b.r*(ratio)),
+                  //(a.g*(1-ratio)+b.g*(ratio)),
+                  //(a.b*(1-ratio)+b.b*(ratio)));
+//}
 
 float floatLERP(float a, float b, double ratio, int type) {
   ratio = scaleInterpolationRatio(ratio, type);

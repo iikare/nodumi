@@ -32,8 +32,9 @@ void midiOutput::openPort(int port) {
 vector<string> midiOutput::getPorts() {
   vector<string> ports;
   numPort = midiOut->getPortCount();
+  ports.resize(numPort);
   for (int i = 0; i < numPort; i++) {
-    ports.push_back(midiOut->getPortName(i));
+    ports[i] = midiOut->getPortName(i);
   }
   
   return formatPortName(ports);
