@@ -342,7 +342,8 @@ int main (int argc, char* argv[]) {
       
       switch(displayMode) {
         case DISPLAY_VORONOI:
-          if (ctr.getFrameCounter() != 0) {
+          //if (ctr.getFrameCounter() != 0) {
+          if (voronoiVertex.size() != 0) {
             vector<Vector2>& voronoi_vertex_data = voronoiVertex;
             vector<colorRGB>& voronoi_color_data = voronoiColor;
 
