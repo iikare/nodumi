@@ -584,7 +584,6 @@ int main (int argc, char* argv[]) {
 
               drawRing({cX, cY+cH}, radius-1, radius+2, ctr.bgDark);
               drawRing({cX, cY+cH}, 0, radius, (*cSet)[colorID]);
-              //drawCircle(cX, cY+cH, radius, (*cSet)[colorID]);
             }
             break;
           case DISPLAY_BALL:

@@ -26,10 +26,7 @@ void drawTextEx(const string& msg, int x, int y, const colorRGB& col,
 
 void drawSymbol(int sym, int size, int x, int y, const colorRGB& col, unsigned char alpha = 255, const string& font = MUSIC_FONT);
 
-void drawCircle(int x, int y, float r, const colorRGB& col);  
-void drawCircleLines(int x, int y, float r, const colorRGB& col); 
-void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col);
-void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col, float alpha);
+void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col, float alpha = 255);
 void drawGradientLineH(const Vector2& a, const Vector2& b, float thick, const colorRGB& col, float alphaA, float alphaB);
 
 void drawTextureEx(const Texture2D& tex, const Vector2& pos, float rot = 0.0f, float scale = 1.0f);
