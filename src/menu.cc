@@ -120,7 +120,7 @@ int menu::getItemY(int idx) {
 
 string menu::getContent(int idx) {
   if (idx >= itemCount || idx < 0) {
-    logW(LL_WARN, "attempted to get menu content at nonexistent menu index", idx);
+    logW(LL_WARN, "attempted to get menu item at nonexistent menu index", idx);
     return "";
   }
   return items[idx].getContent();
@@ -132,7 +132,7 @@ int menu::getActiveElement() {
 
 void menu::setContent(const string& nContent, int idx) {
   if (idx >= itemCount || idx < 0) {
-    logW(LL_WARN, "attempted to set menu item", nContent, "at menu index", idx);
+    logW(LL_WARN, "attempted to set menu item at nonexistent menu index", idx, "("+nContent+")");
     return;
   }
   items[idx].setContent(nContent);

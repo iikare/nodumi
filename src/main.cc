@@ -76,6 +76,7 @@ int main (int argc, char* argv[]) {
 
   // view settings
   bool nowLine = true;
+  bool nowMove = false;
   bool showFPS = false;
   bool showImage = true;
   bool colorMove = false;
@@ -90,7 +91,7 @@ int main (int argc, char* argv[]) {
 
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_VORONOI;
+  int displayMode = DISPLAY_PULSE;
   
   double nowLineX = ctr.getWidth()/2.0f;
 
@@ -659,7 +660,7 @@ int main (int argc, char* argv[]) {
           case DISPLAY_LINE:
             {
               vector<int>* linePositions;
-              if (i == 0 && !ctr.getLiveState()) {
+              if (i == 0){// && !ctr.getLiveState()) {
                 linePositions = noteData.getLineVerts();
               }
               else if (ctr.getLiveState()) {
@@ -1792,10 +1793,22 @@ int main (int argc, char* argv[]) {
         colorSquare = false;
         colorCircle = false;
 
+        nowMove = false;
+
         ctr.image.finalizePosition();
     }
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {    
       ctr.image.updatePosition();
+
+      if (pointInBox(ctr.getMousePosition(), 
+                    {static_cast<int>(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
+          !hoverType.contains(HOVER_DIALOG)) {
+        nowMove = true;
+      }
+      if (nowMove) {
+        // provide reset
+        nowLineX = IsKeyDown(KEY_LEFT_SHIFT) ? ctr.getWidth()/2 : clampValue(ctr.getMousePosition().x, 1, ctr.getWidth()-1);
+      }
     }
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
       clickNote = clickTmp;
@@ -1822,6 +1835,7 @@ int main (int argc, char* argv[]) {
           if (clickNote != -1) {
             selectType = SELECT_NOTE;
             rightMenuContents[1] = "Change Part Color";
+            rightMenuContents[2] = "Set Tonic";
             rightMenu.update(rightMenuContents);
             rightMenu.setContent(getNoteInfo((*ctr.getNotes())[clickNote].track, 
                                              (*ctr.getNotes())[clickNote].y - MIN_NOTE_IDX), 0);
@@ -1886,11 +1900,9 @@ int main (int argc, char* argv[]) {
               }
             }
             rightMenu.setContent("", 0);
-            auto f = rightMenuContents.begin() + 1;
-            auto e = rightMenuContents.end() - 1;
 
             //logQ(formatVector(rightMenuContents));
-            vector<string> newRight(f, e);
+            vector<string> newRight(rightMenuContents.begin() + 1, rightMenuContents.end() - 1);
             rightMenu.update(newRight);
           }
           rightMenu.setXY(rightX, rightY);

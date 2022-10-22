@@ -22,6 +22,11 @@ double fftAC(double f_1, double f_2);
 
 double getDistance(int x1, int y1, int x2, int y2);
 
+template<class T> 
+T clampValue(T val, T lo, T hi) {
+  return val > hi ? hi : (val < lo ? lo : val);
+}
+
 template<class T>
 bool pointInBox(T pt, rect box) {
   if constexpr (is_same<T, Vector2>::value || is_same<T, point>::value) {
