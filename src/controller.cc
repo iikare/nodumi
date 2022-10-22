@@ -421,6 +421,12 @@ int controller::getMeasureCount() const {
   }
 }
 
+void controller::clear() {
+  midiData.clear();
+  file.clear();
+  runTime = 0;
+  pauseTime = 0;
+}
 
 void controller::load(string path, fileType& fType, 
                       bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,

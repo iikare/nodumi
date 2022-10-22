@@ -64,6 +64,7 @@ class midi {
 
     }
 
+    void clear();
     void load(string file, stringstream& buf);
     void load(stringstream& buf);
     

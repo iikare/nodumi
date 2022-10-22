@@ -64,6 +64,8 @@ class controller {
                 bool& newFile, bool& newImage, string& filename, string& imagename);
     void toggleLivePlay();
     void setCloseFlag();
+
+    void clear();
     void load(string path, fileType& fType, 
               bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
               bool& measureLine, bool& measureNumber, 

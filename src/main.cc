@@ -121,6 +121,7 @@ int main (int argc, char* argv[]) {
   osdialog_filters* savetypes = osdialog_filters_parse("mki:mki");
 
   fileType curFileType = FILE_NONE; 
+  bool clearFile = false;
 
   // data selector
   midi& noteData = ctr.liveInput.noteStream;
@@ -174,7 +175,7 @@ int main (int argc, char* argv[]) {
 
 
   // menu objects
-  vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Exit"};
+  vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Close File", "Close Image", "Exit"};
   menu fileMenu(ctr.getSize(), fileMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(&fileMenu);
    
@@ -257,18 +258,24 @@ int main (int argc, char* argv[]) {
     // the now line IS variable
     //nowLineX = ctr.getWidth()/2.0f + ctr.getWidth()/4.0f*sin(GetTime());
 
-    if (newFile) {
-      newFile = false;
+    if (newFile || clearFile) {
       run = false;
       timeOffset = 0;
       pauseOffset = 0;
 
-      ctr.load(filename, curFileType,
-               nowLine,  showFPS,  showImage,  sheetMusicDisplay,
-               measureLine,  measureNumber, 
-               colorMode,  displayMode,
-               songTimeType,  tonicOffset, 
-               zoomLevel);
+      if (newFile) {
+        newFile = false;
+        ctr.load(filename, curFileType,
+                 nowLine,  showFPS,  showImage,  sheetMusicDisplay,
+                 measureLine,  measureNumber, 
+                 colorMode,  displayMode,
+                 songTimeType,  tonicOffset, 
+                 zoomLevel);
+      }
+      if (clearFile) {
+        clearFile = false;
+        ctr.clear();
+      }
     }
 
     if (newImage) {
@@ -1287,6 +1294,12 @@ int main (int argc, char* argv[]) {
               }
               break;
             case 5:
+              clearFile = true;
+              break;
+            case 6:
+                ctr.image.unloadData();
+              break;
+            case 7:
                 ctr.setCloseFlag(); 
               break;
           }

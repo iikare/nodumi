@@ -172,6 +172,26 @@ void midi::linkKeySignatures() {
   }
 }
 
+void midi::clear() {
+  notes.clear();
+  tempoMap.clear();
+  tracks.clear();
+  trackHeightMap.clear();
+  lineVerts.clear();
+  measureMap.clear();
+  timeSignatureMap.clear();
+  keySignatureMap.clear();
+
+  tickSet.clear();
+  itemStartSet.clear();
+
+  sheetData.reset();
+
+  noteCount = 0;
+  trackCount = 0;
+  tpq = 0;
+}
+
 void midi::load(string file, stringstream& buf) {
   MidiFile midifile;
   if (!midifile.read(file.c_str())) {
@@ -195,23 +215,7 @@ void midi::load(stringstream& buf) {
   
   MidiFile midifile(buf);
 
-  notes.clear();
-  tempoMap.clear();
-  tracks.clear();
-  trackHeightMap.clear();
-  lineVerts.clear();
-  measureMap.clear();
-  timeSignatureMap.clear();
-  keySignatureMap.clear();
-
-  tickSet.clear();
-  itemStartSet.clear();
-
-  sheetData.reset();
-
-  noteCount = 0;
-  trackCount = 0;
-  tpq = 0;
+  clear();
 
   midifile.linkNotePairs();
  
