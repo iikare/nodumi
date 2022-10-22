@@ -5,11 +5,18 @@ in vec2 fragTexCoord;
 uniform int vertex_count;
 uniform vec2 vertex_data[496];
 uniform vec3 vertex_color[496];
+uniform float render_bound;
 
 out vec4 finalColor;
 
 void main() {
     vec2 st = fragTexCoord;
+
+    if (st.y <= render_bound) {
+      discard;
+    }
+
+
     float min_dist = 2.0f;
     int min_index = 0;
     float min_dist_next = 2.0f;

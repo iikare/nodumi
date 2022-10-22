@@ -139,7 +139,7 @@ int main (int argc, char* argv[]) {
   };
 
   const auto convertSSY = [&] (int value) {
-    return (ctr.getHeight() - (ctr.getHeight() - (ctr.menuHeight + ctr.barHeight)) *
+    return (ctr.getHeight() - (ctr.getHeight() - (ctr.topHeight)) *
             static_cast<double>(value - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 4));
   };
 
@@ -364,33 +364,28 @@ int main (int argc, char* argv[]) {
               voronoi_vertex_data = voronoi_vertex_resampled;
               voronoi_color_data = voronoi_color_resampled;
             }
+            
             int voroSize = min(static_cast<int>(voronoiVertex.size()), VORONOI_MAX_POINTS);
+            int voro_y = (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
+            float render_bound = static_cast<float>(voro_y)/ctr.getHeight();
+            
             ctr.setShaderValue("SH_VORONOI", "vertex_count", voroSize);
             ctr.setShaderValue("SH_VORONOI", "vertex_data", voronoi_vertex_data, voroSize);
             ctr.setShaderValue("SH_VORONOI", "vertex_color", voronoi_color_data, voroSize);
+            ctr.setShaderValue("SH_VORONOI", "render_bound", render_bound);
 
             ctr.beginShaderMode("SH_VORONOI");
 
-            //for (auto i : voronoiVertex) {
-              //logQ(i.x, i.y);
-            //}
+            drawTextureEx(ctr.voroTex, {0, static_cast<float>(ctr.menuHeight)});
 
-            drawTextureEx(ctr.voroTex, {0, static_cast<float>(ctr.menuHeight+(sheetMusicDisplay ? ctr.sheetHeight : 0))});
             ctr.endShaderMode();
           }
           break;
-        default:
-          break;
       }
-
 
       int lastMeasureNum = 0;
 
       double measureSpacing = measureTextEx(to_string(noteData.measureMap.size() - 1).c_str()).x; 
-
-      if (displayMode == DISPLAY_VORONOI) {
-      }
-
 
       if (measureLine || measureNumber) {
         for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {

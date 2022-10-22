@@ -258,9 +258,8 @@ void controller::updateDimension(double& nowLineX) {
     Image i = GenImageColor(ctr.getWidth(), ctr.getHeight()-ctr.menuHeight, WHITE);
     voroTex = LoadTextureFromImage(i);
     UnloadImage(i);
+
     updateFFTBins();
-
-
 
     nowLineX = getWidth() * nowLineX / lastWidth;
     
@@ -292,7 +291,7 @@ void controller::updateFFTBins() {
 void controller::updateDroppedFiles(bool& newFile, bool& newImage, string& filename, string& imagename) {
   if (IsFileDropped()) {
     FilePathList dropFile = LoadDroppedFiles();
-    unsigned int dropLimit = 2;
+    constexpr unsigned int dropLimit = 2;
 
     if (dropFile.count > 2) {
       logW(LL_WARN, "excess files dropped - max:", dropLimit);
