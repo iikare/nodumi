@@ -558,7 +558,7 @@ int main (int argc, char* argv[]) {
             }
             break;
           case DISPLAY_VORONOI:
-            if (cX > -ctr.getWidth() && cX + cW < 3*ctr.getWidth()){
+            if (cX > -0.2*ctr.getWidth() && cX + cW < 1.2*ctr.getWidth()){
               int colorID = getColorSet(i);
               if ((*ctr.getNotes())[i].isOn ||
                  (timeOffset >= (*ctr.getNotes())[i].x && 
