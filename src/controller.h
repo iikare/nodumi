@@ -22,6 +22,7 @@
 #include "kmeans.h"
 #include "output.h"
 #include "shader.h"
+#include "voronoi.h"
 #include "colorgen.h"
 #include "../dpd/osdialog/osdialog.h"
 
@@ -30,6 +31,7 @@ using std::unordered_map;
 using std::stringstream;
 
 class menuController;
+class voronoiController;
 
 class controller {
   public:
@@ -120,6 +122,7 @@ class controller {
     menuController* menu;
         
     vector<pair<double, int>> fftbins;
+    voronoiController voronoi;
 
 
     vector<colorRGB> setTrackOn;

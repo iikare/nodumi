@@ -249,8 +249,6 @@ int main (int argc, char* argv[]) {
     }
   }
 
-  vector<Vector2> voronoiVertex;
-  vector<colorRGB> voronoiColor;
 
   // main program logic
   while (ctr.getProgramState()) {
@@ -350,42 +348,12 @@ int main (int argc, char* argv[]) {
       
       switch(displayMode) {
         case DISPLAY_VORONOI:
-          //if (ctr.getFrameCounter() != 0) {
-          if (voronoiVertex.size() != 0) {
-            vector<Vector2>& voronoi_vertex_data = voronoiVertex;
-            vector<colorRGB>& voronoi_color_data = voronoiColor;
-
-            vector<Vector2> voronoi_vertex_resampled;
-            vector<colorRGB> voronoi_color_resampled;
-
-            if (voronoiVertex.size() > VORONOI_MAX_POINTS) {
-              voronoi_vertex_resampled.resize(VORONOI_MAX_POINTS);
-              voronoi_color_resampled.resize(VORONOI_MAX_POINTS);
-
-              // sample points
-              double sampleRatio = voronoiVertex.size()/static_cast<double>(VORONOI_MAX_POINTS);
-              for (auto i = 0; i < VORONOI_MAX_POINTS; ++i) {
-                voronoi_vertex_resampled[i] = voronoiVertex[int(i*sampleRatio)];
-                voronoi_color_resampled[i] = voronoiColor[int(i*sampleRatio)];
-              }
-
-              voronoi_vertex_data = voronoi_vertex_resampled;
-              voronoi_color_data = voronoi_color_resampled;
-            }
-            
-            int voroSize = min(static_cast<int>(voronoiVertex.size()), VORONOI_MAX_POINTS);
+          if (ctr.voronoi.vertex.size() != 0) {
             int voro_y = (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
-            float render_bound = static_cast<float>(voro_y)/ctr.getHeight();
-            
-            ctr.setShaderValue("SH_VORONOI", "vertex_count", voroSize);
-            ctr.setShaderValue("SH_VORONOI", "vertex_data", voronoi_vertex_data, voroSize);
-            ctr.setShaderValue("SH_VORONOI", "vertex_color", voronoi_color_data, voroSize);
-            ctr.setShaderValue("SH_VORONOI", "render_bound", render_bound);
+            ctr.voronoi.resample(voro_y);
 
             ctr.beginShaderMode("SH_VORONOI");
-
             drawTextureEx(ctr.voroTex, {0, static_cast<float>(ctr.menuHeight)});
-
             ctr.endShaderMode();
           }
           break;
@@ -522,9 +490,6 @@ int main (int argc, char* argv[]) {
       pair<double, double> currentBoundaries = inverseSSX();
       vector<int> curNote;
 
-      voronoiVertex.clear();
-      voronoiColor.clear();
-
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
         
@@ -583,8 +548,8 @@ int main (int argc, char* argv[]) {
               auto cSet = noteOn ? colorSetOn : colorSetOff;
               
 
-              voronoiVertex.push_back({cX/ctr.getWidth(), 1-cY/ctr.getHeight()});
-              voronoiColor.push_back((*cSet)[colorID]);
+              ctr.voronoi.vertex.push_back({cX/ctr.getWidth(), 1-cY/ctr.getHeight()});
+              ctr.voronoi.color.push_back((*cSet)[colorID]);
 
               drawRing({cX, cY+cH}, radius-1, radius+2, ctr.bgDark);
               drawRing({cX, cY+cH}, 0, radius, (*cSet)[colorID]);

@@ -5,6 +5,7 @@
 #include <system_error>
 #include "define.h"
 #include "menuctr.h"
+#include "voronoi.h"
 
 using std::ofstream;
 using std::stringstream;
