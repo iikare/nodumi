@@ -34,6 +34,8 @@ class outputInstance {
   private:
     
     void process();
+    void enableInterrupt();
+    void disableInterrupt();
 
     vector<pair<double, vector<unsigned char>>> message;
     midiOutput* output;

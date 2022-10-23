@@ -7,8 +7,7 @@ void outputInstance::init(midiOutput* out) {
   oThread = thread(&outputInstance::process, this);
 }
 void outputInstance::updateOffset(double offset) {
-  interrupt = true;
-  while (!interrupt_ack);
+  disableInterrupt();
   //if (fabs(offset - this->offset) > std::numeric_limits<double>::epsilon()) {
     //interrupt = false;
     //return;
@@ -39,7 +38,7 @@ void outputInstance::updateOffset(double offset) {
     this->offset = offset;
     last_update = std::chrono::high_resolution_clock::now();
   }
-  interrupt = false;
+  enableInterrupt();
 }
 
 void outputInstance::terminate() {
@@ -89,24 +88,29 @@ void outputInstance::process() {
 }
 
 void outputInstance::load(const vector<pair<double, vector<unsigned char>>>& message) {
-  interrupt = true;
-  while (!interrupt_ack);
+  disableInterrupt();
   this->message = message;
-  interrupt = false;
+  enableInterrupt();
 }
 
 void outputInstance::allow() {
-  interrupt = true;
-  while (!interrupt_ack);
+  disableInterrupt();
   send = true;
-  interrupt = false;
+  enableInterrupt();
 }
 void outputInstance::disallow() {
-  interrupt = true;
-  while (!interrupt_ack);
+  disableInterrupt();
   send = false;
   vector<unsigned char> s = {120, 0};
   output->sendMessage(&s);
+  enableInterrupt();
+}
+
+void outputInstance::enableInterrupt() {
   interrupt = false;
 }
 
+void outputInstance::disableInterrupt() {
+  interrupt = true;
+  while (!interrupt_ack);
+}
