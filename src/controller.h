@@ -169,17 +169,12 @@ class controller {
     double livePlayOffset;
     int curMeasure;
 
-    
-    Texture2D voroTex;    // for rendering shader effects
-    
-    
   private:
     void initData(const vector<asset>& assetSet);
     
     void updateKeyState();
     void updateDimension(double& nowLineX);
     void updateFPS();
-    void updateFFTBins();
     void updateDroppedFiles(bool& newFile, bool& newImage, string& filename, string& imagename);
     int findCurrentMeasure(int pos) const;
     

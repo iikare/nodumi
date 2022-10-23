@@ -34,3 +34,13 @@ void voronoiController::resample(int voro_y) {
   vertex.clear();
   color.clear();
 }
+
+void voronoiController::updateTexture() {
+  Image i = GenImageColor(ctr.getWidth(), ctr.getHeight()-ctr.menuHeight, WHITE);
+  tex = LoadTextureFromImage(i);
+  UnloadImage(i);
+}
+
+void voronoiController::unload() {
+  UnloadTexture(tex);
+}

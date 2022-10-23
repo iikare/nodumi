@@ -41,10 +41,7 @@ void controller::init(vector<asset>& assetSet) {
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
   setShaderValue("SH_SQUARE", "blend_color", startCol);
 
-  Image i = GenImageColor(ctr.getWidth(), ctr.getHeight()-ctr.menuHeight, WHITE);
-  voroTex = LoadTextureFromImage(i);
-  UnloadImage(i);
-  
+  voronoi.updateTexture();
   fft.updateFFTBins();
 }
 
@@ -194,8 +191,8 @@ void controller::unloadData() {
   }
   menu->unloadData();
   image.unloadData();
-
-  UnloadTexture(voroTex);
+  
+  voronoi.unloadData();
 }
 
 void controller::beginBlendMode(int a, int b, int c) {
@@ -255,11 +252,8 @@ void controller::updateKeyState() {
 void controller::updateDimension(double& nowLineX) {
   if(IsWindowResized()) {
 
-    UnloadTexture(voroTex);
-    Image i = GenImageColor(ctr.getWidth(), ctr.getHeight()-ctr.menuHeight, WHITE);
-    voroTex = LoadTextureFromImage(i);
-    UnloadImage(i);
 
+    voronoi.updateTexture();
     fft.updateFFTBins();
 
     nowLineX = getWidth() * nowLineX / lastWidth;

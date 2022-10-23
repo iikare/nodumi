@@ -21,11 +21,18 @@ using std::max;
 class voronoiController {
   public:
 
+    void unloadData() { unload(); } 
+    void updateTexture();
+
     void resample(int voro_y);
+
 
     vector<Vector2> vertex;
     vector<colorRGB> color;
+
+    Texture2D tex;
   private:
+    void unload();
 
 
     vector<Vector2> vertex_last;

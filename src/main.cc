@@ -352,7 +352,7 @@ int main (int argc, char* argv[]) {
             ctr.voronoi.resample(voro_y);
 
             ctr.beginShaderMode("SH_VORONOI");
-            drawTextureEx(ctr.voroTex, {0, static_cast<float>(ctr.menuHeight)});
+            drawTextureEx(ctr.voronoi.tex, {0, static_cast<float>(ctr.menuHeight)});
             ctr.endShaderMode();
           }
           break;
