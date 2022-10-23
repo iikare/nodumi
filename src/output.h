@@ -16,6 +16,7 @@ class midiOutput {
     ~midiOutput();
 
 
+    bool isPortOpen() { return midiOut->isPortOpen(); }
     void openPort(int port);
     void update();
     void sendMessage(vector<unsigned char>* msgQueue);

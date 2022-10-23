@@ -249,7 +249,7 @@ int main (int argc, char* argv[]) {
   }
 
   //DEBUG ONLY
-  ctr.output.openPort(1);
+  //ctr.output.openPort(1);
 
   // main program logic
   while (ctr.getProgramState()) {
