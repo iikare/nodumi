@@ -40,7 +40,7 @@ void midiInput::openPort(int port, bool pauseEvent) {
     }
   }
   else {
-    logW(LL_WARN, "cannot open port in normal mode");
+    logW(LL_WARN, "cannot open input port in normal mode");
   }
 }
 

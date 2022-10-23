@@ -42,6 +42,7 @@ class midi {
   public:
     midi() {
       notes = {};
+      message = {};
       tempoMap = {};
       tracks = {};
       trackHeightMap = {};
@@ -83,6 +84,7 @@ class midi {
     void setNoteCount(int nc) { noteCount = nc; }
 
     vector<note> notes;
+    vector<pair<double, vector<unsigned char>>> message;
 
     sheetController sheetData;
     vector<measureController> measureMap;
@@ -112,6 +114,7 @@ class midi {
     
     void buildLineMap();
     void buildTickSet();
+    void buildMessageMap(const MidiFile& mf);
 
     int trackCount;
     int noteCount;

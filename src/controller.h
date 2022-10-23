@@ -25,6 +25,7 @@
 #include "shader.h"
 #include "voronoi.h"
 #include "colorgen.h"
+#include "output_sync.h"
 #include "../dpd/osdialog/osdialog.h"
 
 using std::vector;
@@ -42,6 +43,7 @@ class controller {
 
     void init(vector<asset>& assetSet);
     void unloadData();
+    void setCloseFlag();
 
 
     char* fileDialog(osdialog_file_action action, osdialog_filters* filters, 
@@ -62,11 +64,10 @@ class controller {
       getShaderData(shader).setShaderValue(uf, val, num);
     }
 
+    void toggleLivePlay();
 
     void update(int offset, double& nowLineX, bool runState,
                 bool& newFile, bool& newImage, string& filename, string& imagename);
-    void toggleLivePlay();
-    void setCloseFlag();
 
     void clear();
     void load(string path, fileType& fType, 
@@ -176,6 +177,7 @@ class controller {
     void updateDimension(double& nowLineX);
     void updateFPS();
     void updateDroppedFiles(bool& newFile, bool& newImage, string& filename, string& imagename);
+    
     int findCurrentMeasure(int pos) const;
     
     shaderData& getShaderData(const string& shaderIdentifier);
@@ -194,6 +196,8 @@ class controller {
     int psrValue = 0;
 
     vector<note>* notes;
+
+    outputInstance fileOutput;
 
 
 

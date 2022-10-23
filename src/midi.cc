@@ -51,8 +51,17 @@ void midi::buildTickSet() {
     //logQ(pos, "maps to TICK VALUE", tpq*tickNoteTransform[pos]); 
     tickSet.insert(make_pair(tpq*tickNoteTransform[pos], pos));
   }
+}
 
-
+void midi::buildMessageMap(const MidiFile&  mf) {
+    for (int i = 0; i < mf.getEventCount(0); i++) {
+      if (i && mf[0][i].seconds < mf[0][i-1].seconds) {
+        logW(LL_WARN, "midi has nonlinear events");
+      }
+      if (/*mf[0][i].seconds > 0.01 || */mf[0][i].isNote()) { 
+        message.push_back(make_pair(mf[0][i].seconds * 500, static_cast<vector<unsigned char>>(mf[0][i])));
+      }
+    }  
 }
 
 int midi::findMeasure(int offset) {
@@ -174,6 +183,7 @@ void midi::linkKeySignatures() {
 
 void midi::clear() {
   notes.clear();
+  message.clear();
   tempoMap.clear();
   tracks.clear();
   trackHeightMap.clear();
@@ -282,7 +292,10 @@ void midi::load(stringstream& buf) {
 
   midifile.joinTracks();
   midifile.sortTracks();
-  
+
+  buildMessageMap(midifile);
+   
+
   for (int i = 0; i < midifile.getEventCount(0); i++) {
 
     if (midifile[0][i].isTempo()) {

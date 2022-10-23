@@ -1,4 +1,5 @@
 #include "controller.h"
+#include <limits>
 #include <stdlib.h>
 #include <bitset>
 #include <chrono>
@@ -37,6 +38,8 @@ void controller::init(vector<asset>& assetSet) {
   srand(time(0));
   
   initData(assetSet);
+
+  fileOutput.init(&output);
 
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
   setShaderValue("SH_SQUARE", "blend_color", startCol);
@@ -100,11 +103,17 @@ char* controller::fileDialog(osdialog_file_action action, osdialog_filters* filt
   if (getLiveState()) {
     liveInput.pauseInput();
   }
+  else {
+    fileOutput.disallow();
+  }
 
   return osdialog_file(action, cdir, defName, filters);
   
   if (getLiveState()) {
     liveInput.resumeInput();
+  }
+  else {
+    fileOutput.allow();
   }
 }
 
@@ -206,6 +215,13 @@ void controller::endBlendMode() {
 void controller::update(int offset, double& nowLineX, bool runState,
                         bool& newFile, bool& newImage, string& filename, string& imagename) {
   frameCounter++;
+  if (!livePlayState && runState) {
+      fileOutput.allow();
+      fileOutput.updateOffset(offset);
+  }
+  else {
+    fileOutput.disallow();
+  }
 
   menu->updateMouse();
   menu->updateRenderStatus();
@@ -245,7 +261,7 @@ void controller::updateFPS() {
 
 void controller::updateKeyState() {
   if (WindowShouldClose()) {
-    programState = false;
+    setCloseFlag();
   }
 }
 
@@ -425,7 +441,7 @@ void controller::load(string path, fileType& fType,
     return;
   }
 
-  auto start = std::chrono::system_clock::now();
+  auto start = std::chrono::high_resolution_clock::now();
 
   if (isMKI(path)) {
     // open input file
@@ -666,8 +682,10 @@ void controller::load(string path, fileType& fType,
     // last, set non-MKI loaded flag
     fType = FILE_MIDI;
   }
-  
-  auto end = std::chrono::system_clock::now();
+
+  fileOutput.load(file.message);
+
+  auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsedTime = end - start;
   logW(LL_INFO, "elapsed time:", elapsedTime.count(), "seconds");
 }
@@ -882,4 +900,5 @@ point controller::getMousePosition() const {
 
 void controller::setCloseFlag() {
   programState = false;
+  fileOutput.terminate();
 }
