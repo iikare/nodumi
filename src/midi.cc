@@ -58,7 +58,9 @@ void midi::buildMessageMap(const MidiFile&  mf) {
       if (i && mf[0][i].seconds < mf[0][i-1].seconds) {
         logW(LL_WARN, "midi has nonlinear events");
       }
-      if (/*mf[0][i].seconds > 0.01 || */mf[0][i].isNote()) { 
+      //if (mf[0][i].seconds > 0.01){// || mf[0][i].isNote()) { 
+      //if (mf[0][i].isNote()) {
+      if (1) {
         message.push_back(make_pair(mf[0][i].seconds * 500, static_cast<vector<unsigned char>>(mf[0][i])));
       }
     }  

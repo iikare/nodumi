@@ -19,6 +19,7 @@ class outputInstance {
       interrupt = false;
       interrupt_ack = false;
       send = false;
+      index = 0;
     }
 
     void init(midiOutput* out);

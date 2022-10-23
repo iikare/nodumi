@@ -15,22 +15,30 @@ void outputInstance::updateOffset(double offset) {
   //}
 
   unsigned int index_last = index;
-  for (unsigned int idx = 0; const auto& msg : message) {
-    if (msg.first >= offset) {  
+  for (unsigned int idx = 0; idx < message.size(); ++idx) {
+    if (message[idx].first < 0.01) {
+      //logQ("alert");
+      continue;
+    }
+    if (message[idx].first >= offset) {  
       index = idx;//idx == 0 ? 0 : idx - 1;
       break;
     }
-    idx++;
   }
   
-  if (index_last != index) {
-    logQ("skipped note:", index_last, index);
-    ////index = \cc;
-    /////index = index_last;
-  }
-  this->offset = offset;
-  last_update = std::chrono::high_resolution_clock::now();
+  // TODO: a bunch of notes are stuck at time = 0 and are skipped
   
+  if (index_last > index) {
+    //logQ("skipped note (backward):", index_last, index);
+  }
+  if (index_last < index) {
+    logQ("skipped note (forward):", index_last, index);
+    index = index_last;
+  }
+  else {
+    this->offset = offset;
+    last_update = std::chrono::high_resolution_clock::now();
+  }
   interrupt = false;
 }
 
@@ -38,7 +46,6 @@ void outputInstance::terminate() {
   end = true;
   oThread.join();
 }
-
 
 void outputInstance::process() {   
   constexpr int msgLimit = 30;
@@ -64,6 +71,7 @@ void outputInstance::process() {
             break;
           }
         }
+
 
         index += msgFound;
 
@@ -97,6 +105,8 @@ void outputInstance::disallow() {
   interrupt = true;
   while (!interrupt_ack);
   send = false;
+  vector<unsigned char> s = {120, 0};
+  output->sendMessage(&s);
   interrupt = false;
 }
 
