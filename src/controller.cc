@@ -45,7 +45,7 @@ void controller::init(vector<asset>& assetSet) {
   voroTex = LoadTextureFromImage(i);
   UnloadImage(i);
   
-  updateFFTBins();
+  fft.updateFFTBins();
 }
 
 void controller::initData(const vector<asset>& assetSet) {
@@ -260,7 +260,7 @@ void controller::updateDimension(double& nowLineX) {
     voroTex = LoadTextureFromImage(i);
     UnloadImage(i);
 
-    updateFFTBins();
+    fft.updateFFTBins();
 
     nowLineX = getWidth() * nowLineX / lastWidth;
     
@@ -273,19 +273,6 @@ void controller::updateDimension(double& nowLineX) {
     else {
       file.sheetData.findSheetPages();
     }
-  }
-}
-
-void controller::updateFFTBins() {
-  int nBins = getWidth()/FFT_BIN_WIDTH - 2;
-  double binFreq = log10(FFT_MAX_FREQ/FFT_MIN_FREQ)/(nBins-1);
-
-  // frequency, height
-  fftbins.clear();
-  fftbins.resize(nBins, make_pair(0.0,0));
-
-  for (unsigned int bin = 0; bin < fftbins.size(); ++bin) {
-    fftbins[bin].first = 20*pow(10, bin*binFreq);
   }
 }
 

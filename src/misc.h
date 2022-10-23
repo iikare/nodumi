@@ -17,9 +17,6 @@ using std::string;
 using std::to_string;
 using std::is_same;
 
-double getFundamental(int y);
-double fftAC(double f_1, double f_2);
-
 double getDistance(int x1, int y1, int x2, int y2);
 
 template<class T> 

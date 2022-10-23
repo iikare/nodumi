@@ -817,7 +817,7 @@ int main (int argc, char* argv[]) {
       // render FFT lines after notes
       if (displayMode == DISPLAY_FFT) {
         for (const auto& idx : curNote) {
-          double freq = getFundamental((*ctr.getNotes())[idx].y);
+          double freq = ctr.fft.getFundamental((*ctr.getNotes())[idx].y);
           int colorID = getColorSet(idx);
           double nowRatio = (timeOffset-(*ctr.getNotes())[idx].x)/((*ctr.getNotes())[idx].duration);
           double pitchRatio = 0;
@@ -833,34 +833,31 @@ int main (int argc, char* argv[]) {
           int binScale = 2+5*(1+log(1+(*ctr.getNotes())[idx].duration)) +
                          (15.0/128)*(((*ctr.getNotes())[idx].velocity)+1);
 
-          //logQ((*ctr.getNotes())[idx].y, freq, ctr.fftbins.size());
+          //logQ((*ctr.getNotes())[idx].y, freq, ctr.fft.fftbins.size());
           // simulate harmonics
-          constexpr double harmonics[5] = {0.25, 0.5, 1, 2, 4};
-          constexpr double harmonicsCoefficient[5] = {0.04, 0.1, 1, 0.1, 0.04};
-          constexpr int harmonicsSize = 5;
 
 
-          for (unsigned int bin = 0; bin < ctr.fftbins.size(); ++bin) {
-            ctr.fftbins[bin].second = 0;
+          for (unsigned int bin = 0; bin < ctr.fft.fftbins.size(); ++bin) {
+            ctr.fft.fftbins[bin].second = 0;
           }
 
 
           bool foundNote = false;
-          for (unsigned int harmonicScale = 0; harmonicScale < harmonicsSize; ++harmonicScale) {
-            for (unsigned int bin = 0; bin < ctr.fftbins.size(); ++bin) {
-              if (freq*harmonics[harmonicScale] < FFT_MIN_FREQ ||
-                  freq*harmonics[harmonicScale] > FFT_MAX_FREQ) {
+          for (unsigned int harmonicScale = 0; harmonicScale < ctr.fft.harmonicsSize; ++harmonicScale) {
+            for (unsigned int bin = 0; bin < ctr.fft.fftbins.size(); ++bin) {
+              if (freq*ctr.fft.harmonics[harmonicScale] < FFT_MIN_FREQ ||
+                  freq*ctr.fft.harmonics[harmonicScale] > FFT_MAX_FREQ) {
                 continue;
               }
-              double fftBinLen = harmonicsCoefficient[harmonicScale]*binScale*pitchRatio * 
-                                 fftAC(freq*harmonics[harmonicScale], ctr.fftbins[bin].first);
+              double fftBinLen = ctr.fft.harmonicsCoefficient[harmonicScale]*binScale*pitchRatio * 
+                                 ctr.fft.fftAC(freq*ctr.fft.harmonics[harmonicScale], ctr.fft.fftbins[bin].first);
               
               // pseudo-random numerically stable offset
               
               // TODO: implement spectral rolloff in decay (based on BIN FREQ v. spectral rolloff curve)
               
-              fftBinLen *= 1+0.7*pow(((ctr.getPSR() ^ static_cast<int>(ctr.fftbins[bin].first)) % 
-                                      static_cast<int>(ctr.fftbins[bin].first)) / ctr.fftbins[bin].first - 0.5, 2);
+              fftBinLen *= 1+0.7*pow(((ctr.getPSR() ^ static_cast<int>(ctr.fft.fftbins[bin].first)) % 
+                                      static_cast<int>(ctr.fft.fftbins[bin].first)) / ctr.fft.fftbins[bin].first - 0.5, 2);
               
               int startX = FFT_BIN_WIDTH*(bin + 1);
              
@@ -868,7 +865,7 @@ int main (int argc, char* argv[]) {
 
               //collision
               if (!foundNote && !hoverType.contains(HOVER_DIALOG) && pointInBox(ctr.getMousePosition(), 
-                             {startX-3, static_cast<int>(ctr.getHeight()-ctr.fftbins[bin].second-fftBinLen), 
+                             {startX-3, static_cast<int>(ctr.getHeight()-ctr.fft.fftbins[bin].second-fftBinLen), 
                               7,        static_cast<int>(fftBinLen)})) {
                 foundNote = true;
                 cSet = colorSetOff;
@@ -878,9 +875,9 @@ int main (int argc, char* argv[]) {
 
               }
               
-              drawLineEx(startX,ctr.getHeight()-ctr.fftbins[bin].second,
-                         startX,ctr.getHeight()-ctr.fftbins[bin].second-fftBinLen,1, (*cSet)[colorID]);
-              ctr.fftbins[bin].second += fftBinLen;
+              drawLineEx(startX,ctr.getHeight()-ctr.fft.fftbins[bin].second,
+                         startX,ctr.getHeight()-ctr.fft.fftbins[bin].second-fftBinLen,1, (*cSet)[colorID]);
+              ctr.fft.fftbins[bin].second += fftBinLen;
             }
           }
         }

@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <functional>
 #include <sstream>
+#include "fft.h"
 #include "midi.h"
 #include "misc.h"
 #include "data.h"
@@ -121,8 +122,8 @@ class controller {
     imageController image;
     menuController* menu;
         
-    vector<pair<double, int>> fftbins;
     voronoiController voronoi;
+    fftController fft;
 
 
     vector<colorRGB> setTrackOn;
