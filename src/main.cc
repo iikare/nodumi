@@ -1773,12 +1773,18 @@ int main (int argc, char* argv[]) {
 
       if (pointInBox(ctr.getMousePosition(), 
                     {static_cast<int>(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
-          !hoverType.contains(HOVER_DIALOG)) {
+          !hoverType.contains(HOVER_DIALOG) && !colorSelect.render && !ctr.menu->mouseOnMenu()) {
         nowMove = true;
       }
       if (nowMove) {
         // provide reset
-        nowLineX = IsKeyDown(KEY_LEFT_SHIFT) ? ctr.getWidth()/2 : clampValue(ctr.getMousePosition().x, 1, ctr.getWidth()-1);
+        if (IsKeyDown(KEY_LEFT_SHIFT)) {
+          nowLineX = ctr.getWidth()/2;
+          nowMove = false;  // disable after rest
+        }
+        else {
+          nowLineX = clampValue(ctr.getMousePosition().x, 1, ctr.getWidth()-1);
+        }
       }
     }
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
