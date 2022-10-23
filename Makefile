@@ -105,6 +105,12 @@ endif
 re: clean
 	@$(MAKE) --no-print-directory
 
+f: clean
+	@$(MAKE) rel=a --no-print-directory
+	@$(MAKE) arch=win rel=a cleanbuild
+	@$(MAKE) arch=win rel=a --no-print-directory
+	@$(MAKE) arch=win rel=a cleanbuild
+
 pre:
 	@./tool/generate.sh ON
 	@./tool/codepoint.sh

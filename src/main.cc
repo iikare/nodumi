@@ -467,6 +467,7 @@ int main (int argc, char* argv[]) {
               case COLOR_TONIC:
                 return ((*ctr.getNotes())[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
             }
+            break;
           case DISPLAY_PULSE:
             [[fallthrough]];
           case DISPLAY_LINE:
