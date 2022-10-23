@@ -475,6 +475,7 @@ int main (int argc, char* argv[]) {
           case DISPLAY_LINE:
             switch (colorMode) {
               case COLOR_PART:
+                if (ctr.getLiveState()) return 0;
                 return (*ctr.getNotes())[(*lp)[idx]].track;
               case COLOR_VELOCITY:
                 return (*ctr.getNotes())[(*lp)[idx]].velocity;
@@ -633,12 +634,12 @@ int main (int argc, char* argv[]) {
               if (i == 0){// && !ctr.getLiveState()) {
                 linePositions = noteData.getLineVerts();
               }
-              else if (ctr.getLiveState()) {
-                vector<int> linePosRaw = (*ctr.getNotes())[i].getLinePositions(&(*ctr.getNotes())[i], 
-                                                                           (*ctr.getNotes())[i].getNextChordRoot());
+              //else if (ctr.getLiveState()) {
+                //vector<int> linePosRaw = (*ctr.getNotes())[i].getLinePositions(&(*ctr.getNotes())[i], 
+                                                                           //(*ctr.getNotes())[i].getNextChordRoot());
 
-                linePositions = &linePosRaw;
-              }
+                //linePositions = &linePosRaw;
+              //}
               else { 
                 break;
               }
@@ -683,14 +684,14 @@ int main (int argc, char* argv[]) {
           case DISPLAY_PULSE:
             {
               vector<int>* linePositions;
-              if (i == 0 && !ctr.getLiveState()) {
+              if (i == 0) {// && !ctr.getLiveState()) {
                 linePositions = noteData.getLineVerts();
               }
-              else if (ctr.getLiveState()) {
-                vector<int> linePosRaw = (*ctr.getNotes())[i].getLinePositions(&(*ctr.getNotes())[i], 
-                                                                           (*ctr.getNotes())[i].getNextChordRoot());
-                linePositions = &linePosRaw;
-              }
+              //else if (ctr.getLiveState()) {
+                //vector<int> linePosRaw = (*ctr.getNotes())[i].getLinePositions(&(*ctr.getNotes())[i], 
+                                                                           //(*ctr.getNotes())[i].getNextChordRoot());
+                //linePositions = &linePosRaw;
+              //}
               else { 
                 break;
               }
