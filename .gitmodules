@@ -12,4 +12,5 @@
 	url = https://github.com/pkishi/CIEDE2000.git
 [submodule "dpd/raylib"]
 	path = dpd/raylib
-	url = https://github.com/iikare/raylib.git
+  url = https://github.com/iikare/raylib.git
+  ignore = dirty
