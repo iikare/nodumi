@@ -1775,8 +1775,11 @@ int main (int argc, char* argv[]) {
       ctr.image.updatePosition();
 
       if (pointInBox(ctr.getMousePosition(), 
-                    {static_cast<int>(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
-          !hoverType.contains(HOVER_DIALOG) && !colorSelect.render && !ctr.menu->mouseOnMenu()) {
+                     {static_cast<int>(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
+          !hoverType.contains(HOVER_DIALOG) && 
+          !colorSelect.render && 
+          !ctr.menu->mouseOnMenu() &&
+          !ctr.image.movable()) {
         nowMove = true;
       }
       if (nowMove) {

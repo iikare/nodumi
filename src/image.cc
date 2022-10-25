@@ -96,6 +96,7 @@ void imageController::process() {
 
   createRawData();
 }
+
 void imageController::unloadData() {
  if (isLoaded) {
     UnloadImage(image);

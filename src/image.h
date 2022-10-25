@@ -38,6 +38,7 @@ class imageController {
 
 
     bool exists() { return isLoaded; }
+    bool movable() { return canMove; }
 
 
     int getX() { return position.x + offset.x; }
