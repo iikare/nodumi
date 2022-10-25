@@ -186,36 +186,40 @@ void imageController::createRawData() {
   
   vector<colorRGB> uniqueColors;
 
+  auto exitCond = [&] {
+    
+    meanV /= (copy.width*copy.height);
+    numColors = uniqueColors.size();
+    //logQ("numC", numColors);
+
+    UnloadImage(copy);
+
+  };
+
   if (isLoaded) {
     // use original image values to prevent effects from scaling
-    (void) [&] { // for premature break
-      for (int x = 0; x < copy.width; ++x) {
-        for (int y = 0; y < copy.height; ++y) {
-          if (uniqueColors.size() >= MAX_UNIQUE_COLORS) {
-            return;
-          }
-          //logQ(colorRGB(GetImageColor(copy, x, y))); 
-          Color tmpColorR = GetImageColor(copy, x, y);
-          colorRGB tmpColor = {(double)tmpColorR.r, (double)tmpColorR.g, (double)tmpColorR.b};
-          meanV += tmpColor.getHSV().v;
-          rawPixelData.push_back(kMeansPoint(tmpColor));
-          
-          if (uniqueColors.size() < MAX_UNIQUE_COLORS && 
-              find(uniqueColors.begin(), uniqueColors.end(), tmpColor) == uniqueColors.end()) {
-            uniqueColors.push_back(tmpColor);
-          }
-
+    for (int x = 0; x < copy.width; ++x) {
+      for (int y = 0; y < copy.height; ++y) {
+        if (uniqueColors.size() >= MAX_UNIQUE_COLORS) {
+          exitCond();
+          return;
         }
-      } 
-    };
+        //logQ(colorRGB(GetImageColor(copy, x, y))); 
+        Color tmpColorR = GetImageColor(copy, x, y);
+        colorRGB tmpColor = {(double)tmpColorR.r, (double)tmpColorR.g, (double)tmpColorR.b};
+        meanV += tmpColor.getHSV().v;
+        rawPixelData.push_back(kMeansPoint(tmpColor));
+        
+        if (uniqueColors.size() < MAX_UNIQUE_COLORS && 
+            find(uniqueColors.begin(), uniqueColors.end(), tmpColor) == uniqueColors.end()) {
+          uniqueColors.push_back(tmpColor);
+        }
+
+      }
+    } 
   }
-  
-  meanV /= (copy.width*copy.height);
-  numColors = uniqueColors.size();
-  //logQ("numC", numColors);
-
-  UnloadImage(copy);
-
+ 
+  exitCond();
 }
 
 double imageController::getMeanValue() {

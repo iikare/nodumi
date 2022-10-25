@@ -20,6 +20,8 @@ class outputInstance {
       interrupt_ack = false;
       send = false;
       index = 0;
+      offset = 0;
+      offset_last = 0;
     }
 
     void init(midiOutput* out);
@@ -40,6 +42,7 @@ class outputInstance {
     vector<pair<double, vector<unsigned char>>> message;
     midiOutput* output;
     atomic<double> offset;
+    atomic<double> offset_last;
     atomic<unsigned int> index;
     atomic<bool> interrupt;
     atomic<bool> interrupt_ack;

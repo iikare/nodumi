@@ -1,5 +1,9 @@
 #include "output_sync.h"
 #include <chrono>
+#include <algorithm>
+
+using std::min;
+using std::max;
 
 void outputInstance::init(midiOutput* out) {
   output = out;
@@ -12,6 +16,11 @@ void outputInstance::updateOffset(double offset) {
     //interrupt = false;
     //return;
   //}
+
+
+  send = offset > offset_last;
+  offset_last = offset;
+
 
   unsigned int index_last = index;
   for (unsigned int idx = 0; idx < message.size(); ++idx) {
@@ -28,11 +37,12 @@ void outputInstance::updateOffset(double offset) {
   // TODO: a bunch of notes are stuck at time = 0 and are skipped
   
   if (index_last > index) {
-    //logQ("skipped note (backward):", index_last, index);
+    logQ("skipped note (backward):", index_last, index);
+    //index = min(static_cast<unsigned int>(index), index_last - 10);
   }
   if (index_last < index) {
     logQ("skipped note (forward):", index_last, index);
-    index = index_last;
+    //index = max(index_last, index - 10);
   }
   else {
     this->offset = offset;
@@ -56,18 +66,20 @@ void outputInstance::process() {
       interrupt_ack = false;
       if (send) {
         std::chrono::duration<double> elapsedTime = std::chrono::high_resolution_clock::now() - last_update;
-
+  
         int msgFound = 0;
-        for (unsigned int idx = index; idx < message.size(); idx++) {
-          if (message[idx].first >= offset && message[idx].first <= offset+elapsedTime.count()*500) {
-            //logQ("time", message[idx].first, formatVector(message[idx].second));
-            msgFound++;
-            //if (msgFound < msgLimit || message[idx].first < 0.1) {
-                output->sendMessage(&message[idx].second);
-            //}
-          }
-          if (message[idx].first > offset+elapsedTime.count()*500) {
-            break;
+        if (elapsedTime.count() > 0) {
+          for (unsigned int idx = index; idx < message.size(); idx++) {
+            if (message[idx].first >= offset && message[idx].first <= offset+elapsedTime.count()*500) {
+              //logQ("time", message[idx].first, formatVector(message[idx].second));
+              msgFound++;
+              //if (msgFound < msgLimit || message[idx].first < 0.1) {
+                  output->sendMessage(&message[idx].second);
+              //}
+            }
+            if (message[idx].first > offset+elapsedTime.count()*500) {
+              break;
+            }
           }
         }
 
@@ -82,6 +94,8 @@ void outputInstance::process() {
     }
     else {
       //logQ("INT");
+      //// avoid many messages when main thread blocked
+      //last_update = std::chrono::high_resolution_clock::now();
       interrupt_ack = true;
     }
   }
