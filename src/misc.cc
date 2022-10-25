@@ -188,24 +188,25 @@ string getExtension(string path) {
   return path.length() > 3 ? path.substr(path.size() - 3) : path;
 }
 
-bool isValidPath(string path) {
+bool isValidPath(string path, int pathType) {
   struct stat info;
   // file doesn't exist in filesystem
   if (stat(path.c_str(), &info) == -1) {
     return false;
   }
   
-  transform(path.begin(), path.end(), path.begin(), ::tolower);
-  string ext = path.length() > 3 ? path.substr(path.size() - 3) : path;
-  
-  if (ext != "mid" && ext != "mki" && ext != "jpg" && ext != "png") {
-    //logW(LL_WARN, "invalid file extension:", path);
-    //logW(LL_WARN, "assuming default extension (mid)");
-    return false;
+  string ext = getExtension(path);
+ 
+  switch (pathType) {
+    case PATH_DATA:
+      return ext == "mid" || ext == "mki";
+    case PATH_IMAGE:
+      return ext == "png" || ext == "jpg";
+    case PATH_DATAIMAGE:
+      return ext == "mid" || ext == "mki" || ext == "png" || ext == "jpg";
+    default:
+      return false;
   }
-
-
-  return true;
 }
 
 

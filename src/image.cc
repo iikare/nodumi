@@ -13,23 +13,29 @@ void imageController::load(const string& path) {
 
   unloadData();
 
-  image = LoadImage(path.c_str());
 
-  if (image.data == nullptr) {
-    logW(LL_WARN, "image with path", path, "failed to load!");
+  if (!isValidPath(path, PATH_IMAGE)) {
+    logW(LL_WARN, "invalid path", path);
+    return;
   }
+  
+  image = LoadImage(path.c_str());
 
 
   // file is known to work
   ifstream imageData(path);
 
-  if (path.size() > 4) {
-    if (path.substr(path.size() - 4) == ".jpg" || path.substr(path.size()-4) == ".jpeg") {
-      imageFormat = IMAGE_JPG;
-    }
-    else if (path.substr(path.size() - 4) == ".png") {
-      imageFormat = IMAGE_PNG;
-    }
+  string ext = getExtension(path);
+    
+  if (ext == "jpg") {
+    format = IMAGE_JPG;
+  }
+  else if (ext == "png") {
+    format = IMAGE_PNG;
+  }
+  else {
+    logW(LL_WARN, "unknown format", ext);
+    format = IMAGE_NONE;
   }
 
   buf.str("");
@@ -107,7 +113,7 @@ void imageController::unloadData() {
     isLoaded = false;
     rawPixelData.clear();
 
-    imageFormat = IMAGE_NONE;
+    format = IMAGE_NONE;
     buf.str("");
     buf.clear();
   }

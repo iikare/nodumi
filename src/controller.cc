@@ -296,7 +296,7 @@ void controller::updateDroppedFiles(bool& newFile, bool& newImage, string& filen
     }
 
     for (unsigned int idx = 0; idx < min(dropLimit, dropFile.count); ++idx) {
-      if (isValidPath(dropFile.paths[idx])) {
+      if (isValidPath(dropFile.paths[idx], PATH_DATAIMAGE)) {
         string ext = getExtension(dropFile.paths[idx]);
         if (ext == "mid" || ext == "mki") {
           if (!newFile) {
@@ -436,7 +436,7 @@ void controller::load(string path, fileType& fType,
 
                       double& zoomLevel) {
 
-  if (!isValidPath(path)) {
+  if (!isValidPath(path, PATH_DATA)) {
     logW(LL_WARN, "invalid path:", path);
     return;
   }
@@ -876,7 +876,7 @@ void controller::save(string path,
   // here, no need to check marker, just check image object
   if (image.exists()) {
     // first write image type
-    output.write(reinterpret_cast<const char*>(&image.imageFormat), sizeof(image.imageFormat));
+    output.write(reinterpret_cast<const char*>(&image.format), sizeof(image.format));
     
     // get size of image data
     image.buf.seekg(0, std::ios::end);

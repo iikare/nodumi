@@ -80,6 +80,13 @@ enum fileType {
   FILE_NONE
 };
 
+enum pathType {
+  PATH_DATA,
+  PATH_IMAGE,
+  PATH_DATAIMAGE,
+  PATH_NONE
+};
+
 enum schemeType {
   SCHEME_TRACK,
   SCHEME_TONIC,

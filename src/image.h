@@ -24,7 +24,7 @@ class imageController {
   public:
     imageController() : image(),  imageTex(), isLoaded(false), canMove(false),
                         position({0,0}), base({0,0}), offset({0,0}), scale(1), defaultScale(1), meanV(0), numColors(0),
-                        rawPixelData(), imageFormat(IMAGE_NONE), buf() {};
+                        rawPixelData(), format(IMAGE_NONE), buf() {};
 
     void load(const string& path);
     void unloadData();
@@ -75,7 +75,7 @@ class imageController {
 
     vector<kMeansPoint> rawPixelData;
 
-    int imageFormat;
+    int format;
     stringstream buf;
     
 
