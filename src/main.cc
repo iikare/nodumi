@@ -82,8 +82,6 @@ int main (int argc, char* argv[]) {
   bool colorSquare = false;
   bool colorCircle = false;
   bool sheetMusicDisplay = false;
-  bool preferenceDisplay = false;
-  bool infoDisplay = false;
  
   bool measureLine = true;
   bool measureNumber = true;
@@ -131,9 +129,6 @@ int main (int argc, char* argv[]) {
   bool clickOn = false;
   bool clickOnTmp = false;
 
-  // menu variables
-  Vector2 songTimePosition = {6.0f, 26.0f};
-
   // screen space conversion functions
   const auto convertSSX = [&] (int value) {
     return nowLineX + (value - timeOffset) * zoomLevel;
@@ -161,17 +156,9 @@ int main (int argc, char* argv[]) {
 
     return make_pair(minVal, maxVal);
   };
-  
-  // dialog box hover detection
-  const auto hoverDialog = [&](bool diaDisplay, int x, int y, int w, int h) {
-    if (diaDisplay) {
-      const rect boundingBox = { x, y, w, h };
-      if(pointInBox(ctr.getMousePosition(), boundingBox)) {
-        hoverType.add(HOVER_DIALOG);
-      }
-    }
-  };
 
+  // menu variables
+  Vector2 songTimePosition = {6.0f, 26.0f};
 
   // menu objects
   vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Close File", "Close Image", "Exit"};
@@ -254,9 +241,6 @@ int main (int argc, char* argv[]) {
   // main program logic
   while (ctr.getProgramState()) {
 
-    // the now line IS variable
-    //nowLineX = ctr.getWidth()/2.0f + ctr.getWidth()/4.0f*sin(GetTime());
-
     if (newFile || clearFile) {
       run = false;
       timeOffset = 0;
@@ -311,23 +295,9 @@ int main (int argc, char* argv[]) {
     }
    
     // update hover status 
-    hoverDialog(preferenceDisplay,  ctr.getWidth()/2  - ctr.prefWidth/2,
-                                    ctr.getHeight()/2 - ctr.prefHeight/2,
-                                    ctr.prefWidth,
-                                    ctr.prefHeight);
-    hoverDialog(infoDisplay,        ctr.getWidth()/2  - ctr.infoWidth/2,
-                                    ctr.getHeight()/2 - ctr.infoHeight/2,
-                                    ctr.infoWidth,
-                                    ctr.infoHeight);
-    
-    //colorLAB cLAB(colorRGB(121,215,91));
-  
-    //logQ(colorRGB(cLAB));
-    //logQ("l a b:", cLAB.l, cLAB.a, cLAB.b);
-    
-
-    //logQ(ctr.getMouseX(), ctr.getMouseY());
-    //logQ("focused:", IsWindowFocused());
+    if (ctr.dialog.hover()) {
+      hoverType.add(HOVER_DIALOG);
+    }
 
     // main render loop
     BeginDrawing();
@@ -375,7 +345,6 @@ int main (int argc, char* argv[]) {
               hideLine = true;
             }
           }
-
                 
           if (measureLine && !hideLine) {
             if (pointInBox(ctr.getMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
@@ -383,7 +352,6 @@ int main (int argc, char* argv[]) {
               measureLineWidth = 1;
               hoverType.add(HOVER_MEASURE);
             }
-           
             if (!nowLine || fabs(nowLineX - measureLineX) > 3) {  
               drawLineEx(static_cast<int>(measureLineX), measureLineY,
                          static_cast<int>(measureLineX), ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
@@ -423,7 +391,6 @@ int main (int argc, char* argv[]) {
 
               }
 
-
               int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
               drawTextEx(to_string(i + 1).c_str(), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
               lastMeasureNum = i;
@@ -438,8 +405,6 @@ int main (int argc, char* argv[]) {
           ctr.endBlendMode();
           break;
       }
-
-    
 
       if (nowLine) {
         float nowLineWidth = 0.5;
@@ -591,7 +556,6 @@ int main (int argc, char* argv[]) {
                   }
                 }
                 
-                
                 if (noteOn) {
                   if (cX >= nowLineX) {
                     drawRing({cX, ballY}, radius - 2, radius, (*colorSetOn)[colorID]);
@@ -634,12 +598,6 @@ int main (int argc, char* argv[]) {
               if (i == 0){// && !ctr.getLiveState()) {
                 linePositions = noteData.getLineVerts();
               }
-              //else if (ctr.getLiveState()) {
-                //vector<int> linePosRaw = (*ctr.getNotes())[i].getLinePositions(&(*ctr.getNotes())[i], 
-                                                                           //(*ctr.getNotes())[i].getNextChordRoot());
-
-                //linePositions = &linePosRaw;
-              //}
               else { 
                 break;
               }
@@ -687,11 +645,6 @@ int main (int argc, char* argv[]) {
               if (i == 0) {// && !ctr.getLiveState()) {
                 linePositions = noteData.getLineVerts();
               }
-              //else if (ctr.getLiveState()) {
-                //vector<int> linePosRaw = (*ctr.getNotes())[i].getLinePositions(&(*ctr.getNotes())[i], 
-                                                                           //(*ctr.getNotes())[i].getNextChordRoot());
-                //linePositions = &linePosRaw;
-              //}
               else { 
                 break;
               }
@@ -779,7 +732,6 @@ int main (int argc, char* argv[]) {
                                  colorLERP((*colorSetOn)[colorID], (*colorSetOff)[colorID], ringRatio, INT_ICIRCULAR),
                                  floatLERP(0,255, ringRatio, INT_ICIRCULAR));
                       }
-
                     }
                   }
                 }
@@ -814,7 +766,7 @@ int main (int argc, char* argv[]) {
               auto cSet = noteOn ? colorSetOn : colorSetOff;
               drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
             }
-              break;
+            break;
         }
       }
 
@@ -840,11 +792,9 @@ int main (int argc, char* argv[]) {
           //logQ((*ctr.getNotes())[idx].y, freq, ctr.fft.fftbins.size());
           // simulate harmonics
 
-
           for (unsigned int bin = 0; bin < ctr.fft.fftbins.size(); ++bin) {
             ctr.fft.fftbins[bin].second = 0;
           }
-
 
           bool foundNote = false;
           for (unsigned int harmonicScale = 0; harmonicScale < ctr.fft.harmonicsSize; ++harmonicScale) {
@@ -937,7 +887,6 @@ int main (int argc, char* argv[]) {
         //logQ("cloc", formatPair(noteData.sheetData.findSheetPageLimit(ctr.getCurrentMeasure(timeOffset))));
       }
       
-
       // option actions
       switch (songTimeType) {
         case SONGTIME_RELATIVE:
@@ -959,70 +908,9 @@ int main (int argc, char* argv[]) {
 
       ctr.menu->renderAll();
 
-
-      if (preferenceDisplay) {
-        const int prefSideMargin = ctr.getWidth() - ctr.prefWidth;
-        const int prefTopMargin = ctr.getHeight() - ctr.prefHeight;
-        drawRectangle(prefSideMargin/2, prefTopMargin/2, ctr.prefWidth, ctr.prefHeight, ctr.bgMenu);  
-        
-
-        drawTextEx("Preferences", prefSideMargin/2 + 6, prefTopMargin/2 + 6, ctr.bgDark, 255, 18);
-      }
-      
-      if (infoDisplay) {
-        const int infoSideMargin = ctr.getWidth() - ctr.infoWidth;
-        const int infoTopMargin = ctr.getHeight() - ctr.infoHeight;
-        drawRectangle(infoSideMargin/2, infoTopMargin/2, ctr.infoWidth, ctr.infoHeight, ctr.bgMenu);  
-       
-
-        int iconTextSize = 30;
-        int iconTextAdjust = 10;
-        double borderMargin = 20;
-        double iconScale = 0.3;
-        Vector2 iconTextVec = measureTextEx(W_NAME, iconTextSize);
-        double iconTextHeight = iconTextVec.y;
-        double iconBoxWidth = iconTextVec.x + ctr.getImage("ICON").width*iconScale +
-                              borderMargin*2 - iconTextAdjust;
-        double iconBoxHeight = ctr.getImage("ICON").height*iconScale + borderMargin;
-        double iconTextX = infoSideMargin/2 + (ctr.infoWidth - iconBoxWidth)/2 + 
-                           ctr.getImage("ICON").width*iconScale + borderMargin - iconTextAdjust;
-        double iconTextY = infoTopMargin/2 + ctr.getImage("ICON").height*iconScale/2 + borderMargin - iconTextHeight/2;
-
-        drawTextEx(W_NAME, iconTextX, iconTextY, ctr.bgIcon, 255, iconTextSize);
-        Vector2 iconPos = {static_cast<float>(infoSideMargin/2 + (ctr.infoWidth-iconBoxWidth)/2 + borderMargin), 
-                           static_cast<float>(infoTopMargin/2 + borderMargin)};
-        drawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3);
-        
-        drawTextEx(string("Build Date: ") + BUILD_DATE, 
-                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2, ctr.bgDark);
-        drawTextEx(string("Ver. ") + W_VER, 
-                   infoSideMargin/2+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2+16, ctr.bgDark);
-        
-        string copySym = "©";
-        string copy = " iika-re 2020-" + string(COPY_YEAR);
-        string license = "Licensed under GPLv3";
-
-        int copySymSize = 22;
-        double copySymWidth = measureTextEx(copySym, copySymSize).x;
-        double copyWidth = measureTextEx(copy).x;
-        double licenseWidth = measureTextEx(license).x;
-
-        drawTextEx(copySym, infoSideMargin/2+ctr.infoWidth-borderMargin-copySymWidth-copyWidth, 
-                   iconPos.y+iconBoxHeight-borderMargin/2 + 2, ctr.bgDark, 255, copySymSize);
-        drawTextEx(copy, infoSideMargin/2+ctr.infoWidth-borderMargin-copyWidth, 
-                   iconPos.y+iconBoxHeight-borderMargin/2, ctr.bgDark);
-        drawTextEx(license, infoSideMargin/2+ctr.infoWidth-borderMargin-licenseWidth, 
-                   iconPos.y+iconBoxHeight-borderMargin/2+16, ctr.bgDark);
-      }
-
-
-      //logQ("bounds", formatPair(inverseSSX()));
-      //drawSymbol(SYM_REST_16, 155, convertSSX(inverseSSX().first), 320, ctr.bgNow);
-      //drawSymbol(SYM_CLEF_TREBLE, 155, 
-                 //convertSSX(inverseSSX().second)-noteData.sheetData.getGlyphWidth(SYM_CLEF_TREBLE,155), 320, ctr.bgNow);
+      ctr.dialog.render();
     
     EndDrawing();
-
 
     // NOTE: only for debugging sheet area
     if(IsKeyPressed(KEY_TAB)) {
@@ -1078,7 +966,6 @@ int main (int argc, char* argv[]) {
     }
     
     // key logic
-    
     if ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_LEFT_SHIFT)) && GetMouseWheelMove() != 0) {
       if (ctr.image.exists() && showImage) {
 
@@ -1120,9 +1007,6 @@ int main (int argc, char* argv[]) {
         }
       }
       else if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
-        // immediately move to previous measure
-        //
-        //logQ(noteData.findMeasure(nowLineX));
         bool measureFirst = true;
         for (unsigned int i = noteData.measureMap.size()-1; i > 0; --i) {
           double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
@@ -1188,7 +1072,7 @@ int main (int argc, char* argv[]) {
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 
       if (!hoverType.contains(HOVER_DIALOG)) {
-        preferenceDisplay = infoDisplay = false;
+        ctr.dialog.preferenceDisplay = ctr.dialog.infoDisplay = false;
       }
 
       switch(fileMenu.getActiveElement()) {
@@ -1286,10 +1170,10 @@ int main (int argc, char* argv[]) {
                 editMenu.setContent("Disable Sheet Music", 1);
               }
               sheetMusicDisplay = !sheetMusicDisplay;
-              sheetMusicDisplay ? ctr.barHeight = ctr.menuHeight + ctr.sheetHeight : ctr.barHeight = ctr.menuHeight;
+              ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
               break;
             case 2:
-              preferenceDisplay = !preferenceDisplay;
+              ctr.dialog.preferenceDisplay = !ctr.dialog.preferenceDisplay;
               break;
             case 3:
               break;
@@ -1661,7 +1545,7 @@ int main (int argc, char* argv[]) {
           }
           switch(infoMenu.getActiveElement()) {
             case 1:
-              infoDisplay = !infoDisplay;
+              ctr.dialog.infoDisplay = !ctr.dialog.infoDisplay;
               break;
             case 2:
               infoMenu.render = false;
@@ -1891,7 +1775,7 @@ int main (int argc, char* argv[]) {
           rightMenu.setXY(rightX, rightY);
           
           if (!hoverType.contains(HOVER_DIALOG)) {
-            preferenceDisplay = infoDisplay = false;
+            ctr.dialog.preferenceDisplay = ctr.dialog.infoDisplay = false;
             rightMenu.render = true;
           }
         }

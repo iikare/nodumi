@@ -23,6 +23,7 @@
 #include "kmeans.h"
 #include "output.h"
 #include "shader.h"
+#include "dialog.h"
 #include "voronoi.h"
 #include "colorgen.h"
 #include "output_sync.h"
@@ -122,6 +123,7 @@ class controller {
     stringstream midiData;
     imageController image;
     menuController* menu;
+    dialogController dialog;
         
     voronoiController voronoi;
     fftController fft;

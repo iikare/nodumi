@@ -86,10 +86,12 @@ class shaderData {
         if constexpr (isVecType) {
           //logQ("call to CRGB V", name, it->second, num); 
           vector<Vector3> vec_col;
-          for (const auto& col : val) {
-            vec_col.push_back({static_cast<float>(col.r/255.0f), 
-                               static_cast<float>(col.g/255.0f), 
-                               static_cast<float>(col.b/255.0f)});
+          unsigned int send_num = min(static_cast<unsigned long>(num), val.size());
+          vec_col.resize(send_num);
+          for (unsigned int i = 0; i < send_num; ++i) {
+            vec_col[i] = Vector3{static_cast<float>(val[i].r/255.0f), 
+                                 static_cast<float>(val[i].g/255.0f), 
+                                 static_cast<float>(val[i].b/255.0f)};
   
           }
           SetShaderValueV(shader, GetShaderLocation(shader, uf.c_str()), vec_col.data(), it->second, num); 

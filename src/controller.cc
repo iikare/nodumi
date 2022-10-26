@@ -596,10 +596,10 @@ void controller::load(string path, fileType& fType,
 
     int trackSetSize = *(reinterpret_cast<int*>(trackSizeBuf));
 
+    logQ(trackSetSize);
     setTrackOn.resize(trackSetSize);
     setTrackOff.resize(trackSetSize);
 
-    logQ(trackSetSize);
 
     // 0x372-0x372+(n*3)       track (on) colors
     // 0x372+(n*3)-0x372+(n*6) track (off) colors

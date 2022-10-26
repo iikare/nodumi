@@ -5,8 +5,5 @@
 #include <vector>
 #include "asset.h"
 
-#define BUILD_DATE " "
-#define COPY_YEAR " "
-
 vector<asset> assetSet = {};
 #endif //AGHFILE_H
