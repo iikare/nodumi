@@ -25,7 +25,7 @@ T clampValue(T val, T lo, T hi) {
 }
 
 template<class T>
-bool pointInBox(T pt, rect box) {
+bool pointInBox(const T& pt, const rect& box) {
   if constexpr (is_same<T, Vector2>::value || is_same<T, point>::value) {
     return static_cast<int>(pt.x) >= box.x && static_cast<int>(pt.x) < box.x + box.width &&
            static_cast<int>(pt.y) >= box.y && static_cast<int>(pt.y) < box.y + box.height;

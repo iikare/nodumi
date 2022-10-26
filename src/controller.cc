@@ -214,6 +214,10 @@ void controller::endBlendMode() {
 
 void controller::update(int offset, double& nowLineX, bool runState,
                         bool& newFile, bool& newImage, string& filename, string& imagename) {
+  
+  if (!programState) { return; }
+
+
   frameCounter++;
   if (!livePlayState && runState && output.isPortOpen()) {
       fileOutput.allow();
