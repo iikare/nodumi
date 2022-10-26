@@ -519,6 +519,9 @@ void sheetController::drawSheetPage() {
     spacingPositions += displayMeasure[m-1].getSpacingCount();
   }
 
+  // empty page
+  if (!spacingPositions) { return; }
+
   vector<int> spacingMargin (abs(margin) % spacingPositions, margin / spacingPositions + (margin > 0 ? 1 : -1));
   vector<int> spacingExtra (spacingPositions - (abs(margin) % spacingPositions), margin / spacingPositions);
   spacingMargin.insert(spacingMargin.end(), spacingExtra.begin(), spacingExtra.end());
