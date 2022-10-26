@@ -46,7 +46,6 @@ string toMinutes(double seconds);
 
 vector<string>& formatPortName(vector<string>& ports);
 
-bool isMKI(const string& path);
 bool isValidPath(const string& path, int pathTypes...);
 bool isValidExtension(const string& ext, int pathType);
 bool isValidExtension(const string& ext, int pathType, int pathTypes...);

@@ -173,10 +173,6 @@ vector<string>& formatPortName(vector<string>& ports) {
   return ports;
 }
 
-bool isMKI(const string& path) {
-  return getExtension(path) == "mki";
-}
-
 string getExtension(const string& path) {
   string p = path;
   transform(p.begin(), p.end(), p.begin(), ::tolower);
