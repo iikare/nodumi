@@ -296,7 +296,7 @@ void controller::updateDroppedFiles(bool& newFile, bool& newImage, string& filen
     }
 
     for (unsigned int idx = 0; idx < min(dropLimit, dropFile.count); ++idx) {
-      if (isValidPath(dropFile.paths[idx], PATH_DATAIMAGE)) {
+      if (isValidPath(dropFile.paths[idx], PATH_DATA, PATH_IMAGE)) {
         string ext = getExtension(dropFile.paths[idx]);
         if (ext == "mid" || ext == "mki") {
           if (!newFile) {
@@ -443,7 +443,7 @@ void controller::load(string path, fileType& fType,
 
   auto start = std::chrono::high_resolution_clock::now();
 
-  if (isMKI(path)) {
+  if (isValidPath(path, PATH_MKI)){
     // open input file
     ifstream input(path, std::ifstream::in | std::ios::binary);
     input.imbue(std::locale::classic());

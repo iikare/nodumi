@@ -173,22 +173,17 @@ vector<string>& formatPortName(vector<string>& ports) {
   return ports;
 }
 
-bool isMKI(string path) {
-
-
-  transform(path.begin(), path.end(), path.begin(), ::tolower);
-  string ext = path.substr(path.size() - min(3, static_cast<int>(path.length())));
-
-
-  return ext == "mki";
+bool isMKI(const string& path) {
+  return getExtension(path) == "mki";
 }
 
-string getExtension(string path) {
-  transform(path.begin(), path.end(), path.begin(), ::tolower);
-  return path.length() > 3 ? path.substr(path.size() - 3) : path;
+string getExtension(const string& path) {
+  string p = path;
+  transform(p.begin(), p.end(), p.begin(), ::tolower);
+  return p.length() > 3 ? p.substr(p.size() - 3) : p;
 }
 
-bool isValidPath(string path, int pathType) {
+bool isValidPath(const string& path, int pathTypes...) {
   struct stat info;
   // file doesn't exist in filesystem
   if (stat(path.c_str(), &info) == -1) {
@@ -196,20 +191,27 @@ bool isValidPath(string path, int pathType) {
   }
   
   string ext = getExtension(path);
- 
+
+  return isValidExtension(ext, pathTypes);
+
+}
+
+bool isValidExtension(const string& ext, int pathType) {
   switch (pathType) {
     case PATH_DATA:
       return ext == "mid" || ext == "mki";
     case PATH_IMAGE:
       return ext == "png" || ext == "jpg";
-    case PATH_DATAIMAGE:
-      return ext == "mid" || ext == "mki" || ext == "png" || ext == "jpg";
+    case PATH_MKI:
+      return ext == "mki";
     default:
       return false;
   }
 }
 
-
+bool isValidExtension(const string& ext, int pathType, int pathTypes...) {
+  return isValidExtension(ext, pathType) || isValidExtension(ext, pathTypes);
+}
 
 string toHex(int dec) {
   stringstream stream;

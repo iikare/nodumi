@@ -15,7 +15,7 @@ void imageController::load(const string& path) {
 
 
   if (!isValidPath(path, PATH_IMAGE)) {
-    logW(LL_WARN, "invalid path", path);
+    logW(LL_WARN, "invalid path:", path);
     return;
   }
   

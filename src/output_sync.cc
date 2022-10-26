@@ -43,6 +43,7 @@ void outputInstance::updateOffset(double offset) {
   if (index_last < index) {
     logQ("skipped note (forward):", index_last, index);
     //index = max(index_last, index - 10);
+    index = index_last;
   }
   else {
     this->offset = offset;

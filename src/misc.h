@@ -46,8 +46,10 @@ string toMinutes(double seconds);
 
 vector<string>& formatPortName(vector<string>& ports);
 
-bool isMKI(string path);
-bool isValidPath(string path, int pathType);
-string getExtension(string path);
+bool isMKI(const string& path);
+bool isValidPath(const string& path, int pathTypes...);
+bool isValidExtension(const string& ext, int pathType);
+bool isValidExtension(const string& ext, int pathType, int pathTypes...);
+string getExtension(const string& path);
 
 string toHex(int dec);

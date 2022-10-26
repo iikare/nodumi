@@ -83,7 +83,7 @@ enum fileType {
 enum pathType {
   PATH_DATA,
   PATH_IMAGE,
-  PATH_DATAIMAGE,
+  PATH_MKI,
   PATH_NONE
 };
 
