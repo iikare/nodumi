@@ -1083,7 +1083,8 @@ int main (int argc, char* argv[]) {
                  if (ctr.save_file.pending()) {
 
                   string save_path = ctr.save_file.getPath();
-                  if (save_path.size() < 4 || save_path.substr(save_path.size() - 4) != ".mki") {
+
+                  if (getExtension(save_path, true) != ".mki") {
                     save_path += ".mki";
                   }
 

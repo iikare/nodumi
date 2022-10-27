@@ -49,6 +49,6 @@ vector<string>& formatPortName(vector<string>& ports);
 bool isValidPath(const string& path, int pathTypes...);
 bool isValidExtension(const string& ext, int pathType);
 bool isValidExtension(const string& ext, int pathType, int pathTypes...);
-string getExtension(const string& path);
+string getExtension(const string& path, bool len4 = false);
 
 string toHex(int dec);

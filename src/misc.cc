@@ -173,10 +173,11 @@ vector<string>& formatPortName(vector<string>& ports) {
   return ports;
 }
 
-string getExtension(const string& path) {
+string getExtension(const string& path, bool len4) {
+  unsigned long len = len4 ? 4 : 3;
   string p = path;
   transform(p.begin(), p.end(), p.begin(), ::tolower);
-  return p.length() > 3 ? p.substr(p.size() - 3) : p;
+  return p.length() > len ? p.substr(p.size() - len) : p;
 }
 
 bool isValidPath(const string& path, int pathTypes...) {
