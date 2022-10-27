@@ -97,26 +97,6 @@ void controller::initData(const vector<asset>& assetSet) {
 
 }
 
-char* controller::fileDialog(osdialog_file_action action, osdialog_filters* filters, const char* cdir, const char* defName) {
- 
-  // prevent buffer overrun while osdialog blocks the main thread 
-  if (getLiveState()) {
-    liveInput.pauseInput();
-  }
-  else {
-    fileOutput.disallow();
-  }
-
-  return osdialog_file(action, cdir, defName, filters);
-  
-  if (getLiveState()) {
-    liveInput.resumeInput();
-  }
-  else {
-    fileOutput.allow();
-  }
-}
-
 Font* controller::getFont(const string& id, int size) {
   // find if a font with this id exists
   auto fit = fontMap.find(id);
@@ -202,6 +182,8 @@ void controller::unloadData() {
   image.unloadData();
   
   voronoi.unloadData();
+
+  CloseWindow();
 }
 
 void controller::beginBlendMode(int a, int b, int c) {
@@ -212,8 +194,7 @@ void controller::endBlendMode() {
   EndBlendMode();
 }
 
-void controller::update(int offset, double& nowLineX, bool runState,
-                        bool& newFile, bool& newImage, string& filename, string& imagename) {
+void controller::update(int offset, double& nowLineX, bool runState) {
   
   if (!programState) { return; }
 
@@ -252,8 +233,7 @@ void controller::update(int offset, double& nowLineX, bool runState,
     psrValue = rand();
   }
 
-  updateDroppedFiles(newFile, newImage, filename, imagename);
-                
+  updateDroppedFiles();
 }
 
 void controller::updateFPS() {
@@ -290,7 +270,7 @@ void controller::updateDimension(double& nowLineX) {
   }
 }
 
-void controller::updateDroppedFiles(bool& newFile, bool& newImage, string& filename, string& imagename) {
+void controller::updateDroppedFiles() {
   if (IsFileDropped()) {
     FilePathList dropFile = LoadDroppedFiles();
     constexpr unsigned int dropLimit = 2;
@@ -303,15 +283,13 @@ void controller::updateDroppedFiles(bool& newFile, bool& newImage, string& filen
       if (isValidPath(dropFile.paths[idx], PATH_DATA, PATH_IMAGE)) {
         string ext = getExtension(dropFile.paths[idx]);
         if (ext == "mid" || ext == "mki") {
-          if (!newFile) {
-            newFile = true;
-            filename = dropFile.paths[idx];
+          if (!ctr.open_file.pending()) {
+            ctr.open_file.setPending(dropFile.paths[idx]);
           }
         }
         else if (ext == "png" || ext == "jpg") {
-          if (!newImage) {
-            newImage = true;
-            imagename = dropFile.paths[idx];
+          if (!ctr.open_image.pending()) {
+            ctr.open_image.setPending(dropFile.paths[idx]);
           }
         }
       }

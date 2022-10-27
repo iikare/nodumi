@@ -24,6 +24,10 @@
 #define MUSIC_FONT   "LELAND"
 #define TEXT_SPACING 0
 
+#define FILTER_FILE  "midi/mki:mid,mki"
+#define FILTER_IMAGE "image:png,jpeg,jpg"
+#define FILTER_SAVE  "mki:mki"
+
 #define SITE_LINK "https://iika.re/nodumi/"
 
 

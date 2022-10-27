@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <functional>
 #include <sstream>
+#include "io.h"
 #include "fft.h"
 #include "midi.h"
 #include "misc.h"
@@ -67,8 +68,7 @@ class controller {
 
     void toggleLivePlay();
 
-    void update(int offset, double& nowLineX, bool runState,
-                bool& newFile, bool& newImage, string& filename, string& imagename);
+    void update(int offset, double& nowLineX, bool runState);
 
     void clear();
     void load(string path, fileType& fType, 
@@ -120,12 +120,15 @@ class controller {
     midi file;
     midiInput liveInput;
     midiOutput output;
-
     stringstream midiData;
+
     imageController image;
     menuController* menu;
     dialogController dialog;
-        
+    ioController open_file  = ioController(OSDIALOG_OPEN, FILTER_FILE);
+    ioController open_image = ioController(OSDIALOG_OPEN, FILTER_IMAGE);
+    ioController save_file  = ioController(OSDIALOG_SAVE, FILTER_SAVE);
+
     voronoiController voronoi;
     fftController fft;
 
@@ -173,13 +176,16 @@ class controller {
     double livePlayOffset;
     int curMeasure;
 
+
+    friend class ioController;
+
   private:
     void initData(const vector<asset>& assetSet);
     
     void updateKeyState();
     void updateDimension(double& nowLineX);
     void updateFPS();
-    void updateDroppedFiles(bool& newFile, bool& newImage, string& filename, string& imagename);
+    void updateDroppedFiles();
     
     int findCurrentMeasure(int pos) const;
     

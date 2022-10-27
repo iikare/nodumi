@@ -102,21 +102,6 @@ int main (int argc, char* argv[]) {
   vector<colorRGB>* colorSetOn = &ctr.setTrackOn;
   vector<colorRGB>* colorSetOff = &ctr.setTrackOff;
 
-  // file IO controllers
-  bool newFile = false;
-  char* filenameC = nullptr;
-  string filename = "";
-  osdialog_filters* filetypes = osdialog_filters_parse("midi/mki:mid,mki");
-  
-  bool newImage = false;
-  char* imagenameC = nullptr;
-  string imagename = "";
-  osdialog_filters* imagetypes = osdialog_filters_parse("image:png,jpeg,jpg");
-  
-  char* savenameC = nullptr;
-  string savename = "";
-  osdialog_filters* savetypes = osdialog_filters_parse("mki:mki");
-
   fileType curFileType = FILE_NONE; 
   bool clearFile = false;
 
@@ -142,14 +127,11 @@ int main (int argc, char* argv[]) {
   };
 
   const auto inverseSSX = [&] () {
-
     //double spaceR = ctr.getWidth() - nowLineX;
-
     double minVal = max(0.0, timeOffset - nowLineX/zoomLevel);
 
     // extra "1" prevents roundoff error
     double maxVal = min(ctr.getLastTime(), static_cast<int>(timeOffset+(ctr.getWidth()+1-nowLineX)/zoomLevel));
-
 
     return make_pair(minVal, maxVal);
   };
@@ -222,13 +204,12 @@ int main (int argc, char* argv[]) {
   ctr.menu->registerMenu(&colorSelect);
 
   if (argc >= 2) {
-    newFile = true;
-    filename = argv[1];
+
+    ctr.open_file.setPending(argv[1]);
 
     // load an image if supplied
     if (argc == 3) {
-      newImage = true;
-      imagename = argv[2];
+      ctr.open_image.setPending(argv[2]);
     }
   }
 
@@ -238,19 +219,20 @@ int main (int argc, char* argv[]) {
   // main program logic
   while (ctr.getProgramState()) {
 
-    if (newFile || clearFile) {
+    if (ctr.open_file.pending() || clearFile) {
       run = false;
       timeOffset = 0;
       pauseOffset = 0;
 
-      if (newFile) {
-        newFile = false;
-        ctr.load(filename, curFileType,
+      if (ctr.open_file.pending()) {
+        ctr.load(ctr.open_file.getPath(), curFileType,
                  nowLine,  showFPS,  showImage,  sheetMusicDisplay,
                  measureLine,  measureNumber, 
                  colorMode,  displayMode,
                  songTimeType,  tonicOffset, 
                  zoomLevel);
+
+        ctr.open_file.reset();
       }
       if (clearFile) {
         clearFile = false;
@@ -258,9 +240,9 @@ int main (int argc, char* argv[]) {
       }
     }
 
-    if (newImage) {
-      newImage = false;
-      ctr.image.load(imagename);
+    if (ctr.open_image.pending()) {
+      ctr.image.load(ctr.open_image.getPath());
+      ctr.open_image.reset();
     }
     
     if (ctr.getLiveState()) {
@@ -1074,54 +1056,43 @@ int main (int argc, char* argv[]) {
           }
           switch(fileMenu.getActiveElement()) {
             case 1:
-              filenameC = ctr.fileDialog(OSDIALOG_OPEN, filetypes);
-              
-              if (filenameC != nullptr) {
-                filename = static_cast<string>(filenameC);
-                newFile = true; 
-              }
-              free(filenameC);
-
+              ctr.open_file.dialog();
               ctr.menu->hideAll();
               break;
             case 2:
-              imagenameC = ctr.fileDialog(OSDIALOG_OPEN, imagetypes);
-              if (imagenameC != nullptr) {
-                imagename = static_cast<string>(imagenameC);
-                newImage = true;
-                
-                showImage = true; 
-                viewMenu.setContent("Hide Background", 4);
-              }
-              free(imagenameC);
-
+              ctr.open_image.dialog();
+              showImage = true; 
+              viewMenu.setContent("Hide Background", 4);
+              ctr.menu->hideAll();
               break;
             case 3:
               if (ctr.getPlayState()) {
                 break; 
               }
               if (curFileType == FILE_MKI) {
-                ctr.save(savename, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
+                ctr.save(ctr.save_file.getPath(), nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
                          colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
                 break;
               }
               [[fallthrough]];
             case 4:
               if (!ctr.getPlayState() && curFileType != FILE_NONE) {
-                savenameC = ctr.fileDialog(OSDIALOG_SAVE, savetypes);
-                if (savenameC != nullptr) {
-                  savename = static_cast<string>(savenameC);
-               
-                  if (savename.size() < 4 || savename.substr(savename.size() - 4) != ".mki") {
-                    savename += ".mki";
+
+                 ctr.save_file.dialog();
+
+                 if (ctr.save_file.pending()) {
+
+                  string save_path = ctr.save_file.getPath();
+                  if (save_path.size() < 4 || save_path.substr(save_path.size() - 4) != ".mki") {
+                    save_path += ".mki";
                   }
 
-
-                  ctr.save(savename, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
+                  ctr.save(save_path, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
                            colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
                   curFileType = FILE_MKI;
+
+                  ctr.save_file.resetPending();
                 }
-                free(savenameC);
               }
               break;
             case 5:
@@ -1771,15 +1742,9 @@ int main (int argc, char* argv[]) {
       hoverType.add(HOVER_MENU);
     }
 
-    ctr.update(timeOffset, nowLineX, run,
-               newFile, newImage, filename, imagename);
+    ctr.update(timeOffset, nowLineX, run);
   }
 
   ctr.unloadData();
-  osdialog_filters_free(filetypes); 
-  osdialog_filters_free(savetypes); 
-  osdialog_filters_free(imagetypes); 
-  CloseWindow();
-
   return 0;
 }
