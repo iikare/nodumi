@@ -1,7 +1,7 @@
 ifeq ($(strip $(asan)),)
 NONSTD=
 else # use address sanitizer
-NONSTD=-fsanitize=address -fno-omit-frame-pointer
+NONSTD=-fsanitize=address -fno-omit-frame-pointer 
 endif
 
 ifeq ($(strip $(prof)),)
@@ -36,7 +36,7 @@ endif
 ifeq ($(strip $(rel)),)
 RELFLAGS=-Og -g
 else # release build
-RELFLAGS=-DNO_DEBUG -O3 
+RELFLAGS=-DNO_DEBUG -DREL -O3
 
 # thinLTO doesn't exist for cross-compiler
 ifeq ($(strip $(arch)),)
@@ -49,7 +49,7 @@ endif
 endif
 
 
-CFLAGS=--std=c++20 -Wall -Wextra $(NONSTD) $(RELFLAGS) $(DEPDEF)
+CFLAGS=--std=c++20 -Wall -Wextra $(NONSTD)$(RELFLAGS) $(DEPDEF)
 CFLAGSSTD=$(CFLAGS) -fno-exceptions
 CFLAGSRTM=$(CFLAGS) -w # suppress library warnings 
 CFLAGSCIE=$(CFLAGS) 

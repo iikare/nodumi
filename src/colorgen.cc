@@ -495,7 +495,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
 
     // calculate initial distance to centroids and assign centroids to points
     for (unsigned int pixel = 0; pixel < colorData.size(); ++pixel) {
-      // first reset distance measurements
+     // first reset distance measurements
       colorData[pixel].cluster = -1;
       colorData[pixel].cDist = __DBL_MAX__;
       for (unsigned int centroid = 0; centroid < centroids.size(); ++centroid) {

@@ -69,7 +69,7 @@ class midi {
     void load(string file, stringstream& buf);
     void load(stringstream& buf);
     
-    vector<int>* getLineVerts() { return &lineVerts; }
+    const vector<int>& getLineVerts() { return lineVerts; }
     int findMeasure(int offset);
     
     int getMinTickLen() const { return tickNoteTransform[tickNoteTransformLen-1]*tpq; }
