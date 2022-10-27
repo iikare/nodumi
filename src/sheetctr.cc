@@ -520,7 +520,11 @@ void sheetController::drawSheetPage() {
   }
 
   // empty page
-  if (!spacingPositions) { return; }
+  if (!spacingPositions) { 
+    drawTextEx(to_string(measureRange.first), 
+               {(float)offset+sigSpacing/2 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*1.75}, ctr.bgSheetNote);
+    return;
+  }
 
   vector<int> spacingMargin (abs(margin) % spacingPositions, margin / spacingPositions + (margin > 0 ? 1 : -1));
   vector<int> spacingExtra (spacingPositions - (abs(margin) % spacingPositions), margin / spacingPositions);
