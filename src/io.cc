@@ -3,7 +3,6 @@
 
 ioController::ioController(osdialog_file_action action, string types) {
   this->action = action;
-  this->types = types;
   filter = osdialog_filters_parse(types.c_str());
 }
 

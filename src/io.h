@@ -23,7 +23,6 @@ class ioController {
 
   private:
 
-    string types;
     osdialog_file_action action;
     osdialog_filters* filter;
     
