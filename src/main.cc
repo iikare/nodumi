@@ -120,9 +120,6 @@ int main (int argc, char* argv[]) {
   fileType curFileType = FILE_NONE; 
   bool clearFile = false;
 
-  // data selector
-  midi& noteData = ctr.liveInput.noteStream;
-
   // right click variables
   int clickNote = -1;
   int clickTmp = -1;
@@ -270,11 +267,6 @@ int main (int argc, char* argv[]) {
       timeOffset = ctr.livePlayOffset;
       ctr.liveInput.update();
       run = false;
-
-      noteData = ctr.liveInput.noteStream;
-    }
-    else {
-      noteData = ctr.file; 
     }
 
     // fix FPS count bug
@@ -332,16 +324,16 @@ int main (int argc, char* argv[]) {
 
       int lastMeasureNum = 0;
 
-      double measureSpacing = measureTextEx(to_string(noteData.measureMap.size() - 1).c_str()).x; 
+      double measureSpacing = measureTextEx(to_string(ctr.getStream().measureMap.size() - 1).c_str()).x; 
 
       if (measureLine || measureNumber) {
-        for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
+        for (unsigned int i = 0; i < ctr.getStream().measureMap.size(); i++) {
           float measureLineWidth = 0.5;
           int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
-          double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
+          double measureLineX = convertSSX(ctr.getStream().measureMap[i].getLocation());
           bool hideLine = false;
-          if (i && i + 1 < noteData.measureMap.size()) {
-            if (convertSSX(noteData.measureMap[i + 1].getLocation()) - measureLineX < 10) {
+          if (i && i + 1 < ctr.getStream().measureMap.size()) {
+            if (convertSSX(ctr.getStream().measureMap[i + 1].getLocation()) - measureLineX < 10) {
               hideLine = true;
             }
           }
@@ -366,7 +358,7 @@ int main (int argc, char* argv[]) {
           }
 
           if (measureNumber) {
-            double lastMeasureLocation = convertSSX(noteData.measureMap[lastMeasureNum].getLocation()); 
+            double lastMeasureLocation = convertSSX(ctr.getStream().measureMap[lastMeasureNum].getLocation()); 
             if (!i || lastMeasureLocation + measureSpacing + 10 < measureLineX) {
               // measure number / song time collision detection
               Vector2 songTimeSize = {0,0}; 
@@ -428,11 +420,11 @@ int main (int argc, char* argv[]) {
           case DISPLAY_BALL:
             switch (colorMode) {
               case COLOR_PART:
-                return (*ctr.getNotes())[idx].track;
+                return ctr.getNotes()[idx].track;
               case COLOR_VELOCITY:
-                return (*ctr.getNotes())[idx].velocity;
+                return ctr.getNotes()[idx].velocity;
               case COLOR_TONIC:
-                return ((*ctr.getNotes())[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+                return (ctr.getNotes()[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
             }
             break;
           case DISPLAY_PULSE:
@@ -441,11 +433,11 @@ int main (int argc, char* argv[]) {
             switch (colorMode) {
               case COLOR_PART:
                 if (ctr.getLiveState()) return 0;
-                return (*ctr.getNotes())[lp[idx]].track;
+                return ctr.getNotes()[lp[idx]].track;
               case COLOR_VELOCITY:
-                return (*ctr.getNotes())[lp[idx]].velocity;
+                return ctr.getNotes()[lp[idx]].velocity;
               case COLOR_TONIC:
-                return ((*ctr.getNotes())[lp[idx]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+                return (ctr.getNotes()[lp[idx]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
             }
         }
         return 0;
@@ -457,7 +449,7 @@ int main (int argc, char* argv[]) {
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
         
-        if ((*ctr.getNotes())[i].x < currentBoundaries.first*0.9 && (*ctr.getNotes())[i].x > currentBoundaries.second*1.1) {
+        if (ctr.getNotes()[i].x < currentBoundaries.first*0.9 && ctr.getNotes()[i].x > currentBoundaries.second*1.1) {
           continue;
         }
         
@@ -472,18 +464,18 @@ int main (int argc, char* argv[]) {
           }
         };
         
-        float cX = convertSSX((*ctr.getNotes())[i].x);
-        float cY = convertSSY((*ctr.getNotes())[i].y);
-        float cW = (*ctr.getNotes())[i].duration * zoomLevel < 1 ? 1 : (*ctr.getNotes())[i].duration * zoomLevel;
+        float cX = convertSSX(ctr.getNotes()[i].x);
+        float cY = convertSSY(ctr.getNotes()[i].y);
+        float cW = ctr.getNotes()[i].duration * zoomLevel < 1 ? 1 : ctr.getNotes()[i].duration * zoomLevel;
         float cH = (ctr.getHeight() - ctr.menuHeight) / 88;
 
         switch (displayMode) {
           case DISPLAY_BAR:
             {
               int colorID = getColorSet(i);
-              if ((*ctr.getNotes())[i].isOn ||
-                 (timeOffset >= (*ctr.getNotes())[i].x && 
-                  timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
+              if (ctr.getNotes()[i].isOn ||
+                 (timeOffset >= ctr.getNotes()[i].x && 
+                  timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration)) {
                 noteOn = true;
               }
               if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
@@ -497,9 +489,9 @@ int main (int argc, char* argv[]) {
           case DISPLAY_VORONOI:
             if (cX > -0.2*ctr.getWidth() && cX + cW < 1.2*ctr.getWidth()){
               int colorID = getColorSet(i);
-              if ((*ctr.getNotes())[i].isOn ||
-                 (timeOffset >= (*ctr.getNotes())[i].x && 
-                  timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
+              if (ctr.getNotes()[i].isOn ||
+                 (timeOffset >= ctr.getNotes()[i].x && 
+                  timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration)) {
                 noteOn = true;
               }
 
@@ -529,11 +521,11 @@ int main (int argc, char* argv[]) {
                 if (cX < nowLineX - cW) {
                   radius *= 0.3;
                 }
-                if ((*ctr.getNotes())[i].isOn ||
-                   (timeOffset >= (*ctr.getNotes())[i].x && 
-                    timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
+                if (ctr.getNotes()[i].isOn ||
+                   (timeOffset >= ctr.getNotes()[i].x && 
+                    timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration)) {
                   noteOn = true;
-                  radius *= (0.3f + 0.7f * (1.0f - float(timeOffset - (*ctr.getNotes())[i].x) / (*ctr.getNotes())[i].duration));
+                  radius *= (0.3f + 0.7f * (1.0f - float(timeOffset - ctr.getNotes()[i].x) / ctr.getNotes()[i].duration));
                 }
                 if (!ctr.menu->mouseOnMenu()) {
                   int realX = 0;
@@ -597,9 +589,9 @@ int main (int argc, char* argv[]) {
               if (i != 0){
                 break;
               }
-              vector<int> linePositions = noteData.getLineVerts();
-              if (!ctr.getLiveState() || (convertSSX((*ctr.getNotes())[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
-                if ((*ctr.getNotes())[i].isChordRoot()) {
+              vector<int> linePositions = ctr.getStream().getLineVerts();
+              if (!ctr.getLiveState() || (convertSSX(ctr.getNotes()[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
+                if (ctr.getNotes()[i].isChordRoot()) {
                   for (unsigned int j = 0; j < linePositions.size(); j += 5) {
                     int colorID = getColorSet(j,linePositions);
                     float convSS[4] = {
@@ -641,9 +633,9 @@ int main (int argc, char* argv[]) {
               if (i != 0){
                 break;
               }
-              vector<int> linePositions = noteData.getLineVerts();
-              if (!ctr.getLiveState() || (convertSSX((*ctr.getNotes())[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
-                if ((*ctr.getNotes())[i].isChordRoot()) {
+              vector<int> linePositions = ctr.getStream().getLineVerts();
+              if (!ctr.getLiveState() || (convertSSX(ctr.getNotes()[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
+                if (ctr.getNotes()[i].isChordRoot()) {
                   for (unsigned int j = 0; j < linePositions.size(); j += 5) {
                     int colorID = getColorSet(j,linePositions);
                     float convSS[4] = {
@@ -715,8 +707,8 @@ int main (int argc, char* argv[]) {
                     }
                     //logQ(timeOffset, (linePositions[j+1], linePositions[j+2]));
                     if (ringDist <= ringLimit && ringDist > 4) {
-                      int noteLen = (*ctr.getNotes())[linePositions[j]].duration * zoomLevel < 1 ? 
-                                  1 : (*ctr.getNotes())[linePositions[j]].duration * zoomLevel;
+                      int noteLen = ctr.getNotes()[linePositions[j]].duration * zoomLevel < 1 ? 
+                                  1 : ctr.getNotes()[linePositions[j]].duration * zoomLevel;
                       noteLen = noteLen ? 32 - __countl_zero(noteLen) : 0;
                       double ringRad = floatLERP(6, 5*noteLen, ringRatio, INT_ILINEAR);
 
@@ -737,16 +729,16 @@ int main (int argc, char* argv[]) {
               bool drawFFT = false;
               double fftStretchRatio = 1.78;          //TODO: make fft-selection semi-duration-invariant
               int colorID = getColorSet(i); 
-              if ((*ctr.getNotes())[i].isOn ||
-                 (timeOffset >= (*ctr.getNotes())[i].x && 
-                  timeOffset < (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration)) {
+              if (ctr.getNotes()[i].isOn ||
+                 (timeOffset >= ctr.getNotes()[i].x && 
+                  timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration)) {
                 noteOn = true;
                 drawFFT = true;
               }
-              else if ((timeOffset >= (*ctr.getNotes())[i].x + (*ctr.getNotes())[i].duration && 
-                        timeOffset < (*ctr.getNotes())[i].x + fftStretchRatio*(*ctr.getNotes())[i].duration) ||
-                       (timeOffset < (*ctr.getNotes())[i].x && 
-                        timeOffset >= (*ctr.getNotes())[i].x - ctr.getMinTickLen())) {
+              else if ((timeOffset >= ctr.getNotes()[i].x + ctr.getNotes()[i].duration && 
+                        timeOffset < ctr.getNotes()[i].x + fftStretchRatio*ctr.getNotes()[i].duration) ||
+                       (timeOffset < ctr.getNotes()[i].x && 
+                        timeOffset >= ctr.getNotes()[i].x - ctr.getMinTickLen())) {
                 
                 drawFFT = true;
               }
@@ -767,9 +759,9 @@ int main (int argc, char* argv[]) {
       // render FFT lines after notes
       if (displayMode == DISPLAY_FFT) {
         for (const auto& idx : curNote) {
-          double freq = ctr.fft.getFundamental((*ctr.getNotes())[idx].y);
+          double freq = ctr.fft.getFundamental(ctr.getNotes()[idx].y);
           int colorID = getColorSet(idx);
-          double nowRatio = (timeOffset-(*ctr.getNotes())[idx].x)/((*ctr.getNotes())[idx].duration);
+          double nowRatio = (timeOffset-ctr.getNotes()[idx].x)/(ctr.getNotes()[idx].duration);
           double pitchRatio = 0;
           if (nowRatio > -0.25 && nowRatio < 0) {
             pitchRatio = 16*pow(nowRatio+0.25,2);
@@ -780,10 +772,10 @@ int main (int argc, char* argv[]) {
           else if (nowRatio < 1.78) {                   // TODO: smoothen interpolation functions
             pitchRatio = 1.0*pow(nowRatio-1.78,2);      // TODO: make function duration-invariant
           }
-          int binScale = 2+5*(1+log(1+(*ctr.getNotes())[idx].duration)) +
-                         (15.0/128)*(((*ctr.getNotes())[idx].velocity)+1);
+          int binScale = 2+5*(1+log(1+ctr.getNotes()[idx].duration)) +
+                         (15.0/128)*((ctr.getNotes()[idx].velocity)+1);
 
-          //logQ((*ctr.getNotes())[idx].y, freq, ctr.fft.fftbins.size());
+          //logQ(ctr.getNotes()[idx].y, freq, ctr.fft.fftbins.size());
           // simulate harmonics
 
           for (unsigned int bin = 0; bin < ctr.fft.fftbins.size(); ++bin) {
@@ -867,8 +859,8 @@ int main (int argc, char* argv[]) {
         drawSymbol(SYM_CLEF_BASS, 155, 40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 67), ctr.bgSheetNote);
       
 
-        if (noteData.measureMap.size() != 0) {
-          noteData.sheetData.drawSheetPage();
+        if (ctr.getStream().measureMap.size() != 0) {
+          ctr.getStream().sheetData.drawSheetPage();
         }
 
        
@@ -876,9 +868,9 @@ int main (int argc, char* argv[]) {
           
 
         }
-        //noteData.sheetData.findSheetPages();
+        //ctr.getStream().sheetData.findSheetPages();
         //logQ("cloc", ctr.getCurrentMeasure(timeOffset));
-        //logQ("cloc", formatPair(noteData.sheetData.findSheetPageLimit(ctr.getCurrentMeasure(timeOffset))));
+        //logQ("cloc", formatPair(ctr.getStream().sheetData.findSheetPageLimit(ctr.getCurrentMeasure(timeOffset))));
       }
       
       // option actions
@@ -933,10 +925,10 @@ int main (int argc, char* argv[]) {
       switch (selectType) {
         case SELECT_NOTE:
           if (clickOn) {
-            ctr.setTrackOn[(*ctr.getNotes())[clickNote].track] = colorSelect.getColor();
+            ctr.setTrackOn[ctr.getNotes()[clickNote].track] = colorSelect.getColor();
           }
           else {
-            ctr.setTrackOff[(*ctr.getNotes())[clickNote].track] = colorSelect.getColor();
+            ctr.setTrackOff[ctr.getNotes()[clickNote].track] = colorSelect.getColor();
           }
           break;
         case SELECT_BG:
@@ -1002,8 +994,8 @@ int main (int argc, char* argv[]) {
       }
       else if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
         bool measureFirst = true;
-        for (unsigned int i = noteData.measureMap.size()-1; i > 0; --i) {
-          double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
+        for (unsigned int i = ctr.getStream().measureMap.size()-1; i > 0; --i) {
+          double measureLineX = convertSSX(ctr.getStream().measureMap[i].getLocation());
           if (measureLineX < nowLineX-1) {
             timeOffset = unconvertSSX(measureLineX);
             measureFirst = false;
@@ -1035,7 +1027,7 @@ int main (int argc, char* argv[]) {
       else if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
         // immediately move to next measure
         bool measureLast = true;
-        for (auto& measure : noteData.measureMap) {
+        for (auto& measure : ctr.getStream().measureMap) {
           double measureLineX = convertSSX(measure.getLocation());
           if (measureLineX > nowLineX+1) {
             timeOffset = unconvertSSX(measureLineX);
@@ -1622,7 +1614,7 @@ int main (int argc, char* argv[]) {
               }
               break;
             case 2:
-              tonicOffset = ((*ctr.getNotes())[clickNote].y - MIN_NOTE_IDX + tonicOffset) % 12;
+              tonicOffset = (ctr.getNotes()[clickNote].y - MIN_NOTE_IDX + tonicOffset) % 12;
               break;
           }
           break;
@@ -1682,9 +1674,9 @@ int main (int argc, char* argv[]) {
           int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
 
           if (clickNote != -1) {
-            rightX = round(nowLineX + ((*ctr.getNotes())[clickNote].x - timeOffset) * zoomLevel);
+            rightX = round(nowLineX + (ctr.getNotes()[clickNote].x - timeOffset) * zoomLevel);
             rightY = (ctr.getHeight() - round((ctr.getHeight() - ctr.menuHeight) * 
-                      static_cast<double>((*ctr.getNotes())[clickNote].y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
+                      static_cast<double>(ctr.getNotes()[clickNote].y - MIN_NOTE_IDX + 3)/(NOTE_RANGE + 3)));
           }
           
           // find coordinate to draw right click menu
@@ -1698,15 +1690,15 @@ int main (int argc, char* argv[]) {
             rightMenuContents[1] = "Change Part Color";
             rightMenuContents[2] = "Set Tonic";
             rightMenu.update(rightMenuContents);
-            rightMenu.setContent(getNoteInfo((*ctr.getNotes())[clickNote].track, 
-                                             (*ctr.getNotes())[clickNote].y - MIN_NOTE_IDX), 0);
+            rightMenu.setContent(getNoteInfo(ctr.getNotes()[clickNote].track, 
+                                             ctr.getNotes()[clickNote].y - MIN_NOTE_IDX), 0);
             
             // set note color for color wheel
             if (clickOn) {
-              colorSelect.setColor(ctr.setTrackOn[(*ctr.getNotes())[clickNote].track]);
+              colorSelect.setColor(ctr.setTrackOn[ctr.getNotes()[clickNote].track]);
             }
             else{
-              colorSelect.setColor(ctr.setTrackOff[(*ctr.getNotes())[clickNote].track]);
+              colorSelect.setColor(ctr.setTrackOff[ctr.getNotes()[clickNote].track]);
             }
           }
           else {
@@ -1727,8 +1719,8 @@ int main (int argc, char* argv[]) {
             }
             else {
               bool measureSelected = false;
-              for (unsigned int i = 0; i < noteData.measureMap.size(); i++) {
-                double measureLineX = convertSSX(noteData.measureMap[i].getLocation());
+              for (unsigned int i = 0; i < ctr.getStream().measureMap.size(); i++) {
+                double measureLineX = convertSSX(ctr.getStream().measureMap[i].getLocation());
                 if (pointInBox(ctr.getMousePosition(), 
                                {static_cast<int>(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
                     !ctr.menu->mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {

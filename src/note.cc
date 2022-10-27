@@ -17,8 +17,7 @@ note* note::getNextNote() {
     }
   }
   else {
-    note* p = this;
-    return p;
+    return this;
   }
 }
 

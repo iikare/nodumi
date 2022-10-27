@@ -339,11 +339,18 @@ void controller::toggleLivePlay() {
   getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
 }
 
-vector<note>* controller::getNotes() {
+midi& controller::getStream() {
   if (livePlayState) {
-    return &liveInput.noteStream.notes;
+    return liveInput.noteStream;
   }
-  return &file.notes;
+  return file;
+}
+
+vector<note>& controller::getNotes() {
+  if (livePlayState) {
+    return liveInput.noteStream.notes;
+  }
+  return file.notes;
 }
 
 int controller::getTrackCount() {

@@ -98,7 +98,8 @@ class controller {
     int getPSR() { return psrValue; }
     unsigned int getFrameCounter() { return frameCounter; }
 
-    vector<note>* getNotes();
+    midi& getStream();
+    vector<note>& getNotes();
     int getTrackCount();
     int getNoteCount();
     int getLastTime();
