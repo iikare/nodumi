@@ -2,12 +2,12 @@
 #include "enum.h"
 #include "misc.h"
 
-void menuController::registerMenu(menu* newMenu) {
-  if (newMenu->type == TYPE_MAIN) {
-    mainMenuOffset += newMenu->mainSize;
+void menuController::registerMenu(menu& newMenu) {
+  if (newMenu.type == TYPE_MAIN) {
+    mainMenuOffset += newMenu.mainSize;
   }
-  newMenu->render = false;
-  menuSet.push_back(newMenu);
+  newMenu.render = false;
+  menuSet.push_back(&newMenu);
 }
 
 void menuController::renderAll() {

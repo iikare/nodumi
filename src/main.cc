@@ -142,66 +142,66 @@ int main (int argc, char* argv[]) {
   // menu objects
   vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Close File", "Close Image", "Exit"};
   menu fileMenu(ctr.getSize(), fileMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(&fileMenu);
+  ctr.menu->registerMenu(fileMenu);
    
   vector<string> editMenuContents = {"Edit", "Enable Sheet Music", "Preferences"};
   menu editMenu(ctr.getSize(), editMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(&editMenu);
+  ctr.menu->registerMenu(editMenu);
   
   vector<string> viewMenuContents = {"View", "Display Mode:", "Display Song Time:", "Hide Now Line", 
                                      "Hide Measure Line", "Hide Measure Number", "Hide Background", "Show FPS"};
   menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(&viewMenu);
+  ctr.menu->registerMenu(viewMenu);
   
   vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball", "FFT", "Voronoi"};
   menu displayMenu(ctr.getSize(), displayMenuContents, TYPE_SUB, 
                    viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
-  ctr.menu->registerMenu(&displayMenu);
+  ctr.menu->registerMenu(displayMenu);
 
   vector<string> songMenuContents = {"Relative", "Absolute"};
   menu songMenu(ctr.getSize(), songMenuContents, TYPE_SUB, 
                 viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(2), &viewMenu, 2);
-  ctr.menu->registerMenu(&songMenu);
+  ctr.menu->registerMenu(songMenu);
 
   vector<string> midiMenuContents = {"Midi", "Input", "Output", "Enable Live Play"};
   menu midiMenu(ctr.getSize(), midiMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(&midiMenu);
+  ctr.menu->registerMenu(midiMenu);
 
   vector<string> inputMenuContents = {""};
   menu inputMenu(ctr.getSize(), inputMenuContents, TYPE_SUB, 
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(1), &midiMenu, 1);
-  ctr.menu->registerMenu(&inputMenu);
+  ctr.menu->registerMenu(inputMenu);
 
   vector<string> outputMenuContents = {""};
   menu outputMenu(ctr.getSize(), outputMenuContents, TYPE_SUB, 
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(2), &midiMenu, 2);
-  ctr.menu->registerMenu(&outputMenu);
+  ctr.menu->registerMenu(outputMenu);
   
   vector<string> colorMenuContents = {"Color", "Color By:", "Color Scheme:", "Swap Colors", "Invert Color Scheme"};
   menu colorMenu(ctr.getSize(), colorMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(&colorMenu);
+  ctr.menu->registerMenu(colorMenu);
    
   vector<string> schemeMenuContents = {"Part", "Velocity", "Tonic"};
   menu schemeMenu(ctr.getSize(), schemeMenuContents, TYPE_SUB, 
                   colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(1), &colorMenu, 1);
-  ctr.menu->registerMenu(&schemeMenu);
+  ctr.menu->registerMenu(schemeMenu);
   
   vector<string> infoMenuContents= {"Info", "Program Info", "Help"};
   menu infoMenu(ctr.getSize(), infoMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(&infoMenu);
+  ctr.menu->registerMenu(infoMenu);
 
   vector<string> paletteMenuContents = {"Default", "From Background"};
   menu paletteMenu(ctr.getSize(), paletteMenuContents, TYPE_SUB, 
                    colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(2), &colorMenu, 2);
-  ctr.menu->registerMenu(&paletteMenu);
+  ctr.menu->registerMenu(paletteMenu);
   
   vector<string> rightMenuContents = {"Info", "Change Part Color", "Set Tonic"};
   menu rightMenu(ctr.getSize(), rightMenuContents, TYPE_RIGHT, -100,-100); 
-  ctr.menu->registerMenu(&rightMenu);
+  ctr.menu->registerMenu(rightMenu);
   
   vector<string> colorSelectContents = {"Color Select"};
   menu colorSelect(ctr.getSize(), colorSelectContents, TYPE_COLOR, -100,-100, &rightMenu, 1); 
-  ctr.menu->registerMenu(&colorSelect);
+  ctr.menu->registerMenu(colorSelect);
 
   if (argc >= 2) {
 

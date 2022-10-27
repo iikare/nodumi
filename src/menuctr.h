@@ -21,7 +21,7 @@ class menuController {
     }
     
 
-    void registerMenu(menu* newMenu);
+    void registerMenu(menu& newMenu);
     void renderAll();
     void hideAll();
 
