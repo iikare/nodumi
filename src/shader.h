@@ -9,10 +9,12 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "asset.h"
 #include "color.h"
 #include "uniform.h"
 
+using std::min;
 using std::map;
 using std::vector;
 using std::string;
@@ -86,7 +88,7 @@ class shaderData {
         if constexpr (isVecType) {
           //logQ("call to CRGB V", name, it->second, num); 
           vector<Vector3> vec_col;
-          unsigned int send_num = min(static_cast<unsigned long>(num), val.size());
+          unsigned int send_num = min(num, static_cast<int>(val.size()));
           vec_col.resize(send_num);
           for (unsigned int i = 0; i < send_num; ++i) {
             vec_col[i] = Vector3{static_cast<float>(val[i].r/255.0f), 
