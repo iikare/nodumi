@@ -36,11 +36,11 @@ void drawSymbol(int sym, int size, int x, int y, const colorRGB& col, unsigned c
   DrawTextCodepoint(*ctr.getFont(font, size), sym, (const Vector2){static_cast<float>(x), static_cast<float>(y)}, size, color);
 }
 
-void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col, float alpha) {
+void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col, float alpha, float sAngle, float eAngle) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, 
                         (unsigned char)col.b, (unsigned char)alpha};
 
-  DrawRing(center, iRad, oRad, 0.0f, 360.0f, 1 + oRad, color);
+  DrawRing(center, iRad, oRad, sAngle, eAngle, 1 + oRad, color);
 }
 
 void drawGradientLineH(const Vector2& a, const Vector2& b, float thick, const colorRGB& col, float alphaA, float alphaB) {

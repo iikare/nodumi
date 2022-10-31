@@ -87,7 +87,7 @@ int main (int argc, char* argv[]) {
 
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_PULSE;
+  int displayMode = DISPLAY_LOOP;
   
   double nowLineX = ctr.getWidth()/2.0f;
 
@@ -152,7 +152,7 @@ int main (int argc, char* argv[]) {
   menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(viewMenu);
   
-  vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball", "FFT", "Voronoi"};
+  vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball", "FFT", "Voronoi", "Loop"};
   menu displayMenu(ctr.getSize(), displayMenuContents, TYPE_SUB, 
                    viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
   ctr.menu->registerMenu(displayMenu);
@@ -408,6 +408,8 @@ int main (int argc, char* argv[]) {
                 return (ctr.getNotes()[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
             }
             break;
+          case DISPLAY_LOOP:
+            [[fallthrough]];
           case DISPLAY_PULSE:
             [[fallthrough]];
           case DISPLAY_LINE:
@@ -699,6 +701,69 @@ int main (int argc, char* argv[]) {
                                  colorLERP((*colorSetOn)[colorID], (*colorSetOff)[colorID], ringRatio, INT_ICIRCULAR),
                                  floatLERP(0,255, ringRatio, INT_ICIRCULAR));
                       }
+                    }
+                  }
+                }
+              }
+            }
+            break;
+          case DISPLAY_LOOP:
+            {
+              if (i != 0){
+                break;
+              }
+              vector<int> linePositions = ctr.getStream().getLineVerts();
+              if (!ctr.getLiveState() || (convertSSX(ctr.getNotes()[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
+                if (ctr.getNotes()[i].isChordRoot()) {
+                  for (unsigned int j = 0; j < linePositions.size(); j += 5) {
+                    int colorID = getColorSet(j,linePositions);
+                    float convSS[4] = {
+                                        static_cast<float>(convertSSX(linePositions[j+1])),
+                                        static_cast<float>(convertSSY(linePositions[j+2])),
+                                        static_cast<float>(convertSSX(linePositions[j+3])),
+                                        static_cast<float>(convertSSY(linePositions[j+4]))
+                                      };
+
+                    if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
+                       continue;
+                    }
+
+                    noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
+                    if (pointInBox(ctr.getMousePosition(), 
+                                   pointToRect(
+                                                {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
+                                                {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
+                                              ))) {
+                      updateClickIndex(linePositions[j]);
+                    }
+                    auto cSet = noteOn ? colorSetOn : colorSetOff;
+                    double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
+                    if (convSS[2] < nowLineX) {
+                    drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
+                               2, (*cSet)[colorID]);
+                    }
+                    else if (convSS[0] < nowLineX) {
+
+                      double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
+                      bool nowNote = clickTmp == linePositions[j] ? false : noteOn;
+                      drawLineEx(convSS[0],
+                                 convSS[1],
+                                 nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
+                                 nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
+                                 3, (*cSet)[colorID]);
+                    }
+                    drawRing({convSS[0], convSS[1]},
+                             0, 3, (*cSet)[colorID]);
+                    drawRing({convSS[2], convSS[3]},
+                             0, 3, (*cSet)[colorID]);
+                    if (convSS[2] < nowLineX) {
+                      drawRing({convSS[2], convSS[3]},
+                               4, 8, (*cSet)[colorID]);
+                    }
+                    
+                    if (nowRatio > 0 && nowRatio < 1) {
+                      drawRing({convSS[2], convSS[3]},
+                               4, 8, (*cSet)[colorID], 255, (nowRatio-0.5f)*360.0f, 180.0f);
                     }
                   }
                 }
@@ -1171,6 +1236,7 @@ int main (int argc, char* argv[]) {
               displayMode = DISPLAY_VORONOI;
               break;
             case 6:
+              displayMode = DISPLAY_LOOP;
               break;
             case 7:
               break;

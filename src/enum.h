@@ -110,6 +110,7 @@ enum displayType {
   DISPLAY_PULSE,
   DISPLAY_FFT,
   DISPLAY_VORONOI,
+  DISPLAY_LOOP,
 };
 
 enum menuType {
