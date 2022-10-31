@@ -9,6 +9,9 @@
 using std::cerr; 
 using std::endl;
 using std::ostringstream;
+using std::false_type;
+using std::true_type;
+using std::is_same;
 using std::string;
 using std::vector;
 using std::pair;
@@ -32,55 +35,25 @@ enum logLevel {
   LL_DEBUG
 };
 
-void logProcess(const logLevel& level, string&lvmsg, string& file);
+template <typename T>
+struct is_vector {
+  static constexpr bool value = false;
+};
 
-template<typename U, typename V>
-U& logRecursive(U& stream, const V& arg1) {
-   stream << " ";
-   return (stream << arg1);
-}
+template <typename T>
+struct is_vector<std::vector<T>> {
+  static constexpr bool value = true;
+};
 
-template<typename U, typename V, typename... W>
-U& logRecursive(U&  stream, const V& arg1, const W&... args) {
-   stream << " ";
-   return logRecursive((stream << arg1), args...);
-}
+template <typename T>
+struct is_pair {
+  static constexpr bool value = false;
+};
 
-template<typename V, typename... W>
-void logOutput(logLevel level, string file, int line, const V& arg1, const W&... args) {
-  
-  #ifdef NO_DEBUG
-    if (level == LL_DEBUG) { return; }
-  #endif
-  
-  ostringstream out;
-  string lvmsg = "";
-
-  logProcess(level, lvmsg, file);
-  
-  out << lvmsg;
-  logRecursive((out << arg1), args...);
-  out << " → " << file << ":" << line << endl;
-
-  cerr << out.str();
-}
-
-template<typename V>
-void logOutput(logLevel level, string file, int line, const V& arg1) {
- 
-  #ifdef NO_DEBUG
-    if (level == LL_DEBUG) { return; }
-  #endif 
-
-  ostringstream out;
-  string lvmsg = "";
-
-  logProcess(level, lvmsg, file);
-
-  out << lvmsg << arg1 << " → " << file << ":" << line << endl;
-
-  cerr << out.str();
-}
+template <typename U, typename V>
+struct is_pair<pair<U, V>> {
+  static constexpr bool value = true;
+};
 
 template<typename U, typename V>
 string formatPair(const pair<U, V>& typePair) {
@@ -144,5 +117,93 @@ string formatVector(const vector<pair<U, V>>& vec) {
   }
   
   return s;
+}
+
+void logProcess(const logLevel& level, string&lvmsg, string& file);
+
+template<typename U, typename V>
+U& logRecursive(U& stream, const V& arg1) {
+  stream << " ";
+  if constexpr (is_vector<V>::value) {
+    return (stream << formatVector(arg1));
+  }
+  else if constexpr (is_pair<V>::value) {
+    return (stream << formatPair(arg1));
+  }
+  else {
+    return (stream << arg1);
+  }
+}
+
+template<typename U, typename V, typename... W>
+U& logRecursive(U& stream, const V& arg1, const W&... args) {
+  stream << " ";
+  if constexpr (is_vector<V>::value) {
+    return logRecursive((stream << formatVector(arg1)), args...);
+  }
+  else if constexpr (is_pair<V>::value) {
+    return logRecursive((stream << formatPair(arg1)), args...);
+  }
+  else {
+    return logRecursive((stream << arg1), args...);
+  }
+}
+
+template<typename V, typename... W>
+void logOutput(logLevel level, string file, int line, const V& arg1, const W&... args) {
+  
+  #ifdef NO_DEBUG
+    if (level == LL_DEBUG) { return; }
+  #endif
+  
+  ostringstream out;
+  string lvmsg = "";
+
+  logProcess(level, lvmsg, file);
+  
+  out << lvmsg;
+
+  if constexpr (is_vector<V>::value) {
+    logRecursive((out << formatVector(arg1)), args...);
+  }
+  else if constexpr (is_pair<V>::value) {
+    logRecursive((out << formatPair(arg1)), args...);
+  }
+  else {
+    logRecursive((out << arg1), args...);
+  }
+    
+  out << " → " << file << ":" << line << endl;
+
+  cerr << out.str();
+}
+
+template<typename V>
+void logOutput(logLevel level, string file, int line, const V& arg1) {
+ 
+  #ifdef NO_DEBUG
+    if (level == LL_DEBUG) { return; }
+  #endif 
+
+  ostringstream out;
+  string lvmsg = "";
+
+  logProcess(level, lvmsg, file);
+  out << lvmsg;
+  
+
+  if constexpr (is_vector<V>::value) {
+    out << formatVector(arg1);
+  }
+  else if constexpr (is_pair<V>::value) {
+    out << formatPair(arg1);
+  }
+  else {
+    out << arg1;
+  }
+    
+  out << " → " << file << ":" << line << endl;
+
+  cerr << out.str();
 }
 
