@@ -12,7 +12,7 @@ class ioController {
     ioController(osdialog_file_action action, string types);
     ~ioController();
 
-    void dialog(const char* cdir = ".", const char* defName = nullptr);
+    void dialog(const char* defName = nullptr);
     void reset();
     void resetPending();
     void setPending(string path);
@@ -28,6 +28,7 @@ class ioController {
     
     bool pending_item = false;
     string path;
+    string working_dir = ".";
 
 
 };

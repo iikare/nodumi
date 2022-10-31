@@ -10,7 +10,7 @@ ioController::~ioController() {
   osdialog_filters_free(filter); 
 }
 
-void ioController::dialog(const char* cdir, const char* defName) {
+void ioController::dialog(const char* defName) {
   // prevent buffer overrun while osdialog blocks the main thread 
   if (ctr.getLiveState()) {
     ctr.liveInput.pauseInput();
@@ -19,10 +19,12 @@ void ioController::dialog(const char* cdir, const char* defName) {
     ctr.fileOutput.disallow();
   }
 
-  char* result = osdialog_file(action, cdir, defName, filter);
+  char* result = osdialog_file(action, working_dir.c_str(), defName, filter);
  
   if (result != nullptr) {
     path = static_cast<string>(result);
+    working_dir = getDirectory(path);
+
     pending_item = true;
   }
 

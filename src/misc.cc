@@ -180,6 +180,12 @@ string getExtension(const string& path, bool len4) {
   return p.length() > len ? p.substr(p.size() - len) : p;
 }
 
+string getDirectory(const string& path) {
+  string dir = path;
+  int pos = dir.find_last_of("/\\");
+  return dir.substr(0,pos);
+}
+
 bool isValidPath(const string& path, int pathTypes...) {
   struct stat info;
   // file doesn't exist in filesystem

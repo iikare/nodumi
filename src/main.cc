@@ -12,7 +12,6 @@
 #include <thread>
 #include <algorithm>
 #include <bit>
-#include "../dpd/osdialog/osdialog.h"
 #include "gl_compat.h"
 #include "aghfile.h"
 #include "enum.h"
