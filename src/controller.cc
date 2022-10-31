@@ -394,8 +394,8 @@ int controller::findCurrentMeasure(int pos) const {
       }
     }
   }
-  logW(LL_WARN, "invalid current measure");
-  return -1;
+  logW(LL_WARN, "invalid current measure at offset", pos);
+  return 0;
 }
 
 int controller::getMeasureCount() const {

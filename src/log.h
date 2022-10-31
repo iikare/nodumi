@@ -120,6 +120,7 @@ string formatVector(const vector<pair<U, V>>& vec) {
 }
 
 void logProcess(const logLevel& level, string&lvmsg, string& file);
+void writeColor(const logLevel& level, string&lvmsg, ostringstream& out);
 
 template<typename U, typename V>
 U& logRecursive(U& stream, const V& arg1) {
@@ -160,8 +161,7 @@ void logOutput(logLevel level, string file, int line, const V& arg1, const W&...
   string lvmsg = "";
 
   logProcess(level, lvmsg, file);
-  
-  out << lvmsg;
+  writeColor(level, lvmsg, out);
 
   if constexpr (is_vector<V>::value) {
     logRecursive((out << formatVector(arg1)), args...);
@@ -189,7 +189,7 @@ void logOutput(logLevel level, string file, int line, const V& arg1) {
   string lvmsg = "";
 
   logProcess(level, lvmsg, file);
-  out << lvmsg;
+  writeColor(level, lvmsg, out);
   
 
   if constexpr (is_vector<V>::value) {

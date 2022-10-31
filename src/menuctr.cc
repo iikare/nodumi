@@ -10,13 +10,13 @@ void menuController::registerMenu(menu& newMenu) {
   menuSet.push_back(&newMenu);
 }
 
-void menuController::renderAll() {
+void menuController::render() {
   for (unsigned int i = 0; i < menuSet.size(); i++) {
     menuSet[i]->draw();
   }
 }
 
-void menuController::hideAll() {
+void menuController::hide() {
   for (unsigned int i = 0; i < menuSet.size(); i++) {
     menuSet[i]->render = false;
   }

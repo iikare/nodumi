@@ -22,8 +22,8 @@ class menuController {
     
 
     void registerMenu(menu& newMenu);
-    void renderAll();
-    void hideAll();
+    void render();
+    void hide();
 
     void unloadData();
 

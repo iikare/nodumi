@@ -244,7 +244,7 @@ int main (int argc, char* argv[]) {
       ctr.image.load(ctr.open_image.getPath());
       ctr.open_image.reset();
     }
-    
+
     if (ctr.getLiveState()) {
       timeOffset = ctr.livePlayOffset;
       ctr.liveInput.update();
@@ -874,7 +874,7 @@ int main (int argc, char* argv[]) {
                   measureTextEx(FPSText.c_str()).x - 4, 4, ctr.bgDark);
       }
 
-      ctr.menu->renderAll();
+      ctr.menu->render();
 
       ctr.dialog.render();
     
@@ -1057,13 +1057,13 @@ int main (int argc, char* argv[]) {
           switch(fileMenu.getActiveElement()) {
             case 1:
               ctr.open_file.dialog();
-              ctr.menu->hideAll();
+              ctr.menu->hide();
               break;
             case 2:
               ctr.open_image.dialog();
               showImage = true; 
               viewMenu.setContent("Hide Background", 4);
-              ctr.menu->hideAll();
+              ctr.menu->hide();
               break;
             case 3:
               if (ctr.getPlayState()) {
@@ -1638,7 +1638,7 @@ int main (int argc, char* argv[]) {
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
       clickNote = clickTmp;
       clickOn = clickOnTmp;
-      ctr.menu->hideAll();
+      ctr.menu->hide();
 
       if (!ctr.menu->mouseOnMenu()) {
         if (!pointInBox(ctr.getMousePosition(), (rect){0, 0, ctr.getWidth(), 20})) {
