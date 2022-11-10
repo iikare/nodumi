@@ -94,6 +94,7 @@ int main (int argc, char* argv[]) {
   string FPSText = "";
 
   enumChecker<hoverType> hoverType;
+  actionType action = actionType::ACTION_NONE;
 
   // color variables
   int selectType = SELECT_NONE;
@@ -950,6 +951,10 @@ int main (int argc, char* argv[]) {
       sheetMusicDisplay ? ctr.barHeight = ctr.menuHeight + ctr.sheetHeight : ctr.barHeight = ctr.menuHeight;
     }
     // key actions
+    
+    action = ctr.updateAction();
+
+
     if (run) {
       if (timeOffset + GetFrameTime() * 500 < ctr.getLastTime()) {
         timeOffset += GetFrameTime() * 500;
@@ -997,6 +1002,87 @@ int main (int argc, char* argv[]) {
       }
     }
     
+    switch (action) {
+      case actionType::ACTION_OPEN:
+        ctr.open_file.dialog();
+        ctr.menu->hide();
+        break;
+      case actionType::ACTION_OPEN_IMAGE:
+        ctr.open_image.dialog();
+        showImage = true; 
+        viewMenu.setContent("Hide Background", 4);
+        ctr.menu->hide();
+        break;
+      case actionType::ACTION_CLOSE:
+        clearFile = true;
+        break;
+      case actionType::ACTION_CLOSE_IMAGE:
+        ctr.image.unloadData();
+        break;
+      case actionType::ACTION_SAVE:
+        if (ctr.getPlayState()) {
+          break; 
+        }
+        if (curFileType == FILE_MKI) {
+          ctr.save(ctr.save_file.getPath(), nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
+                   colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+          break;
+        }
+        [[fallthrough]];
+      case actionType::ACTION_SAVE_AS:
+        if (!ctr.getPlayState() && curFileType != FILE_NONE) {
+
+           ctr.save_file.dialog();
+
+           if (ctr.save_file.pending()) {
+
+            string save_path = ctr.save_file.getPath();
+
+            if (getExtension(save_path, true) != ".mki") {
+              save_path += ".mki";
+            }
+
+            ctr.save(save_path, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
+                     colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+            curFileType = FILE_MKI;
+
+            ctr.save_file.resetPending();
+          }
+        }
+        break;
+      case actionType::ACTION_SHEET:
+        if (editMenu.getContent(1) == "Disable Sheet Music") {
+          editMenu.setContent("Enable Sheet Music", 1);
+        }
+        else if (editMenu.getContent(1) == "Enable Sheet Music") {
+          editMenu.setContent("Disable Sheet Music", 1);
+        }
+        sheetMusicDisplay = !sheetMusicDisplay;
+        ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
+        break;
+      case actionType::ACTION_PREFERENCES:
+        ctr.dialog.preferenceDisplay = !ctr.dialog.preferenceDisplay;
+        break;
+      case actionType::ACTION_LIVEPLAY:
+        if (midiMenu.getContent(3) == "Enable Live Play") {
+          midiMenu.setContent("Disable Live Play", 3);
+          zoomLevel *= 3;
+        }
+        else if (midiMenu.getContent(3) == "Disable Live Play") {
+          midiMenu.setContent("Enable Live Play", 3);
+          zoomLevel *= 1.0/3.0;
+        }
+        ctr.toggleLivePlay();
+        if (!ctr.getLiveState()) {
+          timeOffset = 0;
+        }
+        break;
+      default:
+        break;
+    }
+    action = actionType::ACTION_NONE;
+
+
     // key logic
     if ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_LEFT_SHIFT)) && GetMouseWheelMove() != 0) {
       if (ctr.image.exists() && showImage) {
@@ -1120,51 +1206,22 @@ int main (int argc, char* argv[]) {
           }
           switch(fileMenu.getActiveElement()) {
             case 1:
-              ctr.open_file.dialog();
-              ctr.menu->hide();
+              action = actionType::ACTION_OPEN;
               break;
             case 2:
-              ctr.open_image.dialog();
-              showImage = true; 
-              viewMenu.setContent("Hide Background", 4);
-              ctr.menu->hide();
+              action = actionType::ACTION_OPEN_IMAGE;
               break;
             case 3:
-              if (ctr.getPlayState()) {
-                break; 
-              }
-              if (curFileType == FILE_MKI) {
-                ctr.save(ctr.save_file.getPath(), nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
-                         colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
-                break;
-              }
-              [[fallthrough]];
+              action = actionType::ACTION_SAVE;
+              break;
             case 4:
-              if (!ctr.getPlayState() && curFileType != FILE_NONE) {
-
-                 ctr.save_file.dialog();
-
-                 if (ctr.save_file.pending()) {
-
-                  string save_path = ctr.save_file.getPath();
-
-                  if (getExtension(save_path, true) != ".mki") {
-                    save_path += ".mki";
-                  }
-
-                  ctr.save(save_path, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
-                           colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
-                  curFileType = FILE_MKI;
-
-                  ctr.save_file.resetPending();
-                }
-              }
+              action = actionType::ACTION_SAVE_AS;
               break;
             case 5:
-              clearFile = true;
+              action = actionType::ACTION_CLOSE;
               break;
             case 6:
-                ctr.image.unloadData();
+              action = actionType::ACTION_CLOSE_IMAGE;
               break;
             case 7:
                 ctr.setCloseFlag(); 
@@ -1185,17 +1242,10 @@ int main (int argc, char* argv[]) {
           }
           switch(editMenu.getActiveElement()) {
             case 1:
-              if (editMenu.getContent(1) == "Disable Sheet Music") {
-                editMenu.setContent("Enable Sheet Music", 1);
-              }
-              else if (editMenu.getContent(1) == "Enable Sheet Music") {
-                editMenu.setContent("Disable Sheet Music", 1);
-              }
-              sheetMusicDisplay = !sheetMusicDisplay;
-              ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
+              action = actionType::ACTION_SHEET;
               break;
             case 2:
-              ctr.dialog.preferenceDisplay = !ctr.dialog.preferenceDisplay;
+              action = actionType::ACTION_PREFERENCES;
               break;
             case 3:
               break;
@@ -1425,18 +1475,7 @@ int main (int argc, char* argv[]) {
               }
               break;
             case 3:
-              if (midiMenu.getContent(3) == "Enable Live Play") {
-                midiMenu.setContent("Disable Live Play", 3);
-                zoomLevel *= 3;
-              }
-              else if (midiMenu.getContent(3) == "Disable Live Play") {
-                midiMenu.setContent("Enable Live Play", 3);
-                zoomLevel *= 1.0/3.0;
-              }
-              ctr.toggleLivePlay();
-              if (!ctr.getLiveState()) {
-                timeOffset = 0;
-              }
+              action = actionType::ACTION_LIVEPLAY;
               break;
             case 4:
               break;

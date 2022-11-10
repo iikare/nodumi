@@ -194,6 +194,44 @@ void controller::endBlendMode() {
   EndBlendMode();
 }
 
+actionType controller::updateAction() {
+  if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
+    // open [file, image]
+    if (IsKeyDown(KEY_O)) {
+      if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+        return actionType::ACTION_OPEN_IMAGE;
+      }
+      return actionType::ACTION_OPEN;
+    } 
+    // close [file, image]
+    if (IsKeyDown(KEY_W)) {
+      if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+        return actionType::ACTION_CLOSE_IMAGE;
+      }
+      return actionType::ACTION_CLOSE;
+    } 
+    // save [save, save as]
+    if (IsKeyDown(KEY_S)) {
+      if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+        return actionType::ACTION_SAVE_AS;
+      }
+      return actionType::ACTION_SAVE;
+    } 
+    if (IsKeyDown(KEY_COMMA)) {
+      return actionType::ACTION_PREFERENCES;
+    }
+    if (IsKeyDown(KEY_COMMA)) {
+      return actionType::ACTION_LIVEPLAY;
+    }
+  }
+  
+  if (IsKeyDown(KEY_TAB)) {
+    return actionType::ACTION_SHEET;
+  }
+  
+  return actionType::ACTION_NONE;
+}
+
 void controller::update(int offset, double& nowLineX, bool runState) {
   
   if (!programState) { return; }
