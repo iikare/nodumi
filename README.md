@@ -50,7 +50,7 @@ will be formed at `./bin/nodumi`
 Cross-compilation to Windows is done through `make arch=win`, and the following executable is formed at `./bin/nodumi.exe`
 
 # usage
-If executing `nodumi` from the command-line, up to two optional arguments (in order) are accepted:
+If executing `nodumi` from the command-line, up to two optional arguments (in any order) are accepted:
 ```sh
 ./bin/nodumi path/to/file.(mid|midi) path/to/image.(png|jpg)
 ```

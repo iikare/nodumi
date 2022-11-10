@@ -328,6 +328,22 @@ void controller::updateDimension(double& nowLineX) {
   }
 }
 
+void controller::updateFiles(char** paths, int numFile) {
+  for (auto item = 0; item < numFile; ++item) {
+    string ext = getExtension(paths[item]);
+    if (ext == "mid" || ext == "mki") {
+      if (!ctr.open_file.pending()) {
+        ctr.open_file.setPending(paths[item]);
+      }
+    }
+    else if (ext == "png" || ext == "jpg") {
+      if (!ctr.open_image.pending()) {
+        ctr.open_image.setPending(paths[item]);
+      }
+    }
+  }
+}
+
 void controller::updateDroppedFiles() {
   if (IsFileDropped()) {
     FilePathList dropFile = LoadDroppedFiles();
@@ -338,19 +354,7 @@ void controller::updateDroppedFiles() {
     }
 
     for (unsigned int idx = 0; idx < min(dropLimit, dropFile.count); ++idx) {
-      if (isValidPath(dropFile.paths[idx], PATH_DATA, PATH_IMAGE)) {
-        string ext = getExtension(dropFile.paths[idx]);
-        if (ext == "mid" || ext == "mki") {
-          if (!ctr.open_file.pending()) {
-            ctr.open_file.setPending(dropFile.paths[idx]);
-          }
-        }
-        else if (ext == "png" || ext == "jpg") {
-          if (!ctr.open_image.pending()) {
-            ctr.open_image.setPending(dropFile.paths[idx]);
-          }
-        }
-      }
+      updateFiles(&dropFile.paths[idx]);
     }
     UnloadDroppedFiles(dropFile); 
   }

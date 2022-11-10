@@ -64,6 +64,7 @@ class controller {
     void toggleLivePlay();
 
     void update(int offset, double& nowLineX, bool runState);
+    void updateFiles(char** paths, int numFile = 1);
     void processAction(actionType& action);
 
     void clear();

@@ -204,13 +204,9 @@ int main (int argc, char* argv[]) {
   ctr.menu->registerMenu(colorSelect);
 
   if (argc >= 2) {
-
-    ctr.open_file.setPending(argv[1]);
-
-    // load an image if supplied
-    if (argc == 3) {
-      ctr.open_image.setPending(argv[2]);
-    }
+    // input parameter order is arbitrary
+    // avoid argv[0]
+    ctr.updateFiles(&argv[1], argc-1);
   }
 
   //DEBUG ONLY
