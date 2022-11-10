@@ -195,37 +195,39 @@ void controller::endBlendMode() {
 }
 
 actionType controller::updateAction() {
+  // setup so that the last key in sequence
+  // must be pressed last to prevent repeat inputs
   if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
     // open [file, image]
-    if (IsKeyDown(KEY_O)) {
+    if (IsKeyPressed(KEY_O)) {
       if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
         return actionType::ACTION_OPEN_IMAGE;
       }
       return actionType::ACTION_OPEN;
     } 
     // close [file, image]
-    if (IsKeyDown(KEY_W)) {
+    if (IsKeyPressed(KEY_W)) {
       if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
         return actionType::ACTION_CLOSE_IMAGE;
       }
       return actionType::ACTION_CLOSE;
     } 
     // save [save, save as]
-    if (IsKeyDown(KEY_S)) {
+    if (IsKeyPressed(KEY_S)) {
       if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
         return actionType::ACTION_SAVE_AS;
       }
       return actionType::ACTION_SAVE;
     } 
-    if (IsKeyDown(KEY_COMMA)) {
+    if (IsKeyPressed(KEY_COMMA)) {
       return actionType::ACTION_PREFERENCES;
     }
-    if (IsKeyDown(KEY_SPACE)) {
+    if (IsKeyPressed(KEY_SPACE)) {
       return actionType::ACTION_LIVEPLAY;
     }
   }
   
-  if (IsKeyDown(KEY_TAB)) {
+  if (IsKeyPressed(KEY_TAB)) {
     return actionType::ACTION_SHEET;
   }
   
