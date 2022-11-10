@@ -194,44 +194,58 @@ void controller::endBlendMode() {
   EndBlendMode();
 }
 
-actionType controller::updateAction() {
+void controller::processAction(actionType& action) {
+  // do not overwrite pending event
+  if (action != actionType::ACTION_NONE) {
+    return;
+  }
+
   // setup so that the last key in sequence
   // must be pressed last to prevent repeat inputs
   if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
     // open [file, image]
     if (IsKeyPressed(KEY_O)) {
       if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
-        return actionType::ACTION_OPEN_IMAGE;
+        action = actionType::ACTION_OPEN_IMAGE;
+        return;
       }
-      return actionType::ACTION_OPEN;
+      action = actionType::ACTION_OPEN;
+      return;
     } 
     // close [file, image]
     if (IsKeyPressed(KEY_W)) {
       if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
-        return actionType::ACTION_CLOSE_IMAGE;
+        action = actionType::ACTION_CLOSE_IMAGE;
+        return;
       }
-      return actionType::ACTION_CLOSE;
+      action = actionType::ACTION_CLOSE;
+      return;
     } 
     // save [save, save as]
     if (IsKeyPressed(KEY_S)) {
       if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
-        return actionType::ACTION_SAVE_AS;
+        action = actionType::ACTION_SAVE_AS;
+        return;
       }
-      return actionType::ACTION_SAVE;
+      action = actionType::ACTION_SAVE;
+      return;
     } 
     if (IsKeyPressed(KEY_COMMA)) {
-      return actionType::ACTION_PREFERENCES;
+      action = actionType::ACTION_PREFERENCES;
+      return;
     }
     if (IsKeyPressed(KEY_SPACE)) {
-      return actionType::ACTION_LIVEPLAY;
+      action = actionType::ACTION_LIVEPLAY;
+      return;
     }
   }
   
   if (IsKeyPressed(KEY_TAB)) {
-    return actionType::ACTION_SHEET;
+    action = actionType::ACTION_SHEET;
+    return;
   }
   
-  return actionType::ACTION_NONE;
+  action = actionType::ACTION_NONE;
 }
 
 void controller::update(int offset, double& nowLineX, bool runState) {

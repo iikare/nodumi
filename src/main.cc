@@ -945,15 +945,8 @@ int main (int argc, char* argv[]) {
     
     EndDrawing();
 
-    // NOTE: only for debugging sheet area
-    if(IsKeyPressed(KEY_TAB)) {
-      sheetMusicDisplay = !sheetMusicDisplay;
-      sheetMusicDisplay ? ctr.barHeight = ctr.menuHeight + ctr.sheetHeight : ctr.barHeight = ctr.menuHeight;
-    }
     // key actions
-    
-    action = ctr.updateAction();
-
+    ctr.processAction(action);
 
     if (run) {
       if (timeOffset + GetFrameTime() * 500 < ctr.getLastTime()) {
