@@ -220,7 +220,7 @@ actionType controller::updateAction() {
     if (IsKeyDown(KEY_COMMA)) {
       return actionType::ACTION_PREFERENCES;
     }
-    if (IsKeyDown(KEY_COMMA)) {
+    if (IsKeyDown(KEY_SPACE)) {
       return actionType::ACTION_LIVEPLAY;
     }
   }
