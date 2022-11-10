@@ -107,7 +107,6 @@ class controller {
     int getWidth() const { return GetScreenWidth(); }
     int getHeight() const { return GetScreenHeight(); }
     point getSize() const { return {GetScreenWidth(), GetScreenHeight()}; }
-    point getMousePosition() const; 
     int getMouseX() const { return getMousePosition().x; }; 
     int getMouseY() const { return getMousePosition().y; }; 
     

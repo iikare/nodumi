@@ -63,7 +63,7 @@ bool dialogController::hover() {
   const auto hoverDialog = [&](bool diaDisplay, int x, int y, int w, int h) {
     if (diaDisplay) {
       const rect boundingBox = { x, y, w, h };
-      if(pointInBox(ctr.getMousePosition(), boundingBox)) {
+      if(pointInBox(getMousePosition(), boundingBox)) {
         return true;
       }
     }

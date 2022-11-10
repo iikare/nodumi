@@ -35,6 +35,7 @@ bool pointInBox(const T& pt, const rect& box) {
   return false;
 }
 rect pointToRect(point a, point b);
+point getMousePosition();
 
 string colorToHex(colorRGB col);
 

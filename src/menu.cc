@@ -289,8 +289,8 @@ void menu::setSquare() {
   const float circleY = y + COLOR_HEIGHT/2.0f;
   
   if (type == TYPE_COLOR) {
-    pX = round(max(min(ctr.getMousePosition().x - circleX + squareDim/2.0, double(squareDim)), 0.0));
-    pY = round(max(min(ctr.getMousePosition().y - circleY + squareDim/2.0, double(squareDim)), 0.0));
+    pX = round(max(min(getMousePosition().x - circleX + squareDim/2.0, double(squareDim)), 0.0));
+    pY = round(max(min(getMousePosition().y - circleY + squareDim/2.0, double(squareDim)), 0.0));
   }
 }
 
@@ -385,7 +385,7 @@ void menu::setRingColor() {
 }
 
 void menu::draw() {
-  findActiveElement(ctr.getMousePosition());
+  findActiveElement(getMousePosition());
   if (type == TYPE_MAIN) {
     if (render) {
       drawRectangle(x, y, mainSize, ITEM_HEIGHT, ctr.bgMenuShade);

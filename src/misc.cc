@@ -153,6 +153,14 @@ rect pointToRect(point a, point b) {
   return result;
 }
 
+point getMousePosition() { 
+  if (IsWindowFocused()) {
+    return (point){ GetMouseX(), GetMouseY()}; 
+  }
+  return {-1,-1};
+}
+
+
 vector<string>& formatPortName(vector<string>& ports) {
 
   for (unsigned int i = 0; i < ports.size(); i++) {

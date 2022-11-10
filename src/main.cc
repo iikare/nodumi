@@ -280,10 +280,10 @@ int main (int argc, char* argv[]) {
       if (showImage) {
         ctr.image.draw();
         if (!hoverType.contains(HOVER_DIALOG)) {
-          if (ctr.getMousePosition().x > ctr.image.getX() && 
-              ctr.getMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
-            if (ctr.getMousePosition().y > ctr.image.getY() && 
-                ctr.getMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
+          if (getMousePosition().x > ctr.image.getX() && 
+              getMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
+            if (getMousePosition().y > ctr.image.getY() && 
+                getMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
 
               hoverType.add(HOVER_IMAGE); 
             }
@@ -321,7 +321,7 @@ int main (int argc, char* argv[]) {
           }
                 
           if (measureLine && !hideLine) {
-            if (pointInBox(ctr.getMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
+            if (pointInBox(getMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
                 !hoverType.containsLastFrame(HOVER_MENU) && !hoverType.contains(HOVER_DIALOG)) {
               measureLineWidth = 1;
               hoverType.add(HOVER_MEASURE);
@@ -383,7 +383,7 @@ int main (int argc, char* argv[]) {
       if (nowLine) {
         float nowLineWidth = 0.5;
         int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
-        if (pointInBox(ctr.getMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) && 
+        if (pointInBox(getMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) && 
             !ctr.menu->mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {
           nowLineWidth = 1;
           hoverType.add(HOVER_NOW);
@@ -462,7 +462,7 @@ int main (int argc, char* argv[]) {
                   timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration)) {
                 noteOn = true;
               }
-              if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
+              if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
                 updateClickIndex();
               }
 
@@ -526,7 +526,7 @@ int main (int argc, char* argv[]) {
                     updateClickIndex();
                   }
                   else if (realX == nowLineX && (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, ballY) < radius ||
-                           pointInBox(ctr.getMousePosition(), 
+                           pointInBox(getMousePosition(), 
                                       (rect) {int(cX), int(ballY) - 2, max(int(nowLineX - cX), 0), 4}))) {
                     updateClickIndex();
                   }
@@ -590,7 +590,7 @@ int main (int argc, char* argv[]) {
                     }
 
                     noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
-                    if (pointInBox(ctr.getMousePosition(), 
+                    if (pointInBox(getMousePosition(), 
                                    pointToRect(
                                                 {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
                                                 {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
@@ -635,7 +635,7 @@ int main (int argc, char* argv[]) {
 
                     noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
 
-                    if (pointInBox(ctr.getMousePosition(), 
+                    if (pointInBox(getMousePosition(), 
                                    pointToRect(
                                                 {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
                                                 {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
@@ -730,7 +730,7 @@ int main (int argc, char* argv[]) {
                     }
 
                     noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
-                    if (pointInBox(ctr.getMousePosition(), 
+                    if (pointInBox(getMousePosition(), 
                                    pointToRect(
                                                 {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
                                                 {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
@@ -789,7 +789,7 @@ int main (int argc, char* argv[]) {
                 
                 drawFFT = true;
               }
-              if (pointInBox(ctr.getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
+              if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
                 updateClickIndex();
               }
               if(drawFFT) {
@@ -851,7 +851,7 @@ int main (int argc, char* argv[]) {
               auto cSet = colorSetOn;
 
               //collision
-              if (!foundNote && !hoverType.contains(HOVER_DIALOG) && pointInBox(ctr.getMousePosition(), 
+              if (!foundNote && !hoverType.contains(HOVER_DIALOG) && pointInBox(getMousePosition(), 
                              {startX-3, static_cast<int>(ctr.getHeight()-ctr.fft.fftbins[bin].second-fftBinLen), 
                               7,        static_cast<int>(fftBinLen)})) {
                 foundNote = true;
@@ -878,7 +878,7 @@ int main (int argc, char* argv[]) {
 
         // bg
         drawRectangle(0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight, ctr.bgSheet);  
-        if (pointInBox(ctr.getMousePosition(), {0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight}) &&
+        if (pointInBox(getMousePosition(), {0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight}) &&
             !hoverType.contains(HOVER_DIALOG)) {
           hoverType.add(HOVER_SHEET);
         }
@@ -1055,6 +1055,9 @@ int main (int argc, char* argv[]) {
         break;
       case actionType::ACTION_PREFERENCES:
         ctr.dialog.preferenceDisplay = !ctr.dialog.preferenceDisplay;
+        break;
+      case actionType::ACTION_INFO:
+        ctr.dialog.infoDisplay = !ctr.dialog.infoDisplay;
         break;
       case actionType::ACTION_LIVEPLAY:
         if (midiMenu.getContent(3) == "Enable Live Play") {
@@ -1600,7 +1603,7 @@ int main (int argc, char* argv[]) {
           }
           switch(infoMenu.getActiveElement()) {
             case 1:
-              ctr.dialog.infoDisplay = !ctr.dialog.infoDisplay;
+              action = actionType::ACTION_INFO;
               break;
             case 2:
               infoMenu.render = false;
@@ -1622,7 +1625,7 @@ int main (int argc, char* argv[]) {
           switch(colorSelect.getActiveElement()) {
             case 0:
               colorMove = true;
-              if (pointInBox(ctr.getMousePosition(), colorSelect.getSquare()) || colorSelect.clickCircle(1)) {
+              if (pointInBox(getMousePosition(), colorSelect.getSquare()) || colorSelect.clickCircle(1)) {
                 colorSquare = true;
               }
               else if (colorSelect.clickCircle(0)) {
@@ -1713,7 +1716,7 @@ int main (int argc, char* argv[]) {
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {    
       ctr.image.updatePosition();
 
-      if (pointInBox(ctr.getMousePosition(), 
+      if (pointInBox(getMousePosition(), 
                      {static_cast<int>(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
           !hoverType.contains(HOVER_DIALOG) && 
           !colorSelect.render && 
@@ -1728,7 +1731,7 @@ int main (int argc, char* argv[]) {
           nowMove = false;  // disable after rest
         }
         else {
-          nowLineX = clampValue(ctr.getMousePosition().x, 1, ctr.getWidth()-1);
+          nowLineX = clampValue(getMousePosition().x, 1, ctr.getWidth()-1);
         }
       }
     }
@@ -1738,7 +1741,7 @@ int main (int argc, char* argv[]) {
       ctr.menu->hide();
 
       if (!ctr.menu->mouseOnMenu()) {
-        if (!pointInBox(ctr.getMousePosition(), (rect){0, 0, ctr.getWidth(), 20})) {
+        if (!pointInBox(getMousePosition(), (rect){0, 0, ctr.getWidth(), 20})) {
           
           int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
 
@@ -1772,13 +1775,13 @@ int main (int argc, char* argv[]) {
           }
           else {
             if (sheetMusicDisplay && 
-                pointInBox(ctr.getMousePosition(), (rect){0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight}) &&
+                pointInBox(getMousePosition(), (rect){0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight}) &&
                 !hoverType.contains(HOVER_DIALOG)) {
               hoverType.add(HOVER_SHEET);
               selectType = SELECT_SHEET;
               colorSelect.setColor(ctr.bgSheet);
             }
-            else if (pointInBox(ctr.getMousePosition(), 
+            else if (pointInBox(getMousePosition(), 
                                 {static_cast<int>(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
                      !hoverType.contains(HOVER_DIALOG)) {
               hoverType.add(HOVER_LINE);
@@ -1790,7 +1793,7 @@ int main (int argc, char* argv[]) {
               bool measureSelected = false;
               for (unsigned int i = 0; i < ctr.getStream().measureMap.size(); i++) {
                 double measureLineX = convertSSX(ctr.getStream().measureMap[i].getLocation());
-                if (pointInBox(ctr.getMousePosition(), 
+                if (pointInBox(getMousePosition(), 
                                {static_cast<int>(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
                     !ctr.menu->mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {
                   measureSelected = true;
@@ -1836,7 +1839,7 @@ int main (int argc, char* argv[]) {
         }
       }
     }
-    if (ctr.menu->mouseOnMenu() || pointInBox(ctr.getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
+    if (ctr.menu->mouseOnMenu() || pointInBox(getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
       hoverType.add(HOVER_MENU);
     }
 

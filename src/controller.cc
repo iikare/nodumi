@@ -238,6 +238,10 @@ void controller::processAction(actionType& action) {
       action = actionType::ACTION_LIVEPLAY;
       return;
     }
+    if (IsKeyPressed(KEY_I)) {
+      action = actionType::ACTION_INFO;
+      return;
+    }
   }
   
   if (IsKeyPressed(KEY_TAB)) {
@@ -933,14 +937,6 @@ void controller::save(string path,
     output.write(image.buf.str().c_str(), image.buf.str().size());
   }
 
-}
-
-point controller::getMousePosition() const { 
-
-  if (IsWindowFocused()) {
-    return (point){ GetMouseX(), GetMouseY()}; 
-  }
-  return {-1,-1};
 }
 
 void controller::setCloseFlag() {
