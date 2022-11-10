@@ -314,7 +314,9 @@ void controller::toggleLivePlay() {
     notes = &file.notes;
   }
   // ensure sufficient track colors
-  getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
+  if (file.getTrackCount() > 0) {
+    getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
+  }
 }
 
 midi& controller::getStream() {
