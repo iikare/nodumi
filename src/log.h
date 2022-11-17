@@ -59,7 +59,13 @@ inline void logProcess(const logLevel& level, string&lvmsg, string& file) {
   }
 }
 
+#ifdef __WIN32
+// colored output not supported
+inline void writeColor(string&lvmsg, ostringstream& out) {
+#else
 inline void writeColor(const logLevel& level, string&lvmsg, ostringstream& out) {
+#endif
+
   #ifdef __WIN32
     //HANDLE hConsole = GetStdHandle(STD_ERROR_HANDLE);
     //SetConsoleTextAttribute(hConsole, cpos);
@@ -174,9 +180,6 @@ string formatVector(const vector<pair<U, V>>& vec) {
   return s;
 }
 
-void logProcess(const logLevel& level, string&lvmsg, string& file);
-void writeColor(const logLevel& level, string&lvmsg, ostringstream& out);
-
 template<typename U, typename V>
 U& logRecursive(U& stream, const V& arg1) {
   stream << " ";
@@ -216,7 +219,11 @@ void logOutput(logLevel level, string file, int line, const V& arg1, const W&...
   string lvmsg = "";
 
   logProcess(level, lvmsg, file);
+  #ifdef __WIN32
+  writeColor(lvmsg, out);
+  #else
   writeColor(level, lvmsg, out);
+  #endif
 
   if constexpr (is_vector<V>::value) {
     logRecursive((out << formatVector(arg1)), args...);
@@ -244,7 +251,11 @@ void logOutput(logLevel level, string file, int line, const V& arg1) {
   string lvmsg = "";
 
   logProcess(level, lvmsg, file);
+  #ifdef __WIN32
+  writeColor(lvmsg, out);
+  #else
   writeColor(level, lvmsg, out);
+  #endif
   
 
   if constexpr (is_vector<V>::value) {
