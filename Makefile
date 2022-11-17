@@ -92,24 +92,21 @@ all:
 
 ifeq ($(strip $(arch)),win)
 	@./tool/cross.sh
+	@./tool/objtype.sh win
+else
+	@./tool/objtype.sh linux
 endif
 
 	@$(MAKE) --no-print-directory pre
 	@$(MAKE) --no-print-directory $(NAME)
 	@./tool/generate.sh
 
-ifeq ($(strip $(arch)),win)
-	@$(MAKE) --no-print-directory --silent cleanbuild
-endif
-
 re: clean
 	@$(MAKE) --no-print-directory
 
 f: clean
 	@$(MAKE) rel=a --no-print-directory
-	@$(MAKE) arch=win rel=a cleanbuild
 	@$(MAKE) arch=win rel=a --no-print-directory
-	@$(MAKE) arch=win rel=a cleanbuild
 
 pre:
 	@./tool/generate.sh ON
