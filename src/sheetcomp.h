@@ -8,9 +8,7 @@
 #include "note.h"
 
 using std::vector;
-using std::set;
 using std::pair;
-using std::make_pair;
 
 struct noteCmp {
     bool operator() (const sheetNote* a, const sheetNote* b) const {

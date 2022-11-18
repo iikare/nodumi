@@ -5,8 +5,6 @@
 #include "midi.h"
 #include "log.h"
 
-using std::pow;
-
 note* note::getNextNote() {
   if (next != nullptr) {
     if (chordNext == nullptr) {

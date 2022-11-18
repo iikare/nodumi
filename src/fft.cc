@@ -21,7 +21,7 @@ double fftController::fftAC(double f_1, double f_2) {
 
 void fftController::updateFFTBins() {
   int nBins = ctr.getWidth()/FFT_BIN_WIDTH - 2;
-  double binFreq = log10(FFT_MAX_FREQ/FFT_MIN_FREQ)/(nBins-1);
+  double binFreq = log10(static_cast<float>(FFT_MAX_FREQ)/FFT_MIN_FREQ)/(nBins-1);
 
   // frequency, height
   fftbins.clear();

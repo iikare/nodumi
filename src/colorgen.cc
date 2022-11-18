@@ -14,15 +14,11 @@
 using namespace std::chrono;
 using std::mt19937;
 using std::uniform_int_distribution;
-using std::unordered_map;
 using std::vector;
 using std::swap;
 using std::bind;
 using std::pair;
 using std::min;
-using std::map;
-
-using std::thread;
 
 void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>* on, vector<colorRGB>* off){
   bg.invert();

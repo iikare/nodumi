@@ -11,11 +11,9 @@ using std::endl;
 using std::ostringstream;
 using std::false_type;
 using std::true_type;
-using std::is_same;
-using std::string;
 using std::vector;
+using std::string;
 using std::pair;
-using std::make_pair;
 using std::fixed;
 using std::setprecision;
 

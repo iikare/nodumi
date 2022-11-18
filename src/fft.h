@@ -3,9 +3,7 @@
 #include <vector>
 #include "log.h"
 
-
 using std::vector;
-using std::make_pair;
 
 class fftController {
   public:

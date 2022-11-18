@@ -2,9 +2,6 @@
 #include <algorithm>
 #include <cmath>
 
-using std::min;
-using std::max;
-
 double scaleInterpolationRatio(double ratio, int type) {
     switch (type) {
       case INT_CIRCULAR:

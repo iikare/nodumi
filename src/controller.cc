@@ -10,7 +10,6 @@
 
 using std::ofstream;
 using std::stringstream;
-using std::bitset;
 using std::make_pair;
 using std::move;
 

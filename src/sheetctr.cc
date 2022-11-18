@@ -4,8 +4,6 @@
 #include "enum.h"
 #include "wrap.h"
 
-using std::accumulate;
-
 int sheetController::getGlyphWidth(int codepoint, int size) {
   return GetGlyphInfo(*ctr.getFont("LELAND", size), codepoint).image.width;
 }
@@ -522,7 +520,7 @@ void sheetController::drawSheetPage() {
   // empty page
   if (!spacingPositions) { 
     drawTextEx(to_string(measureRange.first), 
-               {(float)offset+sigSpacing/2 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*1.75}, ctr.bgSheetNote);
+               {(float)offset+sigSpacing/2.0f , ctr.menuHeight + ctr.barMargin - ctr.barWidth*1.75}, ctr.bgSheetNote);
     return;
   }
 
@@ -556,7 +554,7 @@ void sheetController::drawSheetPage() {
       }
     }
     
-    drawTextEx(to_string(m), {(float)offset+sigSpacing/2 , ctr.menuHeight + ctr.barMargin - ctr.barWidth*1.75}, ctr.bgSheetNote);
+    drawTextEx(to_string(m), {(float)offset+sigSpacing/20.f, ctr.menuHeight + ctr.barMargin-ctr.barWidth*1.75}, ctr.bgSheetNote);
 
     for (unsigned int ch = 0; ch < displayMeasure[m-1].chords.size(); ++ch) {
       
@@ -603,8 +601,8 @@ void sheetController::drawSheetPage() {
 
 
       //logQ(displayMeasure[m-1].chordData[ch].flags.size());
-      for (int stc = 0; const auto& stem : displayMeasure[m-1].chordData[ch].flags) {
-        int stave = STAVE_TREBLE;//stc++ % 2 ? STAVE_BASS : STAVE_TREBLE; // hack for two flag chords
+      for (/*int stc = 0; */const auto& stem : displayMeasure[m-1].chordData[ch].flags) {
+        //int stave = STAVE_TREBLE;//stc++ % 2 ? STAVE_BASS : STAVE_TREBLE; // hack for two flag chords
         int lOffset = displayMeasure[m-1].chordData[ch].getStemPosition();
         drawLineEx(offset+lOffset, findStaveY(stem.startY, stem.stave),
                    offset+lOffset, findStaveY(stem.endY, stem.stave), 2, ctr.bgSheetNote);

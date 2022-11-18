@@ -7,7 +7,7 @@
 #include "log.h"
 
 using std::min;
-using std::max;
+using std::to_string;
 using std::stringstream;
 using std::hex;
 

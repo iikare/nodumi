@@ -16,14 +16,10 @@
 using namespace smf;
 
 using std::string;
-using std::to_string;
 using std::vector;
 using std::pair;
-using std::make_pair;
-using std::max;
 using std::ifstream;
 using std::stringstream;
-using std::function;
 
 // using std::function was disastrous
 struct tickCmp {

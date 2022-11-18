@@ -15,8 +15,6 @@
 #include "color.h"
 
 using std::vector;
-using std::min;
-using std::max;
 
 class voronoiController {
   public:

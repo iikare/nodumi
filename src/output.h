@@ -9,7 +9,7 @@
 
 using std::vector;
 using std::string;
-using std::to_string;
+
 class midiOutput {
   public:
     midiOutput();

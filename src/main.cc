@@ -5,7 +5,6 @@
   #include <raylib.h>
   #include <rlgl.h>
 #endif
-
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -30,25 +29,22 @@
 
 using std::string;
 using std::vector;
-using std::unordered_map;
 using std::min;
 using std::max;
 using std::to_string;
-using std::thread;
-using std::ref;
 using std::__countl_zero;
 
 controller ctr;
 
 int main (int argc, char* argv[]) {
 
-#if defined(REL)
-  SetTraceLogLevel(LOG_ERROR);
-#else
-  // debug
-  SetTraceLogLevel(LOG_ERROR);
-  //SetTraceLogLevel(LOG_INFO);
-#endif
+  #if defined(REL)
+    SetTraceLogLevel(LOG_ERROR);
+  #else
+    // debug
+    SetTraceLogLevel(LOG_ERROR);
+    //SetTraceLogLevel(LOG_INFO);
+  #endif
 
   // basic window setup
   string windowTitle = string(W_NAME) + " " + string(W_VER);
@@ -423,6 +419,8 @@ int main (int argc, char* argv[]) {
         return 0;
       };
 
+      
+
       pair<double, double> currentBoundaries = inverseSSX();
       vector<int> curNote;
 
@@ -447,7 +445,7 @@ int main (int argc, char* argv[]) {
         float cX = convertSSX(ctr.getNotes()[i].x);
         float cY = convertSSY(ctr.getNotes()[i].y);
         float cW = ctr.getNotes()[i].duration * zoomLevel < 1 ? 1 : ctr.getNotes()[i].duration * zoomLevel;
-        float cH = (ctr.getHeight() - ctr.menuHeight) / 88;
+        float cH = (ctr.getHeight() - ctr.menuHeight) / 88.0f;
 
         switch (displayMode) {
           case DISPLAY_BAR:
@@ -1723,7 +1721,7 @@ int main (int argc, char* argv[]) {
       if (nowMove) {
         // provide reset
         if (IsKeyDown(KEY_LEFT_SHIFT)) {
-          nowLineX = ctr.getWidth()/2;
+          nowLineX = ctr.getWidth()/2.0;
           nowMove = false;  // disable after rest
         }
         else {

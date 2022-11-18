@@ -1,7 +1,6 @@
 #include <string>
 #include "track.h"
 
-using std::to_string;
 using std::pair;
 
 void trackController::insert(int idx, note* newNote) {

@@ -3,9 +3,6 @@
 #include "timekey.h"
 #include "log.h"
 
-using std::max;
-using std::to_string;
-
 void keySig::findAccidentalsFromKey() {
   switch (key) {
     case KEYSIG_C:

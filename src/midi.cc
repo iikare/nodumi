@@ -6,10 +6,6 @@
 #include "sheetctr.h"
 #include "define.h"
 
-using std::set;
-using std::ref;
-using std::move;
-
 int midi::getTempo(int offset) {
   if (tempoMap.size() != 0 && offset == 0) {
     return tempoMap[0].second;

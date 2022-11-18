@@ -2,9 +2,6 @@
 #include <chrono>
 #include <algorithm>
 
-using std::min;
-using std::max;
-
 void outputInstance::init(midiOutput* out) {
   output = out;
 
@@ -58,7 +55,7 @@ void outputInstance::terminate() {
 }
 
 void outputInstance::process() {   
-  constexpr int msgLimit = 30;
+  //constexpr int msgLimit = 30;
   while (true) {
     if (end) {
       break;

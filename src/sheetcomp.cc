@@ -5,7 +5,6 @@
 #include "sheetctr.h"
 
 using std::min;
-using std::max;
     
 void sheetMeasure::buildChordMap(vector<sheetNote>& vecNote) {
   // intermediate representation of chordmap (needs to be tick-sorted)
