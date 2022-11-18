@@ -29,7 +29,7 @@ C=x86_64-w64-mingw32-gcc
 CFLAGSOSD=--std=c99
 LFLAGSOSD=-lwinmm -lcomdlg32 -lgdi32
 SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_win.c
-DEPDEF=-D__WINDOWS_MM__ -DLOCRAY -D_USE_MATH_DEFINES 
+DEPDEF=-D__WINDOWS_MM__ -DTARGET_WIN -D_USE_MATH_DEFINES 
 
 endif
 

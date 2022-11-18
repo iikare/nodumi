@@ -1,10 +1,4 @@
-#if defined(LOCRAY)
-  #include "../dpd/raylib/src/raylib.h"
-  #include "../dpd/raylib/src/rlgl.h"
-#else
-  #include <raylib.h>
-  #include <rlgl.h>
-#endif
+#include "build_target.h"
 #include <string>
 #include <vector>
 #include <unordered_map>

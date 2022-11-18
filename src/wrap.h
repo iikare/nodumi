@@ -1,10 +1,6 @@
 #pragma once
 
-#if defined(LOCRAY)
-  #include "../dpd/raylib/src/raylib.h"
-#else
-  #include <raylib.h>
-#endif
+#include "build_target.h"
 
 #include <string>
 #include "define.h"

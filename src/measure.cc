@@ -1,8 +1,4 @@
-#if defined(LOCRAY)
-  #include "../dpd/raylib/src/raylib.h"
-#else
-  #include <raylib.h>
-#endif
+#include "build_target.h"
 
 #include <algorithm>
 #include <iterator>
