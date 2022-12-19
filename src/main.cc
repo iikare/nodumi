@@ -930,6 +930,9 @@ int main (int argc, char* argv[]) {
       ctr.menu->render();
 
       ctr.dialog.render();
+
+      // warning about windows stability
+      ctr.warning.render();
     
     EndDrawing();
 
@@ -1830,9 +1833,6 @@ int main (int argc, char* argv[]) {
     if (ctr.menu->mouseOnMenu() || pointInBox(getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
       hoverType.add(HOVER_MENU);
     }
-
-    // warning about windows stability
-    ctr.warning.render();
 
     ctr.update(timeOffset, nowLineX, run);
   }
