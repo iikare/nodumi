@@ -77,7 +77,7 @@ int main (int argc, char* argv[]) {
 
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_LOOP;
+  int displayMode = DISPLAY_PULSE;
   
   double nowLineX = ctr.getWidth()/2.0f;
 
