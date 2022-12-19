@@ -45,6 +45,8 @@ void controller::init(vector<asset>& assetSet) {
 
   voronoi.updateTexture();
   fft.updateFFTBins();
+
+  warning.init();
 }
 
 void controller::initData(const vector<asset>& assetSet) {

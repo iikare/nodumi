@@ -1831,6 +1831,9 @@ int main (int argc, char* argv[]) {
       hoverType.add(HOVER_MENU);
     }
 
+    // warning about windows stability
+    ctr.warning.render();
+
     ctr.update(timeOffset, nowLineX, run);
   }
 

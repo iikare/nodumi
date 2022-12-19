@@ -19,6 +19,7 @@
 #include "output.h"
 #include "shader.h"
 #include "dialog.h"
+#include "warning.h"
 #include "voronoi.h"
 #include "colorgen.h"
 #include "output_sync.h"
@@ -118,6 +119,7 @@ class controller {
     ioController open_file  = ioController(OSDIALOG_OPEN, FILTER_FILE);
     ioController open_image = ioController(OSDIALOG_OPEN, FILTER_IMAGE);
     ioController save_file  = ioController(OSDIALOG_SAVE, FILTER_SAVE);
+    warningController warning;
 
     voronoiController voronoi;
     fftController fft;
