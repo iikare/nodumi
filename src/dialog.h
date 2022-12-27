@@ -12,6 +12,8 @@ class dialogController {
 
     void render();
 
+    void process();
+
     bool hover();
     
     bool preferenceDisplay = false;
@@ -21,6 +23,9 @@ class dialogController {
 
     void renderPreference();
     void renderInfo();
+
+    int getItemX(int pos, bool box = false);
+    int getItemY(int pos, bool box = false);
 
     static constexpr int iconTextSize = 30;
     static constexpr int iconTextAdjust = 10;
@@ -32,4 +37,9 @@ class dialogController {
 
     static constexpr int copySymSize = 22;
 
+    static constexpr int prefItemXSpacing = 30;
+    static constexpr int prefItemYSpacing = 28;
+    static constexpr int itemRectSize = 24;
+    static constexpr int itemRectInnerSize = 12;
+    static constexpr int itemFontSize = 18;
 };

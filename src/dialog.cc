@@ -1,6 +1,7 @@
 #include "dialog.h"
 #include "define.h"
 #include "data.h"
+#include "enum.h"
 #include "wrap.h"
 #include "aghdef.h"
 
@@ -13,13 +14,56 @@ void dialogController::render() {
     renderInfo();
   }
 }
+int dialogController::getItemX(int pos, bool box) {
+  const int prefSideMargin = ctr.getWidth() - ctr.prefWidth;
+  return prefSideMargin/2.0f+prefItemXSpacing+(ctr.prefWidth/2.0f*pos) - 
+         (box ? prefItemXSpacing/2-itemRectSize/2 : -itemRectSize);
+}
+int dialogController::getItemY(int pos, bool box) {
+  const int prefTopMargin = ctr.getHeight() - ctr.prefHeight;
+  return prefTopMargin/2.0f + prefItemYSpacing*pos + 6 + (box ? itemFontSize/2.0f-itemRectSize/2.0f : 2) + 40;
+}
+
+void dialogController::process() {
+
+  if (pointInBox(getMousePosition(), {getItemX(0, true), getItemY(0, true), itemRectSize, itemRectSize})) {
+    ctr.option.invert(optionType::OPTION_TRACK_DIVISION);
+  }
+
+}
 
 void dialogController::renderPreference() {
   const int prefSideMargin = ctr.getWidth() - ctr.prefWidth;
   const int prefTopMargin = ctr.getHeight() - ctr.prefHeight;
   drawRectangle(prefSideMargin/2.0f, prefTopMargin/2.0f, ctr.prefWidth, ctr.prefHeight, ctr.bgMenu);  
 
-  drawTextEx("Preferences", prefSideMargin/2.0f + 6, prefTopMargin/2.0f + 6, ctr.bgDark, 255, 18);
+  drawTextEx("Preferences", prefSideMargin/2.0f + 12, prefTopMargin/2.0f + 12, ctr.bgDark, 255, 24);
+  
+
+  auto drawItem = [&] (string text, int x,  int y, optionType link_opt) {
+
+    bool opt_status = ctr.option.get(link_opt);
+
+    auto col = opt_status ? ctr.bgOpt : ctr.bgDark;
+
+    drawRectangleLines(getItemX(x, true), getItemY(y, true), itemRectSize,itemRectSize, 3, col);
+    
+    if (opt_status) {
+      drawRectangle(getItemX(x, true)+(itemRectSize-itemRectInnerSize)/2.0f, 
+                    getItemY(y, true)+(itemRectSize-itemRectInnerSize)/2.0f, 
+                    itemRectInnerSize,itemRectInnerSize, col);
+    }
+
+    drawTextEx(text,
+               getItemX(x),
+               getItemY(y),
+               ctr.bgDark, 255, itemFontSize);
+  };
+
+  drawItem("Adaptive Track Division", 0, 0, optionType::OPTION_TRACK_DIVISION);
+  //drawItem("Adaptive Track Division", 0, 1, optionType::OPTION_TRACK_DIVISION);
+
+
 }
 
 void dialogController::renderInfo() {

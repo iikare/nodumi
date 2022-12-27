@@ -20,6 +20,10 @@ void drawRectangle(float x, float y, float w, float h, const colorRGB& col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   DrawRectangleV({x, y}, {w, h}, color);
 }
+void drawRectangleLines(float x, float y, float w, float h, float width, const colorRGB& col) {
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
+  DrawRectangleLinesEx({x, y, w, h}, width, color);
+}
 
 void drawTextEx(const string& msg, const Vector2& pos, const colorRGB& col, unsigned char alpha, int size, const string& font) {
   drawTextEx(msg, pos.x, pos.y, col, alpha, size, font);

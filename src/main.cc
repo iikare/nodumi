@@ -41,8 +41,15 @@ int main (int argc, char* argv[]) {
   #endif
 
   // basic window setup
-  string windowTitle = string(W_NAME) + " " + string(W_VER);
-  SetConfigFlags(FLAG_MSAA_4X_HINT);
+  const string windowTitle = string(W_NAME) + " " + string(W_VER);
+
+  // allow resizing of window on windows
+  #if defined(TARGET_WIN)
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
+  #else 
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
+  #endif
+
   InitWindow(W_WIDTH, W_HEIGHT, windowTitle.c_str());
   SetTargetFPS(60);
   SetExitKey(KEY_F7);
@@ -1682,7 +1689,6 @@ int main (int argc, char* argv[]) {
           }
           break;
       }
-  
 
       if (!hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET, HOVER_DIALOG) && 
           !hoverType.containsLastFrame(HOVER_MENU, HOVER_MEASURE)) {
@@ -1691,6 +1697,11 @@ int main (int argc, char* argv[]) {
           //logQ("UPDATE BASE");
         }
       }
+
+      if (ctr.dialog.preferenceDisplay) {
+        ctr.dialog.process();
+      }
+
     }
     //logQ("can image move?:", !hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET) && 
           //!hoverType.containsLastFrame(HOVER_MENU, HOVER_MEASURE));

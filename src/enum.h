@@ -254,3 +254,10 @@ enum class actionType {
   ACTION_LIVEPLAY,
   ACTION_NONE
 };
+
+enum class optionType {
+  OPTION_TRACK_DIVISION,
+  OPTION_NONE
+};
+
+

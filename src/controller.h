@@ -18,6 +18,7 @@
 #include "kmeans.h"
 #include "output.h"
 #include "shader.h"
+#include "option.h"
 #include "dialog.h"
 #include "warning.h"
 #include "voronoi.h"
@@ -116,6 +117,7 @@ class controller {
     imageController image;
     menuController* menu;
     dialogController dialog;
+    optionController option;
     ioController open_file  = ioController(OSDIALOG_OPEN, FILTER_FILE);
     ioController open_image = ioController(OSDIALOG_OPEN, FILTER_IMAGE);
     ioController save_file  = ioController(OSDIALOG_SAVE, FILTER_SAVE);
@@ -143,6 +145,7 @@ class controller {
     colorRGB bgSheetNote =    colorRGB(0  , 0  , 0  );
     colorRGB bgMeasure =      colorRGB(155, 155, 155);
     colorRGB bgIcon =         colorRGB(34 , 115, 150);
+    colorRGB bgOpt  =         colorRGB(227, 43 , 89);
 
     static constexpr int menuHeight  =   20;
     static constexpr int sheetHeight =   250;
