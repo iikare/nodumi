@@ -43,7 +43,7 @@ ifeq ($(strip $(arch)),)
 RELFLAGS+=-flto=thin
 LD += -flto=thin
 else ifeq ($(strip $(arch)),win)
-LFLAGS+=-mwindows # remove console window 
+#LFLAGS+=-mwindows # remove console window 
 endif
 
 endif
