@@ -123,7 +123,7 @@ void midiInput::convertEvents() {
   //logQ(" ");
   
 
-  logQ(ctr.livePlayOffset, timestamp);
+  //logQ(ctr.livePlayOffset, timestamp);
   for (long unsigned int i = 0; i < msgQueue.size(); i++) { 
     //logQ(bitset<8>(msgQueue[i]));
     if (msgQueue[i] == 0b11111000) { // 248: clock signal
@@ -195,7 +195,7 @@ void midiInput::update() {
       updatePosition();
     }
     // TODO: consider optimization
-    ctr.liveInput.noteStream.buildLineMap();
+    //ctr.liveInput.noteStream.buildLineMap();
   }
   else {
     // shift even when midi input is disconnected
