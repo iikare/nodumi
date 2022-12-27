@@ -50,7 +50,7 @@ class midi {
       itemStartSet = {};
 
 
-      tracks.resize(1);
+      tracks.resize(2);
       
       trackCount = 0;
       noteCount = 0;

@@ -1,9 +1,13 @@
+#include<algorithm>
 #include<bitset>
 #include "input.h"
 #include "data.h"
 #include "controller.h"
 #include "define.h"
 
+using std::min;
+using std::max;
+using std::sort;
 using std::bitset;
 
 midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
@@ -133,17 +137,27 @@ void midiInput::convertEvents() {
     else if (msgQueue[i] == 0b10010000) { // 144: note on/off
       if (msgQueue[i + 2] != 0) { // if note on
         note tmpNote;
-        tmpNote.track = 0; // by default
+
+
+        
+
+
         tmpNote.x = ctr.livePlayOffset;
         tmpNote.y = static_cast<int>(msgQueue[i + 1]);
         tmpNote.velocity = static_cast<int>(msgQueue[i + 2]);
         tmpNote.isOn = true;
         
+
+        tmpNote.track = ctr.option.get(optionType::OPTION_TRACK_DIVISION) ? findPartition(tmpNote.y) : 1; // by default
+        
         // if this is the note on event, duration is undefined
         tmpNote.duration = -1;
        
+        //logQ("count, x, track, trackct:", noteCount, tmpNote.x, tmpNote.track, 
+             //noteStream.getTracks()[tmpNote.track].getNoteCount());
+
         noteStream.notes.push_back(tmpNote);
-        noteStream.getTracks()[0].insert(noteCount, &noteStream.notes.at(noteCount)); 
+        noteStream.getTracks()[tmpNote.track].insert(noteCount, &noteStream.notes.at(noteCount)); 
         noteCount++;
         numOn++;
         i += 2;
@@ -163,6 +177,108 @@ void midiInput::convertEvents() {
       }
     }
   }
+}
+
+int midiInput::findPartition(int y) {
+
+  // default assumption for FIRST note in a sequence
+  if (noteCount == 0 || numOn == 0) {
+    if (y >= 60) {
+      return 1;
+    }
+    return 0;
+  }
+  // find latest old note
+  int i = 0;
+  double minX = std::numeric_limits<double>::max();
+  int minIdx = 0;
+  for (int j = noteCount - 1; j >= 0; --j) {
+    if (i >= numOn) {
+      // all on notes shifted
+      break;
+    }
+    if (noteStream.notes[j].isOn) {
+      if (noteStream.notes[j].x < minX) {
+        minX = noteStream.notes[j].x;
+        minIdx = j;
+      }
+      i++;
+    }
+  }
+
+  //minIdx = max(minIdx - 5, 0);
+
+  // find span range
+  int minY = 127;
+  int maxY = 0;
+
+  vector<int> relevantY;
+  for (int j = minIdx; j < noteCount; ++j) {
+
+    if (noteStream.notes[j].isOn) {
+      maxY = max(maxY, noteStream.notes[j].y);
+      minY = min(minY, noteStream.notes[j].y);
+
+
+      relevantY.push_back(noteStream.notes[j].y);
+    }
+
+  }
+
+
+
+  logQ("range:", minY, maxY);
+  logQ("consider Y", relevantY);
+
+  constexpr int maxRange = 16; // tenth range
+
+  if (maxY-minY <= maxRange) {
+  
+    // use earliest position
+    if (noteStream.notes[minIdx].y >= 60) {
+      return 1;
+    }
+    else { 
+      return 0;
+    }
+  }
+
+  else {//if (relevantY.size() == 1) {
+    if (y >= 60) {
+      return 1;
+    }
+    return 0;
+  }
+  //else {
+
+    //sort(relevantY.begin(), relevantY.end());
+
+
+    //int maxDist = -1;
+    //int sepIdx = 0;
+    //for (unsigned long idx = 1; idx < relevantY.size(); ++idx) {
+
+
+      //if (maxDist < relevantY[idx] - relevantY[idx-1]) {
+        //maxDist = relevantY[idx] - relevantY[idx-1];
+        //sepIdx = idx;
+      //}
+    //}
+
+
+    //if (y >= noteStream.notes[sepIdx].y) {
+      //return 1;
+    //}
+    //return 0;
+    
+
+
+
+
+  //}
+
+
+  return 0;
 }
 
 void midiInput::updatePosition() {

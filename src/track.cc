@@ -1,5 +1,6 @@
 #include <string>
 #include "track.h"
+#include "define.h"
 
 using std::pair;
 
@@ -21,7 +22,7 @@ void trackController::insert(int idx, note* newNote) {
     tail->chordNext = newNote;
     newNote->prev = tail;
   }
-  else {
+  else if (!ctr.getLiveState()){
     // find chord root
     note* p = tail;
     while (p->prev != nullptr && p->prev->x == p->x) {

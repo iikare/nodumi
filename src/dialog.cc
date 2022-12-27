@@ -17,7 +17,7 @@ void dialogController::render() {
 int dialogController::getItemX(int pos, bool box) {
   const int prefSideMargin = ctr.getWidth() - ctr.prefWidth;
   return prefSideMargin/2.0f+prefItemXSpacing+(ctr.prefWidth/2.0f*pos) - 
-         (box ? prefItemXSpacing/2-itemRectSize/2 : -itemRectSize);
+         (box ? prefItemXSpacing/2-itemRectSize/2 : -(itemRectSize+4));
 }
 int dialogController::getItemY(int pos, bool box) {
   const int prefTopMargin = ctr.getHeight() - ctr.prefHeight;

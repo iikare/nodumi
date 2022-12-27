@@ -33,6 +33,7 @@ class midiInput {
     bool updateQueue();
     bool isUntimedQueue();
     int findNoteIndex(int key);
+    int findPartition(int y);
     
     RtMidiIn* midiIn;
     vector<unsigned char> msgQueue;

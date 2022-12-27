@@ -84,7 +84,7 @@ int main (int argc, char* argv[]) {
 
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_PULSE;
+  int displayMode = DISPLAY_VORONOI;
   
   double nowLineX = ctr.getWidth()/2.0f;
 
@@ -207,6 +207,8 @@ int main (int argc, char* argv[]) {
   }
 
   //DEBUG ONLY
+  ctr.toggleLivePlay();
+  ctr.liveInput.openPort(1);
   //ctr.output.openPort(1);
 
   // main program logic

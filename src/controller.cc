@@ -287,7 +287,7 @@ void controller::update(int offset, double& nowLineX, bool runState) {
     lastWidth = getWidth();
   }
 
-  if (runState) {
+  if (runState || livePlayState) {
     // persistent randomness for animation
     psrValue = rand();
   }
@@ -342,6 +342,9 @@ void controller::updateFiles(char** paths, int numFile) {
         ctr.open_image.setPending(paths[item]);
       }
     }
+    else {
+      logW(LL_WARN, "invalid path:", paths[item]);
+    }
   }
 }
 
@@ -362,7 +365,7 @@ void controller::updateDroppedFiles() {
 }
 
 void controller::toggleLivePlay() {
-  if (setTrackOn.size() < 1) {
+  if (setTrackOn.size() < 1 || option.get(optionType::OPTION_TRACK_DIVISION)) {
     getColorScheme(2, setTrackOn, setTrackOff);
   }
   livePlayState = !livePlayState;
@@ -398,7 +401,7 @@ vector<note>& controller::getNotes() {
 
 int controller::getTrackCount() {
   if (livePlayState) {
-    return 1;
+    return option.get(optionType::OPTION_TRACK_DIVISION) ? 2 : 1;
   }
   return file.getTrackCount();
 }
