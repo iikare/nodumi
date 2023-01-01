@@ -5,11 +5,6 @@
 #include "controller.h"
 #include "define.h"
 
-using std::min;
-using std::max;
-using std::sort;
-using std::bitset;
-
 midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
   midiIn = new RtMidiIn();
   if (midiIn == nullptr) {
@@ -125,11 +120,13 @@ bool midiInput::isUntimedQueue() {
 void midiInput::convertEvents() {
   //-timestamp * 100 * noteStream->getTimeScale()
   //logQ(" ");
-  
 
   //logQ(ctr.livePlayOffset, timestamp);
   for (long unsigned int i = 0; i < msgQueue.size(); i++) { 
     //logQ(bitset<8>(msgQueue[i]));
+   
+    //logQ(ctr.livePlayOffset);
+
     if (msgQueue[i] == 0b11111000) { // 248: clock signal
       //cerr << "shift by " << timestamp*100 << endl;
       ctr.livePlayOffset += fmax(0, timestamp) * 500;
@@ -138,28 +135,40 @@ void midiInput::convertEvents() {
       if (msgQueue[i + 2] != 0) { // if note on
         note tmpNote;
 
-
-        
-
-
         tmpNote.x = ctr.livePlayOffset;
         tmpNote.y = static_cast<int>(msgQueue[i + 1]);
         tmpNote.velocity = static_cast<int>(msgQueue[i + 2]);
         tmpNote.isOn = true;
         
-
-        tmpNote.track = ctr.option.get(optionType::OPTION_TRACK_DIVISION) ? findPartition(tmpNote.y) : 1; // by default
-        
         // if this is the note on event, duration is undefined
         tmpNote.duration = -1;
+
+        //tmpNote.track = ctr.option.get(optionType::OPTION_TRACK_DIVISION) ? findPartition(tmpNote) : 1; // by default
        
         //logQ("count, x, track, trackct:", noteCount, tmpNote.x, tmpNote.track, 
              //noteStream.getTracks()[tmpNote.track].getNoteCount());
 
+        // partition finder requires the current note to be present
         noteStream.notes.push_back(tmpNote);
-        noteStream.getTracks()[tmpNote.track].insert(noteCount, &noteStream.notes.at(noteCount)); 
-        noteCount++;
+        
         numOn++;
+        tmpNote.track = ctr.option.get(optionType::OPTION_TRACK_DIVISION) ? findPartition(tmpNote) : 1; // by default
+                                                                                                        
+        // update track after determination
+        noteStream.notes[noteCount].track = tmpNote.track;
+
+
+        noteStream.getTracks()[tmpNote.track].insert(noteCount, &noteStream.notes.at(noteCount)); 
+        
+        // update last index only AFTER track splitter
+        lastOnIdx = noteCount;
+        noteCount++;
+        
+
+
+       
+
+
         i += 2;
         
         //cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
@@ -179,32 +188,108 @@ void midiInput::convertEvents() {
   }
 }
 
-int midiInput::findPartition(int y) {
+int midiInput::findPartition(const note& n) {
 
-  // default assumption for FIRST note in a sequence
-  if (noteCount == 0 || numOn == 0) {
-    if (y >= 60) {
-      return 1;
-    }
-    return 0;
+  // first, determine if this is a new sequence
+  constexpr int seqLimit = 2000;
+  if (lastOnIdx == -1 || ctr.livePlayOffset - noteStream.notes[lastOnIdx].x > seqLimit) {
+    // new sequence, reset parameters
+   
+
+    logW(LL_CRIT, "new seq", n.x);
+
+    //if (n.y >= 60) {
+      //return 1;
+    //}
+    //return 0;
   }
-  // find latest old note
+
+  logW(LL_WARN, "new note @", n.y);
+
+
+  // else, use current sequence parameter to determine
+  //find latest old note
   int i = 0;
   double minX = std::numeric_limits<double>::max();
   int minIdx = 0;
-  for (int j = noteCount - 1; j >= 0; --j) {
-    if (i >= numOn) {
-      // all on notes shifted
-      break;
-    }
-    if (noteStream.notes[j].isOn) {
-      if (noteStream.notes[j].x < minX) {
-        minX = noteStream.notes[j].x;
-        minIdx = j;
+
+
+  // go back a minimum of seqLimit v. the oldest noteOn event
+  if (true){//numOn == 0) {
+    int adjNotes = 0;
+
+
+    int j = noteCount;
+
+    //logQ("test", n.x, n.isOn);
+
+    while (noteStream.notes[j].x >= 0 && j >= 0) {
+
+
+
+      //logW(LL_CRIT, "break param:",  noteStream.notes[j].x+seqLimit, n.x);
+
+
+      if (noteStream.notes[j].x + seqLimit <= n.x) {
+
+        if (adjNotes == 0) {
+          minX = 0;
+        } 
+      
+        //logW(LL_WARN, "while BREAK on note:", noteStream.notes[j].x, noteStream.notes[j].y);
+
+        break;
       }
-      i++;
+      //logW(LL_WARN, "while on note:", noteStream.notes[j].x, noteStream.notes[j].y);
+
+      if (noteStream.notes[j].isOn) {
+        i++;
+      }
+
+      adjNotes++;
+      minX = noteStream.notes[j].x;
+      minIdx = j;
+      j--;
     }
+
+    if (i != numOn) {
+      for (; j >= 0; --j) {
+        // avoid this note (which is ON by definition)
+        if (i == numOn) {
+          // all on notes shifted
+          break;
+        }
+        if (noteStream.notes[j].isOn) {
+          if (noteStream.notes[j].x < minX) {
+            minX = noteStream.notes[j].x;
+            minIdx = j;
+          }
+          logQ("j, X", j, noteStream.notes[j].x);
+          i++;
+        }
+      }
+    }
+     
   }
+  //else {
+    //for (int j = noteCount - 1; j >= 0; --j) {
+      //// avoid this note (which is ON by definition)
+      //if (i == numOn) {
+        //// all on notes shifted
+        //break;
+      //}
+      //if (noteStream.notes[j].isOn) {
+        //if (noteStream.notes[j].x < minX) {
+          //minX = noteStream.notes[j].x;
+          //minIdx = j;
+        //}
+        //logQ("j, X", j, noteStream.notes[j].x);
+        //i++;
+      //}
+    //}
+  //}
+
+  logQ("MINIDX MINX", minIdx, minX, "|",i,numOn);
 
   //minIdx = max(minIdx - 5, 0);
 
@@ -212,16 +297,19 @@ int midiInput::findPartition(int y) {
   int minY = 127;
   int maxY = 0;
 
+  // one hand range (approx. a 10th)
+  constexpr int handRange = 16;
+
   vector<int> relevantY;
-  for (int j = minIdx; j < noteCount; ++j) {
+  vector<int> considerN;
+  for (int j = minIdx; j <= noteCount; j++) {
 
-    if (noteStream.notes[j].isOn) {
-      maxY = max(maxY, noteStream.notes[j].y);
-      minY = min(minY, noteStream.notes[j].y);
+    maxY = max(maxY, noteStream.notes[j].y);
+    minY = min(minY, noteStream.notes[j].y);
 
 
-      relevantY.push_back(noteStream.notes[j].y);
-    }
+    considerN.push_back(j);
+    relevantY.push_back(noteStream.notes[j].y);
 
   }
 
@@ -230,26 +318,26 @@ int midiInput::findPartition(int y) {
   logQ("range:", minY, maxY);
   logQ("consider Y", relevantY);
 
-  constexpr int maxRange = 16; // tenth range
+  //constexpr int maxRange = 16; // tenth range
 
-  if (maxY-minY <= maxRange) {
+  //if (maxY-minY <= maxRange) {
   
-    // use earliest position
-    if (noteStream.notes[minIdx].y >= 60) {
-      return 1;
-    }
-    else { 
-      return 0;
-    }
-  }
+    //// use earliest position
+    //if (noteStream.notes[minIdx].y >= 60) {
+      //return 1;
+    //}
+    //else { 
+      //return 0;
+    //}
+  //}
 
-  else {//if (relevantY.size() == 1) {
-    if (y >= 60) {
-      return 1;
-    }
-    return 0;
-  }
-  //else {
+  //else {//if (relevantY.size() == 1) {
+    //if (y >= 60) {
+      //return 1;
+    //}
+    //return 0;
+  //}
+  ////else {
 
     //sort(relevantY.begin(), relevantY.end());
 
@@ -276,6 +364,59 @@ int midiInput::findPartition(int y) {
 
 
   //}
+
+  if (relevantY.size() == 1) {
+    if (relevantY[0] >= 60) {
+      return 1;
+    }
+    return 0;
+  }
+
+
+  if (maxY-minY <= handRange) {    
+    return noteStream.notes[noteCount-1].track;
+  }
+
+
+  int tr0sum = 0;
+  int tr1sum = 0;
+  int tr0ct = 0;
+  int tr1ct = 0;
+
+  for (auto considerNote : considerN) {
+    (noteStream.notes[considerNote].track ? tr1sum : tr0sum) += noteStream.notes[considerNote].y;
+    (noteStream.notes[considerNote].track ? tr1ct : tr0ct)++;
+  }
+
+  double tr0avg = ((tr0ct == 0) ? -1 : tr0sum/static_cast<double>(tr0ct));
+  double tr1avg = ((tr1ct == 0) ? -1 : tr1sum/static_cast<double>(tr1ct));
+
+
+  logQ("consider track avg", tr0avg, tr1avg);
+
+
+  if (tr0avg != -1 && tr1avg != -1) {
+    int dist0 = fabs(tr0avg - n.y);
+    int dist1 = fabs(tr1avg - n.y);
+
+    return (dist0 >= dist1) ? 1 : 0;
+
+  }
+  else {
+
+    if (n.y >= 60) {
+      return 1;
+    }
+    return 0;
+
+    if (tr0avg == -1) {
+      return 0;
+    }
+    return 1;
+  }
+
+
+
 
 
   return 0;

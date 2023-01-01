@@ -208,8 +208,9 @@ int main (int argc, char* argv[]) {
 
   //DEBUG ONLY
   ctr.toggleLivePlay();
+
   ctr.liveInput.openPort(1);
-  //ctr.output.openPort(1);
+  //ctr.output.openPort(3);
 
   // main program logic
   while (ctr.getProgramState()) {
@@ -476,7 +477,8 @@ int main (int argc, char* argv[]) {
                 noteOn = true;
               }
 
-              float radius = -1 + 2 * (32 - __countl_zero(int(cW)));
+              //float radius = -1 + 2 * (32 - __countl_zero(int(cW)));
+              float radius = 1 + log2(cW+1);
               if (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, cY + cH) < radius + 2) {
                 updateClickIndex();
               }

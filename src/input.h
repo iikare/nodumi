@@ -9,7 +9,6 @@
 
 using std::vector;
 using std::string;
-using std::to_string;
 
 class midiInput {
   public:
@@ -33,7 +32,7 @@ class midiInput {
     bool updateQueue();
     bool isUntimedQueue();
     int findNoteIndex(int key);
-    int findPartition(int y);
+    int findPartition(const note& n);
     
     RtMidiIn* midiIn;
     vector<unsigned char> msgQueue;
@@ -41,6 +40,7 @@ class midiInput {
     int curPort;
     int noteCount;
     int numOn;
+    double lastOnIdx = -1;
     double timestamp;
 
 };
