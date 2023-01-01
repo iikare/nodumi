@@ -11,9 +11,10 @@ class optionController {
 
     void invert(optionType opt);
 
-    bool get(optionType opt);
+    int get(optionType opt);
+    void set(optionType opt, int value);
 
   private:
 
-    vector<bool> opts;
+    vector<int> opts;
 };

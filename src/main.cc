@@ -207,9 +207,8 @@ int main (int argc, char* argv[]) {
   }
 
   //DEBUG ONLY
-  ctr.toggleLivePlay();
-
-  ctr.liveInput.openPort(1);
+  //ctr.toggleLivePlay();
+  //ctr.liveInput.openPort(1);
   //ctr.output.openPort(3);
 
   // main program logic

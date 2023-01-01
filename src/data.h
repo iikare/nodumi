@@ -19,6 +19,7 @@
 #define SHEET_LMARGIN 80
 #define MIN_STAVE_IDX -23
 #define MAX_STAVE_IDX 29
+#define MAX_HAND_RANGE 16
 
 #define DEFAULT_FONT "YKLIGHT"
 #define MUSIC_FONT   "LELAND"

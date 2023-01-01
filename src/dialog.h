@@ -24,8 +24,12 @@ class dialogController {
     void renderPreference();
     void renderInfo();
 
-    int getItemX(int pos, bool box = false);
-    int getItemY(int pos, bool box = false);
+    void renderHandRangeSelector();
+    int getHRSX(int pos) const;
+    int getHRSValue(int index) const;
+
+    int getItemX(int pos, bool box = false) const;
+    int getItemY(int pos, bool box = false) const;
 
     static constexpr int iconTextSize = 30;
     static constexpr int iconTextAdjust = 10;
@@ -42,4 +46,9 @@ class dialogController {
     static constexpr int itemRectSize = 24;
     static constexpr int itemRectInnerSize = 12;
     static constexpr int itemFontSize = 18;
+
+    static constexpr int hrs_boxW = 30;
+    static constexpr int hrs_boxH = 30;
+    static constexpr int hrs_boxSpacing = 5;
+    static constexpr int hrs_max_item = 4;
 };

@@ -134,18 +134,19 @@ class controller {
     vector<colorRGB> setTonicOn;
     vector<colorRGB> setTonicOff;
 
-    colorRGB bgDark =         colorRGB(0  , 0  , 0  );
-    colorRGB bgLight =        colorRGB(255, 255, 255);
-    colorRGB bgNow =          colorRGB(255, 0  , 0  );
-    colorRGB bgColor =        bgDark;
-    colorRGB bgMenu =         colorRGB(222, 222, 222);
-    colorRGB bgMenuShade =    colorRGB(155, 155, 155);
-    colorRGB bgMenuLine =     colorRGB(22 , 22 , 22 );
-    colorRGB bgSheet =        colorRGB(255, 252, 242);
-    colorRGB bgSheetNote =    colorRGB(0  , 0  , 0  );
-    colorRGB bgMeasure =      colorRGB(155, 155, 155);
-    colorRGB bgIcon =         colorRGB(34 , 115, 150);
-    colorRGB bgOpt  =         colorRGB(227, 43 , 89);
+    colorRGB bgDark         = colorRGB(0  , 0  , 0  );
+    colorRGB bgLight        = colorRGB(255, 255, 255);
+    colorRGB bgNow          = colorRGB(255, 0  , 0  );
+    colorRGB bgColor        = bgDark;
+    colorRGB bgMenu         = colorRGB(222, 222, 222);
+    colorRGB bgMenuShade    = colorRGB(155, 155, 155);
+    colorRGB bgMenuLine     = colorRGB(22 , 22 , 22 );
+    colorRGB bgSheet        = colorRGB(255, 252, 242);
+    colorRGB bgSheetNote    = colorRGB(0  , 0  , 0  );
+    colorRGB bgMeasure      = colorRGB(155, 155, 155);
+    colorRGB bgIcon         = colorRGB(34 , 115, 150);
+    colorRGB bgOpt          = colorRGB(215, 38 , 61 );
+    colorRGB bgOpt2         = colorRGB(56 , 145, 166);
 
     static constexpr int menuHeight  =   20;
     static constexpr int sheetHeight =   250;

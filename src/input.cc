@@ -256,7 +256,7 @@ int midiInput::findPartition(const note& n) {
   int tr1maxY = 0;
 
   // one hand range (approx. a 10th)
-  constexpr int handRange = 16;
+  const int handRange = ctr.option.get(optionType::OPTION_HAND_RANGE);
   constexpr int onLimit = 350;
 
   vector<int> considerN;

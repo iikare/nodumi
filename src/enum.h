@@ -257,6 +257,8 @@ enum class actionType {
 
 enum class optionType {
   OPTION_TRACK_DIVISION,
+  OPTION_SET_HAND_RANGE,
+  OPTION_HAND_RANGE,
   OPTION_NONE
 };
 
