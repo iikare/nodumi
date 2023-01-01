@@ -208,7 +208,7 @@ int main (int argc, char* argv[]) {
 
   //DEBUG ONLY
   //ctr.toggleLivePlay();
-  //ctr.liveInput.openPort(1);
+  //ctr.input.openPort(1);
   //ctr.output.openPort(3);
 
   // main program logic
@@ -242,7 +242,7 @@ int main (int argc, char* argv[]) {
 
     if (ctr.getLiveState()) {
       timeOffset = ctr.livePlayOffset;
-      ctr.liveInput.update();
+      ctr.input.update();
       run = false;
     }
 
@@ -1424,7 +1424,7 @@ int main (int argc, char* argv[]) {
           if (!inputMenu.render) {
             break;
           }
-          ctr.liveInput.openPort(inputMenu.getActiveElement());
+          ctr.input.openPort(inputMenu.getActiveElement());
           break;
       }
       switch(outputMenu.getActiveElement()) {
@@ -1455,7 +1455,7 @@ int main (int argc, char* argv[]) {
           }
           switch(midiMenu.getActiveElement()) {
             case 1:
-              inputMenu.update(ctr.liveInput.getPorts());
+              inputMenu.update(ctr.input.getPorts());
               if (midiMenu.childOpen() && !inputMenu.render) {
                 midiMenu.hideChildMenu();
                 inputMenu.render = true;

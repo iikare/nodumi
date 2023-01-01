@@ -110,7 +110,7 @@ class controller {
     int getSheetSize() const { return getWidth() - SHEET_LMARGIN - SHEET_RMARGIN; }
 
     midi file;
-    midiInput liveInput;
+    midiInput input;
     midiOutput output;
     stringstream midiData;
 

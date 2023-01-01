@@ -371,12 +371,12 @@ void controller::toggleLivePlay() {
   livePlayState = !livePlayState;
   if (livePlayState) {
     livePlayOffset = 0;
-    notes = &liveInput.noteStream.notes;
+    notes = &input.noteStream.notes;
   }
   else {
     // when turning off live input, revert to previously loaded file info
     // also, disable and clear the live input event queue
-    liveInput.resetInput();
+    input.resetInput();
     notes = &file.notes;
   }
   // ensure sufficient track colors
@@ -387,14 +387,14 @@ void controller::toggleLivePlay() {
 
 midi& controller::getStream() {
   if (livePlayState) {
-    return liveInput.noteStream;
+    return input.noteStream;
   }
   return file;
 }
 
 vector<note>& controller::getNotes() {
   if (livePlayState) {
-    return liveInput.noteStream.notes;
+    return input.noteStream.notes;
   }
   return file.notes;
 }
@@ -408,7 +408,7 @@ int controller::getTrackCount() {
 
 int controller::getNoteCount() {
   if (livePlayState) {
-    return liveInput.getNoteCount();
+    return input.getNoteCount();
   }
   return file.getNoteCount();
 }
