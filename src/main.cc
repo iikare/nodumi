@@ -32,7 +32,7 @@ controller ctr;
 
 int main (int argc, char* argv[]) {
 
-  #if defined(REL)
+  #if defined(TARGET_REL)
     SetTraceLogLevel(LOG_ERROR);
   #else
     // debug

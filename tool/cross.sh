@@ -1,9 +1,8 @@
 #!/bin/zsh
 
 #raylib library cross-compile script
-
-read -q "e?cross compile raylib? (y/n) "
 echo
+read -q "e?cross compile raylib? (y/n) "
 if [[ $e =~ ^[Yy]$ ]]
 then
   raylibdir=./dpd/raylib/src

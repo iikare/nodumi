@@ -1,5 +1,7 @@
 #pragma once
 
+#include "build_target.h"
+
 #include <iostream>
 #include <iomanip>
 #include <sstream>

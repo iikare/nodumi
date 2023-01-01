@@ -1,11 +1,18 @@
 #!/bin/zsh
 
+echo
 if [[ $# -ne 1 ]]
 then
   echo "need 1 argument, not $#"
   return -1
 fi
 
+function clear_cache() {
+  echo
+  echo "discrepancy found in cached object files - purging cache"
+  echo
+  rm -f build/*.o
+}
 
 if [[ "$1" = "win" || "$1" = "linux" ]] 
 then
@@ -18,9 +25,7 @@ then
     if (( coffcount != objcount ))
     then
       # discrepancy found
-      echo
-      echo "discrepancy found in cached object files - purging cache"
-      rm -f build/*.o
+      clear_cache
     fi
 
   else 
@@ -29,9 +34,7 @@ then
     if (( elfcount != objcount ))
     then
       # discrepancy found
-      echo
-      echo "discrepancy found in cached object files - purging cache"
-      rm -f build/*.o
+      clear_cache
     fi
   fi
 
