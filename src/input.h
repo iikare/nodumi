@@ -40,7 +40,6 @@ class midiInput {
     int curPort;
     int noteCount;
     int numOn;
-    double lastOnIdx = -1;
     double timestamp;
 
 };
