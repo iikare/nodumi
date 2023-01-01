@@ -4,6 +4,7 @@
 #include "data.h"
 #include "controller.h"
 #include "define.h"
+#include "log.h"
 
 midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
   midiIn = new RtMidiIn();
@@ -189,13 +190,10 @@ void midiInput::convertEvents() {
 }
 
 int midiInput::findPartition(const note& n) {
-
   // first, determine if this is a new sequence
   constexpr int seqLimit = 2000;
   if (lastOnIdx == -1 || ctr.livePlayOffset - noteStream.notes[lastOnIdx].x > seqLimit) {
     // new sequence, reset parameters
-   
-
     logW(LL_CRIT, "new seq", n.x);
 
     //if (n.y >= 60) {
@@ -206,88 +204,59 @@ int midiInput::findPartition(const note& n) {
 
   logW(LL_WARN, "new note @", n.y);
 
-
   // else, use current sequence parameter to determine
   //find latest old note
   int i = 0;
   double minX = std::numeric_limits<double>::max();
   int minIdx = 0;
 
-
   // go back a minimum of seqLimit v. the oldest noteOn event
-  if (true){//numOn == 0) {
-    int adjNotes = 0;
+  int adjNotes = 0;
+  int j = noteCount;
 
+  //logQ("test", n.x, n.isOn);
 
-    int j = noteCount;
+  while (noteStream.notes[j].x >= 0 && j >= 0) {
+    //logW(LL_CRIT, "break param:",  noteStream.notes[j].x+seqLimit, n.x);
+    if (noteStream.notes[j].x + seqLimit <= n.x) {
 
-    //logQ("test", n.x, n.isOn);
+      if (adjNotes == 0) {
+        minX = 0;
+      } 
+    
+      //logW(LL_WARN, "while BREAK on note:", noteStream.notes[j].x, noteStream.notes[j].y);
 
-    while (noteStream.notes[j].x >= 0 && j >= 0) {
+      break;
+    }
+    //logW(LL_WARN, "while on note:", noteStream.notes[j].x, noteStream.notes[j].y);
 
+    if (noteStream.notes[j].isOn) {
+      i++;
+    }
 
+    adjNotes++;
+    minX = noteStream.notes[j].x;
+    minIdx = j;
+    j--;
+  }
 
-      //logW(LL_CRIT, "break param:",  noteStream.notes[j].x+seqLimit, n.x);
-
-
-      if (noteStream.notes[j].x + seqLimit <= n.x) {
-
-        if (adjNotes == 0) {
-          minX = 0;
-        } 
-      
-        //logW(LL_WARN, "while BREAK on note:", noteStream.notes[j].x, noteStream.notes[j].y);
-
+  if (i != numOn) {
+    for (; j >= 0; --j) {
+      // avoid this note (which is ON by definition)
+      if (i == numOn) {
+        // all on notes shifted
         break;
       }
-      //logW(LL_WARN, "while on note:", noteStream.notes[j].x, noteStream.notes[j].y);
-
       if (noteStream.notes[j].isOn) {
+        if (noteStream.notes[j].x < minX) {
+          minX = noteStream.notes[j].x;
+          minIdx = j;
+        }
+        logQ("j, X", j, noteStream.notes[j].x);
         i++;
       }
-
-      adjNotes++;
-      minX = noteStream.notes[j].x;
-      minIdx = j;
-      j--;
     }
-
-    if (i != numOn) {
-      for (; j >= 0; --j) {
-        // avoid this note (which is ON by definition)
-        if (i == numOn) {
-          // all on notes shifted
-          break;
-        }
-        if (noteStream.notes[j].isOn) {
-          if (noteStream.notes[j].x < minX) {
-            minX = noteStream.notes[j].x;
-            minIdx = j;
-          }
-          logQ("j, X", j, noteStream.notes[j].x);
-          i++;
-        }
-      }
-    }
-     
   }
-  //else {
-    //for (int j = noteCount - 1; j >= 0; --j) {
-      //// avoid this note (which is ON by definition)
-      //if (i == numOn) {
-        //// all on notes shifted
-        //break;
-      //}
-      //if (noteStream.notes[j].isOn) {
-        //if (noteStream.notes[j].x < minX) {
-          //minX = noteStream.notes[j].x;
-          //minIdx = j;
-        //}
-        //logQ("j, X", j, noteStream.notes[j].x);
-        //i++;
-      //}
-    //}
-  //}
 
   logQ("MINIDX MINX", minIdx, minX, "|",i,numOn);
 
@@ -296,74 +265,63 @@ int midiInput::findPartition(const note& n) {
   // find span range
   int minY = 127;
   int maxY = 0;
+  
+  // find span range
+  int tr0minY = 127;
+  int tr0maxY = 0;
+  
+  // find span range
+  int tr1minY = 127;
+  int tr1maxY = 0;
 
   // one hand range (approx. a 10th)
   constexpr int handRange = 16;
+  constexpr int onLimit = 350;
 
   vector<int> relevantY;
   vector<int> considerN;
+  vector<int> onN;
   for (int j = minIdx; j <= noteCount; j++) {
 
-    maxY = max(maxY, noteStream.notes[j].y);
-    minY = min(minY, noteStream.notes[j].y);
 
+    if (noteStream.notes[j].isOn || noteStream.notes[j].x+onLimit > n.x) {
+      maxY = max(maxY, noteStream.notes[j].y);
+      minY = min(minY, noteStream.notes[j].y);
+
+      // 1, then 0
+      if (j != noteCount) { // exclude this note
+        if (noteStream.notes[j].track == 1) {
+          tr1maxY = max(tr1maxY, noteStream.notes[j].y);
+          tr1minY = min(tr1minY, noteStream.notes[j].y);
+        }
+        else {
+          tr0maxY = max(tr0maxY, noteStream.notes[j].y);
+          tr0minY = min(tr0minY, noteStream.notes[j].y);
+        }
+      }
+
+      onN.push_back(j);
+    }
 
     considerN.push_back(j);
     relevantY.push_back(noteStream.notes[j].y);
-
   }
 
+  logQ("range:", maxY - minY);
+  logQ("range0:", tr0maxY - tr0minY);
+  logQ("range1:", tr1maxY - tr1minY);
 
+  // consider range WITH this note
 
-  logQ("range:", minY, maxY);
-  logQ("consider Y", relevantY);
-
-  //constexpr int maxRange = 16; // tenth range
-
-  //if (maxY-minY <= maxRange) {
+  int new_tr1maxY = max(tr1maxY, n.y);
+  int new_tr1minY = min(tr1minY, n.y);
+  int new_tr0maxY = max(tr0maxY, n.y);
+  int new_tr0minY = min(tr0minY, n.y);
   
-    //// use earliest position
-    //if (noteStream.notes[minIdx].y >= 60) {
-      //return 1;
-    //}
-    //else { 
-      //return 0;
-    //}
-  //}
+  logQ("range0 (UPD):", new_tr0maxY - new_tr0minY);
+  logQ("range1 (UPD):", new_tr1maxY - new_tr1minY);
 
-  //else {//if (relevantY.size() == 1) {
-    //if (y >= 60) {
-      //return 1;
-    //}
-    //return 0;
-  //}
-  ////else {
-
-    //sort(relevantY.begin(), relevantY.end());
-
-
-    //int maxDist = -1;
-    //int sepIdx = 0;
-    //for (unsigned long idx = 1; idx < relevantY.size(); ++idx) {
-
-
-      //if (maxDist < relevantY[idx] - relevantY[idx-1]) {
-        //maxDist = relevantY[idx] - relevantY[idx-1];
-        //sepIdx = idx;
-      //}
-    //}
-
-
-    //if (y >= noteStream.notes[sepIdx].y) {
-      //return 1;
-    //}
-    //return 0;
-    
-
-
-
-
-  //}
+  logQ("consider Y", relevantY);
 
   if (relevantY.size() == 1) {
     if (relevantY[0] >= 60) {
@@ -372,10 +330,21 @@ int midiInput::findPartition(const note& n) {
     return 0;
   }
 
+  bool outOfRange = maxY-minY > handRange;
+  bool outOfRange0 = new_tr0maxY-new_tr0minY > handRange;
+  bool outOfRange1 = new_tr1maxY-new_tr1minY > handRange;
 
-  if (maxY-minY <= handRange) {    
-    return noteStream.notes[noteCount-1].track;
+
+  // force assign to other hand if adding to this track causes an out of range
+  if (!outOfRange0 && outOfRange1) {
+    return 0;
   }
+  else if (outOfRange0 && !outOfRange1) {
+    return 1;
+  }
+
+  logW(LL_WARN, "tug");
+
 
 
   int tr0sum = 0;
@@ -393,6 +362,16 @@ int midiInput::findPartition(const note& n) {
 
 
   logQ("consider track avg", tr0avg, tr1avg);
+ 
+  // if both in range, choose track with least notes
+  if (!outOfRange0 && !outOfRange1) {
+    //return tr0ct >= tr1ct;
+    return noteStream.notes[noteCount-1].track;
+  }
+
+  if (!outOfRange) {    
+  }
+  logW(LL_CRIT, "SOY");
 
 
   if (tr0avg != -1 && tr1avg != -1) {
@@ -404,15 +383,11 @@ int midiInput::findPartition(const note& n) {
   }
   else {
 
-    if (n.y >= 60) {
-      return 1;
-    }
-    return 0;
-
     if (tr0avg == -1) {
-      return 0;
+
+      return outOfRange;
     }
-    return 1;
+    return !outOfRange;
   }
 
 

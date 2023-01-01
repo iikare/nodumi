@@ -1123,17 +1123,20 @@ int main (int argc, char* argv[]) {
         }
       }
       else if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
-        bool measureFirst = true;
-        for (unsigned int i = ctr.getStream().measureMap.size()-1; i > 0; --i) {
-          double measureLineX = convertSSX(ctr.getStream().measureMap[i].getLocation());
-          if (measureLineX < nowLineX-1) {
-            timeOffset = unconvertSSX(measureLineX);
-            measureFirst = false;
-            break;
+        // not supported in live mode
+        if (!ctr.getLiveState()) {
+          bool measureFirst = true;
+          for (unsigned int i = ctr.getStream().measureMap.size()-1; i > 0; --i) {
+            double measureLineX = convertSSX(ctr.getStream().measureMap[i].getLocation());
+            if (measureLineX < nowLineX-1) {
+              timeOffset = unconvertSSX(measureLineX);
+              measureFirst = false;
+              break;
+            }
           }
-        }
-        if (measureFirst) {
-          timeOffset = 0;
+          if (measureFirst) {
+            timeOffset = 0;
+          }
         }
       }
       else {
