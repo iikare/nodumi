@@ -8,8 +8,8 @@ uniform vec2 u_resolution;
 out vec4 finalColor;
 
 #define FXAA_REDUCE_MIN (1.0/128.0)
-#define FXAA_REDUCE_MUL (1.0/2.0)
-#define FXAA_SPAN_MAX 2.0
+#define FXAA_REDUCE_MUL (1.0/8.0)
+#define FXAA_SPAN_MAX 8.0
 
 void main() {
   vec2 st = fragTexCoord;
@@ -25,7 +25,7 @@ void main() {
 
   vec3 luma = vec3(0.299, 0.587, 0.114);
 
-  float lumaTL = dot(sampleTL, luma)
+  float lumaTL = dot(sampleTL, luma);
   float lumaTR = dot(sampleTR, luma);
   float lumaBL = dot(sampleBL, luma);
   float lumaBR = dot(sampleBR, luma);
@@ -46,10 +46,5 @@ void main() {
 
   float lumaB = dot(rgbB, luma);
 
-  if((lumaB < lumaMin) || (lumaB > lumaMax)) {
-      finalColor = vec4(rgbA, 1.0);
-  } 
-  else {
-      finalColor = vec4(rgbB,1.0);
-  }
+  finalColor = vec4(((lumaB < lumaMin) || (lumaB > lumaMax)) ? rgbA : rgbB, 1.0);
 }

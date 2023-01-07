@@ -13,13 +13,10 @@ shaderData::shaderData(const asset& item) {
 
   shader = LoadShaderFromMemory(nullptr, reinterpret_cast<char*>(const_cast<unsigned char*>(item.data)));
 
-  logQ("loaded shader (id, name):", shader.id, item.assetName);
-  
-
-  for (auto i = 0; i < RL_MAX_SHADER_LOCATIONS; ++i) {
-    logQ("loc:", i, "is", shader.locs[i]);
+  // hacky test for graceful shader compilation failure
+  if (shader.locs[5] == 3 && shader.locs[12] == 2) {
+    logW(LL_WARN, "shader", item.assetName, "(id:"+ to_string(shader.id)+")", "failed to compile");
   }
-    
 
   for (const auto& i : item.shaderUniforms) {
     typeMap.insert(make_pair(i.name, i.type));
