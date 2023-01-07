@@ -52,6 +52,9 @@ class controller {
     void beginBlendMode(int a, int b, int c);
     void endBlendMode();
 
+    void beginTextureMode(const RenderTexture& rtex) { BeginTextureMode(rtex); }
+    void endTextureMode() { EndTextureMode(); }
+
     template <class T>
     void setShaderValue(const string& shader, const string& uf, const T& val, const int num = -1) {
       getShaderData(shader).setShaderValue(uf, val, num);

@@ -271,7 +271,7 @@ int main (int argc, char* argv[]) {
     // main render loop
     BeginDrawing();
       clearBackground(ctr.bgColor);
-    
+   
       if (showImage) {
         ctr.image.draw();
         if (!hoverType.contains(HOVER_DIALOG)) {
@@ -292,9 +292,8 @@ int main (int argc, char* argv[]) {
             int voro_y = (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
             ctr.voronoi.resample(voro_y);
 
-            ctr.beginShaderMode("SH_VORONOI");
-            drawTextureEx(ctr.voronoi.tex, {0, static_cast<float>(ctr.menuHeight)});
-            ctr.endShaderMode();
+            ctr.voronoi.render();
+           
           }
           break;
       }

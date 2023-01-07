@@ -13,8 +13,12 @@ using std::vector;
 class voronoiController {
   public:
 
+    void init();
+
     void unloadData() { unload(); } 
-    void updateTexture();
+    void update();
+
+    void render();
 
     void resample(int voro_y);
 
@@ -22,9 +26,13 @@ class voronoiController {
     vector<Vector2> vertex;
     vector<colorRGB> color;
 
+    RenderTexture voro_buffer;
     Texture2D tex;
   private:
     void unload();
+
+    void updateBuffer(); 
+    void updateTexture();
 
 
     vector<Vector2> vertex_last;

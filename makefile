@@ -78,7 +78,7 @@ BINDIR=bin
 
 NAME=$(addprefix $(BINDIR)/, nodumi)
 
-SRCS=$(wildcard $(SRCDIR)/*.cc)
+SRCS=$(wildcard $(SRCDIR)/*.cc)#$(wildcard $(SRCDIR)/*/*.cc)
 OBJS=$(patsubst $(SRCDIR)/%.cc, $(BUILDDIR)/%.o, $(SRCS))
 
 SRCSMF=$(wildcard $(MFDIR)/*.cpp)

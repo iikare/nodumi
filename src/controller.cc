@@ -43,7 +43,7 @@ void controller::init(vector<asset>& assetSet) {
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
   setShaderValue("SH_SQUARE", "blend_color", startCol);
 
-  voronoi.updateTexture();
+  voronoi.init();
   fft.updateFFTBins();
 
   warning.init();
@@ -312,7 +312,7 @@ void controller::updateDimension(double& nowLineX) {
   if(IsWindowResized()) {
 
 
-    voronoi.updateTexture();
+    voronoi.update();
     fft.updateFFTBins();
 
     nowLineX = getWidth() * nowLineX / lastWidth;

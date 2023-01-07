@@ -1,5 +1,11 @@
 #include "voronoi.h"
 #include "define.h"
+#include "wrap.h"
+
+void voronoiController::init() {
+  updateBuffer();
+  updateTexture();
+}
 
 void voronoiController::resample(int voro_y) {
   vector<Vector2>& voronoi_vertex_data = vertex;
@@ -35,6 +41,15 @@ void voronoiController::resample(int voro_y) {
   color.clear();
 }
 
+void voronoiController::update() {
+  unload();
+  updateBuffer();
+  updateTexture();
+}
+
+void voronoiController::updateBuffer() { 
+  voro_buffer = LoadRenderTexture(ctr.getWidth(), ctr.getHeight()-ctr.menuHeight);
+}
 void voronoiController::updateTexture() {
   Image i = GenImageColor(ctr.getWidth(), ctr.getHeight()-ctr.menuHeight, WHITE);
   tex = LoadTextureFromImage(i);
@@ -42,5 +57,23 @@ void voronoiController::updateTexture() {
 }
 
 void voronoiController::unload() {
+  UnloadRenderTexture(voro_buffer);
   UnloadTexture(tex);
+}
+
+void voronoiController::render() {
+  
+  ctr.beginTextureMode(voro_buffer);
+
+  ctr.beginShaderMode("SH_VORONOI");
+  drawTextureEx(tex, {0, 0});//static_cast<float>(ctr.menuHeight)});
+  //drawTextureEx(tex, {0, static_cast<float>(ctr.menuHeight)});
+  ctr.endShaderMode();
+
+  ctr.endTextureMode();
+
+  //ctr.beginShaderMode("SH_FXAA");
+  DrawTextureEx(voro_buffer.texture, { 0, ctr.menuHeight }, 0.0f, 1.0f, WHITE);
+  //ctr.endShaderMode();
+  
 }
