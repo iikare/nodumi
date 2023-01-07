@@ -13,6 +13,14 @@ shaderData::shaderData(const asset& item) {
 
   shader = LoadShaderFromMemory(nullptr, reinterpret_cast<char*>(const_cast<unsigned char*>(item.data)));
 
+  logQ("loaded shader (id, name):", shader.id, item.assetName);
+  
+
+  for (auto i = 0; i < RL_MAX_SHADER_LOCATIONS; ++i) {
+    logQ("loc:", i, "is", shader.locs[i]);
+  }
+    
+
   for (const auto& i : item.shaderUniforms) {
     typeMap.insert(make_pair(i.name, i.type));
   }

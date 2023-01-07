@@ -72,8 +72,11 @@ void voronoiController::render() {
 
   ctr.endTextureMode();
 
-  //ctr.beginShaderMode("SH_FXAA");
-  DrawTextureEx(voro_buffer.texture, { 0, ctr.menuHeight }, 0.0f, 1.0f, WHITE);
-  //ctr.endShaderMode();
+  ctr.beginShaderMode("SH_FXAA");
+  //DrawTextureEx(voro_buffer.texture, { 0, ctr.menuHeight }, 360.0f, 1.0f, WHITE);
+  DrawTextureRec(voro_buffer.texture,
+                 { 0, 0, float(voro_buffer.texture.width), float(-voro_buffer.texture.height) }, 
+                 { 0, ctr.menuHeight }, WHITE);
+  ctr.endShaderMode();
   
 }

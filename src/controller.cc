@@ -42,6 +42,8 @@ void controller::init(vector<asset>& assetSet) {
 
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
   setShaderValue("SH_SQUARE", "blend_color", startCol);
+    
+  setShaderValue("SH_FXAA", "u_resolution", (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
 
   voronoi.init();
   fft.updateFFTBins();
@@ -310,6 +312,8 @@ void controller::updateKeyState() {
 
 void controller::updateDimension(double& nowLineX) {
   if(IsWindowResized()) {
+
+    setShaderValue("SH_FXAA", "u_resolution", (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
 
 
     voronoi.update();
