@@ -22,7 +22,7 @@
 #define MAX_HAND_RANGE 16
 
 #define DEFAULT_FONT "YKLIGHT"
-#define MUSIC_FONT   "LELAND"
+#define GLYPH_FONT   "LELAND"
 #define TEXT_SPACING 0
 
 #define FILTER_FILE  "midi/mki:mid,mki"

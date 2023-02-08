@@ -123,7 +123,7 @@ Font* controller::getFont(const string& id, int size) {
     int* loc = nullptr;
 
     // special handling for SMuFL font
-    if (tmpFontAsset.assetName == MUSIC_FONT) {
+    if (tmpFontAsset.assetName == GLYPH_FONT) {
       loc = codepointSet.data();
       lim = codepointSet.size();
     }

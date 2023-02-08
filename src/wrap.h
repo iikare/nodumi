@@ -21,7 +21,7 @@ void drawTextEx(const string& msg, const Vector2& pos, const colorRGB& col,
 void drawTextEx(const string& msg, int x, int y, const colorRGB& col, 
                 unsigned char alpha = 255, int size = 14, const string& font = DEFAULT_FONT);
 
-void drawSymbol(int sym, int size, int x, int y, const colorRGB& col, unsigned char alpha = 255, const string& font = MUSIC_FONT);
+void drawSymbol(int sym, int size, int x, int y, const colorRGB& col, unsigned char alpha = 255, const string& font = GLYPH_FONT);
 
 void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col, 
               float alpha = 255, float startAngle = 0, float endAngle = 360); 

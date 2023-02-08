@@ -361,9 +361,9 @@ int main (int argc, char* argv[]) {
               double fadeWidth = 2.0*measureSpacing;
               int measureLineTextAlpha = 255*(min(fadeWidth, ctr.getWidth()-measureLineX))/fadeWidth;
 
-              if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songInfoSize.x) {
+              if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songInfoSize.x+fadeWidth/2.0) {
                 measureLineTextAlpha = max(0.0,min(255.0, 
-                                                   255.0 * (1-(songTimePosition.x*2 + songInfoSize.x - measureLineX - 4)/10)));
+                                                   255.0 * (1-(songInfoSize.x+fadeWidth/2.0 - measureLineX - 4)/10)));
               }
               else if (measureLineX < fadeWidth) {
                 measureLineTextAlpha = 255*max(0.0, (min(fadeWidth, measureLineX+measureSpacing))/fadeWidth);
@@ -953,7 +953,7 @@ int main (int argc, char* argv[]) {
 
 
       // draw key signature label
-      // TODO: render accidental glyph using MUSIC_FONT
+      // TODO: render accidental glyph using GLYPH_FONT
       if (showKey) {
         if (songTimeType == SONGTIME_ABSOLUTE || songTimeType == SONGTIME_RELATIVE) {
           songTimeSizeV.x += songInfoSpacing;
