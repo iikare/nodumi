@@ -2,6 +2,9 @@
 
 #include "log.h"
 #include "enum.h"
+#include <string>
+
+using std::string;
 
 class timeSig {
   public:
@@ -131,6 +134,8 @@ class keySig {
     int getAcc() const { return accidentals; }
     int getIndex() const { return startingIndex; }
     int getStaveOffset() const;
+
+    string getLabel() const; 
 
     bool isSharp() const { return accidentals >= 0; }
 

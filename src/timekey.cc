@@ -149,3 +149,42 @@ int keySig::getStaveOffset() const {
       return 0;
   }
 }
+    
+
+
+string keySig::getLabel() const {
+  switch (key) {
+    case KEYSIG_C:
+       return "C Major";
+    case KEYSIG_G:
+       return "G Major";
+    case KEYSIG_D:
+       return "D Major";
+    case KEYSIG_A:
+       return "A Major";
+    case KEYSIG_E:
+       return "E Major";
+    case KEYSIG_B:
+       return "B Major";
+    case KEYSIG_FSHARP:
+       return "F♯ Major";
+    case KEYSIG_CSHARP:
+       return "C♯ Major";
+    case KEYSIG_F:
+       return "F Major";
+    case KEYSIG_BFLAT:
+       return "B♭ Major";
+    case KEYSIG_EFLAT:
+       return "E♭ Major";
+    case KEYSIG_AFLAT:
+       return "A♭ Major";
+    case KEYSIG_DFLAT:
+       return "D♭ Major";
+    case KEYSIG_GFLAT:
+       return "G♭ Major";
+    case KEYSIG_CFLAT:
+       return "C♭ Major";
+    default:
+       return "undefined";
+  }
+}

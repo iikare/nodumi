@@ -82,9 +82,10 @@ int main (int argc, char* argv[]) {
   bool measureLine = true;
   bool measureNumber = true;
 
+  bool showKey = false;
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_VORONOI;
+  int displayMode = DISPLAY_PULSE;
   
   double nowLineX = ctr.getWidth()/2.0f;
 
@@ -134,6 +135,7 @@ int main (int argc, char* argv[]) {
   };
 
   // menu variables
+  constexpr int songInfoSpacing = 4;
   Vector2 songTimePosition = {6.0f, 26.0f};
 
   // menu objects
@@ -145,7 +147,7 @@ int main (int argc, char* argv[]) {
   menu editMenu(ctr.getSize(), editMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(editMenu);
   
-  vector<string> viewMenuContents = {"View", "Display Mode:", "Display Song Time:", "Hide Now Line", 
+  vector<string> viewMenuContents = {"View", "Display Mode:", "Display Song Time:", "Display Key Signature", "Hide Now Line", 
                                      "Hide Measure Line", "Hide Measure Number", "Hide Background", "Show FPS"};
   menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(viewMenu);
@@ -336,23 +338,32 @@ int main (int argc, char* argv[]) {
           if (measureNumber) {
             double lastMeasureLocation = convertSSX(ctr.getStream().measureMap[lastMeasureNum].getLocation()); 
             if (!i || lastMeasureLocation + measureSpacing + 10 < measureLineX) {
-              // measure number / song time collision detection
-              Vector2 songTimeSize = {0,0}; 
+              // measure number / song time + key sig collision detection
+              Vector2 songInfoSize = {0,0}; 
               switch (songTimeType) {
                 case SONGTIME_ABSOLUTE:
-                 songTimeSize = measureTextEx(getSongTime(timeOffset, ctr.getLastTime()).c_str());
+                 songInfoSize = measureTextEx(getSongTime(timeOffset, ctr.getLastTime()));
                  break;
                 case SONGTIME_RELATIVE: 
-                 songTimeSize = measureTextEx(getSongPercent(timeOffset, ctr.getLastTime()).c_str());
+                 songInfoSize = measureTextEx(getSongPercent(timeOffset, ctr.getLastTime()));
                  break;
+              }
+              if (showKey) {
+                Vector2 keySigSize = measureTextEx(ctr.getKeySigLabel(timeOffset));
+                songInfoSize.x += keySigSize.x;
+                songInfoSize.y += keySigSize.y;
+
+                if (songTimeType == SONGTIME_ABSOLUTE || songTimeType == SONGTIME_RELATIVE) {
+                  songInfoSize.x += songInfoSpacing;
+                }
               }
              
               double fadeWidth = 2.0*measureSpacing;
               int measureLineTextAlpha = 255*(min(fadeWidth, ctr.getWidth()-measureLineX))/fadeWidth;
 
-              if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songTimeSize.x) {
+              if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songTimePosition.x*2 + songInfoSize.x) {
                 measureLineTextAlpha = max(0.0,min(255.0, 
-                                                   255.0 * (1-(songTimePosition.x*2 + songTimeSize.x - measureLineX - 4)/10)));
+                                                   255.0 * (1-(songTimePosition.x*2 + songInfoSize.x - measureLineX - 4)/10)));
               }
               else if (measureLineX < fadeWidth) {
                 measureLineTextAlpha = 255*max(0.0, (min(fadeWidth, measureLineX+measureSpacing))/fadeWidth);
@@ -918,14 +929,39 @@ int main (int argc, char* argv[]) {
       }
       
       // option actions
+      //
+
+      Vector2 songTimeSizeV = {0.0, 0.0};
+      string songTimeContent = "";
+
       switch (songTimeType) {
         case SONGTIME_RELATIVE:
-          drawTextEx(getSongPercent(timeOffset, ctr.getLastTime()).c_str(), songTimePosition, ctr.bgLight);
+          songTimeContent = getSongPercent(timeOffset, ctr.getLastTime());
           break;
         case SONGTIME_ABSOLUTE:
-          drawTextEx(getSongTime(timeOffset, ctr.getLastTime()).c_str(), songTimePosition, ctr.bgLight);
+          songTimeContent = getSongTime(timeOffset, ctr.getLastTime());
+          break;
+        case SONGTIME_NONE:
+          break;
+        default:
+          logQ("invalid song time option:", songTimeType);
           break;
       }
+      
+      drawTextEx(songTimeContent, songTimePosition, ctr.bgLight);
+      songTimeSizeV = measureTextEx(songTimeContent);
+
+
+      // draw key signature label
+      // TODO: render accidental glyph using MUSIC_FONT
+      if (showKey) {
+        if (songTimeType == SONGTIME_ABSOLUTE || songTimeType == SONGTIME_RELATIVE) {
+          songTimeSizeV.x += songInfoSpacing;
+        }
+        //logQ("got label:", ctr.getKeySigLabel(timeOffset));
+        drawTextEx(ctr.getKeySigLabel(timeOffset), songTimePosition.x+songTimeSizeV.x, songTimePosition.y, ctr.bgLight);
+      }
+
 
       if (showFPS) {
         if (GetTime() - (int)GetTime() < GetFrameTime()) {
@@ -1365,47 +1401,56 @@ int main (int argc, char* argv[]) {
               }
               break;
             case 3:
-              if (viewMenu.getContent(3) == "Show Now Line") {
-                viewMenu.setContent("Hide Now Line", 3);
+              if (viewMenu.getContent(3) == "Display Key Signature") {
+                viewMenu.setContent("Hide Key Signature", 3);
               }
-              else if (viewMenu.getContent(3) == "Hide Now Line") {
-                viewMenu.setContent("Show Now Line", 3);
+              else if (viewMenu.getContent(3) == "Hide Key Signature") {
+                viewMenu.setContent("Display Key Signature", 3);
+              }
+              showKey = !showKey;
+              break;
+            case 4:
+              if (viewMenu.getContent(4) == "Show Now Line") {
+                viewMenu.setContent("Hide Now Line", 4);
+              }
+              else if (viewMenu.getContent(4) == "Hide Now Line") {
+                viewMenu.setContent("Show Now Line", 4);
               }
               nowLine = !nowLine;
               break;
-            case 4:
-              if (viewMenu.getContent(4) == "Show Measure Line") {
-                viewMenu.setContent("Hide Measure Line", 4);
+            case 5:
+              if (viewMenu.getContent(5) == "Show Measure Line") {
+                viewMenu.setContent("Hide Measure Line", 5);
               }
-              else if (viewMenu.getContent(4) == "Hide Measure Line") {
-                viewMenu.setContent("Show Measure Line", 4);
+              else if (viewMenu.getContent(5) == "Hide Measure Line") {
+                viewMenu.setContent("Show Measure Line", 5);
               }
               measureLine = !measureLine;
               break;
-            case 5:
-              if (viewMenu.getContent(5) == "Show Measure Number") {
-                viewMenu.setContent("Hide Measure Number", 5);
+            case 6:
+              if (viewMenu.getContent(6) == "Show Measure Number") {
+                viewMenu.setContent("Hide Measure Number", 6);
               }
-              else if (viewMenu.getContent(5) == "Hide Measure Number") {
-                viewMenu.setContent("Show Measure Number", 5);
+              else if (viewMenu.getContent(6) == "Hide Measure Number") {
+                viewMenu.setContent("Show Measure Number", 6);
               }
               measureNumber = !measureNumber;
               break;
-            case 6:
-              if (viewMenu.getContent(6) == "Show Background") {
-                viewMenu.setContent("Hide Background", 6);
+            case 7:
+              if (viewMenu.getContent(7) == "Show Background") {
+                viewMenu.setContent("Hide Background", 7);
               }
-              else if (viewMenu.getContent(6) == "Hide Background") {
-                viewMenu.setContent("Show Background", 6);
+              else if (viewMenu.getContent(7) == "Hide Background") {
+                viewMenu.setContent("Show Background", 7);
               }
               showImage = !showImage;
               break;
-            case 7:
-              if (viewMenu.getContent(7) == "Show FPS") {
-                viewMenu.setContent("Hide FPS", 7);
+            case 8:
+              if (viewMenu.getContent(8) == "Show FPS") {
+                viewMenu.setContent("Hide FPS", 8);
               }
-              else if (viewMenu.getContent(7) == "Hide FPS") {
-                viewMenu.setContent("Show FPS", 7);
+              else if (viewMenu.getContent(8) == "Hide FPS") {
+                viewMenu.setContent("Show FPS", 8);
               }
               showFPS = !showFPS;
               FPSText = to_string(GetFPS());

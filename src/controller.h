@@ -93,7 +93,7 @@ class controller {
     double getPauseTime() { return pauseTime; }
     int getPSR() { return psrValue; }
     unsigned int getFrameCounter() { return frameCounter; }
-
+    
     midi& getStream();
     vector<note>& getNotes();
     int getTrackCount();
@@ -103,6 +103,7 @@ class controller {
     int getMinTickLen() const;
     int getCurrentMeasure() const;
     int getMeasureCount() const;
+    string getKeySigLabel(int offset) const;
 
     int getWidth() const { return GetScreenWidth(); }
     int getHeight() const { return GetScreenHeight(); }
@@ -187,6 +188,7 @@ class controller {
     void updateDroppedFiles();
     
     int findCurrentMeasure(int pos) const;
+
     
     shaderData& getShaderData(const string& shaderIdentifier);
     
