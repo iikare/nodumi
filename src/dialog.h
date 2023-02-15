@@ -37,7 +37,6 @@ class dialogController {
     static constexpr double iconScale = 0.3;
     const string copySym = "©";
     const string copy = " iika-re 2020-" + string(COPY_YEAR);
-    const string license = "Licensed under GPLv3";
 
     static constexpr int copySymSize = 22;
 

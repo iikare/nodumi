@@ -147,20 +147,21 @@ void dialogController::renderInfo() {
                      static_cast<float>(infoTopMargin/2.0f + borderMargin)};
   drawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3);
   
-  drawTextEx(string("Build Date: ") + BUILD_DATE, 
+  drawTextEx(ctr.text.getString("INFO_BOX_BUILD_DATE")+ " " + string(BUILD_DATE), 
              infoSideMargin/2.0f+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2.0f, ctr.bgDark);
-  drawTextEx(string("Ver. ") + W_VER, 
+  drawTextEx(ctr.text.getString("INFO_BOX_VER") + " " + string(W_VER), 
              infoSideMargin/2.0f+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2.0f+16, ctr.bgDark);
   
   double copySymWidth = measureTextEx(copySym, copySymSize).x;
   double copyWidth = measureTextEx(copy).x;
-  double licenseWidth = measureTextEx(license).x;
+  double licenseWidth = measureTextEx(ctr.text.getString("INFO_BOX_LICENSE_GPL3")).x;
+  
 
   drawTextEx(copySym, infoSideMargin/2.0f+ctr.infoWidth-borderMargin-copySymWidth-copyWidth, 
              iconPos.y+iconBoxHeight-borderMargin/2.0f + 2, ctr.bgDark, 255, copySymSize);
   drawTextEx(copy, infoSideMargin/2.0f+ctr.infoWidth-borderMargin-copyWidth, 
              iconPos.y+iconBoxHeight-borderMargin/2.0f, ctr.bgDark);
-  drawTextEx(license, infoSideMargin/2.0f+ctr.infoWidth-borderMargin-licenseWidth, 
+  drawTextEx(ctr.text.getString("INFO_BOX_LICENSE_GPL3"), infoSideMargin/2.0f+ctr.infoWidth-borderMargin-licenseWidth, 
              iconPos.y+iconBoxHeight-borderMargin/2+16, ctr.bgDark);
 }
 
