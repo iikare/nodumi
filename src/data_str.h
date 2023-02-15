@@ -17,12 +17,19 @@
                         {"VIEW_MENU_VIEW",                      "View"}, \
                         {"VIEW_MENU_DISPLAY_MODE",              "Display Mode:"}, \
                         {"VIEW_MENU_DISPLAY_SONG_TIME",         "Display Song Time:"}, \
+                        {"VIEW_MENU_HIDE_SONG_TIME",            "Hide Song Time"}, \
                         {"VIEW_MENU_DISPLAY_KEY_SIGNATURE",     "Display Key Signature"}, \
+                        {"VIEW_MENU_HIDE_KEY_SIGNATURE",        "Hide Key Signature"}, \
                         {"VIEW_MENU_HIDE_NOW_LINE",             "Hide Now Line"}, \
+                        {"VIEW_MENU_SHOW_NOW_LINE",             "Show Now Line"}, \
                         {"VIEW_MENU_HIDE_MEASURE_LINE",         "Hide Measure Line"}, \
+                        {"VIEW_MENU_SHOW_MEASURE_LINE",         "Show Measure Line"}, \
                         {"VIEW_MENU_HIDE_MEASURE_NUMBER",       "Hide Measure Number"}, \
+                        {"VIEW_MENU_SHOW_MEASURE_NUMBER",       "Show Measure Number"}, \
                         {"VIEW_MENU_HIDE_BACKGROUND",           "Hide Background"}, \
+                        {"VIEW_MENU_SHOW_BACKGROUND",           "Show Background"}, \
                         {"VIEW_MENU_SHOW_FPS",                  "Show FPS"}, \
+                        {"VIEW_MENU_HIDE_FPS",                  "Hide FPS"}, \
                         {"DISPLAY_MENU_DEFAULT",                "Default"}, \
                         {"DISPLAY_MENU_LINE",                   "Line"}, \
                         {"DISPLAY_MENU_PULSE",                  "Pulse"}, \
@@ -36,6 +43,7 @@
                         {"MIDI_MENU_INPUT",                     "Input"}, \
                         {"MIDI_MENU_OUTPUT",                    "Output"}, \
                         {"MIDI_MENU_ENABLE_LIVE_PLAY",          "Enable Live Play"}, \
+                        {"MIDI_MENU_DISABLE_LIVE_PLAY",         "Disable Live Play"}, \
                         {"COLOR_MENU_COLOR",                    "Color"}, \
                         {"COLOR_MENU_COLOR_BY",                 "Color By:"}, \
                         {"COLOR_MENU_COLOR_SCHEME",             "Color Scheme:"}, \
@@ -51,7 +59,11 @@
                         {"PALETTE_MENU_FROM_BACKGROUND",        "From Background"}, \
                         {"RIGHT_MENU_INFO",                     "Info"}, \
                         {"RIGHT_MENU_CHANGE_PART_COLOR",        "Change Part Color"}, \
+                        {"RIGHT_MENU_CHANGE_LINE_COLOR",        "Change Line Color"}, \
+                        {"RIGHT_MENU_CHANGE_COLOR",             "Change Color"}, \
                         {"RIGHT_MENU_SET_TONIC",                "Set Tonic"}, \
+                        {"RIGHT_MENU_REMOVE_IMAGE",             "Remove Image"}, \
+                        {"RIGHT_MENU_EMPTY",                    "Empty"}, \
                         {"COLORSELECT_COLOR_SELECT",            "Color Select"}, \
                         {"",                                    ""}, \
                       }

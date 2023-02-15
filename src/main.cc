@@ -1011,7 +1011,7 @@ int main (int argc, char* argv[]) {
       case actionType::ACTION_OPEN_IMAGE:
         ctr.open_image.dialog();
         showImage = true; 
-        viewMenu.setContent("Hide Background", 4);
+        viewMenu.setContentLabel("VIEW_MENU_HIDE_BACKGROUND", 7);
         ctr.menu->hide();
         break;
       case actionType::ACTION_CLOSE:
@@ -1052,11 +1052,11 @@ int main (int argc, char* argv[]) {
         }
         break;
       case actionType::ACTION_SHEET:
-        if (editMenu.getContent(1) == "Disable Sheet Music") {
-          editMenu.setContent("Enable Sheet Music", 1);
+        if (editMenu.isContentLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", 1)) {
+          editMenu.setContentLabel("EDIT_MENU_ENABLE_SHEET_MUSIC", 1);
         }
-        else if (editMenu.getContent(1) == "Enable Sheet Music") {
-          editMenu.setContent("Disable Sheet Music", 1);
+        else if (editMenu.isContentLabel("EDIT_MENU_ENABLE_SHEET_MUSIC", 1)) {
+          editMenu.setContentLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", 1);
         }
         sheetMusicDisplay = !sheetMusicDisplay;
         ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
@@ -1068,12 +1068,12 @@ int main (int argc, char* argv[]) {
         ctr.dialog.infoDisplay = !ctr.dialog.infoDisplay;
         break;
       case actionType::ACTION_LIVEPLAY:
-        if (midiMenu.getContent(3) == "Enable Live Play") {
-          midiMenu.setContent("Disable Live Play", 3);
+        if (midiMenu.isContentLabel("MIDI_MENU_ENABLE_LIVE_PLAY", 3)) {
+          midiMenu.setContentLabel("MIDI_MENU_DISABLE_LIVE_PLAY", 3);
           zoomLevel *= 3;
         }
-        else if (midiMenu.getContent(3) == "Disable Live Play") {
-          midiMenu.setContent("Enable Live Play", 3);
+        else if (midiMenu.isContentLabel("MIDI_MENU_DISABLE_LIVE_PLAY", 3)) {
+          midiMenu.setContentLabel("MIDI_MENU_ENABLE_LIVE_PLAY", 3);
           zoomLevel *= 1.0/3.0;
         }
         ctr.toggleLivePlay();
@@ -1317,11 +1317,11 @@ int main (int argc, char* argv[]) {
           switch(songMenu.getActiveElement()) {
             case 0:
               songTimeType = SONGTIME_RELATIVE;
-              viewMenu.setContent("Hide Song Time", 2);
+              viewMenu.setContentLabel("VIEW_MENU_HIDE_SONG_TIME", 2);
               break;
             case 1:
               songTimeType = SONGTIME_ABSOLUTE;
-              viewMenu.setContent("Hide Song Time", 2);
+              viewMenu.setContentLabel("VIEW_MENU_HIDE_SONG_TIME", 2);
               break;
             case 2:
               break;
@@ -1363,8 +1363,8 @@ int main (int argc, char* argv[]) {
                 songMenu.render = true;
               }
               else {
-                if (viewMenu.getContent(2) == "Hide Song Time") {
-                  viewMenu.setContent("Display Song Time:", 2);  
+                if (viewMenu.isContentLabel("VIEW_MENU_HIDE_SONG_TIME", 2)) {
+                  viewMenu.setContentLabel("VIEW_MENU_DISPLAY_SONG_TIME", 2);  
                   songTimeType = SONGTIME_NONE;
                 }
                 else {
@@ -1373,56 +1373,56 @@ int main (int argc, char* argv[]) {
               }
               break;
             case 3:
-              if (viewMenu.getContent(3) == "Display Key Signature") {
-                viewMenu.setContent("Hide Key Signature", 3);
+              if (viewMenu.isContentLabel("VIEW_MENU_DISPLAY_KEY_SIGNATURE", 3)) {
+                viewMenu.setContentLabel("VIEW_MENU_HIDE_KEY_SIGNATURE", 3);
               }
-              else if (viewMenu.getContent(3) == "Hide Key Signature") {
-                viewMenu.setContent("Display Key Signature", 3);
+              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_KEY_SIGNATURE", 3)) {
+                viewMenu.setContentLabel("VIEW_MENU_DISPLAY_KEY_SIGNATURE", 3);
               }
               showKey = !showKey;
               break;
             case 4:
-              if (viewMenu.getContent(4) == "Show Now Line") {
-                viewMenu.setContent("Hide Now Line", 4);
+              if (viewMenu.isContentLabel("VIEW_MENU_SHOW_NOW_LINE", 4)) {
+                viewMenu.setContentLabel("VIEW_MENU_HIDE_NOW_LINE", 4);
               }
-              else if (viewMenu.getContent(4) == "Hide Now Line") {
-                viewMenu.setContent("Show Now Line", 4);
+              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_NOW_LINE", 4)) {
+                viewMenu.setContentLabel("VIEW_MENU_SHOW_NOW_LINE", 4);
               }
               nowLine = !nowLine;
               break;
             case 5:
-              if (viewMenu.getContent(5) == "Show Measure Line") {
-                viewMenu.setContent("Hide Measure Line", 5);
+              if (viewMenu.isContentLabel("VIEW_MENU_SHOW_MEASURE_LINE", 5)) {
+                viewMenu.setContentLabel("VIEW_MENU_HIDE_MEASURE_LINE", 5);
               }
-              else if (viewMenu.getContent(5) == "Hide Measure Line") {
-                viewMenu.setContent("Show Measure Line", 5);
+              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_MEASURE_LINE", 5)) {
+                viewMenu.setContentLabel("VIEW_MENU_SHOW_MEASURE_LINE", 5);
               }
               measureLine = !measureLine;
               break;
             case 6:
-              if (viewMenu.getContent(6) == "Show Measure Number") {
-                viewMenu.setContent("Hide Measure Number", 6);
+              if (viewMenu.isContentLabel("VIEW_MENU_SHOW_MEASURE_NUMBER", 6)) {
+                viewMenu.setContentLabel("VIEW_MENU_HIDE_MEASURE_NUMBER", 6);
               }
-              else if (viewMenu.getContent(6) == "Hide Measure Number") {
-                viewMenu.setContent("Show Measure Number", 6);
+              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_MEASURE_NUMBER", 6)) {
+                viewMenu.setContentLabel("VIEW_MENU_SHOW_MEASURE_NUMBER", 6);
               }
               measureNumber = !measureNumber;
               break;
             case 7:
-              if (viewMenu.getContent(7) == "Show Background") {
-                viewMenu.setContent("Hide Background", 7);
+              if (viewMenu.isContentLabel("VIEW_MENU_SHOW_BACKGROUND", 7)) {
+                viewMenu.setContentLabel("VIEW_MENU_HIDE_BACKGROUND", 7);
               }
-              else if (viewMenu.getContent(7) == "Hide Background") {
-                viewMenu.setContent("Show Background", 7);
+              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_BACKGROUND", 7)) {
+                viewMenu.setContentLabel("VIEW_MENU_SHOW_BACKGROUND", 7);
               }
               showImage = !showImage;
               break;
             case 8:
-              if (viewMenu.getContent(8) == "Show FPS") {
-                viewMenu.setContent("Hide FPS", 8);
+              if (viewMenu.isContentLabel("VIEW_MENU_SHOW_FPS", 8)) {
+                viewMenu.setContentLabel("VIEW_MENU_HIDE_FPS", 8);
               }
-              else if (viewMenu.getContent(8) == "Hide FPS") {
-                viewMenu.setContent("Show FPS", 8);
+              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_FPS", 8)) {
+                viewMenu.setContentLabel("VIEW_MENU_SHOW_FPS", 8);
               }
               showFPS = !showFPS;
               FPSText = to_string(GetFPS());
@@ -1684,7 +1684,7 @@ int main (int argc, char* argv[]) {
                   rightMenu.hideChildMenu();
                 }
                 else {
-                  if (rightMenu.getContent(0) == "Remove Image") {
+                  if (rightMenu.isContentLabel("RIGHT_MENU_REMOVE_IMAGE", 0)) {
                     //logQ("attempted to remove image: size:");
                     ctr.image.unloadData();
                     rightMenu.render = false;
@@ -1783,8 +1783,8 @@ int main (int argc, char* argv[]) {
 
           if (clickNote != -1) {
             selectType = SELECT_NOTE;
-            rightMenuContents[1] = "Change Part Color";
-            rightMenuContents[2] = "Set Tonic";
+            rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_PART_COLOR");
+            rightMenuContents[2] = ctr.text.getString("RIGHT_MENU_SET_TONIC");
             rightMenu.update(rightMenuContents);
             rightMenu.setContent(getNoteInfo(ctr.getNotes()[clickNote].track, 
                                              ctr.getNotes()[clickNote].y - MIN_NOTE_IDX), 0);
@@ -1810,7 +1810,7 @@ int main (int argc, char* argv[]) {
                      !hoverType.contains(HOVER_DIALOG)) {
               hoverType.add(HOVER_LINE);
               selectType = SELECT_LINE;
-              rightMenuContents[1] = "Change Line Color";
+              rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_LINE_COLOR");
               colorSelect.setColor(ctr.bgNow);
             }
             else {
@@ -1828,24 +1828,24 @@ int main (int argc, char* argv[]) {
               
               if (measureSelected) {
                 selectType = SELECT_MEASURE;
-                rightMenuContents[1] = "Change Line Color";
+                rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_LINE_COLOR");
                 colorSelect.setColor(ctr.bgMeasure);
               }
               else if (ctr.image.exists() &&
                       (!hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET, HOVER_DIALOG) && 
                        !hoverType.containsLastFrame(HOVER_MENU) && hoverType.contains(HOVER_IMAGE))) { 
                     selectType = SELECT_NONE; // no color change on image
-                    rightMenuContents[1] = "Remove Image";
+                    rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_REMOVE_IMAGE");
                     //logQ("rightclicked on image");
               }
               else if (!hoverType.contains(HOVER_DIALOG)) {
                 selectType = SELECT_BG;
-                rightMenuContents[1] = "Change Color";
+                rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_COLOR");
                 colorSelect.setColor(ctr.bgColor);
               }
               else {
                 selectType = SELECT_NONE;
-                rightMenuContents[1] = "Empty";
+                rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_EMPTY");
               }
             }
             rightMenu.setContent("", 0);
