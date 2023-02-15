@@ -394,34 +394,71 @@ void controller::toggleLivePlay() {
 vector<string> controller::generateMenuLabels(const menuContentType& contentType) {
   switch(contentType) {
     case CONTENT_FILE:
-      return {"File", "Open File", "Open Image", "Save", "Save As", "Close File", "Close Image", "Exit"};
+      return text.getStringSet("FILE_MENU_FILE",
+                        "FILE_MENU_OPEN_FILE",
+                        "FILE_MENU_OPEN_IMAGE",
+                        "FILE_MENU_SAVE",
+                        "FILE_MENU_SAVE_AS",
+                        "FILE_MENU_CLOSE_FILE",
+                        "FILE_MENU_CLOSE_IMAGE",
+                        "FILE_MENU_EXIT");
   	case CONTENT_EDIT:
-			return {"Edit", "Enable Sheet Music", "Preferences"};
+			return text.getStringSet("EDIT_MENU_EDIT",
+															 "EDIT_MENU_ENABLE_SHEET_MUSIC",
+															 "EDIT_MENU_PREFERENCES");
   	case CONTENT_VIEW:
-			return {"View", "Display Mode:", "Display Song Time:", "Display Key Signature", "Hide Now Line", 
-              "Hide Measure Line", "Hide Measure Number", "Hide Background", "Show FPS"};
+			return text.getStringSet("VIEW_MENU_VIEW",
+															 "VIEW_MENU_DISPLAY_MODE",
+															 "VIEW_MENU_DISPLAY_SONG_TIME",
+															 "VIEW_MENU_DISPLAY_KEY_SIGNATURE",
+															 "VIEW_MENU_HIDE_NOW_LINE",
+                               "VIEW_MENU_HIDE_MEASURE_LINE",
+															 "VIEW_MENU_HIDE_MEASURE_NUMBER",
+															 "VIEW_MENU_HIDE_BACKGROUND",
+															 "VIEW_MENU_SHOW_FPS");
   	case CONTENT_DISPLAY:
-			return {"Default", "Line", "Pulse", "Ball", "FFT", "Voronoi", "Loop"};
+			return text.getStringSet("DISPLAY_MENU_DEFAULT",
+															 "DISPLAY_MENU_LINE",
+															 "DISPLAY_MENU_PULSE",
+															 "DISPLAY_MENU_BALL",
+															 "DISPLAY_MENU_FFT",
+															 "DISPLAY_MENU_VORONOI",
+															 "DISPLAY_MENU_LOOP");
   	case CONTENT_SONG:
-			return {"Relative", "Absolute"};
+			return text.getStringSet("SONG_MENU_RELATIVE",
+															 "SONG_MENU_ABSOLUTE");
   	case CONTENT_MIDI:
-			return {"Midi", "Input", "Output", "Enable Live Play"};
+			return text.getStringSet("MIDI_MENU_MIDI",
+															 "MIDI_MENU_INPUT",
+															 "MIDI_MENU_OUTPUT",
+															 "MIDI_MENU_ENABLE_LIVE_PLAY");
   	case CONTENT_INPUT:
       return {""};
   	case CONTENT_OUTPUT:
       return {""};
   	case CONTENT_COLOR:
-			return {"Color", "Color By:", "Color Scheme:", "Swap Colors", "Invert Color Scheme"};
+			return text.getStringSet("COLOR_MENU_COLOR",
+															 "COLOR_MENU_COLOR_BY",
+															 "COLOR_MENU_COLOR_SCHEME",
+															 "COLOR_MENU_SWAP_COLORS",
+															 "COLOR_MENU_INVERT_COLOR_SCHEME");
   	case CONTENT_SCHEME:
-			return {"Part", "Velocity", "Tonic"};
+			return text.getStringSet("SCHEME_MENU_PART",
+															 "SCHEME_MENU_VELOCITY",
+															 "SCHEME_MENU_TONIC");
   	case CONTENT_INFO:
-			return {"Info", "Program Info", "Help"};
+			return text.getStringSet("INFO_MENU_INFO",
+															 "INFO_MENU_PROGRAM_INFO",
+															 "INFO_MENU_HELP");
   	case CONTENT_PALETTE:
-			return {"Default", "From Background"};
+			return text.getStringSet("PALETTE_MENU_DEFAULT",
+															 "PALETTE_MENU_FROM_BACKGROUND");
   	case CONTENT_RIGHT:
-			return {"Info", "Change Part Color", "Set Tonic"};
+			return text.getStringSet("RIGHT_MENU_INFO",
+															 "RIGHT_MENU_CHANGE_PART_COLOR",
+															 "RIGHT_MENU_SET_TONIC");
   	case CONTENT_COLORSELECT:
-      return {"Color Select"};
+      return text.getStringSet("COLORSELECT_COLOR_SELECT");
     default:
       logW(LL_WARN, "invalid menu label type -", contentType);
       return {};
