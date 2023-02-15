@@ -38,6 +38,8 @@ void controller::init(vector<asset>& assetSet) {
   
   initData(assetSet);
 
+  text.init();
+
   fileOutput.init(&output);
 
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
