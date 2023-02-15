@@ -5,7 +5,7 @@
 // requires packed executable data, must be loaded after `ctr.init()`
 void warningController::init() {
   #if defined(TARGET_WIN)
-    win_warn_msg_size = measureTextEx(win_warn_msg, win_warn_fsize);
+    win_warn_msg_size = measureTextEx(ctr.text.getString("WIN_WARN_MSG_EXPERIMENTAL"), win_warn_fsize);
   #endif
 }
 
@@ -26,7 +26,7 @@ void warningController::render() {
     }
     if (win_warning) {
       drawRectangle(win_warn_rect.x, win_warn_rect.y, win_warn_rect.width, win_warn_rect.height, {255, 112, 143});
-      drawTextEx(win_warn_msg, win_warn_msg_loc, 
+      drawTextEx(ctr.text.getString("WIN_WARN_MSG_EXPERIMENTAL"), win_warn_msg_loc, 
                  {255,255,255}, 255, win_warn_fsize);
     }
   #endif

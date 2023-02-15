@@ -4,6 +4,7 @@
 #include <cmath>
 #include "misc.h"
 #include "data.h"
+#include "define.h"
 #include "log.h"
 
 using std::min;
@@ -63,7 +64,7 @@ string getNoteInfo(int noteTrack, int notePos) {
       break;
   }
   result += to_string(octave);
-  result += " | Track " + to_string(noteTrack + 1);
+  result += " | " + ctr.text.getString("GET_SONG_INFO_TRACK") + " " + to_string(noteTrack + 1);
   return result;
 }
 

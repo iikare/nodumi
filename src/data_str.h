@@ -65,5 +65,8 @@
                         {"RIGHT_MENU_REMOVE_IMAGE",             "Remove Image"}, \
                         {"RIGHT_MENU_EMPTY",                    "Empty"}, \
                         {"COLORSELECT_COLOR_SELECT",            "Color Select"}, \
+                        {"GET_SONG_INFO_TRACK",                 "Track"}, \
+                        {"GET_LABEL_MAJOR",                     "Major"}, \
+                        {"WIN_WARN_MSG_EXPERIMENTAL",           "WARNING: windows version is experimental"}, \
                         {"",                                    ""}, \
                       }

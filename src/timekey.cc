@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <string>
 #include "timekey.h"
+#include "define.h"
 #include "log.h"
 
 void keySig::findAccidentalsFromKey() {
@@ -150,41 +151,63 @@ int keySig::getStaveOffset() const {
   }
 }
     
-
+// TODO:
+// TODO:
+// TODO:      using DEFAULT_FONT to render unicode breaks things,
+// TODO:      use GLYPH_FONT for unicode
+// TODO:
+// TODO:
 
 string keySig::getLabel() const {
+  string label = "";
   switch (key) {
     case KEYSIG_C:
-       return "C Major";
+      label = "C ";
+			break;
     case KEYSIG_G:
-       return "G Major";
+      label = "G ";
+			break;
     case KEYSIG_D:
-       return "D Major";
+      label = "D ";
+			break;
     case KEYSIG_A:
-       return "A Major";
+      label = "A ";
+			break;
     case KEYSIG_E:
-       return "E Major";
+      label = "E ";
+			break;
     case KEYSIG_B:
-       return "B Major";
+      label = "B ";
+			break;
     case KEYSIG_FSHARP:
-       return "F♯ Major";
+      label = "F♯ ";
+			break;
     case KEYSIG_CSHARP:
-       return "C♯ Major";
+      label = "C♯ ";
+			break;
     case KEYSIG_F:
-       return "F Major";
+      label = "F ";
+			break;
     case KEYSIG_BFLAT:
-       return "B♭ Major";
+      label = "B♭ ";
+			break;
     case KEYSIG_EFLAT:
-       return "E♭ Major";
+      label = "E♭ ";
+			break;
     case KEYSIG_AFLAT:
-       return "A♭ Major";
+      label = "A♭ ";
+			break;
     case KEYSIG_DFLAT:
-       return "D♭ Major";
+      label = "D♭ ";
+			break;
     case KEYSIG_GFLAT:
-       return "G♭ Major";
+      label = "G♭ ";
+			break;
     case KEYSIG_CFLAT:
-       return "C♭ Major";
+      label = "C♭ ";
+			break;
     default:
        return "undefined";
   }
+  return label += ctr.text.getString("GET_LABEL_MAJOR");
 }
