@@ -140,53 +140,39 @@ int main (int argc, char* argv[]) {
 
   // menu objects
   menu fileMenu(ctr.getSize(), CONTENT_FILE, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(fileMenu);
    
   menu editMenu(ctr.getSize(), CONTENT_EDIT, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(editMenu);
   
   menu viewMenu(ctr.getSize(), CONTENT_VIEW, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(viewMenu);
   
   menu displayMenu(ctr.getSize(), CONTENT_DISPLAY, TYPE_SUB, 
                    viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
-  ctr.menu->registerMenu(displayMenu);
 
   menu songMenu(ctr.getSize(), CONTENT_SONG, TYPE_SUB, 
                 viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(2), &viewMenu, 2);
-  ctr.menu->registerMenu(songMenu);
 
   menu midiMenu(ctr.getSize(), CONTENT_MIDI, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(midiMenu);
 
   menu inputMenu(ctr.getSize(), CONTENT_INPUT, TYPE_SUB, 
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(1), &midiMenu, 1);
-  ctr.menu->registerMenu(inputMenu);
 
   menu outputMenu(ctr.getSize(), CONTENT_OUTPUT, TYPE_SUB, 
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(2), &midiMenu, 2);
-  ctr.menu->registerMenu(outputMenu);
   
   menu colorMenu(ctr.getSize(), CONTENT_COLOR, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(colorMenu);
    
   menu schemeMenu(ctr.getSize(), CONTENT_SCHEME, TYPE_SUB, 
                   colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(1), &colorMenu, 1);
-  ctr.menu->registerMenu(schemeMenu);
   
   menu infoMenu(ctr.getSize(), CONTENT_INFO, TYPE_MAIN, ctr.menu->getOffset(), 0);
-  ctr.menu->registerMenu(infoMenu);
 
   menu paletteMenu(ctr.getSize(), CONTENT_PALETTE, TYPE_SUB, 
                    colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(2), &colorMenu, 2);
-  ctr.menu->registerMenu(paletteMenu);
   
   vector<string> rightMenuContents = ctr.generateMenuLabels(CONTENT_RIGHT);
   menu rightMenu(ctr.getSize(), CONTENT_RIGHT, TYPE_RIGHT, -100,-100); 
-  ctr.menu->registerMenu(rightMenu);
   
   menu colorSelect(ctr.getSize(), CONTENT_COLORSELECT, TYPE_COLOR, -100,-100, &rightMenu, 1); 
-  ctr.menu->registerMenu(colorSelect);
 
   if (argc >= 2) {
     // input parameter order is arbitrary

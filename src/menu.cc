@@ -5,6 +5,7 @@
 #include "enum.h"
 #include "misc.h"
 #include "menu.h"
+#include "menuctr.h"
 #include "data.h"
 #include "wrap.h"
 #include "box.h"
@@ -104,6 +105,9 @@ menu::menu(point XY, menuContentType contentType, int menuType, int menuX, int m
     ctr.setShaderValue("SH_RING", "ring_len", circleRatio); 
     ctr.setShaderValue("SH_RING", "ring_width", circleWidth); 
   }
+
+
+  ctr.menu->registerMenu(*this);
 }
 
 menu::menu(point XY, vector<string> itemNames, int menuType, int menuX, int menuY, menu* parentMenu, int parentPos) :
