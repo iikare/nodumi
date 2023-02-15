@@ -2,14 +2,14 @@
 
 
 #define LABEL_LANG_EN unordered_map<string, string>{ \
-                        {"FILE_MENU_FILE",  					          "File"}, \
-                        {"FILE_MENU_OPEN_FILE", 					      "Open File"}, \
-                        {"FILE_MENU_OPEN_IMAGE", 					      "Open Image"}, \
-                        {"FILE_MENU_SAVE", 					 					  "Save"}, \
-                        {"FILE_MENU_SAVE_AS", 					 				"Save As"}, \
-                        {"FILE_MENU_CLOSE_FILE", 					 			"Close File"}, \
-                        {"FILE_MENU_CLOSE_IMAGE", 					 		"Close Image"}, \
-                        {"FILE_MENU_EXIT", 					            "Exit"}, \
+                        {"FILE_MENU_FILE",                      "File"}, \
+                        {"FILE_MENU_OPEN_FILE",                 "Open File"}, \
+                        {"FILE_MENU_OPEN_IMAGE",                "Open Image"}, \
+                        {"FILE_MENU_SAVE",                      "Save"}, \
+                        {"FILE_MENU_SAVE_AS",                   "Save As"}, \
+                        {"FILE_MENU_CLOSE_FILE",                "Close File"}, \
+                        {"FILE_MENU_CLOSE_IMAGE",               "Close Image"}, \
+                        {"FILE_MENU_EXIT",                      "Exit"}, \
                         {"EDIT_MENU_EDIT",                      "Edit"}, \
                         {"EDIT_MENU_ENABLE_SHEET_MUSIC",        "Enable Sheet Music"}, \
                         {"EDIT_MENU_DISABLE_SHEET_MUSIC",       "Disable Sheet Music"}, \
