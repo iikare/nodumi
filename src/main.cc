@@ -916,7 +916,7 @@ int main (int argc, char* argv[]) {
         case SONGTIME_NONE:
           break;
         default:
-          logQ("invalid song time option:", songTimeType);
+          logW(LL_WARN, "invalid song time option:", songTimeType);
           break;
       }
       

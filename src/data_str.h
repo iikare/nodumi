@@ -12,6 +12,7 @@
                         {"FILE_MENU_EXIT", 					            "Exit"}, \
                         {"EDIT_MENU_EDIT",                      "Edit"}, \
                         {"EDIT_MENU_ENABLE_SHEET_MUSIC",        "Enable Sheet Music"}, \
+                        {"EDIT_MENU_DISABLE_SHEET_MUSIC",       "Disable Sheet Music"}, \
                         {"EDIT_MENU_PREFERENCES",               "Preferences"}, \
                         {"VIEW_MENU_VIEW",                      "View"}, \
                         {"VIEW_MENU_DISPLAY_MODE",              "Display Mode:"}, \

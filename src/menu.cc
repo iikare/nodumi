@@ -138,12 +138,26 @@ int menu::getActiveElement() {
   return activeElement;
 }
 
+
+bool menu::isContentLabel(const string& label, int idx) {
+  return getContent(idx) == ctr.text.getString(label);
+}
+
 void menu::setContent(const string& nContent, int idx) {
   if (idx >= itemCount || idx < 0) {
     logW(LL_WARN, "attempted to set menu item at nonexistent menu index", idx, "("+nContent+")");
     return;
   }
   items[idx].setContent(nContent);
+}
+
+void menu::setContentLabel(const string& label, int idx) {
+  if (idx >= itemCount || idx < 0) {
+    logW(LL_WARN, "attempted to set menu item at nonexistent menu index", idx, "("+ctr.text.getString(label)+")");
+    return;
+  }
+  items[idx].setContent(ctr.text.getString(label));
+  
 }
 
 void menu::setXY(int nX, int nY) {

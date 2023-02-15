@@ -54,8 +54,11 @@ class menu {
     rect getSquare();
     colorRGB getColor();
 
+    bool isContentLabel(const string& label, int idx);
+
     void setXY(int nX, int nY);
     void setContent(const string& nContent, int idx);
+    void setContentLabel(const string& label, int idx);
     void setActiveElement(int idx);
     void setSquare();
     void setAngle();
