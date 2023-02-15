@@ -40,7 +40,6 @@ class menuItem {
 class menu {
   public:
     menu(point XY, menuContentType contentType, int menuType, int menuX = 0, int menuY = 0, menu* parentMenu = nullptr, int parentPos = -1);
-    menu(point XY, vector<string> itemNames, int menuType, int menuX = 0, int menuY = 0, menu* parentMenu = nullptr, int parentPos = -1);
 
     int getX() { return x; }
     int getY() { return y; }

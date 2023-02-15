@@ -110,53 +110,6 @@ menu::menu(point XY, menuContentType contentType, int menuType, int menuX, int m
   ctr.menu->registerMenu(*this);
 }
 
-menu::menu(point XY, vector<string> itemNames, int menuType, int menuX, int menuY, menu* parentMenu, int parentPos) :
-           render(false), mainSize(ITEM_WIDTH), x(menuX), y(menuY), width(0), height(0),
-           itemCount(itemNames.size()), mainX(XY.x), mainY(XY.y), activeElement(-1) {
-  if (parentMenu != nullptr) {
-    parentMenu->addChildMenu(this);
-    parent = parentMenu;
-  }
-  else {
-    parent = nullptr;
-  }
-  
-  menuType != TYPE_COLOR ? width = ITEM_WIDTH : width = COLOR_WIDTH;
-  menuType != TYPE_COLOR ? height = ITEM_HEIGHT * itemCount : height = COLOR_HEIGHT;
-  items = {};
-  childMenu = {};
-  items.resize(itemCount);
-  type = menuType;
-  pX = 0;
-  pY = 0;
-  angle = 0;
-  parentIndex = parentPos;
-
-  for (int i = 0; i < itemCount; i++) {
-    items[i].setContent(itemNames[i]);
-    items[i].setX(x);
-    items[i].setY(y + i * ITEM_HEIGHT);
-    items[i].setWidth(ITEM_WIDTH);
-    items[i].setHeight(ITEM_HEIGHT);
-  }
-  if (type == TYPE_MAIN) {
-    mainSize = 8 + 1 + measureTextEx(itemNames[0].c_str()).x;
-  }
-  if (type == TYPE_COLOR) {
-    // load square texture
-    Image i = GenImageColor(squareDim, squareDim, WHITE);
-    squareTex = LoadTextureFromImage(i);
-    UnloadImage(i);
-    
-    i = GenImageColor(COLOR_WIDTH, COLOR_HEIGHT, WHITE);
-    ringTex = LoadTextureFromImage(i);
-    UnloadImage(i);
-    
-    ctr.setShaderValue("SH_RING", "ring_len", circleRatio); 
-    ctr.setShaderValue("SH_RING", "ring_width", circleWidth); 
-  }
-}
-
 int menu::getItemX(int idx) {
   if (idx >= itemCount || idx < 0) {
     logW(LL_WARN, "attempted to get menu itemX at nonexistent menu index ",idx);
