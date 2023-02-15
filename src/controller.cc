@@ -389,6 +389,43 @@ void controller::toggleLivePlay() {
   }
 }
 
+vector<string> controller::generateMenuLabels(const menuContentType& contentType) {
+  switch(contentType) {
+    case CONTENT_FILE:
+      return {"File", "Open File", "Open Image", "Save", "Save As", "Close File", "Close Image", "Exit"};
+  	case CONTENT_EDIT:
+			return {"Edit", "Enable Sheet Music", "Preferences"};
+  	case CONTENT_VIEW:
+			return {"View", "Display Mode:", "Display Song Time:", "Display Key Signature", "Hide Now Line", 
+              "Hide Measure Line", "Hide Measure Number", "Hide Background", "Show FPS"};
+  	case CONTENT_DISPLAY:
+			return {"Default", "Line", "Pulse", "Ball", "FFT", "Voronoi", "Loop"};
+  	case CONTENT_SONG:
+			return {"Relative", "Absolute"};
+  	case CONTENT_MIDI:
+			return {"Midi", "Input", "Output", "Enable Live Play"};
+  	case CONTENT_INPUT:
+      return {""};
+  	case CONTENT_OUTPUT:
+      return {""};
+  	case CONTENT_COLOR:
+			return {"Color", "Color By:", "Color Scheme:", "Swap Colors", "Invert Color Scheme"};
+  	case CONTENT_SCHEME:
+			return {"Part", "Velocity", "Tonic"};
+  	case CONTENT_INFO:
+			return {"Info", "Program Info", "Help"};
+  	case CONTENT_PALETTE:
+			return {"Default", "From Background"};
+  	case CONTENT_RIGHT:
+			return {"Info", "Change Part Color", "Set Tonic"};
+  	case CONTENT_COLORSELECT:
+      return {"Color Select"};
+    default:
+      logW(LL_WARN, "invalid menu label type -", contentType);
+      return {};
+  }
+}
+
 midi& controller::getStream() {
   if (livePlayState) {
     return input.noteStream;

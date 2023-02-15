@@ -1,5 +1,7 @@
 #pragma once
 
+#include "data_str.h"
+
 #define W_WIDTH 1280
 #define W_HEIGHT 740
 #define W_NAME "nodumi"

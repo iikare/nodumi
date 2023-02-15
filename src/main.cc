@@ -139,67 +139,53 @@ int main (int argc, char* argv[]) {
   Vector2 songTimePosition = {6.0f, 26.0f};
 
   // menu objects
-  vector<string> fileMenuContents = {"File", "Open File", "Open Image", "Save", "Save As", "Close File", "Close Image", "Exit"};
-  menu fileMenu(ctr.getSize(), fileMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu fileMenu(ctr.getSize(), CONTENT_FILE, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(fileMenu);
    
-  vector<string> editMenuContents = {"Edit", "Enable Sheet Music", "Preferences"};
-  menu editMenu(ctr.getSize(), editMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu editMenu(ctr.getSize(), CONTENT_EDIT, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(editMenu);
   
-  vector<string> viewMenuContents = {"View", "Display Mode:", "Display Song Time:", "Display Key Signature", "Hide Now Line", 
-                                     "Hide Measure Line", "Hide Measure Number", "Hide Background", "Show FPS"};
-  menu viewMenu(ctr.getSize(), viewMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu viewMenu(ctr.getSize(), CONTENT_VIEW, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(viewMenu);
   
-  vector<string> displayMenuContents = {"Default", "Line", "Pulse", "Ball", "FFT", "Voronoi", "Loop"};
-  menu displayMenu(ctr.getSize(), displayMenuContents, TYPE_SUB, 
+  menu displayMenu(ctr.getSize(), CONTENT_DISPLAY, TYPE_SUB, 
                    viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
   ctr.menu->registerMenu(displayMenu);
 
-  vector<string> songMenuContents = {"Relative", "Absolute"};
-  menu songMenu(ctr.getSize(), songMenuContents, TYPE_SUB, 
+  menu songMenu(ctr.getSize(), CONTENT_SONG, TYPE_SUB, 
                 viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(2), &viewMenu, 2);
   ctr.menu->registerMenu(songMenu);
 
-  vector<string> midiMenuContents = {"Midi", "Input", "Output", "Enable Live Play"};
-  menu midiMenu(ctr.getSize(), midiMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu midiMenu(ctr.getSize(), CONTENT_MIDI, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(midiMenu);
 
-  vector<string> inputMenuContents = {""};
-  menu inputMenu(ctr.getSize(), inputMenuContents, TYPE_SUB, 
+  menu inputMenu(ctr.getSize(), CONTENT_INPUT, TYPE_SUB, 
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(1), &midiMenu, 1);
   ctr.menu->registerMenu(inputMenu);
 
-  vector<string> outputMenuContents = {""};
-  menu outputMenu(ctr.getSize(), outputMenuContents, TYPE_SUB, 
+  menu outputMenu(ctr.getSize(), CONTENT_OUTPUT, TYPE_SUB, 
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(2), &midiMenu, 2);
   ctr.menu->registerMenu(outputMenu);
   
-  vector<string> colorMenuContents = {"Color", "Color By:", "Color Scheme:", "Swap Colors", "Invert Color Scheme"};
-  menu colorMenu(ctr.getSize(), colorMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu colorMenu(ctr.getSize(), CONTENT_COLOR, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(colorMenu);
    
-  vector<string> schemeMenuContents = {"Part", "Velocity", "Tonic"};
-  menu schemeMenu(ctr.getSize(), schemeMenuContents, TYPE_SUB, 
+  menu schemeMenu(ctr.getSize(), CONTENT_SCHEME, TYPE_SUB, 
                   colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(1), &colorMenu, 1);
   ctr.menu->registerMenu(schemeMenu);
   
-  vector<string> infoMenuContents= {"Info", "Program Info", "Help"};
-  menu infoMenu(ctr.getSize(), infoMenuContents, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu infoMenu(ctr.getSize(), CONTENT_INFO, TYPE_MAIN, ctr.menu->getOffset(), 0);
   ctr.menu->registerMenu(infoMenu);
 
-  vector<string> paletteMenuContents = {"Default", "From Background"};
-  menu paletteMenu(ctr.getSize(), paletteMenuContents, TYPE_SUB, 
+  menu paletteMenu(ctr.getSize(), CONTENT_PALETTE, TYPE_SUB, 
                    colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(2), &colorMenu, 2);
   ctr.menu->registerMenu(paletteMenu);
   
-  vector<string> rightMenuContents = {"Info", "Change Part Color", "Set Tonic"};
-  menu rightMenu(ctr.getSize(), rightMenuContents, TYPE_RIGHT, -100,-100); 
+  vector<string> rightMenuContents = ctr.generateMenuLabels(CONTENT_RIGHT);
+  menu rightMenu(ctr.getSize(), CONTENT_RIGHT, TYPE_RIGHT, -100,-100); 
   ctr.menu->registerMenu(rightMenu);
   
-  vector<string> colorSelectContents = {"Color Select"};
-  menu colorSelect(ctr.getSize(), colorSelectContents, TYPE_COLOR, -100,-100, &rightMenu, 1); 
+  menu colorSelect(ctr.getSize(), CONTENT_COLORSELECT, TYPE_COLOR, -100,-100, &rightMenu, 1); 
   ctr.menu->registerMenu(colorSelect);
 
   if (argc >= 2) {

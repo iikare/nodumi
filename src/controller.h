@@ -11,6 +11,7 @@
 #include "midi.h"
 #include "misc.h"
 #include "data.h"
+#include "text.h"
 #include "asset.h"
 #include "image.h"
 #include "input.h"
@@ -66,6 +67,8 @@ class controller {
     void updateFiles(char** paths, int numFile = 1);
     void processAction(actionType& action);
 
+    vector<string> generateMenuLabels(const menuContentType& contentType);
+
     void clear();
     void load(string path, fileType& fType, 
               bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
@@ -118,6 +121,7 @@ class controller {
     midiOutput output;
     stringstream midiData;
 
+    textController text;
     imageController image;
     menuController* menu;
     dialogController dialog;
@@ -181,13 +185,14 @@ class controller {
 
   private:
     void initData(const vector<asset>& assetSet);
-    
+
     void updateKeyState();
     void updateDimension(double& nowLineX);
     void updateFPS();
     void updateDroppedFiles();
     
     int findCurrentMeasure(int pos) const;
+
 
     
     shaderData& getShaderData(const string& shaderIdentifier);
