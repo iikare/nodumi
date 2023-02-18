@@ -90,7 +90,7 @@ menu::menu(point XY, menuContentType contentType, int menuType, int menuX, int m
     items[i].setHeight(ITEM_HEIGHT);
   }
   if (type == TYPE_MAIN) {
-    mainSize = 8 + 1 + measureTextEx(itemNames[0].c_str()).x;
+    mainSize = 8 + 1 + measureTextEx(itemNames[0]).x;
   }
   if (type == TYPE_COLOR) {
     // load square texture
@@ -444,10 +444,10 @@ void menu::draw() {
       }
       for (int i = 0; i < itemCount; i++) {
         if (i == 0) {
-          drawTextEx(getContent(i).c_str(), getItemX(i) + 4, getItemY(i) + 4, ctr.bgDark);
+          drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 4, ctr.bgDark);
         }
         else {
-          drawTextEx(getContent(i).c_str(), getItemX(i) + 4, getItemY(i) + 5, ctr.bgDark);
+          drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 5, ctr.bgDark);
         }
       }
     }
@@ -458,7 +458,7 @@ void menu::draw() {
       else {
         drawRectangle(x, y, mainSize, ITEM_HEIGHT, ctr.bgMenu);
       }
-      drawTextEx(getContent(0).c_str(), getItemX(0) + 4, getItemY(0) + 4, ctr.bgDark);
+      drawTextEx(getContent(0), getItemX(0) + 4, getItemY(0) + 4, ctr.bgDark);
     }  
   }
   else if (type == TYPE_COLOR) {
@@ -487,8 +487,9 @@ void menu::draw() {
       
       drawRectangle(x + COLOR_WIDTH - 36, y + COLOR_HEIGHT - 36, 36, 36, getColor());
 
-      int yOffset = 1 + measureTextEx(colorToHex(getColor()).c_str()).y;
-      drawTextEx(colorToHex(getColor()).c_str(), x + 4, y + COLOR_HEIGHT - yOffset - 2, ctr.bgDark);
+      string hexColor = colorToHex(getColor());
+      int yOffset = 1 + measureTextEx(hexColor).y;
+      drawTextEx(hexColor, x + 4, y + COLOR_HEIGHT - yOffset - 2, ctr.bgDark);
     }
   }
   else {
@@ -523,7 +524,7 @@ void menu::draw() {
       }
 
       for (int i = 0; i < itemCount; i++) {
-        drawTextEx(getContent(i).c_str(), getItemX(i) + 4, getItemY(i) + 5, ctr.bgDark);
+        drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 5, ctr.bgDark);
       }
     }
   }

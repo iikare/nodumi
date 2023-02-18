@@ -139,7 +139,7 @@ Font* controller::getFont(const string& id, int size) {
 
     SetTextureFilter(tmp.texture, TEXTURE_FILTER_BILINEAR);
     
-    fit->second.second.insert(make_pair(size, move(tmp)));
+    fit->second.second.insert(make_pair(size, tmp));
   
     //it = fontMap.find(size);
   }

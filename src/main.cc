@@ -274,7 +274,7 @@ int main (int argc, char* argv[]) {
 
       int lastMeasureNum = 0;
 
-      double measureSpacing = measureTextEx(to_string(ctr.getStream().measureMap.size() - 1).c_str()).x; 
+      double measureSpacing = measureTextEx(to_string(ctr.getStream().measureMap.size() - 1)).x; 
 
       if (measureLine || measureNumber) {
         for (unsigned int i = 0; i < ctr.getStream().measureMap.size(); i++) {
@@ -343,7 +343,7 @@ int main (int argc, char* argv[]) {
               }
 
               int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
-              drawTextEx(to_string(i + 1).c_str(), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
+              drawTextEx(to_string(i + 1), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
               lastMeasureNum = i;
             }
           }
@@ -939,9 +939,7 @@ int main (int argc, char* argv[]) {
         if (GetTime() - (int)GetTime() < GetFrameTime()) {
           FPSText = to_string(GetFPS());
         }
-        drawTextEx(FPSText.c_str(),
-                   ctr.getWidth() - 
-                  measureTextEx(FPSText.c_str()).x - 4, 4, ctr.bgDark);
+        drawTextEx(FPSText, ctr.getWidth() - measureTextEx(FPSText).x - 4, 4, ctr.bgDark);
       }
 
       ctr.menu->render();

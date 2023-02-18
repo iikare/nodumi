@@ -261,7 +261,7 @@ void sheetController::disectMeasure(measureController& measure) {
   findDFAStartVector(presentDFAState, measure.currentKey); 
 
   // find true accidental type for each note
-  for (unsigned int ch = 0; const auto& c : dm.chords) {
+  for (/*unsigned int ch = 0;*/ const auto& c : dm.chords) {
     for (unsigned int ct = 0; const auto& n : c.second) {
       if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
         continue;
@@ -282,7 +282,7 @@ void sheetController::disectMeasure(measureController& measure) {
       }
       ct++;
     }
-    ch++;
+    //ch++;
   }
 
   // remove duplicate notes (rendering on same position)
