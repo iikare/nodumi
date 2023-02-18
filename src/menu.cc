@@ -177,6 +177,17 @@ void menu::setActiveElement(int idx) {
   activeElement = idx;
 }
 
+void menu::swapLabel(const string& str_id1, const string& str_id2, int idx) {
+  // requires str_id1/str_id2 to be the current label,
+  // and str_id2/str_id1 to be the switched-to label
+  if (isContentLabel(str_id1, idx)) {
+    setContentLabel(str_id2, idx);
+  }
+  else if (isContentLabel(str_id2, idx)) {
+    setContentLabel(str_id1, idx);
+  }
+}
+
 void menu::findActiveElement(point XY) {
   int curX = XY.x;
   int curY = XY.y;

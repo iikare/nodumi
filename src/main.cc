@@ -82,7 +82,7 @@ int main (int argc, char* argv[]) {
   bool measureLine = true;
   bool measureNumber = true;
 
-  bool showKey = false;
+  bool showKey = true;
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
   int displayMode = DISPLAY_PULSE;
@@ -1052,12 +1052,7 @@ int main (int argc, char* argv[]) {
         }
         break;
       case actionType::ACTION_SHEET:
-        if (editMenu.isContentLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", 1)) {
-          editMenu.setContentLabel("EDIT_MENU_ENABLE_SHEET_MUSIC", 1);
-        }
-        else if (editMenu.isContentLabel("EDIT_MENU_ENABLE_SHEET_MUSIC", 1)) {
-          editMenu.setContentLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", 1);
-        }
+        editMenu.swapLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", "EDIT_MENU_ENABLE_SHEET_MUSIC", EDIT_MENU_SHEET_MUSIC);
         sheetMusicDisplay = !sheetMusicDisplay;
         ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
         break;
@@ -1068,14 +1063,13 @@ int main (int argc, char* argv[]) {
         ctr.dialog.infoDisplay = !ctr.dialog.infoDisplay;
         break;
       case actionType::ACTION_LIVEPLAY:
-        if (midiMenu.isContentLabel("MIDI_MENU_ENABLE_LIVE_PLAY", 3)) {
-          midiMenu.setContentLabel("MIDI_MENU_DISABLE_LIVE_PLAY", 3);
+        if (midiMenu.isContentLabel("MIDI_MENU_ENABLE_LIVE_PLAY", MIDI_MENU_LIVE_PLAY)) {
           zoomLevel *= 3;
         }
-        else if (midiMenu.isContentLabel("MIDI_MENU_DISABLE_LIVE_PLAY", 3)) {
-          midiMenu.setContentLabel("MIDI_MENU_ENABLE_LIVE_PLAY", 3);
+        else if (midiMenu.isContentLabel("MIDI_MENU_DISABLE_LIVE_PLAY", MIDI_MENU_LIVE_PLAY)) {
           zoomLevel *= 1.0/3.0;
         }
+        midiMenu.swapLabel("MIDI_MENU_ENABLE_LIVE_PLAY", "MIDI_MENU_DISABLE_LIVE_PLAY", MIDI_MENU_LIVE_PLAY);
         ctr.toggleLivePlay();
         if (!ctr.getLiveState()) {
           timeOffset = 0;
@@ -1201,10 +1195,10 @@ int main (int argc, char* argv[]) {
       }
 
       switch(fileMenu.getActiveElement()) {
-        case -1:
+        case MENU_INACTIVE:
           fileMenu.render = false;
           break;
-        case 0:
+        case FILE_MENU_FILE:
           fileMenu.render = !fileMenu.render;
           break;
         default:
@@ -1212,35 +1206,35 @@ int main (int argc, char* argv[]) {
             break;
           }
           switch(fileMenu.getActiveElement()) {
-            case 1:
+            case FILE_MENU_OPEN_FILE:
               action = actionType::ACTION_OPEN;
               break;
-            case 2:
+            case FILE_MENU_OPEN_IMAGE:
               action = actionType::ACTION_OPEN_IMAGE;
               break;
-            case 3:
+            case FILE_MENU_SAVE:
               action = actionType::ACTION_SAVE;
               break;
-            case 4:
+            case FILE_MENU_SAVE_AS:
               action = actionType::ACTION_SAVE_AS;
               break;
-            case 5:
+            case FILE_MENU_CLOSE_FILE:
               action = actionType::ACTION_CLOSE;
               break;
-            case 6:
+            case FILE_MENU_CLOSE_IMAGE:
               action = actionType::ACTION_CLOSE_IMAGE;
               break;
-            case 7:
+            case FILE_MENU_EXIT:
                 ctr.setCloseFlag(); 
               break;
           }
           break;
       }
       switch(editMenu.getActiveElement()) {
-        case -1:
+        case MENU_INACTIVE:
           editMenu.render = false;
           break;
-        case 0:
+        case EDIT_MENU_EDIT:
           editMenu.render = !editMenu.render;
           break;
         default:
@@ -1248,24 +1242,18 @@ int main (int argc, char* argv[]) {
             break;
           }
           switch(editMenu.getActiveElement()) {
-            case 1:
+            case EDIT_MENU_SHEET_MUSIC:
               action = actionType::ACTION_SHEET;
               break;
-            case 2:
+            case EDIT_MENU_PREFERENCES:
               action = actionType::ACTION_PREFERENCES;
-              break;
-            case 3:
-              break;
-            case 4:
-              break;
-            case 5:
               break;
           }
           break;
       }
       switch(displayMenu.getActiveElement()) {
-        case -1:
-          if (!displayMenu.parentOpen() || displayMenu.parent->getActiveElement() == -1) {
+        case MENU_INACTIVE:
+          if (!displayMenu.parentOpen() || displayMenu.parent->isActive()) {
             displayMenu.render = false;
           }
           break;
@@ -1274,39 +1262,33 @@ int main (int argc, char* argv[]) {
             break;
           }
           switch(displayMenu.getActiveElement()) {
-            case 0:
+            case DISPLAY_MENU_DEFAULT:
               displayMode = DISPLAY_BAR;
               break;
-            case 1:
+            case DISPLAY_MENU_LINE:
               displayMode = DISPLAY_LINE;
               break;
-            case 2:
+            case DISPLAY_MENU_PULSE:
               displayMode = DISPLAY_PULSE;
               break;
-            case 3:
+            case DISPLAY_MENU_BALL:
               displayMode = DISPLAY_BALL;
               break;
-            case 4:
+            case DISPLAY_MENU_FFT:
               displayMode = DISPLAY_FFT;
               break;
-            case 5:
+            case DISPLAY_MENU_VORONOI:
               displayMode = DISPLAY_VORONOI;
               break;
-            case 6:
+            case DISPLAY_MENU_LOOP:
               displayMode = DISPLAY_LOOP;
-              break;
-            case 7:
-              break;
-            case 8:
-              break;
-            case 9:
               break;
           }
           break;
       }
       switch(songMenu.getActiveElement()) {
-        case -1:
-          if (!songMenu.parentOpen() || songMenu.parent->getActiveElement() == -1) {
+        case MENU_INACTIVE:
+          if (!songMenu.parentOpen() || songMenu.parent->isActive()) {
             songMenu.render = false;
           }
           break;
@@ -1315,32 +1297,24 @@ int main (int argc, char* argv[]) {
             break;
           }
           switch(songMenu.getActiveElement()) {
-            case 0:
+            case SONG_MENU_RELATIVE:
               songTimeType = SONGTIME_RELATIVE;
               viewMenu.setContentLabel("VIEW_MENU_HIDE_SONG_TIME", 2);
               break;
-            case 1:
+            case SONG_MENU_ABSOLUTE:
               songTimeType = SONGTIME_ABSOLUTE;
               viewMenu.setContentLabel("VIEW_MENU_HIDE_SONG_TIME", 2);
-              break;
-            case 2:
-              break;
-            case 3:
-              break;
-            case 4:
-              break;
-            case 5:
               break;
           }
           break;
       }
       switch(viewMenu.getActiveElement()) {
-        case -1:
+        case MENU_INACTIVE:
           if (!viewMenu.childOpen()) {
             viewMenu.render = false;
           }
           break;
-        case 0:
+        case VIEW_MENU_VIEW:
           viewMenu.render = !viewMenu.render;
           break;
         default:
@@ -1348,7 +1322,7 @@ int main (int argc, char* argv[]) {
             break;
           }
           switch(viewMenu.getActiveElement()) {
-            case 1:
+            case VIEW_MENU_DISPLAY_MODE:
               if (viewMenu.childOpen() && displayMenu.render == false) {
                 viewMenu.hideChildMenu();
                 displayMenu.render = true;
@@ -1357,14 +1331,14 @@ int main (int argc, char* argv[]) {
                 displayMenu.render = !displayMenu.render;
               }
               break;
-            case 2:
+            case VIEW_MENU_SONG_TIME:
               if (viewMenu.childOpen() && songMenu.render == false) {
                 viewMenu.hideChildMenu();
                 songMenu.render = true;
               }
               else {
-                if (viewMenu.isContentLabel("VIEW_MENU_HIDE_SONG_TIME", 2)) {
-                  viewMenu.setContentLabel("VIEW_MENU_DISPLAY_SONG_TIME", 2);  
+                if (viewMenu.isContentLabel("VIEW_MENU_HIDE_SONG_TIME", VIEW_MENU_SONG_TIME)) {
+                  viewMenu.setContentLabel("VIEW_MENU_DISPLAY_SONG_TIME", VIEW_MENU_SONG_TIME);  
                   songTimeType = SONGTIME_NONE;
                 }
                 else {
@@ -1372,58 +1346,28 @@ int main (int argc, char* argv[]) {
                 }
               }
               break;
-            case 3:
-              if (viewMenu.isContentLabel("VIEW_MENU_DISPLAY_KEY_SIGNATURE", 3)) {
-                viewMenu.setContentLabel("VIEW_MENU_HIDE_KEY_SIGNATURE", 3);
-              }
-              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_KEY_SIGNATURE", 3)) {
-                viewMenu.setContentLabel("VIEW_MENU_DISPLAY_KEY_SIGNATURE", 3);
-              }
+            case VIEW_MENU_KEY_SIGNATURE:
+              viewMenu.swapLabel("VIEW_MENU_SHOW_KEY_SIGNATURE", "VIEW_MENU_HIDE_KEY_SIGNATURE", VIEW_MENU_KEY_SIGNATURE);
               showKey = !showKey;
               break;
-            case 4:
-              if (viewMenu.isContentLabel("VIEW_MENU_SHOW_NOW_LINE", 4)) {
-                viewMenu.setContentLabel("VIEW_MENU_HIDE_NOW_LINE", 4);
-              }
-              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_NOW_LINE", 4)) {
-                viewMenu.setContentLabel("VIEW_MENU_SHOW_NOW_LINE", 4);
-              }
+            case VIEW_MENU_NOW_LINE:
+              viewMenu.swapLabel("VIEW_MENU_SHOW_NOW_LINE", "VIEW_MENU_HIDE_NOW_LINE", VIEW_MENU_NOW_LINE);
               nowLine = !nowLine;
               break;
-            case 5:
-              if (viewMenu.isContentLabel("VIEW_MENU_SHOW_MEASURE_LINE", 5)) {
-                viewMenu.setContentLabel("VIEW_MENU_HIDE_MEASURE_LINE", 5);
-              }
-              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_MEASURE_LINE", 5)) {
-                viewMenu.setContentLabel("VIEW_MENU_SHOW_MEASURE_LINE", 5);
-              }
+            case VIEW_MENU_MEASURE_LINE:
+              viewMenu.swapLabel("VIEW_MENU_SHOW_MEASURE_LINE", "VIEW_MENU_HIDE_MEASURE_LINE", VIEW_MENU_MEASURE_LINE);
               measureLine = !measureLine;
               break;
-            case 6:
-              if (viewMenu.isContentLabel("VIEW_MENU_SHOW_MEASURE_NUMBER", 6)) {
-                viewMenu.setContentLabel("VIEW_MENU_HIDE_MEASURE_NUMBER", 6);
-              }
-              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_MEASURE_NUMBER", 6)) {
-                viewMenu.setContentLabel("VIEW_MENU_SHOW_MEASURE_NUMBER", 6);
-              }
+            case VIEW_MENU_MEASURE_NUMBER:
+              viewMenu.swapLabel("VIEW_MENU_SHOW_MEASURE_NUMBER", "VIEW_MENU_HIDE_MEASURE_NUMBER", VIEW_MENU_MEASURE_NUMBER);
               measureNumber = !measureNumber;
               break;
-            case 7:
-              if (viewMenu.isContentLabel("VIEW_MENU_SHOW_BACKGROUND", 7)) {
-                viewMenu.setContentLabel("VIEW_MENU_HIDE_BACKGROUND", 7);
-              }
-              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_BACKGROUND", 7)) {
-                viewMenu.setContentLabel("VIEW_MENU_SHOW_BACKGROUND", 7);
-              }
+            case VIEW_MENU_BACKGROUND:
+              viewMenu.swapLabel("VIEW_MENU_SHOW_BACKGROUND", "VIEW_MENU_HIDE_BACKGROUND", VIEW_MENU_BACKGROUND);
               showImage = !showImage;
               break;
-            case 8:
-              if (viewMenu.isContentLabel("VIEW_MENU_SHOW_FPS", 8)) {
-                viewMenu.setContentLabel("VIEW_MENU_HIDE_FPS", 8);
-              }
-              else if (viewMenu.isContentLabel("VIEW_MENU_HIDE_FPS", 8)) {
-                viewMenu.setContentLabel("VIEW_MENU_SHOW_FPS", 8);
-              }
+            case VIEW_MENU_FPS:
+              viewMenu.swapLabel("VIEW_MENU_SHOW_FPS", "VIEW_MENU_HIDE_FPS", VIEW_MENU_FPS);
               showFPS = !showFPS;
               FPSText = to_string(GetFPS());
               break;
@@ -1431,8 +1375,8 @@ int main (int argc, char* argv[]) {
           break;
       }
       switch(inputMenu.getActiveElement()) {
-        case -1:
-          if (!inputMenu.parentOpen() || inputMenu.parent->getActiveElement() == -1) {
+        case MENU_INACTIVE:
+          if (!inputMenu.parentOpen() || inputMenu.parent->isActive()) {
             inputMenu.render = false;
           }
           break;
@@ -1444,8 +1388,8 @@ int main (int argc, char* argv[]) {
           break;
       }
       switch(outputMenu.getActiveElement()) {
-        case -1:
-          if (!outputMenu.parentOpen() || outputMenu.parent->getActiveElement() == -1) {
+        case MENU_INACTIVE:
+          if (!outputMenu.parentOpen() || outputMenu.parent->isActive()) {
             outputMenu.render = false;
           }
           break;
@@ -1457,12 +1401,12 @@ int main (int argc, char* argv[]) {
           break;
       }
       switch(midiMenu.getActiveElement()) {
-        case -1:
+        case MENU_INACTIVE:
           if (!midiMenu.childOpen()) {
             midiMenu.render = false;
           }
           break;
-        case 0:
+        case MIDI_MENU_MIDI:
           midiMenu.render = !midiMenu.render;
           break;
         default:
@@ -1470,7 +1414,7 @@ int main (int argc, char* argv[]) {
             break;
           }
           switch(midiMenu.getActiveElement()) {
-            case 1:
+            case MIDI_MENU_INPUT:
               inputMenu.update(ctr.input.getPorts());
               if (midiMenu.childOpen() && !inputMenu.render) {
                 midiMenu.hideChildMenu();
@@ -1480,7 +1424,7 @@ int main (int argc, char* argv[]) {
                 inputMenu.render = !inputMenu.render;
               }
               break;
-            case 2:
+            case MIDI_MENU_OUTPUT:
               outputMenu.update(ctr.output.getPorts());
               if (midiMenu.childOpen() && !outputMenu.render) {
                 midiMenu.hideChildMenu();
@@ -1490,19 +1434,15 @@ int main (int argc, char* argv[]) {
                 outputMenu.render = !outputMenu.render;
               }
               break;
-            case 3:
+            case MIDI_MENU_LIVE_PLAY:
               action = actionType::ACTION_LIVEPLAY;
-              break;
-            case 4:
-              break;
-            case 5:
               break;
           }
           break;
       }
       switch(schemeMenu.getActiveElement()) {
-        case -1:
-          if (!schemeMenu.parentOpen() || schemeMenu.parent->getActiveElement() == -1) {
+        case MENU_INACTIVE:
+          if (!schemeMenu.parentOpen() || schemeMenu.parent->isActive()) {
             schemeMenu.render = false;
           }
           break;
@@ -1511,33 +1451,27 @@ int main (int argc, char* argv[]) {
             break;
           }
           switch(schemeMenu.getActiveElement()) {
-            case 0:
+            case SCHEME_MENU_PART:
               colorMode = COLOR_PART;
               colorSetOn = &ctr.setTrackOn;
               colorSetOff = &ctr.setTrackOff;
               break;
-            case 1:
+            case SCHEME_MENU_VELOCITY:
               colorMode = COLOR_VELOCITY;
               colorSetOn = &ctr.setVelocityOn;
               colorSetOff = &ctr.setVelocityOff;
               break;
-            case 2:
+            case SCHEME_MENU_TONIC:
               colorMode = COLOR_TONIC;
               colorSetOn = &ctr.setTonicOn;
               colorSetOff = &ctr.setTonicOff;
-              break;
-            case 3:
-              break;
-            case 4:
-              break;
-            case 5:
               break;
           }
           break;
       }
       switch(paletteMenu.getActiveElement()) {
-        case -1:
-          if (!paletteMenu.parentOpen() || paletteMenu.parent->getActiveElement() == -1) {
+        case MENU_INACTIVE:
+          if (!paletteMenu.parentOpen() || paletteMenu.parent->isActive()) {
             paletteMenu.render = false;
           }
           break;
@@ -1546,12 +1480,12 @@ int main (int argc, char* argv[]) {
             break;
           }
           switch(paletteMenu.getActiveElement()) {
-            case 0:
+            case PALETTE_MENU_DEFAULT:
               getColorScheme(KEY_COUNT, ctr.setVelocityOn, ctr.setVelocityOff);
               getColorScheme(TONIC_COUNT, ctr.setTonicOn, ctr.setTonicOff);
               getColorScheme(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff, ctr.file.trackHeightMap);
               break;
-            case 1:
+            case PALETTE_MENU_FROM_BACKGROUND:
               if (ctr.image.exists()) {
                 getColorSchemeImage(SCHEME_KEY, ctr.setVelocityOn, ctr.setVelocityOff);
                 getColorSchemeImage(SCHEME_TONIC, ctr.setTonicOn, ctr.setTonicOff);
@@ -1561,17 +1495,16 @@ int main (int argc, char* argv[]) {
                 logW(LL_WARN, "attempt to get color scheme from nonexistent image");
               }
               break;
-
           }
           break;
       }
       switch(colorMenu.getActiveElement()) {
-        case -1:
+        case MENU_INACTIVE:
           if (!colorMenu.childOpen()) {
             colorMenu.render = false;
           }
           break;
-        case 0:
+        case COLOR_MENU_COLOR:
           colorMenu.render = !colorMenu.render;
           break;
         default:
@@ -1579,7 +1512,7 @@ int main (int argc, char* argv[]) {
             break;
           }
           switch(colorMenu.getActiveElement()) {
-            case 1:
+            case COLOR_MENU_COLOR_BY:
               if (colorMenu.childOpen() && schemeMenu.render == false) {
                 colorMenu.hideChildMenu();
                 schemeMenu.render = true;
@@ -1588,7 +1521,7 @@ int main (int argc, char* argv[]) {
                 schemeMenu.render = !schemeMenu.render;
               }
              break;
-             case 2:
+             case COLOR_MENU_COLOR_SCHEME:
                if (colorMenu.childOpen() && paletteMenu.render == false) {
                  colorMenu.hideChildMenu();
                  paletteMenu.render = true;
@@ -1597,24 +1530,22 @@ int main (int argc, char* argv[]) {
                  paletteMenu.render = !paletteMenu.render;
                }
                break;
-             case 3:
+             case COLOR_MENU_SWAP_COLORS:
                swap(colorSetOn, colorSetOff);
                break;
-             case 4:
+             case COLOR_MENU_INVERT_COLOR_SCHEME:
                invertColorScheme(ctr.bgColor, ctr.bgNow, colorSetOn, colorSetOff);
-               break;
-             case 5:
                break;
           }
           break;
       }
       switch(infoMenu.getActiveElement()) {
-        case -1:
+        case MENU_INACTIVE:
           if (!infoMenu.childOpen()) {
             infoMenu.render = false;
           }
           break;
-        case 0:
+        case INFO_MENU_INFO:
           infoMenu.render = !infoMenu.render;
           break;
         default:
@@ -1622,10 +1553,10 @@ int main (int argc, char* argv[]) {
             break;
           }
           switch(infoMenu.getActiveElement()) {
-            case 1:
+            case INFO_MENU_PROGRAM_INFO:
               action = actionType::ACTION_INFO;
               break;
-            case 2:
+            case INFO_MENU_HELP:
               infoMenu.render = false;
               OpenURL(SITE_LINK);
               break;
@@ -1633,8 +1564,8 @@ int main (int argc, char* argv[]) {
           break;
       }
       switch(colorSelect.getActiveElement()) {
-        case -1:
-          if (!colorSelect.parentOpen() || colorSelect.parent->getActiveElement() == -1) {
+        case MENU_INACTIVE:
+          if (!colorSelect.parentOpen() || colorSelect.parent->isActive()) {
             colorSelect.render = false;
           }
           break;
@@ -1652,21 +1583,11 @@ int main (int argc, char* argv[]) {
                 colorCircle = true;
               }
               break;
-            case 1:
-              break;
-            case 2:
-              break;
-            case 3:
-              break;
-            case 4:
-              break;
-            case 5:
-              break;
           }
           break;
       }
       switch(rightMenu.getActiveElement()) {
-        case -1:
+        case MENU_INACTIVE:
           if (!rightMenu.childOpen()) {
             rightMenu.render = false;
           }

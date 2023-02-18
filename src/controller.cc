@@ -410,7 +410,7 @@ vector<string> controller::generateMenuLabels(const menuContentType& contentType
 			return text.getStringSet("VIEW_MENU_VIEW",
 															 "VIEW_MENU_DISPLAY_MODE",
 															 "VIEW_MENU_DISPLAY_SONG_TIME",
-															 "VIEW_MENU_DISPLAY_KEY_SIGNATURE",
+															 "VIEW_MENU_HIDE_KEY_SIGNATURE",
 															 "VIEW_MENU_HIDE_NOW_LINE",
                                "VIEW_MENU_HIDE_MEASURE_LINE",
 															 "VIEW_MENU_HIDE_MEASURE_NUMBER",

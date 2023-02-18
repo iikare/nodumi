@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include "enum.h"
 #include "misc.h"
 #include "data.h"
 #include "define.h"
@@ -55,6 +56,7 @@ class menu {
     colorRGB getColor();
 
     bool isContentLabel(const string& label, int idx);
+    bool isActive() { return getActiveElement() == MENU_INACTIVE; }
 
     void setXY(int nX, int nY);
     void setContent(const string& nContent, int idx);
@@ -64,6 +66,8 @@ class menu {
     void setAngle();
     void setColor(const colorRGB& col);
     
+    void swapLabel(const string& str_id1, const string& str_id2, int idx);
+
     void findActiveElement(point xy);
     
     void findMenuLocation(int& rcX, int& rcY);
