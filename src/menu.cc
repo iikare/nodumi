@@ -16,23 +16,23 @@ using std::max;
 
 menuItem::menuItem() : x(0), y(0), width(0), height(0), content("") {}
 
-string menuItem::getContent() {
+string menuItem::getContent() const {
   return content;
 }
 
-int menuItem::getX() {
+int menuItem::getX() const {
   return x;
 }
 
-int menuItem::getY() {
+int menuItem::getY() const {
   return y;
 }
 
-int menuItem::getWidth() {
+int menuItem::getWidth() const {
   return width;
 }
 
-int menuItem::getHeight() {
+int menuItem::getHeight() const {
   return height;
 }
 
@@ -110,7 +110,7 @@ menu::menu(point XY, menuContentType contentType, int menuType, int menuX, int m
   ctr.menu->registerMenu(*this);
 }
 
-int menu::getItemX(int idx) {
+int menu::getItemX(int idx) const {
   if (idx >= itemCount || idx < 0) {
     logW(LL_WARN, "attempted to get menu itemX at nonexistent menu index ",idx);
     return -1;
@@ -118,7 +118,7 @@ int menu::getItemX(int idx) {
   return items[idx].getX();
 }
 
-int menu::getItemY(int idx) {
+int menu::getItemY(int idx) const {
   if (idx >= itemCount || idx < 0) {
     logW(LL_WARN, "attempted to get menu itemY at nonexistent menu index",idx);
     return -1;
@@ -126,7 +126,7 @@ int menu::getItemY(int idx) {
   return items[idx].getY();
 }
 
-string menu::getContent(int idx) {
+string menu::getContent(int idx) const {
   if (idx >= itemCount || idx < 0) {
     logW(LL_WARN, "attempted to get menu item at nonexistent menu index", idx);
     return "";
@@ -134,12 +134,12 @@ string menu::getContent(int idx) {
   return items[idx].getContent();
 }
 
-int menu::getActiveElement() {
+int menu::getActiveElement() const {
   return activeElement;
 }
 
 
-bool menu::isContentLabel(const string& label, int idx) {
+bool menu::isContentLabel(const string& label, int idx) const {
   return getContent(idx) == ctr.text.getString(label);
 }
 
@@ -257,7 +257,7 @@ void menu::unloadData() {
   }
 }
 
-rect menu::getBox(int idx) {
+rect menu::getBox(int idx) const {
   rect result = {0, 0, 0, 0};
   if (idx == -1) {
     return result;
@@ -286,7 +286,7 @@ void menu::hideChildMenu() {
   }
 }
 
-bool menu::childOpen() {
+bool menu::childOpen() const {
   for (unsigned int i = 0; i < childMenu.size(); i++) {
     if (childMenu[i]->render == true) {
       return true;
@@ -295,14 +295,14 @@ bool menu::childOpen() {
   return false;
 }
 
-bool menu::parentOpen() {
+bool menu::parentOpen() const {
   if (parent != nullptr) {
     return parent->render;
   }
   return false;
 }
 
-vector<int> menu::findOpenChildMenu() {
+vector<int> menu::findOpenChildMenu() const {
   vector<int> result;
 
   for (unsigned int i = 0; i < childMenu.size(); i++) {
@@ -327,7 +327,7 @@ void menu::setSquare() {
   }
 }
 
-rect menu::getSquare() {
+rect menu::getSquare() const {
   const float circleX = x + COLOR_WIDTH/2.0f;
   const float circleY = y + COLOR_HEIGHT/2.0f;
 
@@ -355,7 +355,7 @@ void menu::setAngle() {
   }
 }
 
-bool menu::clickCircle(int circleType) {
+bool menu::clickCircle(int circleType) const {
   
   const float circleRatio = 0.425;
   const float circleWidth = 0.075;
@@ -396,7 +396,7 @@ void menu::setColor(const colorRGB& col) {
   setRingColor();
 }
 
-colorRGB menu::getColor() {
+colorRGB menu::getColor() const {
   
   colorHSV col;
   
@@ -530,7 +530,7 @@ void menu::draw() {
   }
 }
 
-void menu::findMenuLocation(int& rcX, int& rcY) {
+void menu::findMenuLocation(int& rcX, int& rcY) const {
 
   // note: this function finds the menu starting point (X, Y) and stores them in
   // rcX / rxY 
@@ -567,7 +567,7 @@ void menu::findMenuLocation(int& rcX, int& rcY) {
     rcX = ctr.getMouseX();
   }
 }
-void menu::findColorSelectLocation(int& cpX, int& cpY, int rcX, int rcY) {
+void menu::findColorSelectLocation(int& cpX, int& cpY, int rcX, int rcY) const {
 
   cpX = rcX;
   cpY = rcY;
