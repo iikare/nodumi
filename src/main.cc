@@ -332,8 +332,6 @@ int main (int argc, char* argv[]) {
                 }
               }
 
-
-             
               double fadeWidth = 2.0*measureSpacing;
               int measureLineTextAlpha = 255*(min(fadeWidth, ctr.getWidth()-measureLineX))/fadeWidth;
 
@@ -343,7 +341,6 @@ int main (int argc, char* argv[]) {
               }
               else if (measureLineX < fadeWidth) {
                 measureLineTextAlpha = 255*max(0.0, (min(fadeWidth, measureLineX+measureSpacing))/fadeWidth);
-
               }
 
               int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
@@ -408,8 +405,6 @@ int main (int argc, char* argv[]) {
         return 0;
       };
 
-      
-
       pair<double, double> currentBoundaries = inverseSSX();
       vector<int> curNote;
 
@@ -468,9 +463,7 @@ int main (int argc, char* argv[]) {
                 updateClickIndex();
               }
 
-
               auto cSet = noteOn ? colorSetOn : colorSetOff;
-              
 
               ctr.voronoi.vertex.push_back({cX/ctr.getWidth(), 1-cY/ctr.getHeight()});
               ctr.voronoi.color.push_back((*cSet)[colorID]);
@@ -905,7 +898,6 @@ int main (int argc, char* argv[]) {
       }
       
       // option actions
-      //
 
       Vector2 songTimeSizeV = {0.0, 0.0};
       string songTimeContent = "";
@@ -926,7 +918,6 @@ int main (int argc, char* argv[]) {
       
       drawTextEx(songTimeContent, songTimePosition, ctr.bgLight);
       songTimeSizeV = measureTextEx(songTimeContent);
-
 
       // draw key signature label
       if (showKey) {
@@ -956,9 +947,7 @@ int main (int argc, char* argv[]) {
         else {
           drawTextEx(ksl, cKSOffset, songTimePosition.y, ctr.bgLight);
         }
-        
       }
-
 
       if (showFPS) {
         if (GetTime() - (int)GetTime() < GetFrameTime()) {
@@ -968,9 +957,7 @@ int main (int argc, char* argv[]) {
       }
 
       ctr.menu->render();
-
       ctr.dialog.render();
-
       // warning about windows stability
       ctr.warning.render();
     
@@ -1080,9 +1067,11 @@ int main (int argc, char* argv[]) {
         ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
         break;
       case actionType::ACTION_PREFERENCES:
+        ctr.dialog.infoDisplay = false;
         ctr.dialog.preferenceDisplay = !ctr.dialog.preferenceDisplay;
         break;
       case actionType::ACTION_INFO:
+        ctr.dialog.preferenceDisplay = false;
         ctr.dialog.infoDisplay = !ctr.dialog.infoDisplay;
         break;
       case actionType::ACTION_LIVEPLAY:
@@ -1212,11 +1201,6 @@ int main (int argc, char* argv[]) {
       pauseOffset = timeOffset;
     }
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-
-      if (!hoverType.contains(HOVER_DIALOG)) {
-        ctr.dialog.preferenceDisplay = ctr.dialog.infoDisplay = false;
-      }
-
       switch(fileMenu.getActiveElement()) {
         case MENU_INACTIVE:
           fileMenu.render = false;
@@ -1655,6 +1639,10 @@ int main (int argc, char* argv[]) {
           }
           break;
       }
+      if (!hoverType.contains(HOVER_DIALOG) && (action != actionType::ACTION_PREFERENCES && action != actionType::ACTION_INFO)) {
+        ctr.dialog.preferenceDisplay = ctr.dialog.infoDisplay = false;
+      }
+
 
       if (!hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET, HOVER_DIALOG) && 
           !hoverType.containsLastFrame(HOVER_MENU, HOVER_MEASURE)) {
