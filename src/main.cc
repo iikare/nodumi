@@ -272,6 +272,13 @@ int main (int argc, char* argv[]) {
           break;
       }
 
+      switch(displayMode) {
+        case DISPLAY_VORONOI:
+          ctr.beginBlendMode(CGL_ONE_MINUS_DST_COLOR, CGL_ZERO, CGL_ADD);
+          ctr.beginShaderMode("SH_INVERT");
+          break;
+      }
+
       int lastMeasureNum = 0;
 
       double measureSpacing = measureTextEx(to_string(ctr.getStream().measureMap.size() - 1)).x; 
@@ -300,12 +307,6 @@ int main (int argc, char* argv[]) {
             }
           }
 
-          switch(displayMode) {
-            case DISPLAY_VORONOI:
-              ctr.beginBlendMode(CGL_ONE_MINUS_DST_COLOR, CGL_ZERO, CGL_ADD);
-              ctr.beginShaderMode("SH_INVERT");
-              break;
-          }
 
           if (measureNumber) {
             double lastMeasureLocation = convertSSX(ctr.getStream().measureMap[lastMeasureNum].getLocation()); 
@@ -321,6 +322,7 @@ int main (int argc, char* argv[]) {
                  break;
               }
               if (showKey) {
+                // approximate actual rendered label width, it is usually good enough
                 Vector2 keySigSize = measureTextEx(ctr.getKeySigLabel(timeOffset));
                 songInfoSize.x += keySigSize.x;
                 songInfoSize.y += keySigSize.y;
@@ -329,11 +331,13 @@ int main (int argc, char* argv[]) {
                   songInfoSize.x += songInfoSpacing;
                 }
               }
+
+
              
               double fadeWidth = 2.0*measureSpacing;
               int measureLineTextAlpha = 255*(min(fadeWidth, ctr.getWidth()-measureLineX))/fadeWidth;
 
-              if (songTimeType != SONGTIME_NONE && measureLineX + 4 < songInfoSize.x+fadeWidth/2.0) {
+              if ((showKey || songTimeType != SONGTIME_NONE) && measureLineX + 4 < songInfoSize.x+fadeWidth/2.0) {
                 measureLineTextAlpha = max(0.0,min(255.0, 
                                                    255.0 * (1-(songInfoSize.x+fadeWidth/2.0 - measureLineX - 4)/10)));
               }
@@ -925,13 +929,34 @@ int main (int argc, char* argv[]) {
 
 
       // draw key signature label
-      // TODO: render accidental glyph using GLYPH_FONT
       if (showKey) {
         if (songTimeType == SONGTIME_ABSOLUTE || songTimeType == SONGTIME_RELATIVE) {
           songTimeSizeV.x += songInfoSpacing;
         }
         //logQ("got label:", ctr.getKeySigLabel(timeOffset));
-        drawTextEx(ctr.getKeySigLabel(timeOffset), songTimePosition.x+songTimeSizeV.x, songTimePosition.y, ctr.bgLight);
+        string ksl = ctr.getKeySigLabel(timeOffset);
+        int cKSOffset = songTimePosition.x+songTimeSizeV.x;
+        if (ksl.length() > 0 && (ksl[1] == 'b' || ksl[1] == '#')) {
+          drawTextEx(ksl.substr(0,1), cKSOffset, songTimePosition.y, ctr.bgLight);
+          cKSOffset += measureTextEx(ksl.substr(0,0)).x + 6;
+
+          int ksSym = SYM_ACC_SHARP;
+          int ksWidth = 5;
+          int ksYOffset = 31;
+          if (ksl[1] == 'b') {
+            ksSym = SYM_ACC_FLAT;
+            ksWidth = 4;
+            ksYOffset = 29;
+          }
+          drawSymbol(ksSym, 74, cKSOffset, songTimePosition.y-ksYOffset, ctr.bgLight);
+          cKSOffset += ksWidth;
+          
+          drawTextEx(ksl.substr(2,ksl.length()-1), cKSOffset, songTimePosition.y, ctr.bgLight);
+        }
+        else {
+          drawTextEx(ksl, cKSOffset, songTimePosition.y, ctr.bgLight);
+        }
+        
       }
 
 

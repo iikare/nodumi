@@ -159,6 +159,9 @@ int keySig::getStaveOffset() const {
 // TODO:
 
 string keySig::getLabel() const {
+  // NOTE: "#" used as replacement for sharp,
+  //     : "b" for flat, replaced with real
+  //     : symbol during rendering
   string label = "";
   switch (key) {
     case KEYSIG_C:
@@ -180,31 +183,31 @@ string keySig::getLabel() const {
       label = "B ";
 			break;
     case KEYSIG_FSHARP:
-      label = "F♯ ";
+      label = "F# ";
 			break;
     case KEYSIG_CSHARP:
-      label = "C♯ ";
+      label = "C# ";
 			break;
     case KEYSIG_F:
       label = "F ";
 			break;
     case KEYSIG_BFLAT:
-      label = "B♭ ";
+      label = "Bb ";
 			break;
     case KEYSIG_EFLAT:
-      label = "E♭ ";
+      label = "Eb ";
 			break;
     case KEYSIG_AFLAT:
-      label = "A♭ ";
+      label = "Ab ";
 			break;
     case KEYSIG_DFLAT:
-      label = "D♭ ";
+      label = "Db ";
 			break;
     case KEYSIG_GFLAT:
-      label = "G♭ ";
+      label = "Gb ";
 			break;
     case KEYSIG_CFLAT:
-      label = "C♭ ";
+      label = "Cb ";
 			break;
     default:
        return "undefined";
