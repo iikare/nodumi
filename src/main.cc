@@ -146,28 +146,28 @@ int main (int argc, char* argv[]) {
   menu viewMenu(ctr.getSize(), CONTENT_VIEW, TYPE_MAIN, ctr.menu->getOffset(), 0);
   
   menu displayMenu(ctr.getSize(), CONTENT_DISPLAY, TYPE_SUB, 
-                   viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(1), &viewMenu, 1);
+                   viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(VIEW_MENU_DISPLAY_MODE), &viewMenu, 1);
 
   menu songMenu(ctr.getSize(), CONTENT_SONG, TYPE_SUB, 
-                viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(2), &viewMenu, 2);
+                viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(VIEW_MENU_SONG_TIME), &viewMenu, 2);
 
   menu midiMenu(ctr.getSize(), CONTENT_MIDI, TYPE_MAIN, ctr.menu->getOffset(), 0);
 
   menu inputMenu(ctr.getSize(), CONTENT_INPUT, TYPE_SUB, 
-                 midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(1), &midiMenu, 1);
+                 midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(MIDI_MENU_INPUT), &midiMenu, 1);
 
   menu outputMenu(ctr.getSize(), CONTENT_OUTPUT, TYPE_SUB, 
-                 midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(2), &midiMenu, 2);
+                 midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(MIDI_MENU_OUTPUT), &midiMenu, 2);
   
   menu colorMenu(ctr.getSize(), CONTENT_COLOR, TYPE_MAIN, ctr.menu->getOffset(), 0);
    
   menu schemeMenu(ctr.getSize(), CONTENT_SCHEME, TYPE_SUB, 
-                  colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(1), &colorMenu, 1);
+                  colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(COLOR_MENU_COLOR_BY), &colorMenu, 1);
   
   menu infoMenu(ctr.getSize(), CONTENT_INFO, TYPE_MAIN, ctr.menu->getOffset(), 0);
 
   menu paletteMenu(ctr.getSize(), CONTENT_PALETTE, TYPE_SUB, 
-                   colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(2), &colorMenu, 2);
+                   colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(COLOR_MENU_COLOR_SCHEME), &colorMenu, 2);
   
   vector<string> rightMenuContents = ctr.generateMenuLabels(CONTENT_RIGHT);
   menu rightMenu(ctr.getSize(), CONTENT_RIGHT, TYPE_RIGHT, -100,-100); 
@@ -1011,7 +1011,7 @@ int main (int argc, char* argv[]) {
       case actionType::ACTION_OPEN_IMAGE:
         ctr.open_image.dialog();
         showImage = true; 
-        viewMenu.setContentLabel("VIEW_MENU_HIDE_BACKGROUND", 7);
+        viewMenu.setContentLabel("VIEW_MENU_HIDE_BACKGROUND", VIEW_MENU_BACKGROUND);
         ctr.menu->hide();
         break;
       case actionType::ACTION_CLOSE:
@@ -1299,11 +1299,11 @@ int main (int argc, char* argv[]) {
           switch(songMenu.getActiveElement()) {
             case SONG_MENU_RELATIVE:
               songTimeType = SONGTIME_RELATIVE;
-              viewMenu.setContentLabel("VIEW_MENU_HIDE_SONG_TIME", 2);
+              viewMenu.setContentLabel("VIEW_MENU_HIDE_SONG_TIME", VIEW_MENU_SONG_TIME);
               break;
             case SONG_MENU_ABSOLUTE:
               songTimeType = SONGTIME_ABSOLUTE;
-              viewMenu.setContentLabel("VIEW_MENU_HIDE_SONG_TIME", 2);
+              viewMenu.setContentLabel("VIEW_MENU_HIDE_SONG_TIME", VIEW_MENU_SONG_TIME);
               break;
           }
           break;
