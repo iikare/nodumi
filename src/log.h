@@ -14,6 +14,7 @@ using std::ostringstream;
 using std::false_type;
 using std::true_type;
 using std::vector;
+using std::is_enum;
 using std::string;
 using std::pair;
 using std::fixed;
@@ -189,6 +190,9 @@ U& logRecursive(U& stream, const V& arg1) {
   else if constexpr (is_pair<V>::value) {
     return (stream << formatPair(arg1));
   }
+  else if constexpr (is_enum<V>::value) {
+    return (stream << static_cast<int>(arg1));
+  }
   else {
     return (stream << arg1);
   }
@@ -202,6 +206,9 @@ U& logRecursive(U& stream, const V& arg1, const W&... args) {
   }
   else if constexpr (is_pair<V>::value) {
     return logRecursive((stream << formatPair(arg1)), args...);
+  }
+  else if constexpr (is_enum<V>::value) {
+    return logRecursive((stream << static_cast<int>(arg1)), args...);
   }
   else {
     return logRecursive((stream << arg1), args...);
@@ -230,6 +237,9 @@ void logOutput(logLevel level, string file, int line, const V& arg1, const W&...
   }
   else if constexpr (is_pair<V>::value) {
     logRecursive((out << formatPair(arg1)), args...);
+  }
+  else if constexpr (is_enum<V>::value) {
+    logRecursive((out << static_cast<int>(arg1)), args...);
   }
   else {
     logRecursive((out << arg1), args...);
@@ -263,6 +273,9 @@ void logOutput(logLevel level, string file, int line, const V& arg1) {
   }
   else if constexpr (is_pair<V>::value) {
     out << formatPair(arg1);
+  }
+  else if constexpr (is_enum<V>::value) {
+    out << static_cast<int>(arg1);
   }
   else {
     out << arg1;
