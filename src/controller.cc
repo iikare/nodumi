@@ -56,10 +56,10 @@ void controller::init(vector<asset>& assetSet) {
 void controller::initData(const vector<asset>& assetSet) {
   for (const auto& item : assetSet) {
     switch(item.assetType) {
-      case ASSET_FONT:
+      case ASSET::FONT:
         fontMap.insert(make_pair(item.assetName, make_pair(item, map<int, Font>())));
         break;
-      case ASSET_IMAGE:
+      case ASSET::IMAGE:
       {
         auto it = imageMap.find(item.assetName);
         if (it == imageMap.end()) {
@@ -82,7 +82,7 @@ void controller::initData(const vector<asset>& assetSet) {
       }
         break;
 
-      case ASSET_SHADER: 
+      case ASSET::SHADER: 
         {
           auto it = shaderMap.find(item.assetName);
 
@@ -96,6 +96,9 @@ void controller::initData(const vector<asset>& assetSet) {
             shaderMap.insert(make_pair(item.assetName, tmpShaderData));
           }
         }
+        break;
+      default:
+        // these items aren't statically loaded
         break;
     }
   }

@@ -53,14 +53,14 @@ class enumChecker {
     vector<T> itemsLastFrame;
 };
 
-enum assetType {
-  ASSET_FONT,
-  ASSET_RENDERTEXTURE,
-  ASSET_TEXTURE,
-  ASSET_SHADER,
-  ASSET_IMAGE,
+enum class ASSET {
+  FONT,
+  RENDER_TEXTURE,
+  TEXTURE,
+  SHADER,
+  IMAGE,
+  NONE
 };
-
 
 enum lerpType {
   INT_LINEAR,

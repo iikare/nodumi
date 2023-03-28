@@ -2,8 +2,63 @@
 #ifndef AGHFILE_H
 #define AGHFILE_H
 
-#include <vector>
-#include "asset.h"
+#pragma once
 
-vector<asset> assetSet = {};
+#include <string>
+#include "asset.h"
+#include "agh.h"
+
+using std::vector;
+
+vector<asset> assetSet = {
+  asset(ASSET::FONT, "LELAND",
+        __data_font_leland_otf, __data_font_leland_otf_len),
+
+  asset(ASSET::FONT, "YKLIGHT",
+        __data_font_yklight_otf, __data_font_yklight_otf_len),
+
+  asset(ASSET::IMAGE, "ICON",
+        __data_image_icon_png, __data_image_icon_png_len),
+
+  asset(ASSET::SHADER, "SH_INVERT",
+        reinterpret_cast<unsigned char*>(const_cast<char*>("")),
+        reinterpret_cast<unsigned char*>(const_cast<char*>(__data_shader_sh_invert_vs.c_str())),
+        vector<uniform>{
+                        
+                       }
+  ),
+
+  asset(ASSET::SHADER, "SH_VORONOI",
+        reinterpret_cast<unsigned char*>(const_cast<char*>("")),
+        reinterpret_cast<unsigned char*>(const_cast<char*>(__data_shader_sh_voronoi_vs.c_str())),
+        vector<uniform>{
+                        {"vertex_count",SHADER_UNIFORM_INT},{"vertex_data",SHADER_UNIFORM_VEC2},{"vertex_color",SHADER_UNIFORM_VEC3},{"render_bound",SHADER_UNIFORM_FLOAT},
+                       }
+  ),
+
+  asset(ASSET::SHADER, "SH_FXAA",
+        reinterpret_cast<unsigned char*>(const_cast<char*>("")),
+        reinterpret_cast<unsigned char*>(const_cast<char*>(__data_shader_sh_fxaa_vs.c_str())),
+        vector<uniform>{
+                        {"u_resolution",SHADER_UNIFORM_VEC2},
+                       }
+  ),
+
+  asset(ASSET::SHADER, "SH_RING",
+        reinterpret_cast<unsigned char*>(const_cast<char*>("")),
+        reinterpret_cast<unsigned char*>(const_cast<char*>(__data_shader_sh_ring_vs.c_str())),
+        vector<uniform>{
+                        {"ring_len",SHADER_UNIFORM_FLOAT},{"ring_width",SHADER_UNIFORM_FLOAT},
+                       }
+  ),
+
+  asset(ASSET::SHADER, "SH_SQUARE",
+        reinterpret_cast<unsigned char*>(const_cast<char*>("")),
+        reinterpret_cast<unsigned char*>(const_cast<char*>(__data_shader_sh_square_vs.c_str())),
+        vector<uniform>{
+                        {"blend_color",SHADER_UNIFORM_VEC3},
+                       }
+  ),
+
+};
 #endif //AGHFILE_H

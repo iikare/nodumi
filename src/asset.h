@@ -13,21 +13,24 @@ using std::string;
 
 class asset {
   public:
-    asset(int a, const char* b, unsigned char* data, unsigned int dataLen) {
+    asset(ASSET a, const char* b, unsigned char* data, unsigned int dataLen) {
       assetType = a;
       assetName = b;
       this->data = data;
       this->dataLen = dataLen;
     }
-    asset(int a, string b, unsigned char* data, vector<uniform> uniforms) {
+    asset(ASSET a, string b, unsigned char* data1, unsigned char* data2, vector<uniform> uniforms) {
       assetType = a;
       assetName = b;
-      this->data = data;
+      dataVS = data1;
+      dataFS = data2;
       shaderUniforms = uniforms;
     }
 
-    int assetType;
+    ASSET assetType;
     string assetName;
+    unsigned char* dataVS;
+    unsigned char* dataFS;
     unsigned char* data;
     unsigned int dataLen;
     vector<uniform> shaderUniforms = {};
