@@ -704,8 +704,8 @@ void controller::load(string path, fileType& fType,
     // if no image exists, all values are left zero
     
 
-    int i_posx = 0;
-    int i_posy = 0;
+    int16_t i_posx = 0;
+    int16_t i_posy = 0;
     float i_scale = 0;
     float i_def_scale = 0;
     float i_mean_v = 0;

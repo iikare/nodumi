@@ -59,11 +59,11 @@ void imageController::load(stringstream& byteData, int byteSize, int fmt) {
   switch(fmt) {
     case IMAGE_PNG:
       ext = ".png";
-      fmt = IMAGE_PNG;
+      format = IMAGE_PNG;
       break;
     case IMAGE_JPG:
       ext = ".jpg";
-      fmt = IMAGE_JPG;
+      format = IMAGE_JPG;
       break;
     default:
       logW(LL_WARN, "wrong image format:", fmt);
