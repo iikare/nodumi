@@ -52,7 +52,7 @@ class imageController {
    
     void createRawData();
     void process();
-    void load(stringstream& byteData, int byteSize, int format);
+    void load(stringstream& byteData, int byteSize, int fmt);
 
 
     Image image;

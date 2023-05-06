@@ -262,9 +262,8 @@ void controller::processAction(actionType& action) {
 }
 
 void controller::update(int offset, double& nowLineX, bool runState) {
-  
+ 
   if (!programState) { return; }
-
 
   frameCounter++;
   if (!livePlayState && runState && output.isPortOpen()) {
@@ -690,15 +689,83 @@ void controller::load(string path, fileType& fType,
     }
 
     zoomLevel = *(reinterpret_cast<float*>(zoomBuf));
+    //logQ("READ ZOOMLEVEL", zoomLevel);
 
     //logQ(zoomLevel);
     
+    // position need not exceed 16 bits
+    // 0x0C-0x0D - image position (x) 
+    // 0x0E-0x0F - image position (y)
+    // 0x10-0x13 - scale
+    // 0x14-0x17 - default scale
+    // 0x18-0x1B - mean value
+    // 0x1C-0x1F - color count
+
+    // if no image exists, all values are left zero
+    
+
+    int i_posx = 0;
+    int i_posy = 0;
+    float i_scale = 0;
+    float i_def_scale = 0;
+    float i_mean_v = 0;
+    int i_num_col = 0;
+
     if (imageExists) {
       
-      // TODO: handle image metadata loading here
-      for (auto i = 0; i < imageBlockSize; ++i) {
+      // 0x0C-0x0D - image position (x) 
+      char imageBuf[2] = {0};
+      for (int i = 0; i < 2; ++i) {
         readByte();
+        //debugByte();
+        imageBuf[i] = byteBuf;
       }
+      i_posx = *(reinterpret_cast<uint16_t*>(imageBuf));
+    
+      // 0x0E-0x0F - image position (y)
+      //char imageBuf[4] = {0};
+      for (int i = 0; i < 2; ++i) {
+        readByte();
+        //debugByte();
+        imageBuf[i] = byteBuf;
+      }
+      i_posy = *(reinterpret_cast<uint16_t*>(imageBuf));
+
+      // 0x10-0x13 - scale
+      char imageBuf2[4] = {0};
+      for (int i = 0; i < 4; ++i) {
+        readByte();
+        //debugByte();
+        imageBuf2[i] = byteBuf;
+      }
+      i_scale = *(reinterpret_cast<float*>(imageBuf2));
+
+      // 0x14-0x17 - default scale
+      //char imageBuf2[4] = {0};
+      for (int i = 0; i < 4; ++i) {
+        readByte();
+        //debugByte();
+        imageBuf2[i] = byteBuf;
+      }
+      i_def_scale = *(reinterpret_cast<float*>(imageBuf2));
+
+      // 0x18-0x1B - mean value
+      //char imageBuf2[4] = {0};
+      for (int i = 0; i < 4; ++i) {
+        readByte();
+        //debugByte();
+        imageBuf2[i] = byteBuf;
+      }
+      i_mean_v = *(reinterpret_cast<float*>(imageBuf2));
+
+      // 0x1C-0x1F - color count
+      //char imageBuf2[4] = {0};
+      for (int i = 0; i < 4; ++i) {
+        readByte();
+        //debugByte();
+        imageBuf2[i] = byteBuf;
+      }
+      i_num_col = *(reinterpret_cast<uint32_t*>(imageBuf2));
 
     }
     else {
@@ -741,6 +808,7 @@ void controller::load(string path, fileType& fType,
     
     // 0x368-0x36A - background color
     bgColor = readRGB();
+    //logQ("READ COLOR", bgColor);
     
     // 0x36B-0x36E - track size marker (n)
     char trackSizeBuf[4] = {0};
@@ -750,7 +818,7 @@ void controller::load(string path, fileType& fType,
       trackSizeBuf[i] = byteBuf;
     }
 
-    int trackSetSize = *(reinterpret_cast<int*>(trackSizeBuf));
+    int trackSetSize = *(reinterpret_cast<int*>(&trackSizeBuf));
     
     if (trackSetSize > (1 << 15)) {
       logW(LL_WARN, "file parameters exceed limits");
@@ -805,7 +873,8 @@ void controller::load(string path, fileType& fType,
       }
 
       // error handling of image format handled in loader function
-      int imageFormat = *reinterpret_cast<int*>(imageFormatBuf);
+      int imageFormat = *reinterpret_cast<int*>(&imageFormatBuf);
+      //logQ("READ IMGFORMAT", imageFormat);
       
       // next 4 bytes is image size
       char imageSizeBuf[4] = {0};
@@ -815,7 +884,7 @@ void controller::load(string path, fileType& fType,
         imageSizeBuf[i] = byteBuf;
       }
 
-      int imageSize = *reinterpret_cast<int*>(imageSizeBuf);
+      int imageSize = *reinterpret_cast<int*>(&imageSizeBuf);
         
       stringstream imageData;
 
@@ -824,9 +893,17 @@ void controller::load(string path, fileType& fType,
         imageData.write(&byteBuf, sizeof(byteBuf));
       }
 
-
+      //logQ(imageData.str());
       // finally load the image
       image.load(imageData, imageSize, imageFormat);
+
+      // set the image parameters after loading
+			image.position.x = i_posx;
+			image.position.y = i_posy;
+			image.scale = i_scale;
+			image.defaultScale = i_def_scale;
+			image.meanV = i_mean_v;
+			image.numColors = i_num_col;
 
     }
 
@@ -942,6 +1019,8 @@ void controller::save(string path,
  
   float zlf = static_cast<float>(zoomLevel);
 
+  //logQ("WRITE ZOOMLEVEL", zoomLevel);
+
 
   //logQ("zl", zlf);
 
@@ -963,10 +1042,14 @@ void controller::save(string path,
     int16_t y = static_cast<int16_t>(image.position.y);
     output.write(reinterpret_cast<const char*>(&x), sizeof(y));
     output.write(reinterpret_cast<const char*>(&y), sizeof(y));
-    
-    output.write(reinterpret_cast<const char*>(&image.scale), sizeof(image.scale));
-    output.write(reinterpret_cast<const char*>(&image.defaultScale), sizeof(image.defaultScale));
-    output.write(reinterpret_cast<const char*>(&image.meanV), sizeof(image.meanV));
+
+    float i_scale = image.scale;
+    float i_defaultScale = image.defaultScale;
+    float i_meanV = image.meanV;
+
+    output.write(reinterpret_cast<const char*>(&i_scale), sizeof(i_scale));
+    output.write(reinterpret_cast<const char*>(&i_defaultScale), sizeof(i_defaultScale));
+    output.write(reinterpret_cast<const char*>(&i_meanV), sizeof(i_meanV));
     output.write(reinterpret_cast<const char*>(&image.numColors), sizeof(image.numColors));
   }
   else {
@@ -1016,11 +1099,13 @@ void controller::save(string path,
  
   // 0x368-0x36A - background color
   writeRGB(bgColor);
+  //logQ("WRITE COLOR", bgColor);
   
   // 0x36B-0x36E - track size marker (n)
   // 0x36F-0x36F+(n*3)       track (on) colors
   // 0x36F+(n*3)-0x36F+(n*6) track (off) colors
   uint32_t trackSetSize = setTrackOn.size();
+  //logQ("OUTN", trackSetSize); 
   output.write(reinterpret_cast<const char*>(&trackSetSize), sizeof(trackSetSize));
 
   for (auto col : setTrackOn) {
@@ -1030,12 +1115,13 @@ void controller::save(string path,
     writeRGB(col);
   }
 
-  logQ(midiData.str());
+  //logQ(midiData.str());
 
   // get size of midi data
-  midiData.seekg(0, std::ios::end);
-  uint32_t midiSize = midiData.tellg();
-  midiData.seekg(0, std::ios::beg);
+  //midiData.seekg(0, std::ios::end);
+  //uint32_t midiSize = midiData.tellg();
+  //midiData.seekg(0, std::ios::beg);
+  uint32_t midiSize = midiData.str().size();
  
   logQ("midisize marker is", sizeof(midiSize), "bytes");
   output.write(reinterpret_cast<const char*>(&midiSize), sizeof(midiSize));
@@ -1044,19 +1130,25 @@ void controller::save(string path,
 
 
   // in variable length regime, only write if the marker is set at 0x00[1:1] 
-  // here, no need to check marker, just check image object
+  // here, no need to check marker, just check for existence of a loaded image
   if (image.exists()) {
-    // first write image type
+    // first write image type (4bytes)
     output.write(reinterpret_cast<const char*>(&image.format), sizeof(image.format));
+
+    //logQ("WRITE IMGFORMAT", image.format);
     
     // get size of image data
-    image.buf.seekg(0, std::ios::end);
-    uint32_t imageSize = image.buf.tellg();
-    image.buf.seekg(0, std::ios::beg);
+    //image.buf.seekg(0, std::ios::end);
+    //uint32_t imageSize = image.buf.tellg();
+    //image.buf.seekg(0, std::ios::beg);
+    uint32_t imageSize = image.buf.str().size();
     
     output.write(reinterpret_cast<const char*>(&imageSize), sizeof(imageSize));
     //logQ(imageSize);
-    output.write(image.buf.str().c_str(), image.buf.str().size());
+    //output.write(image.buf.str().c_str(), image.buf.str().size());
+    output << image.buf.rdbuf();
+
+  //logQ(image.buf.str());
   }
 
 }

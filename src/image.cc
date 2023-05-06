@@ -46,8 +46,7 @@ void imageController::load(const string& path) {
   process();
 }
 
-void imageController::load(stringstream& byteData, int byteSize, int format) {
-
+void imageController::load(stringstream& byteData, int byteSize, int fmt) {
 
   unloadData();
 
@@ -55,18 +54,19 @@ void imageController::load(stringstream& byteData, int byteSize, int format) {
   buf.clear();
   buf.write(byteData.str().c_str(), byteData.str().size()); 
 
-
   string ext = "";
 
-  switch(format) {
+  switch(fmt) {
     case IMAGE_PNG:
       ext = ".png";
+      fmt = IMAGE_PNG;
       break;
     case IMAGE_JPG:
       ext = ".jpg";
+      fmt = IMAGE_JPG;
       break;
     default:
-      logW(LL_WARN, "wrong image format:", format);
+      logW(LL_WARN, "wrong image format:", fmt);
       return;
   }
 
