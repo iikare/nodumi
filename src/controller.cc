@@ -12,7 +12,6 @@
 using std::ofstream;
 using std::stringstream;
 using std::make_pair;
-using std::move;
 
 controller::controller() : midiData() {
   file = midi();
@@ -268,11 +267,12 @@ void controller::update(int offset, double& nowLineX, bool runState) {
   frameCounter++;
   if (!livePlayState && runState && output.isPortOpen()) {
       fileOutput.allow();
-      fileOutput.updateOffset(offset);
   }
   else {
     fileOutput.disallow();
   }
+  //always update to prevent notes playing at once
+  fileOutput.updateOffset(offset);
 
   menu->updateMouse();
   menu->updateRenderStatus();

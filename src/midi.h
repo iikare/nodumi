@@ -20,6 +20,7 @@ using std::vector;
 using std::pair;
 using std::ifstream;
 using std::stringstream;
+using std::multiset;
 
 // using std::function was disastrous
 struct tickCmp {
@@ -80,7 +81,7 @@ class midi {
     void setNoteCount(int nc) { noteCount = nc; }
 
     vector<note> notes;
-    vector<pair<double, vector<unsigned char>>> message;
+    multiset<pair<double, vector<unsigned char>>> message;
 
     sheetController sheetData;
     vector<measureController> measureMap;

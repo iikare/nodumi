@@ -51,17 +51,20 @@ void midi::buildTickSet() {
 
 void midi::buildMessageMap(const MidiFile& mf) {
   //int num_zero = 0;
+  vector<pair<double, vector<unsigned char>>> message_vec;
   for (int i = 0; i < mf.getEventCount(0); i++) {
     if (i && mf[0][i].seconds < mf[0][i-1].seconds) {
       logW(LL_WARN, "midi has nonlinear events");
     }
     //if (mf[0][i].seconds < 0.0001) { num_zero++; }
-    if (mf[0][i].seconds > 0.01){// || mf[0][i].isNote()) { 
+    //if (mf[0][i].seconds > 0.01){// || mf[0][i].isNote()) { 
     //if (mf[0][i].isNote()) {
-    //if (1) {
-      message.push_back(make_pair(mf[0][i].seconds * 500, static_cast<vector<unsigned char>>(mf[0][i])));
+    if (1) {
+      message_vec.push_back(make_pair(mf[0][i].seconds * 500, static_cast<vector<unsigned char>>(mf[0][i])));
     }
   } 
+  message = multiset<pair<double, vector<unsigned char>>>(message_vec.begin(), message_vec.end());
+
   //logQ(num_zero, "events at position < 0.0001s");
 }
 
