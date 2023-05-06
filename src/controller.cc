@@ -5,6 +5,7 @@
 #include <chrono>
 #include <system_error>
 #include "define.h"
+#include "log.h"
 #include "menuctr.h"
 #include "voronoi.h"
 
@@ -737,8 +738,10 @@ void controller::load(string path, fileType& fType,
       col = readRGB();
     }
     
+    // 0x368-0x36A - background color
+    bgColor = readRGB();
     
-    // 0x368-0x371 - track size marker (n)
+    // 0x36B-0x36E - track size marker (n)
     char trackSizeBuf[4] = {0};
     for (int i = 0; i < 4; ++i) {
       readByte();
@@ -747,14 +750,20 @@ void controller::load(string path, fileType& fType,
     }
 
     int trackSetSize = *(reinterpret_cast<int*>(trackSizeBuf));
+    
+    if (trackSetSize > (1 << 15)) {
+      logW(LL_WARN, "file parameters exceed limits");
+      logW(LL_WARN, trackSetSize);
+      return;
+    }
 
-    logQ(trackSetSize);
+
     setTrackOn.resize(trackSetSize);
     setTrackOff.resize(trackSetSize);
 
 
-    // 0x372-0x372+(n*3)       track (on) colors
-    // 0x372+(n*3)-0x372+(n*6) track (off) colors
+    // 0x36F-0x36F+(n*3)       track (on) colors
+    // 0x36F+(n*3)-0x36F+(n*6) track (off) colors
     for (auto i = 0; i < trackSetSize; ++i) {
       setTrackOn[i] = readRGB();
     }
@@ -889,13 +898,14 @@ void controller::save(string path,
 
   //logQ(byte0);
 
-  output << byte0;
+  output.write(reinterpret_cast<const char*>(&byte0), sizeof(byte0));
 
   
   // 0x01:[7:0] - reserved
   // 0x02:[7:0] - reserved
 
-  output << emptyByte << emptyByte;
+  output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
+  output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
   
   // 0x03:[7:4] - scheme color type
   // 0x03:[3:0] - display type
@@ -907,7 +917,7 @@ void controller::save(string path,
 
   //logQ((unsigned int)byte3);
 
-  output << byte3;
+  output.write(reinterpret_cast<const char*>(&byte3), sizeof(byte3));
   
   // 0x04:[7:4] - song time display type
   // 0x04:[3:0] - tonic offset
@@ -919,13 +929,15 @@ void controller::save(string path,
   //logQ(bitset<8>(byte4));
   byte4 |= (static_cast<uint8_t>(tonicOffset) & 0xF);
 
-  output << byte4;
+  output.write(reinterpret_cast<const char*>(&byte4), sizeof(byte4));
   
   // 0x05:[7:0] - reserved
   // 0x06:[7:0] - reserved
   // 0x07:[7:0] - reserved
   
-  output << emptyByte << emptyByte << emptyByte;
+  output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
+  output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
+  output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
   
   // 0x08-0x0B - zoom level (4bit float (cast from double))
  
@@ -934,7 +946,7 @@ void controller::save(string path,
 
   //logQ("zl", zlf);
 
-  output.write( reinterpret_cast<const char*>(&zlf), sizeof(zlf));
+  output.write(reinterpret_cast<const char*>(&zlf), sizeof(zlf));
   //logQ(static_cast<float>(zoomLevel));
 
   // position need not exceed 16 bits
@@ -963,7 +975,7 @@ void controller::save(string path,
     // needed to maintain file block formatting
 
     for (auto i = 0; i < imageBlockSize; ++i) {
-      output << emptyByte;
+      output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
     }
   }
 
@@ -1002,11 +1014,13 @@ void controller::save(string path,
   for (auto col : setVelocityOff) {
     writeRGB(col);
   }
+ 
+  // 0x368-0x36A - background color
+  writeRGB(bgColor);
   
-  
-  // 0x368-0x371 - track size marker (n)
-  // 0x372-0x372+(n*3)       track (on) colors
-  // 0x372+(n*3)-0x372+(n*6) track (off) colors
+  // 0x36B-0x36E - track size marker (n)
+  // 0x36F-0x36F+(n*3)       track (on) colors
+  // 0x36F+(n*3)-0x36F+(n*6) track (off) colors
   uint32_t trackSetSize = setTrackOn.size();
   output.write(reinterpret_cast<const char*>(&trackSetSize), sizeof(trackSetSize));
 
@@ -1024,7 +1038,7 @@ void controller::save(string path,
  
   logQ("midisize marker is", sizeof(midiSize), "bytes");
   output.write(reinterpret_cast<const char*>(&midiSize), sizeof(midiSize));
-  logQ("saved midi stream byte length is:",midiSize);
+  logQ("saved midi stream length is", midiSize, "bytes");
   output.write(midiData.str().c_str(), midiData.str().size());
 
 
