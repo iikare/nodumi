@@ -272,7 +272,9 @@ void controller::update(int offset, double& nowLineX, bool runState) {
     fileOutput.disallow();
   }
   //always update to prevent notes playing at once
-  fileOutput.updateOffset(offset);
+  if (offset < ctr.getLastTime()) {
+    fileOutput.updateOffset(offset);
+  }
 
   menu->updateMouse();
   menu->updateRenderStatus();
