@@ -363,7 +363,7 @@ void controller::updateDroppedFiles() {
     FilePathList dropFile = LoadDroppedFiles();
     constexpr unsigned int dropLimit = 2;
 
-    if (dropFile.count > 2) {
+    if (dropFile.count > dropLimit) {
       logW(LL_WARN, "excess files dropped - max:", dropLimit);
     }
 
@@ -581,6 +581,7 @@ void controller::clear() {
   file.clear();
   runTime = 0;
   pauseTime = 0;
+  bgColor = colorRGB(0,0,0);
 }
 
 void controller::load(string path, fileType& fType, 
@@ -783,8 +784,6 @@ void controller::load(string path, fileType& fType,
 
     int midiSize = *reinterpret_cast<int*>(midiSizeBuf);
     logQ("midi size is:", midiSize);
-
-    stringstream midiData;
 
     for (auto i = 0; i < midiSize; ++i) {
       readByte();
@@ -1030,6 +1029,8 @@ void controller::save(string path,
   for (auto col : setTrackOff) {
     writeRGB(col);
   }
+
+  logQ(midiData.str());
 
   // get size of midi data
   midiData.seekg(0, std::ios::end);

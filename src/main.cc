@@ -200,6 +200,10 @@ int main (int argc, char* argv[]) {
                  colorMode,  displayMode,
                  songTimeType,  tonicOffset, 
                  zoomLevel);
+        
+        if (curFileType == FILE_MKI) {
+          ctr.save_file.setPending(ctr.open_file.getPath());
+        }
 
         ctr.open_file.reset();
       }
