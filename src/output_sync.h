@@ -28,13 +28,6 @@ class outputInstance {
 
     multiset<pair<double, vector<unsigned char>>> message;
     midiOutput* output;
-    //atomic<double> offset;
-    //atomic<double> offset_last;
-    //atomic<unsigned int> index;
-    //atomic<bool> interrupt;
-    //atomic<bool> interrupt_ack;
-    //atomic<bool> end;
-    //atomic<bool> send;
     
     bool end = false;
     atomic<bool> send = false;

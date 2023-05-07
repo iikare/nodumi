@@ -396,6 +396,31 @@ void controller::toggleLivePlay() {
   }
 }
 
+void controller::prepareCriticalSection(bool enter) {
+  // if something blocks main thread for too long
+  // this function notifies other threads that
+  // the main thread is currently unresponsive
+  // enter: true  -> prepare to enter blocking section
+  // enter: false -> exit blocking section, return to normal
+  if (enter) {
+    run = false;
+    if (getLiveState()) {
+      input.pauseInput();
+    }
+    else {
+      fileOutput.disallow();
+    }
+  }
+  else {
+    if (getLiveState()) {
+      input.resumeInput();
+    }
+    else {
+      fileOutput.allow();
+    }
+  }
+}
+
 vector<string> controller::generateMenuLabels(const menuContentType& contentType) {
   switch(contentType) {
     case CONTENT_FILE:

@@ -12,12 +12,7 @@ ioController::~ioController() {
 
 void ioController::dialog(const char* defName) {
   // prevent buffer overrun while osdialog blocks the main thread 
-  if (ctr.getLiveState()) {
-    ctr.input.pauseInput();
-  }
-  else {
-    ctr.fileOutput.disallow();
-  }
+  ctr.prepareCriticalSection(true);
 
   char* result = osdialog_file(action, working_dir.c_str(), defName, filter);
  
@@ -30,12 +25,7 @@ void ioController::dialog(const char* defName) {
 
   free(result);
 
-  if (ctr.getLiveState()) {
-    ctr.input.resumeInput();
-  }
-  else {
-    ctr.fileOutput.allow();
-  }
+  ctr.prepareCriticalSection(false);
 }
 
 void ioController::reset() {

@@ -17,9 +17,11 @@ void outputInstance::updateOffset(double off) {
     //return;
   //}
   auto update = std::chrono::high_resolution_clock::now();
+
+  //logQ("provided offset", off);
+
   offset_last = offset;
   offset = off;
-  
 
 
   double elapsed = std::chrono::duration<double>(update-update_last_overflow).count();
@@ -38,13 +40,14 @@ void outputInstance::updateOffset(double off) {
   //send = offset > offset_last;
   //offset_last = offset;
 
-  auto it = message.upper_bound(make_pair(off+1, vector<unsigned char>{}));
+  auto it = message.upper_bound(make_pair(off+ (off <= 0 ? 0 : 1), vector<unsigned char>{}));
   //if (it != message.begin()) { it--; }
 
   int new_index = distance(message.begin(), it);
   //crit.lock();
   index_last = index; 
   index = new_index;
+
 
   //crit.unlock();
   //logQ("lowest index:", index, "w/offset:", it->first, "v", offset);
@@ -151,49 +154,6 @@ void outputInstance::process() {
 
 
   }
-
-  ////constexpr int msgLimit = 30;
-  //while (true) {
-    //if (end) {
-      //break;
-    //}
-    //if (!interrupt) {
-      //interrupt_ack = false;
-      //if (send) {
-        //std::chrono::duration<double> elapsedTime = std::chrono::high_resolution_clock::now() - last_update;
-  
-        //int msgFound = 0;
-        //if (elapsedTime.count() > 0) {
-          //for (unsigned int idx = index; idx < message.size(); idx++) {
-            //if (message[idx].first >= offset && message[idx].first <= offset+elapsedTime.count()*500) {
-              ////logQ("time", message[idx].first, formatVector(message[idx].second));
-              //msgFound++;
-              ////if (msgFound < msgLimit || message[idx].first < 0.1) {
-                  //output->sendMessage(&message[idx].second);
-              ////}
-            //}
-            //if (message[idx].first > offset+elapsedTime.count()*500) {
-              //break;
-            //}
-          //}
-        //}
-
-
-        //index += msgFound;
-
-      
-        ////if (msgFound) logQ("count", msgFound);
-        ////logQ("time since last offset update", elapsedTime);
-        ////logQ("hi from RT thread:", offset, message.size());
-      //}
-    //}
-    //else {
-      ////logQ("INT");
-      ////// avoid many messages when main thread blocked
-      ////last_update = std::chrono::high_resolution_clock::now();
-      //interrupt_ack = true;
-    //}
-  //}
 }
 
 void outputInstance::load(const multiset<pair<double, vector<unsigned char>>>& message) {
@@ -213,7 +173,8 @@ void outputInstance::disallow() {
   if (send) {
     send = false;
     crit.lock();
-    vector<unsigned char> s = {120, 0};
+    // all sound off, all note off
+    vector<unsigned char> s = {120, 0, 123, 0};
     output->sendMessage(&s);
     crit.unlock();
   }

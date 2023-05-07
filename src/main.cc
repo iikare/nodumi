@@ -66,9 +66,6 @@ int main (int argc, char* argv[]) {
   const double shiftC = 2.5;
   double pauseOffset = 0;
 
-  // play settings
-  bool run = false;
-
   // view settings
   bool nowLine = true;
   bool nowMove = false;
@@ -189,7 +186,7 @@ int main (int argc, char* argv[]) {
   while (ctr.getProgramState()) {
 
     if (ctr.open_file.pending() || clearFile) {
-      run = false;
+      ctr.run = false;
       timeOffset = 0;
       pauseOffset = 0;
 
@@ -221,7 +218,7 @@ int main (int argc, char* argv[]) {
     if (ctr.getLiveState()) {
       timeOffset = ctr.livePlayOffset;
       ctr.input.update();
-      run = false;
+      ctr.run = false;
     }
 
     // fix FPS count bug
@@ -659,7 +656,7 @@ int main (int argc, char* argv[]) {
                     int ringDist = timeOffset - linePositions[j+1];
 
                     double ringRatio = ringDist/static_cast<double>(ringLimit); 
-                    if (run && linePositions[j+1] < pauseOffset && timeOffset >= pauseOffset) {
+                    if (ctr.run && linePositions[j+1] < pauseOffset && timeOffset >= pauseOffset) {
                       ringRatio = 0;
                     }
                     else if (ctr.getPauseTime()<1 && timeOffset == pauseOffset){// || linePositions[j+1] >= pauseOffset) {
@@ -970,13 +967,13 @@ int main (int argc, char* argv[]) {
     // key actions
     ctr.processAction(action);
 
-    if (run) {
+    if (ctr.run) {
       if (timeOffset + GetFrameTime() * 500 < ctr.getLastTime()) {
         timeOffset += GetFrameTime() * 500;
       }
       else {
         timeOffset = ctr.getLastTime();
-        run = false;
+        ctr.run = false;
         pauseOffset = timeOffset;
       }
     }
@@ -1019,8 +1016,10 @@ int main (int argc, char* argv[]) {
     
     switch (action) {
       case actionType::ACTION_OPEN:
+        //logQ("offset before:", timeOffset);
         ctr.open_file.dialog();
         ctr.menu->hide();
+        //logQ("offset after:", timeOffset);
         break;
       case actionType::ACTION_OPEN_IMAGE:
         ctr.open_image.dialog();
@@ -1125,7 +1124,7 @@ int main (int argc, char* argv[]) {
     }
     if (IsKeyPressed(KEY_SPACE)) {
       if (timeOffset != ctr.getLastTime()) {
-        run = !run; 
+        ctr.run = !ctr.run; 
         pauseOffset = timeOffset;
       }
     }
@@ -1498,9 +1497,13 @@ int main (int argc, char* argv[]) {
               break;
             case PALETTE_MENU_FROM_BACKGROUND:
               if (ctr.image.exists()) {
+                // prevent overflow on RT audio thread
+
+                ctr.prepareCriticalSection(true);
                 getColorSchemeImage(SCHEME_KEY, ctr.setVelocityOn, ctr.setVelocityOff);
                 getColorSchemeImage(SCHEME_TONIC, ctr.setTonicOn, ctr.setTonicOff);
                 getColorSchemeImage(SCHEME_TRACK, ctr.setTrackOn, ctr.setTrackOff, ctr.file.trackHeightMap);
+                ctr.prepareCriticalSection(false);
               }
               else{
                 logW(LL_WARN, "attempt to get color scheme from nonexistent image");
@@ -1803,7 +1806,7 @@ int main (int argc, char* argv[]) {
       hoverType.add(HOVER_MENU);
     }
 
-    ctr.update(timeOffset, nowLineX, run);
+    ctr.update(timeOffset, nowLineX, ctr.run);
   }
 
   ctr.unloadData();
