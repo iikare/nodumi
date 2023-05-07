@@ -11,7 +11,7 @@
 using std::multiset;
 using std::thread;
 using std::mutex;
-//using std::atomic;
+using std::atomic;
 
 class outputInstance {
   public:
@@ -37,7 +37,7 @@ class outputInstance {
     //atomic<bool> send;
     
     bool end = false;
-    bool send = false;
+    atomic<bool> send = false;
 
     unsigned int index = 0;
     unsigned int index_last = 0;

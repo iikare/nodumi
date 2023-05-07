@@ -143,6 +143,9 @@ void outputInstance::process() {
 
       //logQ(elapsedTime);
     }
+    else {
+      std::this_thread::yield();
+    }
 
     //logQ("hi from concurrent thread");
 
@@ -208,8 +211,8 @@ void outputInstance::allow() {
 }
 void outputInstance::disallow() {
   if (send) {
-    crit.lock();
     send = false;
+    crit.lock();
     vector<unsigned char> s = {120, 0};
     output->sendMessage(&s);
     crit.unlock();
