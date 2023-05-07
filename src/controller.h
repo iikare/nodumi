@@ -172,7 +172,7 @@ class controller {
     static constexpr int sheetSymbolWidth = sheetSideMargin + 42;
 
     static constexpr int prefWidth   =   500;
-    static constexpr int prefHeight  =   300;
+    static constexpr int prefHeight  =   268;
 
     static constexpr int infoWidth   =   500;
     static constexpr int infoHeight  =   268;

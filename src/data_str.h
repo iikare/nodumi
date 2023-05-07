@@ -73,5 +73,6 @@
                         {"PREF_LABEL",                          "Preferences"}, \
                         {"PREF_TRACK_DIVIDE",                   "Adaptive Track Division"}, \
                         {"PREF_HAND_RANGE",                     "Custom Hand Range"}, \
+                        {"PREF_IMAGE_DARKEN",                   "Darken Background Image"}, \
                         {"",                                    ""}, \
                       }

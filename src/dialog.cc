@@ -9,7 +9,6 @@
 #include "aghdef.h"
 
 using std::string;
-using std::to_string;
 
 void dialogController::init() {
   dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
@@ -21,7 +20,15 @@ void dialogController::init() {
                                   optionType::OPTION_SET_HAND_RANGE,
                                   optionType::OPTION_HAND_RANGE,
                                   ctr.text.getStringSet("PREF_HAND_RANGE"),
-                                  {"8","9","10","11"}
+                                  {"8","9","10","11"},
+                                  {12,14,16,17}
+                                  ));
+  dia_opts.push_back(dialogOption(DIA_OPT::SLIDER, 
+                                  optionType::OPTION_SET_DARKEN_IMAGE, 
+                                  optionType::OPTION_DARKEN_IMAGE, 
+                                  ctr.text.getStringSet("PREF_IMAGE_DARKEN"),
+                                  {"0","255"},
+                                  {0,255}
                                   ));
 }
 
@@ -48,6 +55,12 @@ int dialogController::getItemY(int pos, bool box) const {
 void dialogController::process() {
   for (auto& d_opt : dia_opts) {
     d_opt.process();
+  }
+}
+
+void dialogController::end_process() {
+  for (auto& d_opt : dia_opts) {
+    d_opt.end_process();
   }
 }
 

@@ -16,6 +16,7 @@ class dialogController {
     void render();
 
     void process();
+    void end_process();
 
     bool hover();
     

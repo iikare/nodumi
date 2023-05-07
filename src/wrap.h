@@ -10,7 +10,7 @@
 using std::string;
 
 void clearBackground(const colorRGB& col);
-void drawRectangle(float x, float y, float w, float h, const colorRGB& col);
+void drawRectangle(float x, float y, float w, float h, const colorRGB& col, unsigned char alpha = 255);
 void drawRectangleLines(float x, float y, float w, float h, float width, const colorRGB& col);
 void drawLine(float xi, float yi, float xf, float yf, const colorRGB& col);
 void drawLineEx(float xi, float yi, float xf, float yf, float thick, const colorRGB& col);

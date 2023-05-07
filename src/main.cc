@@ -248,7 +248,7 @@ int main (int argc, char* argv[]) {
       clearBackground(ctr.bgColor);
    
       if (showImage) {
-        ctr.image.draw();
+        ctr.image.render();
         if (!hoverType.contains(HOVER_DIALOG)) {
           if (getMousePosition().x > ctr.image.getX() && 
               getMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
@@ -1675,6 +1675,10 @@ int main (int argc, char* argv[]) {
         nowMove = false;
 
         ctr.image.finalizePosition();
+
+        if (ctr.dialog.preferenceDisplay) {
+          ctr.dialog.end_process();
+        }
     }
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {    
       ctr.image.updatePosition();

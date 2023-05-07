@@ -33,3 +33,10 @@ T colorLERP(const T& a, const T& b, double ratio, int type) {
 //Color colorLERP(const Color& a, Color& b, double ratio, int type = INT_LINEAR);
 //colorRGB colorLERP(colorRGB& a, colorRGB& b, double ratio, int type = INT_LINEAR);
 float floatLERP(float a, float b, double ratio, int type = INT_LINEAR);
+
+template<class T>
+T valueLERP(T a, T b, double ratio, int type = INT_LINEAR) {
+  ratio = scaleInterpolationRatio(ratio, type);
+
+  return a*ratio + b*(1.0-ratio);
+}

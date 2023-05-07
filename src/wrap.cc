@@ -16,8 +16,8 @@ void clearBackground(const colorRGB& col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   ClearBackground(color);
 }
-void drawRectangle(float x, float y, float w, float h, const colorRGB& col) {
-  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
+void drawRectangle(float x, float y, float w, float h, const colorRGB& col, unsigned char alpha) {
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, alpha};
   DrawRectangleV({x, y}, {w, h}, color);
 }
 void drawRectangleLines(float x, float y, float w, float h, float width, const colorRGB& col) {

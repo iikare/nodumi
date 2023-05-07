@@ -25,7 +25,7 @@ class imageController {
     void load(const string& path);
     void unloadData();
 
-    void draw();
+    void render();
     void changeScale(double scaleOffset);
 
     vector<kMeansPoint> getRawData();

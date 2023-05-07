@@ -8,6 +8,8 @@ optionController::optionController() {
   opts[static_cast<int>(optionType::OPTION_TRACK_DIVISION)] = true;
   opts[static_cast<int>(optionType::OPTION_SET_HAND_RANGE)] = false;
   opts[static_cast<int>(optionType::OPTION_HAND_RANGE)] = MAX_HAND_RANGE;
+  opts[static_cast<int>(optionType::OPTION_SET_DARKEN_IMAGE)] = false;
+  opts[static_cast<int>(optionType::OPTION_DARKEN_IMAGE)] = 0;
 }
 
 void optionController::invert(optionType opt) {
@@ -18,6 +20,8 @@ void optionController::invert(optionType opt) {
       }
       break;
     case optionType::OPTION_SET_HAND_RANGE:
+      [[fallthrough]];
+    case optionType::OPTION_SET_DARKEN_IMAGE:
       break;
     default:
       logW(LL_WARN, "cannot invert option of type", static_cast<int>(opt));
@@ -30,6 +34,8 @@ void optionController::invert(optionType opt) {
 void optionController::set(optionType opt, int value) {
   switch (opt) {
     case optionType::OPTION_HAND_RANGE:
+      [[fallthrough]];
+    case optionType::OPTION_DARKEN_IMAGE:
       break;
     default:
       logW(LL_WARN, "cannot modify option of type", static_cast<int>(opt));
