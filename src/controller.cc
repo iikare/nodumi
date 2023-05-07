@@ -260,12 +260,12 @@ void controller::processAction(actionType& action) {
   action = actionType::ACTION_NONE;
 }
 
-void controller::update(int offset, double& nowLineX, bool runState) {
+void controller::update(int offset, double& nowLineX) {
  
   if (!programState) { return; }
 
   frameCounter++;
-  if (!livePlayState && runState && output.isPortOpen()) {
+  if (!livePlayState && run && output.isPortOpen()) {
       fileOutput.allow();
   }
   else {
@@ -283,7 +283,7 @@ void controller::update(int offset, double& nowLineX, bool runState) {
   updateFPS();
   curMeasure = findCurrentMeasure(offset);
 
-  if(runState) {
+  if(run) {
     runTime += GetFrameTime(); 
     pauseTime = 0; 
   }
@@ -296,7 +296,7 @@ void controller::update(int offset, double& nowLineX, bool runState) {
     lastWidth = getWidth();
   }
 
-  if (runState || livePlayState) {
+  if (run || livePlayState) {
     // persistent randomness for animation
     psrValue = rand();
   }

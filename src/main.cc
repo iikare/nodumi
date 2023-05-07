@@ -1806,7 +1806,7 @@ int main (int argc, char* argv[]) {
       hoverType.add(HOVER_MENU);
     }
 
-    ctr.update(timeOffset, nowLineX, ctr.run);
+    ctr.update(timeOffset, nowLineX);
   }
 
   ctr.unloadData();

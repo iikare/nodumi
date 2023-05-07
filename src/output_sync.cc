@@ -53,9 +53,9 @@ void outputInstance::updateOffset(double off) {
   //logQ("lowest index:", index, "w/offset:", it->first, "v", offset);
 
   if (index != index_last) {
-    logQ("index_last v. index:", index_last, "v", index); 
+    //logQ("index_last v. index:", index_last, "v", index); 
     if (index < index_last) {
-      logW(LL_WARN, "invalid direction");
+      //logW(LL_WARN, "invalid direction");
     }
     //index_last = index;
   }
