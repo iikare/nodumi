@@ -4,11 +4,14 @@
 #include <string>
 #include "log.h"
 #include "aghdef.h"
+#include "dia_opt.h"
 
 using std::string;
 
 class dialogController {
   public:
+
+    void init();
 
     void render();
 
@@ -21,12 +24,10 @@ class dialogController {
 
   private:
 
+    vector<dialogOption> dia_opts;
+
     void renderPreference();
     void renderInfo();
-
-    void renderHandRangeSelector();
-    int getHRSX(int pos) const;
-    int getHRSValue(int index) const;
 
     int getItemX(int pos, bool box = false) const;
     int getItemY(int pos, bool box = false) const;
@@ -45,9 +46,4 @@ class dialogController {
     static constexpr int itemRectSize = 24;
     static constexpr int itemRectInnerSize = 12;
     static constexpr int itemFontSize = 18;
-
-    static constexpr int hrs_boxW = 30;
-    static constexpr int hrs_boxH = 30;
-    static constexpr int hrs_boxSpacing = 5;
-    static constexpr int hrs_max_item = 4;
 };

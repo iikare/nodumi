@@ -280,6 +280,13 @@ enum class optionType {
   OPTION_NONE
 };
 
+enum class DIA_OPT {
+  CHECK_ONLY,
+  SLIDER,
+  SUBBOX,
+  NONE
+};
+
 enum class langType {
   LANG_EN,
   LANG_NONE,

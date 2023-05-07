@@ -70,5 +70,8 @@
                         {"INFO_BOX_BUILD_DATE",                 "Build Date:"}, \
                         {"INFO_BOX_VER",                        "Ver."}, \
                         {"INFO_BOX_LICENSE_GPL3",               "Licensed under GPLv3"}, \
+                        {"PREF_LABEL",                          "Preferences"}, \
+                        {"PREF_TRACK_DIVIDE",                   "Adaptive Track Division"}, \
+                        {"PREF_HAND_RANGE",                     "Custom Hand Range"}, \
                         {"",                                    ""}, \
                       }

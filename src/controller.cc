@@ -40,6 +40,8 @@ void controller::init(vector<asset>& assetSet) {
 
   text.init();
 
+  dialog.init();
+
   fileOutput.init(&output);
 
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
