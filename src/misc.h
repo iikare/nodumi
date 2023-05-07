@@ -32,7 +32,7 @@ bool pointInBox(const T& pt, const rect& box) {
 rect pointToRect(point a, point b);
 point getMousePosition();
 
-string colorToHex(colorRGB col);
+string colorToHex(const colorRGB& col);
 
 string getNoteInfo(int noteTrack, int notePos);
 

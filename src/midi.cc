@@ -58,8 +58,8 @@ void midi::buildMessageMap(const MidiFile& mf) {
     }
     //if (mf[0][i].seconds < 0.0001) { num_zero++; }
     //if (mf[0][i].seconds > 0.01){// || mf[0][i].isNote()) { 
-    //if (mf[0][i].isNote()) {
-    if (1) {
+    if (mf[0][i].isNote() || mf[0][i].isController()) {
+    //if (1) {
       message_vec.push_back(make_pair(mf[0][i].seconds * 500, static_cast<vector<unsigned char>>(mf[0][i])));
     }
   } 

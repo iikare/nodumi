@@ -134,7 +134,7 @@ string toMinutes(double seconds) {
   return result;
 }
 
-string colorToHex(colorRGB col) {
+string colorToHex(const colorRGB& col) {
   stringstream result;
   result << "#"; 
   result << std::hex << std::setw(6) << std::setfill('0') << ((int)col.r << 16 | (int)col.g << 8 |(int) col.b << 0);
