@@ -9,7 +9,7 @@ using std::min;
 using std::max;
 
 void imageController::load(const string& path) {
-  //logW(LL_INFO, "load image:", path);
+  logW(LL_INFO, "load image:", path);
 
   unloadData();
 

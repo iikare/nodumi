@@ -592,7 +592,8 @@ string controller::getKeySigLabel(int offset) const {
 
   if (livePlayState) {
     // TODO: detect key signature from already-played notes
-    return "NULL";
+    //return "NULL";
+    return "";
   }
 
   if (file.measureMap.size() == 0) {
