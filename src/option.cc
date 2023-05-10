@@ -14,6 +14,8 @@ optionController::optionController() {
 }
 
 void optionController::invert(optionType opt) {
+  if (invalid(opt)) { return; }
+
   switch (opt) {
     case optionType::OPTION_TRACK_DIVISION:
       if (!get(opt)) {
@@ -35,7 +37,25 @@ void optionController::invert(optionType opt) {
   opts[static_cast<int>(opt)] = !opts[static_cast<int>(opt)];
 }
 
+bool optionController::invalid(optionType opt) {
+  switch(opt) {
+    case optionType::OPTION_SET_HAND_RANGE:
+      [[fallthrough]];
+    case optionType::OPTION_HAND_RANGE:
+      return !get(optionType::OPTION_TRACK_DIVISION);
+    case optionType::OPTION_SET_DARKEN_IMAGE:
+      [[fallthrough]];
+    case optionType::OPTION_DARKEN_IMAGE:
+      return !ctr.image.exists();
+    default:
+      return false;
+  }
+}
+
 void optionController::set(optionType opt, int value) {
+
+  if (invalid(opt)) { return; }
+  
   switch (opt) {
     case optionType::OPTION_HAND_RANGE:
       [[fallthrough]];

@@ -48,6 +48,7 @@ dialogOption::dialogOption(DIA_OPT t, optionType opt_t, optionType sub_opt_t, co
 }
 
 void dialogOption::process() {
+  if (ctr.option.invalid(link_opt)) { return; }
   if (pointInBox(getMousePosition(), {x, y, itemRectSize,itemRectSize})) {
     ctr.option.invert(link_opt);
   }
@@ -94,7 +95,9 @@ int dialogOption::render(int in_x, int in_y) {
 
   bool opt_status = ctr.option.get(link_opt);
 
-  auto col = opt_status ? ctr.bgOpt : ctr.bgDark;
+  bool inv_status = ctr.option.invalid(link_opt);
+
+  auto col = inv_status ? ctr.bgMenuShade : (opt_status ? ctr.bgOpt : ctr.bgDark);
 
   drawRectangleLines(in_x, in_y, itemRectSize,itemRectSize, 3, col);
   
@@ -102,16 +105,18 @@ int dialogOption::render(int in_x, int in_y) {
     drawRectangle(in_x+(itemRectSize-itemRectInnerSize)/2.0f, 
                   in_y+(itemRectSize-itemRectInnerSize)/2.0f, 
                   itemRectInnerSize,itemRectInnerSize, col);
-  
-    switch (type) {
-      case DIA_OPT::SUBBOX:
-        renderBox();
-        break;
-      case DIA_OPT::SLIDER:
-        renderSlider();
-        break;
-      default:
-        break;
+ 
+    if (!inv_status) {
+      switch (type) {
+        case DIA_OPT::SUBBOX:
+          renderBox();
+          break;
+        case DIA_OPT::SLIDER:
+          renderSlider();
+          break;
+        default:
+          break;
+      }
     }
   }
 
@@ -125,9 +130,9 @@ int dialogOption::render(int in_x, int in_y) {
     case DIA_OPT::CHECK_ONLY:
       return itemRectSize + 4;
     case DIA_OPT::SLIDER:
-      return itemRectSize + 4 + (opt_status ? boxW + 4 : 0);
+      return itemRectSize + 4 + (!inv_status && opt_status ? boxW + 4 : 0);
     case DIA_OPT::SUBBOX:
-      return itemRectSize + 4 + (opt_status ? boxW + 4 : 0);
+      return itemRectSize + 4 + (!inv_status && opt_status ? boxW + 4 : 0);
     default:
       break;
   }
