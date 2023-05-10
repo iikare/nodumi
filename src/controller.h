@@ -109,6 +109,7 @@ class controller {
     int getCurrentMeasure() const;
     int getMeasureCount() const;
     string getKeySigLabel(int offset) const;
+    string getNoteLabel(int index);
 
     int getWidth() const { return GetScreenWidth(); }
     int getHeight() const { return GetScreenHeight(); }

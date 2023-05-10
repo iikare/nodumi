@@ -34,7 +34,7 @@ point getMousePosition();
 
 string colorToHex(const colorRGB& col);
 
-string getNoteInfo(int noteTrack, int notePos);
+string getNoteInfo(int noteTrack, int notePos, bool isFlat);
 
 string getSongPercent (double pos, double total);
 string getSongTime(double pos,  double total);

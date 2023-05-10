@@ -13,6 +13,7 @@
 #include "misc.h"
 #include "menu.h"
 #include "data.h"
+#include "draw.h"
 #include "wrap.h"
 #include "lerp.h"
 #include "image.h"
@@ -928,26 +929,8 @@ int main (int argc, char* argv[]) {
         //logQ("got label:", ctr.getKeySigLabel(timeOffset));
         string ksl = ctr.getKeySigLabel(timeOffset);
         int cKSOffset = songTimePosition.x+songTimeSizeV.x;
-        if (ksl.length() > 0 && (ksl[1] == 'b' || ksl[1] == '#')) {
-          drawTextEx(ksl.substr(0,1), cKSOffset, songTimePosition.y, ctr.bgLight);
-          cKSOffset += measureTextEx(ksl.substr(0,0)).x + 6;
 
-          int ksSym = SYM_ACC_SHARP;
-          int ksWidth = 5;
-          int ksYOffset = 31;
-          if (ksl[1] == 'b') {
-            ksSym = SYM_ACC_FLAT;
-            ksWidth = 4;
-            ksYOffset = 29;
-          }
-          drawSymbol(ksSym, 74, cKSOffset, songTimePosition.y-ksYOffset, ctr.bgLight);
-          cKSOffset += ksWidth;
-          
-          drawTextEx(ksl.substr(2,ksl.length()-1), cKSOffset, songTimePosition.y, ctr.bgLight);
-        }
-        else {
-          drawTextEx(ksl, cKSOffset, songTimePosition.y, ctr.bgLight);
-        }
+        drawNoteLabel(ksl, cKSOffset, songTimePosition.y, 14, 74, ctr.bgLight);
       }
 
       if (showFPS) {
@@ -1729,8 +1712,7 @@ int main (int argc, char* argv[]) {
             rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_PART_COLOR");
             rightMenuContents[2] = ctr.text.getString("RIGHT_MENU_SET_TONIC");
             rightMenu.update(rightMenuContents);
-            rightMenu.setContent(getNoteInfo(ctr.getNotes()[clickNote].track, 
-                                             ctr.getNotes()[clickNote].y - MIN_NOTE_IDX), 0);
+            rightMenu.setContent(ctr.getNoteLabel(clickNote), 0);
             
             // set note color for color wheel
             if (clickOn) {

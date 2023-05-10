@@ -588,6 +588,16 @@ int controller::getMeasureCount() const {
   }
 }
     
+string controller::getNoteLabel(int index) {
+
+  string key_label = ctr.getKeySigLabel(getNotes()[index].x);
+
+  // terrible but it works
+  bool is_flat = key_label[0] == 'b';
+
+  return getNoteInfo(getNotes()[index].track, getNotes()[index].y - MIN_NOTE_IDX, is_flat);
+}
+
 string controller::getKeySigLabel(int offset) const {
 
   if (livePlayState) {

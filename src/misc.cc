@@ -4,6 +4,7 @@
 #include <cmath>
 #include "misc.h"
 #include "data.h"
+#include "wrap.h"
 #include "define.h"
 #include "log.h"
 
@@ -18,7 +19,7 @@ double getDistance(int x1, int y1, int x2, int y2) {
   return sqrt(pow(deltaX, 2) + pow(deltaY, 2));
 }
 
-string getNoteInfo(int noteTrack, int notePos) {
+string getNoteInfo(int noteTrack, int notePos, bool isFlat) {
   string result = "";
   int key = notePos % 12;
   int octave = (notePos + 9) / 12;
@@ -27,7 +28,7 @@ string getNoteInfo(int noteTrack, int notePos) {
       result += "A";
       break;
     case 1:
-      result += "A#/Bb";
+      result += isFlat ? "Bb" : "A#";
       break;
     case 2:
       result += "B";
@@ -36,13 +37,13 @@ string getNoteInfo(int noteTrack, int notePos) {
       result += "C";
       break;
     case 4:
-      result += "C#/Db";
+      result += isFlat ? "Db" : "C#";
       break;
     case 5:
       result += "D";
       break;
     case 6:
-      result += "D#/Eb";
+      result += isFlat ? "Eb" : "D#";
       break;
     case 7:
       result += "E";
@@ -51,13 +52,13 @@ string getNoteInfo(int noteTrack, int notePos) {
       result += "F";
       break;
     case 9:
-      result += "F#/Gb";
+      result += isFlat ? "Gb" : "F#";
       break;
     case 10:
       result += "G";
       break;
     case 11:
-      result += "G#/Ab";
+      result += isFlat ? "Ab" :"G#";
       break;
     default:
       return "";
