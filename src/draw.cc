@@ -17,12 +17,12 @@ void drawNoteLabel(string label, int x, int y, int size, int sym_size, const col
       ksWidth = 4;
       ksYOffset = 29;
     }
-    drawSymbol(ksSym, sym_size, x, y-ksYOffset, ctr.bgLight);
+    drawSymbol(ksSym, sym_size, x, y-ksYOffset, col);
     x += ksWidth;
     
-    drawTextEx(label.substr(2,label.length()-1), x, y, ctr.bgLight, 255, size);
+    drawTextEx(label.substr(2,label.length()-1), x, y, col, 255, size);
   }
   else {
-    drawTextEx(label, x, y, ctr.bgLight, 255, size);
+    drawTextEx(label, x, y, col, 255, size);
   }
 }

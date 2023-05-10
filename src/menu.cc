@@ -7,6 +7,7 @@
 #include "menu.h"
 #include "menuctr.h"
 #include "data.h"
+#include "draw.h"
 #include "wrap.h"
 #include "box.h"
 
@@ -524,7 +525,12 @@ void menu::draw() {
       }
 
       for (int i = 0; i < itemCount; i++) {
-        drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 5, ctr.bgDark);
+        if (type == TYPE_RIGHT && i == 0) {
+          drawNoteLabel(getContent(i), getItemX(i) + 4, getItemY(i) + 5, 14, 74, ctr.bgDark);
+        }
+        else {
+          drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 5, ctr.bgDark);
+        }
       }
     }
   }
