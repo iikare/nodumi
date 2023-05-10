@@ -10,6 +10,7 @@ optionController::optionController() {
   opts[static_cast<int>(optionType::OPTION_HAND_RANGE)] = MAX_HAND_RANGE;
   opts[static_cast<int>(optionType::OPTION_SET_DARKEN_IMAGE)] = false;
   opts[static_cast<int>(optionType::OPTION_DARKEN_IMAGE)] = 0;
+  opts[static_cast<int>(optionType::OPTION_DYNAMIC_LABEL)] = 1;
 }
 
 void optionController::invert(optionType opt) {
@@ -19,8 +20,11 @@ void optionController::invert(optionType opt) {
         getColorScheme(2, ctr.setTrackOn, ctr.setTrackOff);
       }
       break;
+    case optionType::OPTION_DYNAMIC_LABEL:
+      ctr.optimizeBGColor(true);
+      break;
     case optionType::OPTION_SET_HAND_RANGE:
-      [[fallthrough]];
+      break;
     case optionType::OPTION_SET_DARKEN_IMAGE:
       break;
     default:

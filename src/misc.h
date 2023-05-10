@@ -49,3 +49,5 @@ string getExtension(const string& path, bool len4 = false);
 string getDirectory(const string& path);
 
 string toHex(int dec);
+
+colorRGB maximizeDeltaE(const colorRGB& ref);

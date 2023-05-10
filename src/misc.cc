@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <cmath>
+#include "../dpd/CIEDE2000/CIEDE2000.h"
 #include "misc.h"
 #include "data.h"
 #include "wrap.h"
@@ -230,4 +231,24 @@ string toHex(int dec) {
   stringstream stream;
   stream << hex << dec;
   return stream.str();
+}
+
+colorRGB maximizeDeltaE(const colorRGB& ref) {
+  // resticted to grayscale only
+  // v \in [0,255]
+  colorLAB r1(ref);
+  unsigned int maxDE = 0;
+  unsigned char optV = 0;
+  for (unsigned int v = 0; v <= 255; ++v) {
+    colorLAB r2(colorRGB(v,v,v));
+    double deltaE = CIEDE2000::CIEDE2000({r1.l, r1.a, r1.b},{r2.l, r2.a, r2.b});
+    if (deltaE > maxDE) {
+      maxDE = deltaE;
+      optV = v;
+      //logQ(v,":", deltaE);
+    }
+  }
+  //logQ(optV,":", maxDE);
+  return colorRGB(optV, optV, optV);
+  //return ctr.bgLight;
 }

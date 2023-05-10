@@ -24,7 +24,8 @@ dialogOption::dialogOption(DIA_OPT t, optionType opt_t, const vector<string>& la
 dialogOption::dialogOption(DIA_OPT t, optionType opt_t, optionType sub_opt_t, const vector<string>& label, 
              const vector<string>& val, const vector<int>& res) {
   if (t != DIA_OPT::SUBBOX && t != DIA_OPT::SLIDER) {
-    logW(LL_CRIT, "invalid constructor for dialog option of type", t, "- expecting type", DIA_OPT::SUBBOX);
+    logW(LL_CRIT, "invalid constructor for dialog option of type", t, 
+         "- expecting types", DIA_OPT::SUBBOX, "or", DIA_OPT::SLIDER);
     return;
   }
 

@@ -74,5 +74,6 @@
                         {"PREF_TRACK_DIVIDE",                   "Adaptive Track Division"}, \
                         {"PREF_HAND_RANGE",                     "Custom Hand Range"}, \
                         {"PREF_IMAGE_DARKEN",                   "Darken Background Image"}, \
+                        {"PREF_DYNAMIC_LABEL",                  "Dynamic Label Color"}, \
                         {"",                                    ""}, \
                       }

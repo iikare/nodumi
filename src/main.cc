@@ -281,6 +281,7 @@ int main (int argc, char* argv[]) {
           break;
       }
 
+
       int lastMeasureNum = 0;
 
       double measureSpacing = measureTextEx(to_string(ctr.getStream().measureMap.size() - 1)).x; 
@@ -346,7 +347,7 @@ int main (int argc, char* argv[]) {
               }
 
               int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
-              drawTextEx(to_string(i + 1), measureLineX + 4, measureTextY, ctr.bgLight, measureLineTextAlpha);
+              drawTextEx(to_string(i + 1), measureLineX + 4, measureTextY, ctr.bgColor2, measureLineTextAlpha);
               lastMeasureNum = i;
             }
           }
@@ -918,7 +919,7 @@ int main (int argc, char* argv[]) {
           break;
       }
       
-      drawTextEx(songTimeContent, songTimePosition, ctr.bgLight);
+      drawTextEx(songTimeContent, songTimePosition, ctr.bgColor2);
       songTimeSizeV = measureTextEx(songTimeContent);
 
       // draw key signature label
@@ -930,7 +931,7 @@ int main (int argc, char* argv[]) {
         string ksl = ctr.getKeySigLabel(timeOffset);
         int cKSOffset = songTimePosition.x+songTimeSizeV.x;
 
-        drawNoteLabel(ksl, cKSOffset, songTimePosition.y, 14, 74, ctr.bgLight);
+        drawNoteLabel(ksl, cKSOffset, songTimePosition.y, 14, 74, ctr.bgColor2);
       }
 
       if (showFPS) {
@@ -979,6 +980,7 @@ int main (int argc, char* argv[]) {
           break;
         case SELECT_BG:
           ctr.bgColor = colorSelect.getColor();
+          ctr.optimizeBGColor();
           break;
         case SELECT_LINE:
           ctr.bgNow = colorSelect.getColor();

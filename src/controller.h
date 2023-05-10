@@ -68,6 +68,8 @@ class controller {
     void updateFiles(char** paths, int numFile = 1);
     void processAction(actionType& action);
 
+    void optimizeBGColor(bool invert = false);
+
 
     vector<string> generateMenuLabels(const menuContentType& contentType);
 
@@ -150,6 +152,7 @@ class controller {
     colorRGB bgLight        = colorRGB(255, 255, 255);
     colorRGB bgNow          = colorRGB(255, 0  , 0  );
     colorRGB bgColor        = bgDark;
+    colorRGB bgColor2       = bgLight;
     colorRGB bgMenu         = colorRGB(222, 222, 222);
     colorRGB bgMenuShade    = colorRGB(155, 155, 155);
     colorRGB bgMenuLine     = colorRGB(22 , 22 , 22 );

@@ -22,8 +22,9 @@ controller::controller() : midiData() {
   livePlayState = false;
   livePlayOffset = 0;
   notes = &file.notes;
-    
   
+  optimizeBGColor();
+
   getColorScheme(128, setVelocityOn, setVelocityOff);
   getColorScheme(12, setTonicOn, setTonicOff);
   getColorScheme(1, setTrackOn, setTrackOff);
@@ -421,6 +422,11 @@ void controller::prepareCriticalSection(bool enter) {
       fileOutput.allow();
     }
   }
+}
+
+void controller::optimizeBGColor(bool invert) {
+  // invert exists only for when a option switch is pending, but not yet done
+  bgColor2 = (invert^static_cast<bool>(option.get(optionType::OPTION_DYNAMIC_LABEL))) ? maximizeDeltaE(bgColor) : bgLight;
 }
 
 vector<string> controller::generateMenuLabels(const menuContentType& contentType) {
@@ -946,6 +952,9 @@ void controller::load(string path, fileType& fType,
 			image.numColors = i_num_col;
 
     }
+
+    // find complement to background color
+    optimizeBGColor();
 
     // last, set MKI loaded flag
     fType = FILE_MKI;
