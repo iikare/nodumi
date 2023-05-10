@@ -47,6 +47,9 @@ void controller::init(vector<asset>& assetSet) {
 
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
   setShaderValue("SH_SQUARE", "blend_color", startCol);
+  
+
+  setShaderValue("SH_VORONOI", "bg_color", bgColor2);
     
   setShaderValue("SH_FXAA", "u_resolution", (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
 
@@ -953,7 +956,8 @@ void controller::load(string path, fileType& fType,
 
     }
 
-    // find complement to background color
+    // update background-dependent values
+    setShaderValue("SH_VORONOI", "bg_color", bgColor);
     optimizeBGColor();
 
     // last, set MKI loaded flag

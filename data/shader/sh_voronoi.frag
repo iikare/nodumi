@@ -5,6 +5,7 @@ in vec2 fragTexCoord;
 uniform int vertex_count;
 uniform vec2 vertex_data[496];
 uniform vec3 vertex_color[496];
+uniform vec3 bg_color;
 uniform float render_bound;
 
 out vec4 finalColor;
@@ -50,11 +51,13 @@ void main() {
 
     // cell separator
     if (min_dist_next / min_dist > sepRatio) {
-      color = vec3(1.0f);
+      //color = vec3(1.0f);
+      color = bg_color;
     }
     else if (min_dist_next / min_dist > sepFilterRatio) {
       // min_dist_next/min_dist in range 1<[sepFilterRatio, sepRatio]
-      color = mix(color, vec3(1.0f), sepScale*((min_dist_next/min_dist)-sepFilterRatio));
+      //color = mix(color, vec3(1.0f), sepScale*((min_dist_next/min_dist)-sepFilterRatio));
+      color = mix(color, bg_color, sepScale*((min_dist_next/min_dist)-sepFilterRatio));
       //darkScale += sepScale*((min_dist_next/min_dist)-sepFilterRatio)/2;
     }
     else if (min_dist_next / min_dist < 1.0001){// && min_dist_next / min_dist > 1.00005){

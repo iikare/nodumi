@@ -980,7 +980,8 @@ int main (int argc, char* argv[]) {
           break;
         case SELECT_BG:
           ctr.bgColor = colorSelect.getColor();
-          ctr.optimizeBGColor();
+          ctr.optimizeBGColor(); 
+          ctr.setShaderValue("SH_VORONOI", "bg_color", ctr.bgColor);
           break;
         case SELECT_LINE:
           ctr.bgNow = colorSelect.getColor();
