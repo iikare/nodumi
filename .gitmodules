@@ -7,9 +7,6 @@
 [submodule "dpd/rtmidi"]
 	path = dpd/rtmidi
 	url = https://github.com/thestk/rtmidi
-[submodule "dpd/CIEDE2000"]
-	path = dpd/CIEDE2000
-	url = https://github.com/iikare/CIEDE2000.git
 [submodule "dpd/raylib"]
 	path = dpd/raylib
   url = https://github.com/iikare/raylib.git
