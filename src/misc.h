@@ -2,6 +2,7 @@
 
 #include "build_target.h"
 
+#include <type_traits>
 #include <string>
 #include <vector>
 #include "color.h"
@@ -11,6 +12,7 @@
 using std::vector;
 using std::string;
 using std::is_same;
+using std::is_enum;
 
 double getDistance(int x1, int y1, int x2, int y2);
 
@@ -51,3 +53,15 @@ string getDirectory(const string& path);
 string toHex(int dec);
 
 colorRGB maximizeDeltaE(const colorRGB& ref);
+
+template <class T>
+vector<int> convertEnum(const vector<T>& ev) {
+  static_assert(is_enum<T>::value, "cannot convert non-enum type to int vector");
+
+  vector<int> result;
+  result.resize(ev.size());
+  for (unsigned int i = 0; i < ev.size(); ++i) {
+    result[i] = static_cast<int>(ev[i]);
+  }
+  return result;
+}

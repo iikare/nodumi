@@ -6,6 +6,7 @@
 #include "data.h"
 #include "enum.h"
 #include "wrap.h"
+#include "misc.h"
 #include "aghdef.h"
 
 using std::string;
@@ -38,7 +39,7 @@ void dialogController::init() {
                                   optionType::OPTION_CIE_FUNCTION,
                                   ctr.text.getStringSet("PREF_CIE_FUNCTION"),
                                   {"00", "94", "76"},
-                                  {static_cast<int>(CIE::C_00), static_cast<int>(CIE::C_94), static_cast<int>(CIE::C_76)}
+                                  convertEnum(vector<decltype(CIE::C_00)>{CIE::C_00, CIE::C_94, CIE::C_76})
                                   ));
 }
 
