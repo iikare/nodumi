@@ -3,6 +3,7 @@
 #include "build_target.h"
 
 #include <string>
+#include "cie2k.h"
 #include "define.h"
 #include "color.h"
 #include "data.h"
@@ -32,3 +33,17 @@ void drawTextureEx(const Texture2D& tex, const Vector2& pos, float rot = 0.0f, f
 
 const Vector2 measureTextEx(const string& msg, int size = 14, const string& font = DEFAULT_FONT);
 
+template<class T>
+auto deltaE(T a, T b) {
+  auto t = static_cast<cie2k::TYPE>(ctr.option.get(optionType::OPTION_CIE_FUNCTION));
+  switch (t) {
+    case cie2k::TYPE::CIE_00:
+      return cie2k::deltaE<T, cie2k::TYPE::CIE_00>(a, b);
+    case cie2k::TYPE::CIE_94:
+      return cie2k::deltaE<T, cie2k::TYPE::CIE_94>(a, b);
+    case cie2k::TYPE::CIE_76:
+      return cie2k::deltaE<T, cie2k::TYPE::CIE_76>(a, b);
+    default:
+      return 0.0;
+  }
+}

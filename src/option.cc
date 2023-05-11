@@ -1,4 +1,5 @@
 #include "option.h"
+#include "cie2k.h"
 #include "data.h"
 #include "enum.h"
 #include "define.h"
@@ -9,7 +10,7 @@ optionController::optionController() {
   opts[static_cast<int>(optionType::OPTION_SET_HAND_RANGE)] = false;
   opts[static_cast<int>(optionType::OPTION_HAND_RANGE)] = MAX_HAND_RANGE;
   opts[static_cast<int>(optionType::OPTION_SET_DARKEN_IMAGE)] = false;
-  opts[static_cast<int>(optionType::OPTION_CIE_FUNCTION)] = static_cast<int>(CIE::C_00);
+  opts[static_cast<int>(optionType::OPTION_CIE_FUNCTION)] = static_cast<int>(cie2k::TYPE::CIE_00);
   opts[static_cast<int>(optionType::OPTION_SET_CIE_FUNCTION)] = false;
   opts[static_cast<int>(optionType::OPTION_DARKEN_IMAGE)] = 0;
   opts[static_cast<int>(optionType::OPTION_DYNAMIC_LABEL)] = 1;

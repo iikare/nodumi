@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <string>
 #include <vector>
+#include "cie2k.h"
 #include "color.h"
 #include "note.h"
 #include "box.h"

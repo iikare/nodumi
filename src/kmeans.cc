@@ -1,9 +1,13 @@
 #include "kmeans.h"
 #include "cie2k.h"
 #include "define.h"
+#include "wrap.h"
 #include "log.h"
 
 double kMeansPoint::distance(const kMeansPoint& point) {
+
+
+
 
   // data       -> A
   // point.data -> B
@@ -11,7 +15,7 @@ double kMeansPoint::distance(const kMeansPoint& point) {
 
   #ifdef COLDIST_CIE00
   
-  return cie2k::deltaE(data, point.data);
+  return deltaE(data, point.data);
 
   #elif defined(COLDIST_CIE94)
   // CIE1994 implementation

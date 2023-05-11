@@ -3,6 +3,7 @@
 #include <string>
 
 #include "define.h"
+#include "cie2k.h"
 #include "data.h"
 #include "enum.h"
 #include "wrap.h"
@@ -34,12 +35,13 @@ void dialogController::init() {
                                   {"0","255"},
                                   {0,255}
                                   ));
+  auto cie_opt_vec = vector<decltype(cie2k::TYPE::CIE_00)>{cie2k::TYPE::CIE_00, cie2k::TYPE::CIE_94, cie2k::TYPE::CIE_76};
   dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
                                   optionType::OPTION_SET_CIE_FUNCTION,
                                   optionType::OPTION_CIE_FUNCTION,
                                   ctr.text.getStringSet("PREF_CIE_FUNCTION"),
                                   {"00", "94", "76"},
-                                  convertEnum(vector<decltype(CIE::C_00)>{CIE::C_00, CIE::C_94, CIE::C_76})
+                                  convertEnum(cie_opt_vec)
                                   ));
 }
 

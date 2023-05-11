@@ -292,13 +292,6 @@ enum class DIA_OPT {
   NONE
 };
 
-enum class CIE {
-  C_00,
-  C_94,
-  C_76,
-  C_NONE
-};
-
 enum class langType {
   LANG_EN,
   LANG_NONE,
