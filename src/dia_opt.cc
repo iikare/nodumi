@@ -1,9 +1,9 @@
+#include "build_target.h"
 #include "dia_opt.h"
 #include "define.h"
 #include "wrap.h"
 #include "lerp.h"
 #include "box.h"
-#include <raylib.h>
 
 dialogOption::dialogOption(DIA_OPT t, optionType opt_t, const vector<string>& label) {
   if (t != DIA_OPT::CHECK_ONLY) {

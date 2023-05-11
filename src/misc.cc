@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <iomanip>
 #include <cmath>
-#include "cie2k.h"
 #include "misc.h"
 #include "data.h"
 #include "wrap.h"
@@ -241,11 +240,11 @@ colorRGB maximizeDeltaE(const colorRGB& ref) {
   unsigned char optV = 0;
   for (unsigned int v = 0; v <= 255; ++v) {
     colorLAB r2(colorRGB(v,v,v));
-    double deltaE = cie2k::deltaE(r1, r2);
-    if (deltaE > maxDE) {
-      maxDE = deltaE;
+    double dE = deltaE(r1, r2);
+    if (dE > maxDE) {
+      maxDE = dE;
       optV = v;
-      //logQ(v,":", deltaE);
+      //logQ(v,":", dE);
     }
   }
   //logQ(optV,":", maxDE);

@@ -75,6 +75,6 @@
                         {"PREF_HAND_RANGE",                     "Custom Hand Range"}, \
                         {"PREF_IMAGE_DARKEN",                   "Darken Background Image"}, \
                         {"PREF_DYNAMIC_LABEL",                  "Dynamic Label Color"}, \
-                        {"PREF_CIE_FUNCTION",                   "Change CIE Distance Function"}, \
+                        {"PREF_CIE_FUNCTION",                   "Set CIE Distance Function"}, \
                         {"",                                    ""}, \
                       }
