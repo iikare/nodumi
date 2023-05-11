@@ -33,6 +33,13 @@ void dialogController::init() {
                                   {"0","255"},
                                   {0,255}
                                   ));
+  dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
+                                  optionType::OPTION_SET_CIE_FUNCTION,
+                                  optionType::OPTION_CIE_FUNCTION,
+                                  ctr.text.getStringSet("PREF_CIE_FUNCTION"),
+                                  {"00", "94", "76"},
+                                  {static_cast<int>(CIE::C_00), static_cast<int>(CIE::C_94), static_cast<int>(CIE::C_76)}
+                                  ));
 }
 
 void dialogController::render() {
@@ -44,15 +51,16 @@ void dialogController::render() {
   }
 }
 
-int dialogController::getItemX(int pos, bool box) const {
+int dialogController::getItemX(int pos) const {
   const int prefSideMargin = ctr.getWidth() - ctr.prefWidth;
-  return prefSideMargin/2.0f+prefItemXSpacing+(ctr.prefWidth/2.0f*pos) - 
-         (box ? prefItemXSpacing/2-itemRectSize/2 : -(itemRectSize+4));
+  return prefSideMargin/2.0+prefItemXSpacing+(ctr.prefWidth/2.0*pos) - 
+         prefItemXSpacing/2.0-itemRectSize/2.0 +
+         ((pos == 0) ? 20 : 2);
 }
 
-int dialogController::getItemY(int pos, bool box) const {
+int dialogController::getItemY(int pos) const {
   const int prefTopMargin = ctr.getHeight() - ctr.prefHeight;
-  return prefTopMargin/2.0f + prefItemYSpacing*pos + 6 + (box ? itemFontSize/2.0f-itemRectSize/2.0f : 2) + 40;
+  return prefTopMargin/2.0 + prefItemYSpacing*pos + 6 + itemFontSize/2.0-itemRectSize/2.0 + 40;
 }
 
 void dialogController::process() {
@@ -74,11 +82,20 @@ void dialogController::renderPreference() {
 
   drawTextEx(ctr.text.getString("PREF_LABEL"), prefSideMargin/2.0f + 12, prefTopMargin/2.0f + 12, ctr.bgDark, 255, 24);
   
-  int x_sum = getItemX(0, true);
-  int y_sum = getItemY(0, true);
+  int x_sum = getItemX(0);
+  int y_sum = getItemY(0);
 
   for (auto& i : dia_opts) {
-    y_sum += i.render(x_sum, y_sum);
+    if (y_sum + i.get_height() > (ctr.getHeight()+ctr.prefHeight)/2.0 + optBottomMargin) {
+      x_sum = getItemX(1);
+      y_sum = getItemY(0);
+      i.render(x_sum, y_sum);
+    }
+    else {
+      i.render(x_sum, y_sum);
+      y_sum += i.get_height(); 
+    }
+
   }
 
 }

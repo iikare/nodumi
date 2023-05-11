@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <type_traits>
 #include "enum.h"
 #include "log.h"
 
@@ -20,7 +21,10 @@ class dialogOption {
     dialogOption(DIA_OPT t, optionType opt_t, optionType sub_opt_t, const vector<string>& label, 
                  const vector<string>& val, const vector<int>& res);
 
-    int render(int in_x, int in_y);
+    void render(int in_x, int in_y);
+
+    int get_height();
+
     void process();
     void end_process();
 

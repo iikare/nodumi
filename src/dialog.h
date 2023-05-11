@@ -30,8 +30,8 @@ class dialogController {
     void renderPreference();
     void renderInfo();
 
-    int getItemX(int pos, bool box = false) const;
-    int getItemY(int pos, bool box = false) const;
+    int getItemX(int pos) const;
+    int getItemY(int pos) const;
 
     static constexpr int iconTextSize = 30;
     static constexpr int iconTextAdjust = 10;
@@ -47,4 +47,6 @@ class dialogController {
     static constexpr int itemRectSize = 24;
     static constexpr int itemRectInnerSize = 12;
     static constexpr int itemFontSize = 18;
+
+    static constexpr int optBottomMargin = 10;
 };

@@ -22,30 +22,31 @@ dialogOption::dialogOption(DIA_OPT t, optionType opt_t, const vector<string>& la
 }
 
 dialogOption::dialogOption(DIA_OPT t, optionType opt_t, optionType sub_opt_t, const vector<string>& label, 
-             const vector<string>& val, const vector<int>& res) {
-  if (t != DIA_OPT::SUBBOX && t != DIA_OPT::SLIDER) {
-    logW(LL_CRIT, "invalid constructor for dialog option of type", t, 
-         "- expecting types", DIA_OPT::SUBBOX, "or", DIA_OPT::SLIDER);
-    return;
-  }
+                           const vector<string>& val, const vector<int>& res) {
 
+      if (t != DIA_OPT::SUBBOX && t != DIA_OPT::SLIDER) {
+        logW(LL_CRIT, "invalid constructor for dialog option of type", t, 
+             "- expecting types", DIA_OPT::SUBBOX, "or", DIA_OPT::SLIDER);
+        return;
+      }
 
-  type = t;
-  link_opt = opt_t;
-  link_sub_opt = sub_opt_t;
-  text = label;
-  value = val;
-  result = res;
-  x = y = 0;
+      if (label.size() < 1) {
+        logW(LL_CRIT, "dialog option of type", type ,"has invalid label set");
+        return;
+      }
 
-  if (label.size() < 1) {
-    logW(LL_CRIT, "dialog option of type", t ,"has invalid label set");
-  }
+      if (val.size() != res.size()) {
+        logW(LL_CRIT, "inconsistent option result size:", val.size(), "v.", res.size());
+      }
 
-  if (val.size() != res.size()) {
-    logW(LL_CRIT, "inconsistent option result size:", val.size(), "v.", res.size());
-  }
-}
+      type = t;
+      link_opt = opt_t;
+      link_sub_opt = sub_opt_t;
+      text = label;
+      value = val;
+      result = res;
+      x = y = 0;
+    }
 
 void dialogOption::process() {
   if (ctr.option.invalid(link_opt)) { return; }
@@ -82,19 +83,31 @@ void dialogOption::end_process() {
   sliderActive = false;
 }
 
-int dialogOption::render(int in_x, int in_y) {
+int dialogOption::get_height() {
+  bool opt_status = ctr.option.get(link_opt);
+  bool inv_status = ctr.option.invalid(link_opt);
 
+  switch (type) {
+    case DIA_OPT::CHECK_ONLY:
+      return itemRectSize + 4;
+    case DIA_OPT::SLIDER:
+      return itemRectSize + 4 + (!inv_status && opt_status ? boxW + 4 : 0);
+    case DIA_OPT::SUBBOX:
+      return itemRectSize + 4 + (!inv_status && opt_status ? boxW + 4 : 0);
+    default:
+      return 0;
+  }
+}
 
+void dialogOption::render(int in_x, int in_y) {
   if (sliderActive) {
     updateSliderValue();
   }
-
 
   x = in_x;
   y = in_y;
 
   bool opt_status = ctr.option.get(link_opt);
-
   bool inv_status = ctr.option.invalid(link_opt);
 
   auto col = inv_status ? ctr.bgMenuShade : (opt_status ? ctr.bgOpt : ctr.bgDark);
@@ -125,18 +138,6 @@ int dialogOption::render(int in_x, int in_y) {
              in_x + itemRectSize + 4,
              in_y + 6,
              ctr.bgDark, 255, itemFontSize);
-
-  switch (type) {
-    case DIA_OPT::CHECK_ONLY:
-      return itemRectSize + 4;
-    case DIA_OPT::SLIDER:
-      return itemRectSize + 4 + (!inv_status && opt_status ? boxW + 4 : 0);
-    case DIA_OPT::SUBBOX:
-      return itemRectSize + 4 + (!inv_status && opt_status ? boxW + 4 : 0);
-    default:
-      break;
-  }
-  return -1;
 }
 
 void dialogOption::renderBox() {

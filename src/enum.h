@@ -279,6 +279,8 @@ enum class optionType {
   OPTION_HAND_RANGE,
   OPTION_SET_DARKEN_IMAGE,
   OPTION_DARKEN_IMAGE,
+  OPTION_SET_CIE_FUNCTION,
+  OPTION_CIE_FUNCTION,
   OPTION_DYNAMIC_LABEL,
   OPTION_NONE
 };
@@ -288,6 +290,13 @@ enum class DIA_OPT {
   SLIDER,
   SUBBOX,
   NONE
+};
+
+enum class CIE {
+  C_00,
+  C_94,
+  C_76,
+  C_NONE
 };
 
 enum class langType {
