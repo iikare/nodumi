@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <cmath>
-#include "../dpd/CIEDE2000/CIEDE2000.h"
+#include "cie2k.h"
 #include "misc.h"
 #include "data.h"
 #include "wrap.h"
@@ -241,7 +241,7 @@ colorRGB maximizeDeltaE(const colorRGB& ref) {
   unsigned char optV = 0;
   for (unsigned int v = 0; v <= 255; ++v) {
     colorLAB r2(colorRGB(v,v,v));
-    double deltaE = CIEDE2000::CIEDE2000({r1.l, r1.a, r1.b},{r2.l, r2.a, r2.b});
+    double deltaE = cie2k::deltaE(r1, r2);
     if (deltaE > maxDE) {
       maxDE = deltaE;
       optV = v;
