@@ -56,7 +56,6 @@ endif
 
 CFLAGSSTD=$(CFLAGS) -fno-exceptions
 CFLAGSRTM=$(CFLAGS) -w # suppress library warnings
-CFLAGSCIE=$(CFLAGS)
 
 ifeq ($(strip $(arch)),)
 LFLAGS+=$(LD) -lraylib -lasound -lpthread -ljack $(LFLAGSOSD)
@@ -71,7 +70,6 @@ PREREQ_DIR=@mkdir -p $(@D)
 MFDIR=dpd/midifile
 OSDDIR=dpd/osdialog
 RTMDIR=dpd/rtmidi
-CIEDIR=dpd/CIEDE2000
 SRCDIR=src
 BUILDDIR=build
 BINDIR=bin
@@ -89,9 +87,6 @@ OBJSOSD=$(patsubst $(OSDDIR)/%.c, $(BUILDDIR)/%.o, $(SRCSOSD))
 
 SRCSRTM=$(RTMDIR)/RtMidi.cpp
 OBJSRTM=$(patsubst $(RTMDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSRTM))
-
-SRCSCIE=$(CIEDIR)/CIEDE2000.cpp
-OBJSCIE=$(patsubst $(CIEDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSCIE))
 
 all:
 	@mkdir -p ./src/agh
@@ -123,9 +118,9 @@ pre:
 	@./tool/generate.sh ON
 	@./tool/codepoint.sh
 
-$(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) | $(@D)
+$(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) | $(@D)
 	$(PREREQ_DIR)
-	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(OBJSCIE) $(LFLAGS)
+	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(LFLAGS)
 
 $(OBJS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
 	$(PREREQ_DIR)
@@ -142,10 +137,6 @@ $(OBJSOSD): $(BUILDDIR)/%.o: $(OSDDIR)/%.c
 $(OBJSRTM): $(BUILDDIR)/%.o: $(RTMDIR)/%.cpp
 	$(PREREQ_DIR)
 	$(CXX) $(CFLAGSRTM) -o $@ -c $<
-
-$(OBJSCIE): $(BUILDDIR)/%.o: $(CIEDIR)/%.cpp
-	$(PREREQ_DIR)
-	$(CXX) $(CFLAGSCIE) -o $@ -c $<
 
 clean:
 	@echo

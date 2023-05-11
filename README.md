@@ -13,7 +13,6 @@ At some point in the future as development progresses, a usage guide will be ava
 # dependencies
 This project requires several dependencies, many of which are submodules to this repository.
 
-* `CIEDE2000` (supplied as a submodule)
 * `midifile` (supplied as a submodule)
 * `osdialog` (supplied as a submodule)
 * `rtmidi` (supplied as a submodule)
@@ -31,9 +30,6 @@ The current build script assumes you are building on a Linux environment with ra
 * `x86_64-w64-mingw32-g++`
 * `x86_64-w64-mingw32-gcc`
 * `x86_64-w64-mingw32-ld`
-
-Note that CIEDE2000 is only required if `COLDIST_CIE00` is defined at compile-time, and you wish to use the CIEDE2000 
-deltaE color-distance algorithm in generating a color palette from a background image.
 
 Keep in mind that Windows support is currently in an experimental stage, so expect weird quirks and bugs.
 
