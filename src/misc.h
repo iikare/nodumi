@@ -32,7 +32,7 @@ bool pointInBox(const T& pt, const rect& box) {
   logW(LL_WARN, "call to", __func__, "using invalid type", typeid(T).name());
   return false;
 }
-rect pointToRect(point a, point b);
+rect pointToRect(const point& a, const point& b);
 point getMousePosition();
 
 string colorToHex(const colorRGB& col);

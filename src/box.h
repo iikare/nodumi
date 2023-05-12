@@ -18,6 +18,7 @@ struct rect {
 };
 
 struct point {
+  point(int a, int b) { x = a; y = b; }
   int x;
   int y;
   

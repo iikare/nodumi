@@ -4,3 +4,5 @@ util/
 .clangd/
 .cache/
 *.json
+gmon.out
+output.png

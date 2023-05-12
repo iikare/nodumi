@@ -6,8 +6,8 @@ endif
 
 ifeq ($(strip $(prof)),)
 #NONSTD+=
-else # for valgrind bug reading DWARF-5 format w/ clang 14
-NONSTD+=-gdwarf-4 -pg 
+else
+NONSTD+=-pg 
 endif
 
 ifeq ($(strip $(arch)),)
@@ -120,7 +120,7 @@ pre:
 
 $(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) | $(@D)
 	$(PREREQ_DIR)
-	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(LFLAGS)
+	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(LFLAGS) $(NONSTD)
 
 $(OBJS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
 	$(PREREQ_DIR)

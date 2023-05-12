@@ -144,7 +144,7 @@ string colorToHex(const colorRGB& col) {
   return s;
 }
 
-rect pointToRect(point a, point b) {
+rect pointToRect(const point& a, const point& b) {
   rect result = {0, 0, 0, 0};
   
   result.x = a.x - 2;
@@ -157,7 +157,7 @@ rect pointToRect(point a, point b) {
 
 point getMousePosition() { 
   if (IsWindowFocused()) {
-    return (point){ GetMouseX(), GetMouseY()}; 
+    return point(GetMouseX(), GetMouseY()); 
   }
   return {-1,-1};
 }
