@@ -7,7 +7,6 @@
 #include "enum.h"
 #include "misc.h"
 #include "data.h"
-#include "define.h"
 
 using std::string;
 using std::vector;

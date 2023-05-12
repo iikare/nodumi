@@ -137,11 +137,11 @@ int main (int argc, char* argv[]) {
   Vector2 songTimePosition = {6.0f, 26.0f};
 
   // menu objects
-  menu fileMenu(ctr.getSize(), CONTENT_FILE, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu fileMenu(ctr.getSize(), CONTENT_FILE, TYPE_MAIN, ctr.menu.getOffset(), 0);
    
-  menu editMenu(ctr.getSize(), CONTENT_EDIT, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu editMenu(ctr.getSize(), CONTENT_EDIT, TYPE_MAIN, ctr.menu.getOffset(), 0);
   
-  menu viewMenu(ctr.getSize(), CONTENT_VIEW, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu viewMenu(ctr.getSize(), CONTENT_VIEW, TYPE_MAIN, ctr.menu.getOffset(), 0);
   
   menu displayMenu(ctr.getSize(), CONTENT_DISPLAY, TYPE_SUB, 
                    viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(VIEW_MENU_DISPLAY_MODE), &viewMenu, 1);
@@ -149,7 +149,7 @@ int main (int argc, char* argv[]) {
   menu songMenu(ctr.getSize(), CONTENT_SONG, TYPE_SUB, 
                 viewMenu.getX() + viewMenu.getWidth(), viewMenu.getItemY(VIEW_MENU_SONG_TIME), &viewMenu, 2);
 
-  menu midiMenu(ctr.getSize(), CONTENT_MIDI, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu midiMenu(ctr.getSize(), CONTENT_MIDI, TYPE_MAIN, ctr.menu.getOffset(), 0);
 
   menu inputMenu(ctr.getSize(), CONTENT_INPUT, TYPE_SUB, 
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(MIDI_MENU_INPUT), &midiMenu, 1);
@@ -157,12 +157,12 @@ int main (int argc, char* argv[]) {
   menu outputMenu(ctr.getSize(), CONTENT_OUTPUT, TYPE_SUB, 
                  midiMenu.getX() + midiMenu.getWidth(), midiMenu.getItemY(MIDI_MENU_OUTPUT), &midiMenu, 2);
   
-  menu colorMenu(ctr.getSize(), CONTENT_COLOR, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu colorMenu(ctr.getSize(), CONTENT_COLOR, TYPE_MAIN, ctr.menu.getOffset(), 0);
    
   menu schemeMenu(ctr.getSize(), CONTENT_SCHEME, TYPE_SUB, 
                   colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(COLOR_MENU_COLOR_BY), &colorMenu, 1);
   
-  menu infoMenu(ctr.getSize(), CONTENT_INFO, TYPE_MAIN, ctr.menu->getOffset(), 0);
+  menu infoMenu(ctr.getSize(), CONTENT_INFO, TYPE_MAIN, ctr.menu.getOffset(), 0);
 
   menu paletteMenu(ctr.getSize(), CONTENT_PALETTE, TYPE_SUB, 
                    colorMenu.getX() + colorMenu.getWidth(), colorMenu.getItemY(COLOR_MENU_COLOR_SCHEME), &colorMenu, 2);
@@ -365,7 +365,7 @@ int main (int argc, char* argv[]) {
         float nowLineWidth = 0.5;
         int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
         if (pointInBox(getMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) && 
-            !ctr.menu->mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {
+            !ctr.menu.mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {
           nowLineWidth = 1;
           hoverType.add(HOVER_NOW);
         }
@@ -443,7 +443,7 @@ int main (int argc, char* argv[]) {
                   timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration)) {
                 noteOn = true;
               }
-              if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
+              if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu.mouseOnMenu()) {
                 updateClickIndex();
               }
 
@@ -491,7 +491,7 @@ int main (int argc, char* argv[]) {
                   noteOn = true;
                   radius *= (0.3f + 0.7f * (1.0f - float(timeOffset - ctr.getNotes()[i].x) / ctr.getNotes()[i].duration));
                 }
-                if (!ctr.menu->mouseOnMenu()) {
+                if (!ctr.menu.mouseOnMenu()) {
                   int realX = 0;
                   if (cX > nowLineX) {
                     realX = cX;
@@ -769,7 +769,7 @@ int main (int argc, char* argv[]) {
                 
                 drawFFT = true;
               }
-              if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu->mouseOnMenu()) {
+              if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu.mouseOnMenu()) {
                 updateClickIndex();
               }
               if(drawFFT) {
@@ -941,7 +941,7 @@ int main (int argc, char* argv[]) {
         drawTextEx(FPSText, ctr.getWidth() - measureTextEx(FPSText).x - 4, 4, ctr.bgDark);
       }
 
-      ctr.menu->render();
+      ctr.menu.render();
       ctr.dialog.render();
       // warning about windows stability
       ctr.warning.render();
@@ -1004,14 +1004,14 @@ int main (int argc, char* argv[]) {
       case actionType::ACTION_OPEN:
         //logQ("offset before:", timeOffset);
         ctr.open_file.dialog();
-        ctr.menu->hide();
+        ctr.menu.hide();
         //logQ("offset after:", timeOffset);
         break;
       case actionType::ACTION_OPEN_IMAGE:
         ctr.open_image.dialog();
         showImage = true; 
         viewMenu.setContentLabel("VIEW_MENU_HIDE_BACKGROUND", VIEW_MENU_BACKGROUND);
-        ctr.menu->hide();
+        ctr.menu.hide();
         break;
       case actionType::ACTION_CLOSE:
         clearFile = true;
@@ -1673,7 +1673,7 @@ int main (int argc, char* argv[]) {
                      {static_cast<int>(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
           !hoverType.contains(HOVER_DIALOG) && 
           !colorSelect.render && 
-          !ctr.menu->mouseOnMenu() &&
+          !ctr.menu.mouseOnMenu() &&
           !ctr.image.movable()) {
         nowMove = true;
       }
@@ -1691,9 +1691,9 @@ int main (int argc, char* argv[]) {
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
       clickNote = clickTmp;
       clickOn = clickOnTmp;
-      ctr.menu->hide();
+      ctr.menu.hide();
 
-      if (!ctr.menu->mouseOnMenu()) {
+      if (!ctr.menu.mouseOnMenu()) {
         if (!pointInBox(getMousePosition(), (rect){0, 0, ctr.getWidth(), 20})) {
           
           int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
@@ -1747,7 +1747,7 @@ int main (int argc, char* argv[]) {
                 double measureLineX = convertSSX(ctr.getStream().measureMap[i].getLocation());
                 if (pointInBox(getMousePosition(), 
                                {static_cast<int>(measureLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) && 
-                    !ctr.menu->mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {
+                    !ctr.menu.mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {
                   measureSelected = true;
                   break; 
                 }
@@ -1791,7 +1791,7 @@ int main (int argc, char* argv[]) {
         }
       }
     }
-    if (ctr.menu->mouseOnMenu() || pointInBox(getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
+    if (ctr.menu.mouseOnMenu() || pointInBox(getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
       hoverType.add(HOVER_MENU);
     }
 

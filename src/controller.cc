@@ -16,7 +16,7 @@ using std::make_pair;
 controller::controller() : midiData() {
   file = midi();
   image = imageController();
-  menu = new menuController();
+  menu = menuController();
   programState = true;
   playState = false;
   livePlayState = false;
@@ -28,9 +28,6 @@ controller::controller() : midiData() {
   getColorScheme(128, setVelocityOn, setVelocityOff);
   getColorScheme(12, setTonicOn, setTonicOff);
   getColorScheme(1, setTrackOn, setTrackOff);
-}
-controller::~controller() {
-  delete menu;
 }
 
 
@@ -192,7 +189,7 @@ void controller::unloadData() {
   for (auto& shaderData: shaderMap) {
     shaderData.second.unloadData();
   }
-  menu->unloadData();
+  menu.unloadData();
   image.unloadData();
   
   voronoi.unloadData();
@@ -282,8 +279,8 @@ void controller::update(int offset, double& nowLineX) {
     fileOutput.updateOffset(offset);
   }
 
-  menu->updateMouse();
-  menu->updateRenderStatus();
+  menu.updateMouse();
+  menu.updateRenderStatus();
   updateKeyState();
   updateDimension(nowLineX);
   updateFPS();

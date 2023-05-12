@@ -21,6 +21,7 @@
 #include "shader.h"
 #include "option.h"
 #include "dialog.h"
+#include "menuctr.h"
 #include "warning.h"
 #include "voronoi.h"
 #include "colorgen.h"
@@ -37,7 +38,6 @@ class controller {
   public:
 
     controller();
-    ~controller();
 
     void init(vector<asset>& assetSet);
     void unloadData();
@@ -128,7 +128,7 @@ class controller {
 
     textController text;
     imageController image;
-    menuController* menu;
+    menuController menu;
     dialogController dialog;
     optionController option;
     ioController open_file  = ioController(OSDIALOG_OPEN, FILTER_FILE);

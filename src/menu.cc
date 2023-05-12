@@ -5,6 +5,7 @@
 #include "enum.h"
 #include "misc.h"
 #include "menu.h"
+#include "define.h"
 #include "menuctr.h"
 #include "data.h"
 #include "draw.h"
@@ -108,7 +109,7 @@ menu::menu(point XY, menuContentType contentType, int menuType, int menuX, int m
   }
 
 
-  ctr.menu->registerMenu(*this);
+  ctr.menu.registerMenu(*this);
 }
 
 int menu::getItemX(int idx) const {

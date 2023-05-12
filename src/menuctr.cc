@@ -24,7 +24,7 @@ void menuController::hide() {
 
 void menuController::updateMouse() {
   for (unsigned int i = 0; i < menuSet.size(); i++) {
-    if (menuSet[i]->render == true) {
+    if (menuSet[i]->render) {
       if (pointInBox(getMousePosition(), (rect){menuSet[i]->x, menuSet[i]->y, menuSet[i]->width, menuSet[i]->height})) {
         mouseMenu = true;
         return;
