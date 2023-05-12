@@ -59,10 +59,11 @@ void controller::init(vector<asset>& assetSet) {
 void controller::initData(const vector<asset>& assetSet) {
   for (const auto& item : assetSet) {
     switch(item.assetType) {
-      case ASSET::FONT:
+      using enum ASSET;
+      case FONT:
         fontMap.insert(make_pair(item.assetName, make_pair(item, map<int, Font>())));
         break;
-      case ASSET::IMAGE:
+      case IMAGE:
       {
         auto it = imageMap.find(item.assetName);
         if (it == imageMap.end()) {
@@ -85,7 +86,7 @@ void controller::initData(const vector<asset>& assetSet) {
       }
         break;
 
-      case ASSET::SHADER: 
+      case SHADER: 
         {
           auto it = shaderMap.find(item.assetName);
 

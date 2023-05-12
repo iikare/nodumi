@@ -20,19 +20,20 @@ void optionController::invert(optionType opt) {
   if (invalid(opt)) { return; }
 
   switch (opt) {
-    case optionType::OPTION_TRACK_DIVISION:
+    using enum optionType;
+    case OPTION_TRACK_DIVISION:
       if (!get(opt)) {
         getColorScheme(2, ctr.setTrackOn, ctr.setTrackOff);
       }
       break;
-    case optionType::OPTION_DYNAMIC_LABEL:
+    case OPTION_DYNAMIC_LABEL:
       ctr.optimizeBGColor(true);
       break;
-    case optionType::OPTION_SET_HAND_RANGE:
+    case OPTION_SET_HAND_RANGE:
       break;
-    case optionType::OPTION_SET_DARKEN_IMAGE:
+    case OPTION_SET_DARKEN_IMAGE:
       break;
-    case optionType::OPTION_SET_CIE_FUNCTION:
+    case OPTION_SET_CIE_FUNCTION:
       break;
     default:
       logW(LL_WARN, "cannot invert option of type", static_cast<int>(opt));
@@ -44,13 +45,14 @@ void optionController::invert(optionType opt) {
 
 bool optionController::invalid(optionType opt) {
   switch(opt) {
-    case optionType::OPTION_SET_HAND_RANGE:
+    using enum optionType;
+    case OPTION_SET_HAND_RANGE:
       [[fallthrough]];
-    case optionType::OPTION_HAND_RANGE:
-      return !get(optionType::OPTION_TRACK_DIVISION);
-    case optionType::OPTION_SET_DARKEN_IMAGE:
+    case OPTION_HAND_RANGE:
+      return !get(OPTION_TRACK_DIVISION);
+    case OPTION_SET_DARKEN_IMAGE:
       [[fallthrough]];
-    case optionType::OPTION_DARKEN_IMAGE:
+    case OPTION_DARKEN_IMAGE:
       return !ctr.image.exists();
     default:
       return false;
@@ -62,11 +64,12 @@ void optionController::set(optionType opt, int value) {
   if (invalid(opt)) { return; }
   
   switch (opt) {
-    case optionType::OPTION_HAND_RANGE:
+    using enum optionType;
+    case OPTION_HAND_RANGE:
       [[fallthrough]];
-    case optionType::OPTION_DARKEN_IMAGE:
+    case OPTION_DARKEN_IMAGE:
       [[fallthrough]];
-    case optionType::OPTION_CIE_FUNCTION:
+    case OPTION_CIE_FUNCTION:
       break;
     default:
       logW(LL_WARN, "cannot modify option of type", static_cast<int>(opt));

@@ -20,6 +20,7 @@ string textController::getString(const string& str_id) const {
 
 void textController::setLanguage(langType lang) {
   switch (lang) {
+    using enum langType;
     default:
       logW(LL_WARN, "invalid language option -", static_cast<int>(lang));
   }

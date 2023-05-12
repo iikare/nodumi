@@ -1001,25 +1001,26 @@ int main (int argc, char* argv[]) {
     }
     
     switch (action) {
-      case actionType::ACTION_OPEN:
+      using enum actionType;
+      case ACTION_OPEN:
         //logQ("offset before:", timeOffset);
         ctr.open_file.dialog();
         ctr.menu.hide();
         //logQ("offset after:", timeOffset);
         break;
-      case actionType::ACTION_OPEN_IMAGE:
+      case ACTION_OPEN_IMAGE:
         ctr.open_image.dialog();
         showImage = true; 
         viewMenu.setContentLabel("VIEW_MENU_HIDE_BACKGROUND", VIEW_MENU_BACKGROUND);
         ctr.menu.hide();
         break;
-      case actionType::ACTION_CLOSE:
+      case ACTION_CLOSE:
         clearFile = true;
         break;
-      case actionType::ACTION_CLOSE_IMAGE:
+      case ACTION_CLOSE_IMAGE:
         ctr.image.unloadData();
         break;
-      case actionType::ACTION_SAVE:
+      case ACTION_SAVE:
         if (ctr.getPlayState()) {
           break; 
         }
@@ -1029,7 +1030,7 @@ int main (int argc, char* argv[]) {
           break;
         }
         [[fallthrough]];
-      case actionType::ACTION_SAVE_AS:
+      case ACTION_SAVE_AS:
         if (!ctr.getPlayState() && curFileType != FILE_NONE) {
 
            ctr.save_file.dialog();
@@ -1050,20 +1051,20 @@ int main (int argc, char* argv[]) {
           }
         }
         break;
-      case actionType::ACTION_SHEET:
+      case ACTION_SHEET:
         editMenu.swapLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", "EDIT_MENU_ENABLE_SHEET_MUSIC", EDIT_MENU_SHEET_MUSIC);
         sheetMusicDisplay = !sheetMusicDisplay;
         ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
         break;
-      case actionType::ACTION_PREFERENCES:
+      case ACTION_PREFERENCES:
         ctr.dialog.infoDisplay = false;
         ctr.dialog.preferenceDisplay = !ctr.dialog.preferenceDisplay;
         break;
-      case actionType::ACTION_INFO:
+      case ACTION_INFO:
         ctr.dialog.preferenceDisplay = false;
         ctr.dialog.infoDisplay = !ctr.dialog.infoDisplay;
         break;
-      case actionType::ACTION_LIVEPLAY:
+      case ACTION_LIVEPLAY:
         if (midiMenu.isContentLabel("MIDI_MENU_ENABLE_LIVE_PLAY", MIDI_MENU_LIVE_PLAY)) {
           zoomLevel *= 3;
         }
