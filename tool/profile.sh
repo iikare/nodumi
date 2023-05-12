@@ -1,13 +1,6 @@
 #!/bin/zsh
 
-C_F="\033[31;1m"
-C_S="\033[34;1m"
-C_E="\033[0m"
-
-cecho()
-{
-    echo "$1$2$C_E"
-}
+source ./tool/color.sh
 
 # this script enables call graph visualization through gprof
 # prerequisite: a binary with mcount() instrumentation via "-pg" compiler flag

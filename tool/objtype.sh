@@ -1,15 +1,17 @@
 #!/bin/zsh
 
+source ./tool/color.sh
+
 echo
 if [[ $# -ne 1 ]]
 then
-  echo "need 1 argument, not $#"
+  cecho $C_F "need 1 argument, not $#"
   return -1
 fi
 
 function clear_cache() {
   echo
-  echo "discrepancy found in cached object files - purging cache"
+  cecho $C_F "discrepancy found in cached object files - purging cache"
   echo
   rm -f build/*.o
 }
@@ -39,7 +41,7 @@ then
   fi
 
 else
-    echo "invalid argument: $1"
+    cecho $C_F "invalid argument: $1"    
 fi
 
 

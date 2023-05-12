@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+source ./tool/color.sh
+
 # ALL CODEPOINTS DEFINED HERE
 
 points=(
@@ -176,6 +178,8 @@ echo "" >> ./src/aghcpenum.h
 
 echo "#endif //AGHCPENUM_H" >> ./src/aghcpenum.h
 
+cecho $C_S "successfully generated $pointnum codepoints"
+echo
 
 # include both files in ./src/agh.h
 #
