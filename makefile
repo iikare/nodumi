@@ -7,7 +7,7 @@ endif
 ifeq ($(strip $(prof)),)
 #NONSTD+=
 else # for valgrind bug reading DWARF-5 format w/ clang 14
-NONSTD+=-gdwarf-4
+NONSTD+=-gdwarf-4 -pg 
 endif
 
 ifeq ($(strip $(arch)),)
