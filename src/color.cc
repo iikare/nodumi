@@ -30,7 +30,7 @@ void colorRGB::setRGB (const colorHSV& hsv) {
 }
 
 bool colorRGB::operator == (const colorRGB& col) {
-  return (int)r == (int)col.r && (int)g == (int)col.g && (int)b == (int)col.b;
+  return r == col.r && g == col.g && b == col.b;
 }
 
 void colorRGB::invert() {

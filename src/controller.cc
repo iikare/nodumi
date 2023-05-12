@@ -568,20 +568,21 @@ int controller::findCurrentMeasure(int pos) const {
     return 0;
   }
   else {
-    if (file.measureMap.size() == 0) {
-      return 0;
-    }
-    if (pos >= (file.measureMap.end()-1)->getLocation()) {
-      return file.measureMap.size();
-    }
-    for (unsigned int i = 0; i < file.measureMap.size(); ++i) {
-      if (pos < file.measureMap[i].getLocation()-1) {
-        // account for 1-based indexing of measures
-        return i;
-      }
-    }
+    return file.findMeasure(pos);
+
+    //if (file.measureMap.size() == 0) {
+      //return 0;
+    //}
+    //if (pos >= (file.measureMap.end()-1)->getLocation()) {
+      //return file.measureMap.size();
+    //}
+    //for (unsigned int i = 0; i < file.measureMap.size(); ++i) {
+      //if (pos < file.measureMap[i].getLocation()-1) {
+        //// account for 1-based indexing of measures
+        //return i;
+      //}
+    //}
   }
-  logW(LL_WARN, "invalid current measure at offset", pos);
   return 0;
 }
 

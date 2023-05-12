@@ -68,7 +68,7 @@ void midi::buildMessageMap(const MidiFile& mf) {
   //logQ(num_zero, "events at position < 0.0001s");
 }
 
-int midi::findMeasure(int offset) {
+int midi::findMeasure(int offset) const {
   if (!offset) { return 0; }
   if (measureMap[measureMap.size() - 1].getLocation() < offset) {
     return measureMap.size();
@@ -79,6 +79,7 @@ int midi::findMeasure(int offset) {
       return i + 1;
     }
   }
+  logW(LL_WARN, "invalid current measure at offset", offset);
   return -1;
 }
 
