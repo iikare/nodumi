@@ -209,16 +209,16 @@ void midi::clear() {
 
 void midi::load(string file, stringstream& buf) {
   MidiFile midifile;
-  if (!midifile.read(file.c_str())) {
+  if (!midifile.read(file)) {
     logW(LL_WARN, "unable to open MIDI");
     //return;
   }
 
   // file is known to work
-  ifstream midiData(file);
   buf.str("");
   buf.clear();
 
+  ifstream midiData(file, std::ios_base::in | std::ios_base::binary);
   buf << midiData.rdbuf();
   midiData.close();
 
