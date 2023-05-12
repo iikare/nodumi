@@ -25,9 +25,11 @@ using std::setprecision;
 #ifndef NO_DEBUG
   #define logQ(...) logOutput(LL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
   #define logC(a,b) logOutput(LL_CRIT, __FILE__, __LINE__, a, "v.", b)
+  #define logE() cerr << endl
 #else
   #define logQ(...) ;
   #define logC(a,b) ;
+  #define logE() cerr << endl
 #endif
 enum logLevel {
   LL_INFO,
