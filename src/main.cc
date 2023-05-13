@@ -83,7 +83,7 @@ int main (int argc, char* argv[]) {
   bool showKey = true;
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_LINE;
+  int displayMode = DISPLAY_PULSE;
   
   double nowLineX = ctr.getWidth()/2.0f;
 
@@ -372,47 +372,17 @@ int main (int argc, char* argv[]) {
         drawLineEx(nowLineX, nowLineY, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow);
       }
 
-      auto getColorSet = [&](int idx, const vector<int>& lp = {}) {
+      auto getColorSet = [&](int idx) {
         switch(displayMode) {
-          case DISPLAY_FFT:
-            [[fallthrough]];
-          case DISPLAY_VORONOI:
-            [[fallthrough]];
-          case DISPLAY_BAR:
-            [[fallthrough]];
-          case DISPLAY_BALL:
-            switch (colorMode) {
-              case COLOR_PART:
-                return ctr.getNotes()[idx].track;
-              case COLOR_VELOCITY:
-                return ctr.getNotes()[idx].velocity;
-              case COLOR_TONIC:
-                return (ctr.getNotes()[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
-            }
-            break;
-          case DISPLAY_LOOP:
-            [[fallthrough]];
-          case DISPLAY_LINE:
-            switch (colorMode) {
-              case COLOR_PART:
-                if (ctr.getLiveState()) return 0;
-                return ctr.getNotes()[idx].track;
-              case COLOR_VELOCITY:
-                return ctr.getNotes()[idx].velocity;
-              case COLOR_TONIC:
-                return (ctr.getNotes()[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
-            }
-            break;
-          case DISPLAY_PULSE:
-            switch (colorMode) {
-              case COLOR_PART:
-                if (ctr.getLiveState()) return 0;
-                return ctr.getNotes()[lp[idx]].track;
-              case COLOR_VELOCITY:
-                return ctr.getNotes()[lp[idx]].velocity;
-              case COLOR_TONIC:
-                return (ctr.getNotes()[lp[idx]].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
-            }
+          switch (colorMode) {
+            case COLOR_PART:
+              return ctr.getNotes()[idx].track;
+            case COLOR_VELOCITY:
+              return ctr.getNotes()[idx].velocity;
+            case COLOR_TONIC:
+              return (ctr.getNotes()[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
+          }
+          break;
         }
         return 0;
       };
@@ -580,10 +550,6 @@ int main (int argc, char* argv[]) {
                                     static_cast<float>(convertSSY(lp[j].y_r))
                                   };
 
-                if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
-                   continue;
-                }
-
                 noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
                 if (pointInBox(getMousePosition(), 
                                pointToRect(
@@ -609,88 +575,92 @@ int main (int argc, char* argv[]) {
               if (i != 0){
                 break;
               }
-              vector<int> linePositions = ctr.getStream().getLineVerts();
-              if (!ctr.getLiveState() || (convertSSX(ctr.getNotes()[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
-                if (ctr.getNotes()[i].isChordRoot()) {
-                  for (unsigned int j = 0; j < linePositions.size(); j += 5) {
-                    int colorID = getColorSet(j,linePositions);
-                    float convSS[4] = {
-                                        static_cast<float>(convertSSX(linePositions[j+1])),
-                                        static_cast<float>(convertSSY(linePositions[j+2])),
-                                        static_cast<float>(convertSSX(linePositions[j+3])),
-                                        static_cast<float>(convertSSY(linePositions[j+4]))
-                                      };
+              vector<lineData> lp = ctr.getStream().getLines();
 
-                    noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
+              for (unsigned int j = 0; j < lp.size(); ++j) {
+                if (convertSSX(lp[j].x_r) < 0) {
+                  continue;
+                }
+                if (convertSSX(lp[j].x_l) > ctr.getWidth()) {
+                  break;
+                }
+                int colorID = getColorSet(lp[j].idx);
 
-                    if (pointInBox(getMousePosition(), 
-                                   pointToRect(
-                                                {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
-                                                {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
-                                              ))) {
-                      updateClickIndex(linePositions[j]);
-                    }
-                    auto cSet = noteOn ? colorSetOn : colorSetOff;
-                    double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
-                    if (noteOn || clickTmp == linePositions[j]) {
-                      double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
-                      bool nowNote = clickTmp == linePositions[j] ? false : noteOn;
-                      drawLineEx(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) : convSS[0],
-                                 nowNote ? newY     - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) : convSS[1], 
-                                 nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
-                                 nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
-                                 3, (*cSet)[colorID]);
-                      drawRing({float(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) 
-                                              : convSS[0]),
-                                float(nowNote ? newY - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) 
-                                              : convSS[1])}, 
-                               0, 1.5, (*cSet)[colorID]);
-                      drawRing({float(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) 
-                                              : convSS[0]),
-                                float(nowNote ? newY - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) 
-                                              : convSS[1])}, 
-                               0, 1.5, (*cSet)[colorID]);
-                    }
-                    
-                    if (convSS[2] >= nowLineX) {
-                      double ringFadeAlpha = noteOn ? 255*(1-nowRatio) : 255;
-                      drawRing({convSS[0], convSS[1]},
-                               0, 3, (*cSet)[colorID], ringFadeAlpha);
-                    }
-                    if (convSS[2] <= nowLineX) {
-                      drawRing({convSS[2], convSS[3]},
-                               0, 3, (*cSet)[colorID]);
-                    }
+                float convSS[4] = {
+                                    static_cast<float>(convertSSX(lp[j].x_l)),
+                                    static_cast<float>(convertSSY(lp[j].y_l)),
+                                    static_cast<float>(convertSSX(lp[j].x_r)),
+                                    static_cast<float>(convertSSY(lp[j].y_r))
+                                  };
 
-                    int ringLimit = 400;
-                    int ringDist = timeOffset - linePositions[j+1];
+                noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
+                if (pointInBox(getMousePosition(), 
+                               pointToRect(
+                                            {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
+                                            {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
+                                          ))) {
+                  updateClickIndex(lp[j].idx);
+                }
 
-                    double ringRatio = ringDist/static_cast<double>(ringLimit); 
-                    if (ctr.run && linePositions[j+1] < pauseOffset && timeOffset >= pauseOffset) {
-                      ringRatio = 0;
-                    }
-                    else if (ctr.getPauseTime()<1 && timeOffset == pauseOffset){// || linePositions[j+1] >= pauseOffset) {
-                      // this effect has a run-down time of 1 second
-                      ringRatio += min(1-ringRatio, ctr.getPauseTime());
-                    }
-                    else if (linePositions[j+1] < pauseOffset && timeOffset == pauseOffset) {
-                      ringRatio = 0;
-                      //ringRatio *= max(ctr.getRunTime(), 1.0);
-                    }
-                    //logQ(timeOffset, (linePositions[j+1], linePositions[j+2]));
-                    if (ringDist <= ringLimit && ringDist > 4) {
-                      int noteLen = ctr.getNotes()[linePositions[j]].duration * zoomLevel < 1 ? 
-                                  1 : ctr.getNotes()[linePositions[j]].duration * zoomLevel;
-                      noteLen = noteLen ? 32 - __countl_zero(noteLen) : 0;
-                      double ringRad = floatLERP(6, 5*noteLen, ringRatio, INT_ILINEAR);
+                auto cSet = noteOn ? colorSetOn : colorSetOff;
+                double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
+                if (noteOn || clickTmp == static_cast<int>(lp[j].idx)) {
+                  double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
+                  bool nowNote = clickTmp == static_cast<int>(lp[j].idx) ? false : noteOn;
+                  drawLineEx(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) : convSS[0],
+                             nowNote ? newY     - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) : convSS[1], 
+                             nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
+                             nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
+                             3, (*cSet)[colorID]);
+                  drawRing({float(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) 
+                                          : convSS[0]),
+                            float(nowNote ? newY - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) 
+                                          : convSS[1])}, 
+                           0, 1.5, (*cSet)[colorID]);
+                  drawRing({float(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) 
+                                          : convSS[0]),
+                            float(nowNote ? newY - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) 
+                                          : convSS[1])}, 
+                           0, 1.5, (*cSet)[colorID]);
+                }
+                
+                if (convSS[2] >= nowLineX) {
+                  double ringFadeAlpha = noteOn ? 255*(1-nowRatio) : 255;
+                  drawRing({convSS[0], convSS[1]},
+                           0, 3, (*cSet)[colorID], ringFadeAlpha);
+                }
+                if (convSS[2] <= nowLineX) {
+                  drawRing({convSS[2], convSS[3]},
+                           0, 3, (*cSet)[colorID]);
+                }
 
-                      if (ringRatio > 0) {
-                        drawRing({convSS[0], convSS[1]},
-                                 ringRad-3, ringRad, 
-                                 colorLERP((*colorSetOn)[colorID], (*colorSetOff)[colorID], ringRatio, INT_ICIRCULAR),
-                                 floatLERP(0,255, ringRatio, INT_ICIRCULAR));
-                      }
-                    }
+                int ringLimit = 400;
+                int ringDist = timeOffset - lp[j].x_l;
+
+                double ringRatio = ringDist/static_cast<double>(ringLimit); 
+                if (ctr.run && lp[j].x_l < pauseOffset && timeOffset >= pauseOffset) {
+                  ringRatio = 0;
+                }
+                else if (ctr.getPauseTime()<1 && timeOffset == pauseOffset){// || linePositions[j+1] >= pauseOffset) {
+                  // this effect has a run-down time of 1 second
+                  ringRatio += min(1-ringRatio, ctr.getPauseTime());
+                }
+                else if (lp[j].x_l < pauseOffset && timeOffset == pauseOffset) {
+                  ringRatio = 0;
+                  //ringRatio *= max(ctr.getRunTime(), 1.0);
+                }
+                //logQ(timeOffset, (linePositions[j+1], linePositions[j+2]));
+                if (ringDist <= ringLimit && ringDist > 4) {
+                  int noteLen = ctr.getNotes()[lp[j].idx].duration * zoomLevel < 1 ? 
+                              1 : ctr.getNotes()[lp[j].idx].duration * zoomLevel;
+                  noteLen = noteLen ? 32 - __countl_zero(noteLen) : 0;
+                  double ringRad = floatLERP(6, 5*noteLen, ringRatio, INT_ILINEAR);
+
+                  if (ringRatio > 0) {
+                    drawRing({convSS[0], convSS[1]},
+                             ringRad-3, ringRad, 
+                             colorLERP((*colorSetOn)[colorID], (*colorSetOff)[colorID], ringRatio, INT_ICIRCULAR),
+                             floatLERP(0,255, ringRatio, INT_ICIRCULAR));
                   }
                 }
               }
@@ -736,7 +706,7 @@ int main (int argc, char* argv[]) {
                 else if (convSS[0] < nowLineX) {
 
                   double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
-                  bool nowNote = clickTmp == lp[j].idx ? false : noteOn;
+                  bool nowNote = clickTmp == static_cast<int>(lp[j].idx) ? false : noteOn;
                   drawLineEx(convSS[0],
                              convSS[1],
                              nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
