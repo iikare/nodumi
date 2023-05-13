@@ -390,6 +390,8 @@ int main (int argc, char* argv[]) {
                 return (ctr.getNotes()[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
             }
             break;
+          case DISPLAY_LOOP:
+            [[fallthrough]];
           case DISPLAY_LINE:
             switch (colorMode) {
               case COLOR_PART:
@@ -401,8 +403,6 @@ int main (int argc, char* argv[]) {
                 return (ctr.getNotes()[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
             }
             break;
-          case DISPLAY_LOOP:
-            [[fallthrough]];
           case DISPLAY_PULSE:
             switch (colorMode) {
               case COLOR_PART:
@@ -602,48 +602,8 @@ int main (int argc, char* argv[]) {
                              2, (*cSet)[colorID]);
                 }
               }
-
-
-
-              //vector<int> linePositions = ctr.getStream().getLineVerts();
-              //if (!ctr.getLiveState() || (convertSSX(ctr.getNotes()[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
-                //if (ctr.getNotes()[i].isChordRoot()) {
-                  //for (unsigned int j = 0; j < linePositions.size(); j += 5) {
-                    //int colorID = getColorSet(j,linePositions);
-                    //float convSS[4] = {
-                                        //static_cast<float>(convertSSX(linePositions[j+1])),
-                                        //static_cast<float>(convertSSY(linePositions[j+2])),
-                                        //static_cast<float>(convertSSX(linePositions[j+3])),
-                                        //static_cast<float>(convertSSY(linePositions[j+4]))
-                                      //};
-
-                    //if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
-                       //continue;
-                    //}
-
-                    //noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
-                    //if (pointInBox(getMousePosition(), 
-                                   //pointToRect(
-                                                //{static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
-                                                //{static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
-                                              //))) {
-                      //updateClickIndex(linePositions[j]);
-                    //}
-                    //auto cSet = noteOn ? colorSetOn : colorSetOff;
-                    //if (convSS[2] - convSS[0] > 3) {
-                      //drawLineBezier(convSS[0], convSS[1], convSS[2], convSS[3],
-                                 //2, (*cSet)[colorID]);
-                    //}
-                    //else {
-                      //drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                                 //2, (*cSet)[colorID]);
-                    //}
-                  //}
-                //}
-              //}
             }
             break;
-
           case DISPLAY_PULSE:
             {
               if (i != 0){
@@ -745,61 +705,66 @@ int main (int argc, char* argv[]) {
               if (i != 0){
                 break;
               }
-              vector<int> linePositions = ctr.getStream().getLineVerts();
-              if (!ctr.getLiveState() || (convertSSX(ctr.getNotes()[i].getNextChordRoot()->x) > 0 && cX < ctr.getWidth())) {
-                if (ctr.getNotes()[i].isChordRoot()) {
-                  for (unsigned int j = 0; j < linePositions.size(); j += 5) {
-                    int colorID = getColorSet(j,linePositions);
-                    float convSS[4] = {
-                                        static_cast<float>(convertSSX(linePositions[j+1])),
-                                        static_cast<float>(convertSSY(linePositions[j+2])),
-                                        static_cast<float>(convertSSX(linePositions[j+3])),
-                                        static_cast<float>(convertSSY(linePositions[j+4]))
-                                      };
+              vector<lineData> lp = ctr.getStream().getLines();
 
-                    if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
-                       continue;
-                    }
-
-                    noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
-                    if (pointInBox(getMousePosition(), 
-                                   pointToRect(
-                                                {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
-                                                {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
-                                              ))) {
-                      updateClickIndex(linePositions[j]);
-                    }
-                    auto cSet = noteOn ? colorSetOn : colorSetOff;
-                    double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
-                    if (convSS[2] < nowLineX) {
-                    drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                               2, (*cSet)[colorID]);
-                    }
-                    else if (convSS[0] < nowLineX) {
-
-                      double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
-                      bool nowNote = clickTmp == linePositions[j] ? false : noteOn;
-                      drawLineEx(convSS[0],
-                                 convSS[1],
-                                 nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
-                                 nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
-                                 3, (*cSet)[colorID]);
-                    }
-                    drawRing({convSS[0], convSS[1]},
-                             0, 3, (*cSet)[colorID]);
-                    drawRing({convSS[2], convSS[3]},
-                             0, 3, (*cSet)[colorID]);
-                    if (convSS[2] < nowLineX) {
-                      drawRing({convSS[2], convSS[3]},
-                               4, 8, (*cSet)[colorID]);
-                    }
-                    
-                    if (nowRatio > 0 && nowRatio < 1) {
-                      drawRing({convSS[2], convSS[3]},
-                               4, 8, (*cSet)[colorID], 255, (nowRatio-0.5f)*360.0f, 180.0f);
-                    }
-                  }
+              for (unsigned int j = 0; j < lp.size(); ++j) {
+                if (convertSSX(lp[j].x_r) < 0) {
+                  continue;
                 }
+                if (convertSSX(lp[j].x_l) > ctr.getWidth()) {
+                  break;
+                }
+                int colorID = getColorSet(lp[j].idx);
+
+                float convSS[4] = {
+                                    static_cast<float>(convertSSX(lp[j].x_l)),
+                                    static_cast<float>(convertSSY(lp[j].y_l)),
+                                    static_cast<float>(convertSSX(lp[j].x_r)),
+                                    static_cast<float>(convertSSY(lp[j].y_r))
+                                  };
+
+                if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
+                   continue;
+                }
+
+                noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
+                if (pointInBox(getMousePosition(), 
+                               pointToRect(
+                                            {static_cast<int>(convSS[0]), static_cast<int>(convSS[1])},
+                                            {static_cast<int>(convSS[2]), static_cast<int>(convSS[3])}
+                                          ))) {
+                  updateClickIndex(lp[j].idx);
+                }
+                auto cSet = noteOn ? colorSetOn : colorSetOff;
+                double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
+                if (convSS[2] < nowLineX) {
+                drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
+                           2, (*cSet)[colorID]);
+                }
+                else if (convSS[0] < nowLineX) {
+
+                  double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
+                  bool nowNote = clickTmp == lp[j].idx ? false : noteOn;
+                  drawLineEx(convSS[0],
+                             convSS[1],
+                             nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
+                             nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
+                             3, (*cSet)[colorID]);
+                }
+                drawRing({convSS[0], convSS[1]},
+                         0, 3, (*cSet)[colorID]);
+                drawRing({convSS[2], convSS[3]},
+                         0, 3, (*cSet)[colorID]);
+                if (convSS[2] < nowLineX) {
+                  drawRing({convSS[2], convSS[3]},
+                           4, 8, (*cSet)[colorID]);
+                }
+                
+                if (nowRatio > 0 && nowRatio < 1) {
+                  drawRing({convSS[2], convSS[3]},
+                           4, 8, (*cSet)[colorID], 255, (nowRatio-0.5f)*360.0f, 180.0f);
+                }
+
               }
             }
             break;
