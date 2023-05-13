@@ -373,16 +373,13 @@ int main (int argc, char* argv[]) {
       }
 
       auto getColorSet = [&](int idx) {
-        switch(displayMode) {
-          switch (colorMode) {
-            case COLOR_PART:
-              return ctr.getNotes()[idx].track;
-            case COLOR_VELOCITY:
-              return ctr.getNotes()[idx].velocity;
-            case COLOR_TONIC:
-              return (ctr.getNotes()[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
-          }
-          break;
+        switch (colorMode) {
+          case COLOR_PART:
+            return ctr.getNotes()[idx].track;
+          case COLOR_VELOCITY:
+            return ctr.getNotes()[idx].velocity;
+          case COLOR_TONIC:
+            return (ctr.getNotes()[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
         }
         return 0;
       };
