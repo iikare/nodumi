@@ -621,10 +621,6 @@ int main (int argc, char* argv[]) {
                                         static_cast<float>(convertSSY(linePositions[j+4]))
                                       };
 
-                    if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
-                       continue;
-                    }
-
                     noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
 
                     if (pointInBox(getMousePosition(), 
@@ -722,10 +718,6 @@ int main (int argc, char* argv[]) {
                                     static_cast<float>(convertSSX(lp[j].x_r)),
                                     static_cast<float>(convertSSY(lp[j].y_r))
                                   };
-
-                if (convSS[2] < 0 || convSS[0] > ctr.getWidth()) {
-                   continue;
-                }
 
                 noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
                 if (pointInBox(getMousePosition(), 
