@@ -2,71 +2,17 @@
 #include "track.h"
 #include "define.h"
 
-using std::pair;
-
-void trackController::insert(int idx, note* newNote) {
-  if (newNote == nullptr) {
-    logW(LL_CRIT, "empty note passed to trackController::insert with index", idx);
-    return;
-  }
-  if (tail != nullptr && tail->x > newNote->x) {
-    logW(LL_WARN, "mismatched note on track", newNote->track, "(", tail->x, "→", newNote->x, ")");
-  }
-  if (head == nullptr) {
-    head = newNote;
-  }
-  if (tail == nullptr) {
-    tail = newNote;
-  }
-  else if (tail->x == newNote->x) {
-    tail->chordNext = newNote;
-    newNote->prev = tail;
-  }
-  else if (!ctr.getLiveState()){
-    // find chord root
-    note* p = tail;
-    while (p->prev != nullptr && p->prev->x == p->x) {
-      p = p->prev;
-    }
-    p->next = newNote;
-    newNote->prev = p;
-  }
-  
-  tail = newNote;
-
-  noteIdxMap.insert(pair<int, note*>(idx, newNote));
-  noteCount++;
-  noteSum+= newNote->y;
-}
-
 void trackController::reset() {
-  head = nullptr;
-  tail = nullptr;
-  noteCount = 0;
-  noteSum = 0;
-  noteIdxMap.clear();
-
   note_idx.clear();
   chords.clear();
   lines.clear();
+  noteCount = 0;
+  noteSum = 0;
 }
-
-note* trackController::getLastNote() {
-  if (noteIdxMap.size() == 0) {
-    return nullptr;
-  }
-  return noteIdxMap[noteIdxMap.size() - 1];
-}
-
-void trackController::fixLastNote() {
-  if (!getLastNote()) {
-    return;
-  }
-  getLastNote()->isLastOnTrack = true;
-}
-
 
 void trackController::insert(unsigned int n) {
+  noteCount++;
+  noteSum += n_vec->at(n).y;
   note_idx.push_back(n);
 }
 
@@ -100,22 +46,19 @@ void trackController::buildChordMap() {
   for (auto& c : chords) {
     c.sort_asc(n_vec);
   }
-  for (unsigned int c = 0; c+1 < chords.size(); ++c) {
+  //for (unsigned int c = 0; c+1 < chords.size(); ++c) {
 
-    if (n_vec->at(chords[c].data()[0]).x > n_vec->at(chords[c+1].data()[0]).x) {
-      logQ("WARN: chords", c, c+1, "not created in sorted order");
-      logQ(n_vec->at(chords[c].data()[0]).x , n_vec->at(chords[c+1].data()[0]).x);
-    }
+    //if (n_vec->at(chords[c].data()[0]).x > n_vec->at(chords[c+1].data()[0]).x) {
+      //logQ("WARN: chords", c, c+1, "not created in sorted order");
+      //logQ(n_vec->at(chords[c].data()[0]).x , n_vec->at(chords[c+1].data()[0]).x);
+    //}
 
-  }
+  //}
 
   buildLineMap();
 
   //logQ("avg. chord size:", static_cast<double>(note_idx.size())/chords.size());
-
-  logQ("generated", lines.size(), "lines");
-
-
+  //logQ("generated", lines.size(), "lines");
 }
 
 void trackController::buildLineMap() {

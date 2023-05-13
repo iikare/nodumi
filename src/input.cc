@@ -159,7 +159,7 @@ void midiInput::convertEvents() {
         noteStream.notes[noteCount].track = tmpNote.track;
 
 
-        noteStream.getTracks()[tmpNote.track].insert(noteCount, &noteStream.notes.at(noteCount)); 
+        noteStream.getTracks()[tmpNote.track].insert(noteCount);
         
         // update last index only AFTER track splitter
         noteCount++;

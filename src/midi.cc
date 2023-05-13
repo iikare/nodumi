@@ -26,18 +26,6 @@ int midi::getTempo(int offset) {
 }
 
 void midi::buildLineMap() {
-  vector<int> tmpVerts;
-  lineVerts.clear();
-  for (unsigned int i = 0; i < notes.size(); i++) {
-    if (notes[i].isChordRoot()) {
-      tmpVerts = notes[i].getLinePositions(&notes[i], notes[i].getNextChordRoot());
-      lineVerts.insert(lineVerts.end(), tmpVerts.begin(), tmpVerts.end());
-    }
-  }
-  
-  //logII(LL_CRIT, getNoteCount());
-  //logII(LL_CRIT, lineVerts.size());
-  
   lines.clear();
 
   //logQ("there are", tracks.size(), "line vectors to merge");
@@ -60,7 +48,7 @@ void midi::buildLineMap() {
     for (unsigned int t = 0; t < tracks.size(); ++t) {
       n_line += tracks[t].lines.size();
     }
-    logQ("there are", n_line, "lines to merge");
+    //logQ("there are", n_line, "lines to merge");
 
     lines.reserve(n_line);
     priority_queue<lineData, vector<lineData>, decltype(track_comp)> tt;
@@ -354,13 +342,7 @@ void midi::load(stringstream& buf) {
         //cerr << midifile.getTimeInSeconds(notes[idx].tick) << " " << midifile[i][j].seconds << endl;
         
         notes[idx].findSize(tickSet);
-
-
         tracks.at(notes[idx].track).insert(idx);
-
-
-        tracks.at(notes[idx].track).insert(idx, &notes.at(idx));
-
         idx++;
       }
     }
@@ -398,9 +380,6 @@ void midi::load(stringstream& buf) {
   linkKeySignatures();
 
   for (unsigned int i = 0; i < tracks.size(); i++) {
-    // assign chord to last note of each track
-    tracks[i].fixLastNote();
-
     // build track height map
     trackHeightMap.push_back(make_pair(i, tracks[i].getAverageY()));
 
