@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <set>
+#include <queue>
+#include <utility>
 #include "midi.h"
 #include "misc.h"
 #include "data.h"
@@ -33,6 +35,62 @@ void midi::buildLineMap() {
   
   //logII(LL_CRIT, getNoteCount());
   //logII(LL_CRIT, lineVerts.size());
+  
+  lines.clear();
+
+  //logQ("there are", tracks.size(), "line vectors to merge");
+  //
+  //for (unsigned int t = 0; t < tracks.size(); ++t) {
+    //for (unsigned int i = 0; i+1 < tracks[t].lines.size(); ++i) {  
+      //if (tracks[t].lines[i].x_l > tracks[t].lines[i+1].x_l) {
+        //logQ("idx:", i, "|",tracks[t].lines[i].x_l ,tracks[t].lines[i+1].x_l);
+        ////logQ(LL_WARN, "PROBLEM: unsorted tracks");
+
+      //}
+    //}
+  //}
+  auto track_comp = [] (const auto& a, const auto& b) {
+    return a.x_l > b.x_l;
+  };
+
+  if (tracks.size() > 1) {
+    unsigned int n_line = 0;
+    for (unsigned int t = 0; t < tracks.size(); ++t) {
+      n_line += tracks[t].lines.size();
+    }
+    logQ("there are", n_line, "lines to merge");
+
+    lines.reserve(n_line);
+    std::priority_queue<lineData, vector<lineData>, decltype(track_comp)> tt;
+	  unsigned int idx = 0;
+
+    do {
+      for(unsigned int i = 0 ; i < tracks.size(); i++) {
+        if(idx < tracks[i].lines.size()) {
+          tt.push(tracks[i].lines[idx]);
+        }
+      }
+      lines.push_back(tt.top());
+      tt.pop();
+      idx++;
+    }
+    while(!tt.empty());
+  }
+  else if (tracks.size() == 1) {
+    lines = tracks[0].lines;
+  }
+
+  //for (unsigned int i = 0; i+1 < lines.size(); ++i) {  
+    //if (lines[i].x_l > lines[i+1].x_l) {
+      //logQ("idx:", i, "|",lines[i].x_l ,lines[i+1].x_l);
+      //logQ(LL_WARN, "PROBLEM: unsorted lines");
+      //int tr_l = notes[lines[i].idx].track;
+      //int tr_r = notes[lines[i+1].idx].track;
+      //logQ("TRACK^:", tr_l, tr_r);
+    //}
+  //}
+
+  //logQ("total line size", lines.size());
 }
 
 void midi::buildTickSet() {
@@ -189,6 +247,7 @@ void midi::linkKeySignatures() {
 void midi::clear() {
   notes.clear();
   message.clear();
+  lines.clear();
   tempoMap.clear();
   tracks.clear();
   trackHeightMap.clear();
@@ -233,6 +292,9 @@ void midi::load(stringstream& buf) {
   
   trackCount = midifile.getTrackCount();
   tracks.resize(trackCount);
+  for (auto& t : tracks) {
+    t.setNoteVector(&notes);
+  }
 
   tpq = midifile.getTicksPerQuarterNote();
   lastTime = midifile.getFileDurationInSeconds() * 500;
@@ -283,6 +345,9 @@ void midi::load(stringstream& buf) {
         notes[idx].findSize(tickSet);
 
 
+        tracks.at(notes[idx].track).insert(idx);
+
+
         tracks.at(notes[idx].track).insert(idx, &notes.at(idx));
 
         idx++;
@@ -295,7 +360,6 @@ void midi::load(stringstream& buf) {
 
   buildMessageMap(midifile);
    
-
   for (int i = 0; i < midifile.getEventCount(0); i++) {
 
     if (midifile[0][i].isTempo()) {
@@ -328,6 +392,9 @@ void midi::load(stringstream& buf) {
 
     // build track height map
     trackHeightMap.push_back(make_pair(i, tracks[i].getAverageY()));
+
+    // build track chord map (and implicitly, line map as well)
+    tracks[i].buildChordMap();
   }
   
   sort(trackHeightMap.begin(), trackHeightMap.end(), [](const pair<int, double>& left, const pair<int, double>& right) {

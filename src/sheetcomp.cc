@@ -25,7 +25,7 @@ void sheetMeasure::buildChordMap(vector<sheetNote>& vecNote) {
   chords = vector<pair<int,vector<sheetNote*>>>(make_move_iterator(chordSet.begin()), make_move_iterator(chordSet.end()));
   //chords = vector<pair<int,vector<sheetNote*>>>(chordSet.begin(), chordSet.end());
 
-  chordData.resize(chords.size());
+  s_chordData.resize(chords.size());
 }
     
 void sheetMeasure::buildFlagMap() {
@@ -83,7 +83,7 @@ void sheetMeasure::buildFlagMap() {
       if (c.second[n]->stave == STAVE_TREBLE) { break; }
     }
    
-    chordData[chordNum].flags.push_back(cFlag);
+    s_chordData[chordNum].flags.push_back(cFlag);
    
     chn = 0;
     for (auto nIt = c.second.rbegin(); nIt != c.second.rend(); ++nIt) {
@@ -135,7 +135,7 @@ void sheetMeasure::buildFlagMap() {
       if ((*nIt)->stave == STAVE_BASS) { break; }
 
     }
-    chordData[chordNum].flags.push_back(cFlag);
+    s_chordData[chordNum].flags.push_back(cFlag);
 
     chordNum++;
   }

@@ -11,6 +11,7 @@
 #include "sheetctr.h"
 #include "measure.h"
 #include "color.h"
+#include "line.h"
 #include "log.h"
 
 using namespace smf;
@@ -40,6 +41,7 @@ class midi {
     midi() {
       notes = {};
       message = {};
+      lines = {};
       tempoMap = {};
       tracks = {};
       trackHeightMap = {};
@@ -83,12 +85,14 @@ class midi {
     vector<note> notes;
     multiset<pair<double, vector<unsigned char>>> message;
 
+    vector<lineData> lines;
     sheetController sheetData;
     vector<measureController> measureMap;
 
     vector<pair<int, double>> trackHeightMap;
 
     friend class midiInput;
+    friend class trackController;
     
   private:
     vector<pair<double, int>> tempoMap;

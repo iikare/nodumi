@@ -378,7 +378,7 @@ void sheetController::disectMeasure(measureController& measure) {
     }
 
     // get flag widths
-   for (const auto& fStem : dm.chordData[ch].flags) {
+   for (const auto& fStem : dm.s_chordData[ch].flags) {
 
      int flagWidth = getSymbolWidth(fStem.flagType, fStem.flagDir);
     
@@ -387,8 +387,8 @@ void sheetController::disectMeasure(measureController& measure) {
    }
 
 
-    dm.chordData[ch].leftWidth = leftWidth;
-    dm.chordData[ch].rightWidth = rightWidth;
+    dm.s_chordData[ch].leftWidth = leftWidth;
+    dm.s_chordData[ch].rightWidth = rightWidth;
 
     ch++;
   }
@@ -431,7 +431,7 @@ int sheetController::findMeasureWidth(int measureNum, bool includeSig) {
       //tickDist = min(tickDist, i.first - dm.chords[c-1].first);
     //}
 
-    width += dm.chordData[c].getSize();
+    width += dm.s_chordData[c].getSize();
   }
 
   //logQ("m", measureNum+1, "min dist.", tickDist, "width", width, "chords");
@@ -558,7 +558,7 @@ void sheetController::drawSheetPage() {
 
     for (unsigned int ch = 0; ch < displayMeasure[m-1].chords.size(); ++ch) {
       
-      int chordSize = displayMeasure[m-1].chordData[ch].getSize();
+      int chordSize = displayMeasure[m-1].s_chordData[ch].getSize();
 
       // spacing calculated only between chords
       if (ch != 0) {
@@ -567,7 +567,7 @@ void sheetController::drawSheetPage() {
       
       // TODO: draw chords WITH spacing
 
-      int stemPos = offset + displayMeasure[m-1].chordData[ch].getStemPosition();
+      int stemPos = offset + displayMeasure[m-1].s_chordData[ch].getStemPosition();
 
       for (unsigned int n = 0; n < displayMeasure[m-1].chords[ch].second.size(); ++n) {
 
@@ -600,10 +600,10 @@ void sheetController::drawSheetPage() {
       
 
 
-      //logQ(displayMeasure[m-1].chordData[ch].flags.size());
-      for (/*int stc = 0; */const auto& stem : displayMeasure[m-1].chordData[ch].flags) {
+      //logQ(displayMeasure[m-1].s_chordData[ch].flags.size());
+      for (/*int stc = 0; */const auto& stem : displayMeasure[m-1].s_chordData[ch].flags) {
         //int stave = STAVE_TREBLE;//stc++ % 2 ? STAVE_BASS : STAVE_TREBLE; // hack for two flag chords
-        int lOffset = displayMeasure[m-1].chordData[ch].getStemPosition();
+        int lOffset = displayMeasure[m-1].s_chordData[ch].getStemPosition();
         drawLineEx(offset+lOffset, findStaveY(stem.startY, stem.stave),
                    offset+lOffset, findStaveY(stem.endY, stem.stave), 2, ctr.bgSheetNote);
       }

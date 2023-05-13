@@ -30,7 +30,7 @@ struct flagData {
   int stave;
 };
 
-struct chordData {
+struct sheetChordData {
   int leftWidth;
   int rightWidth;
 
@@ -54,7 +54,7 @@ class sheetMeasure {
 
     int getSpacingCount() const;
  
-    vector<chordData> chordData;
+    vector<sheetChordData> s_chordData;
     vector<pair<int, vector<sheetNote*>>> chords;
     measureController* measure;
 
