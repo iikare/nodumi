@@ -8,6 +8,8 @@
 #include "sheetctr.h"
 #include "define.h"
 
+using std::priority_queue;
+
 int midi::getTempo(int offset) {
   if (tempoMap.size() != 0 && offset == 0) {
     return tempoMap[0].second;
@@ -50,7 +52,7 @@ void midi::buildLineMap() {
     //}
   //}
   auto track_comp = [] (const auto& a, const auto& b) {
-    return a.x_l > b.x_l;
+    return a.x_l >= b.x_l;
   };
 
   if (tracks.size() > 1) {
@@ -61,7 +63,7 @@ void midi::buildLineMap() {
     logQ("there are", n_line, "lines to merge");
 
     lines.reserve(n_line);
-    std::priority_queue<lineData, vector<lineData>, decltype(track_comp)> tt;
+    priority_queue<lineData, vector<lineData>, decltype(track_comp)> tt;
 	  unsigned int idx = 0;
 
     do {
@@ -87,6 +89,15 @@ void midi::buildLineMap() {
       //int tr_l = notes[lines[i].idx].track;
       //int tr_r = notes[lines[i+1].idx].track;
       //logQ("TRACK^:", tr_l, tr_r);
+    //}
+  //}
+  //for (unsigned int i = 0; i < lines.size(); ++i) {  
+    //if (lines[i].x_r < lines[i].x_l) {
+      ////logQ("NEGATIVE LINE OFFSET");
+    //}
+    //else if (lines[i].x_r - lines[i].x_l > tpq*40) {
+      //logQ("TOO LONG LINE");
+      //logQ(lines[i].x_r - lines[i].x_l);
     //}
   //}
 

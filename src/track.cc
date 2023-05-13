@@ -45,7 +45,6 @@ void trackController::reset() {
   noteCount = 0;
   noteSum = 0;
   noteIdxMap.clear();
-  noteIdxMap = {};
 
   note_idx.clear();
   chords.clear();
@@ -166,6 +165,12 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
   auto push_verts = [&](unsigned int n_l, unsigned int n_r) {
     const auto& l_note = n_vec->at(chord_l[n_l]);
     const auto& r_note = n_vec->at(chord_r[n_r]);
+
+    //if (r_note.x < l_note.x) {
+      //logQ("NEGATIVE LINE OFFSET");
+      //return;
+    //}
+
     lines.push_back({chord_l[n_l],
                      l_note.x,
                      l_note.y,
@@ -193,13 +198,8 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
   }
   else {
     // right side smaller
-    unsigned int n_r = 0;
-    for (; n_r < chord_r.size(); ++n_r) {
-      push_verts(n_r, n_r);
-    }
-    n_r--;
-    for (unsigned int n_l = n_r; n_l < chord_l.size(); ++n_l) {
-      push_verts(n_r, n_l);
+    for (unsigned int n_l = 0; n_l < chord_l.size(); ++n_l) {
+      push_verts(n_l, (n_l < chord_r.size()) ? n_l : chord_r.size()-1);
     }
   }
 
