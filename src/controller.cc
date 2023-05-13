@@ -617,6 +617,10 @@ string controller::getKeySigLabel(int offset) const {
   if (file.measureMap.size() == 0) {
     return "";
   }
+  
+  if (offset == 0) {
+    offset = 1;
+  }
 
   //int KSOffset = file.measureMap[findCurrentMeasure(offset)-1].currentKey.getIndex();
   //logQ("the current measure", findCurrentMeasure(offset), "has key signature offset", KSOffset); 
