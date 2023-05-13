@@ -45,7 +45,6 @@ class midi {
       tempoMap = {};
       tracks = {};
       trackHeightMap = {};
-      lineVerts = {};
       measureMap = {};
       timeSignatureMap = {};
       keySignatureMap = {};
@@ -68,7 +67,6 @@ class midi {
     void load(string file, stringstream& buf);
     void load(stringstream& buf);
     
-    const vector<int>& getLineVerts() { return lineVerts; }
     const vector<lineData>& getLines() { return lines; }
     int findMeasure(int offset) const;
     
@@ -98,7 +96,6 @@ class midi {
   private:
     vector<pair<double, int>> tempoMap;
     vector<trackController> tracks;
-    vector<int> lineVerts;
     vector<int> tickMap;
     vector<pair<int, timeSig>> timeSignatureMap;
     vector<pair<int, keySig>> keySignatureMap;

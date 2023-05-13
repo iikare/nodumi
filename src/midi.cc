@@ -250,7 +250,6 @@ void midi::clear() {
   tempoMap.clear();
   tracks.clear();
   trackHeightMap.clear();
-  lineVerts.clear();
   measureMap.clear();
   timeSignatureMap.clear();
   keySignatureMap.clear();
