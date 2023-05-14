@@ -1654,7 +1654,7 @@ int main (int argc, char* argv[]) {
           !ctr.image.movable()) {
         nowMove = true;
       }
-      if (nowMove) {
+      if (nowMove && nowLine) {
         // provide reset
         if (IsKeyDown(KEY_LEFT_SHIFT)) {
           nowLineX = ctr.getWidth()/2.0;
