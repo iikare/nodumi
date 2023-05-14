@@ -103,7 +103,7 @@ void outputInstance::process() {
       break;
     }
 
-    if (send) {
+    if (send && !(offset == 0)) {
 
       crit.lock();
       std::chrono::duration<double> elapsedTime = std::chrono::high_resolution_clock::now() - update_last;
