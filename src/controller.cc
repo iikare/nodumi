@@ -979,12 +979,10 @@ void controller::load(string path, fileType& fType,
     // last, set non-MKI loaded flag
     fType = FILE_MIDI;
   }
-
+  
   fileOutput.load(file.message);
-
-  auto end = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> elapsedTime = end - start;
-  logW(LL_INFO, "elapsed time:", elapsedTime.count(), "seconds");
+  
+  debug_time(start);
 }
 
 void controller::save(string path, 

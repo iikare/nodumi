@@ -2,13 +2,16 @@
 #include <set>
 #include <queue>
 #include <utility>
+#include <thread>
 #include "midi.h"
 #include "misc.h"
 #include "data.h"
 #include "sheetctr.h"
 #include "define.h"
+#include "track.h"
 
 using std::priority_queue;
+using std::thread;
 
 int midi::getTempo(int offset) {
   if (tempoMap.size() != 0 && offset == 0) {
@@ -382,8 +385,20 @@ void midi::load(stringstream& buf) {
     // build track height map
     trackHeightMap.push_back(make_pair(i, tracks[i].getAverageY()));
 
+  }
+
+  vector<thread> track_thread;
+
+  for (unsigned int i = 0; i < tracks.size(); i++) {
     // build track chord map (and implicitly, line map as well)
-    tracks[i].buildChordMap();
+    track_thread.emplace_back([&](trackController& f) { f.buildChordMap();}, std::ref(tracks[i]));
+    //logQ("THREAD SIZE", track_thread.size());
+    logQ("THREAD ID:", track_thread[i].get_id());
+    //tracks[i].buildChordMap();
+  }
+
+  for (auto& t : track_thread) {
+    t.join();
   }
   
   sort(trackHeightMap.begin(), trackHeightMap.end(), [](const pair<int, double>& left, const pair<int, double>& right) {

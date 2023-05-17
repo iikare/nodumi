@@ -251,3 +251,4 @@ colorRGB maximizeDeltaE(const colorRGB& ref) {
   return colorRGB(optV, optV, optV);
   //return ctr.bgLight;
 }
+

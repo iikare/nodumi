@@ -3,6 +3,7 @@
 #include "build_target.h"
 
 #include <type_traits>
+#include <chrono>
 #include <string>
 #include <vector>
 #include "cie2k.h"
@@ -65,4 +66,11 @@ vector<int> convertEnum(const vector<T>& ev) {
     result[i] = static_cast<int>(ev[i]);
   }
   return result;
+}
+
+template <class T>
+void debug_time(const T& start) {
+  T end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsedTime = end - start;
+  logW(LL_INFO, "elapsed time:", elapsedTime.count(), "seconds");
 }
