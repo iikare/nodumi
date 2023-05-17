@@ -928,8 +928,8 @@ int main (int argc, char* argv[]) {
     ctr.processAction(action);
 
     if (ctr.run) {
-      if (timeOffset + GetFrameTime() * 500 < ctr.getLastTime()) {
-        timeOffset += GetFrameTime() * 500;
+      if (timeOffset + GetFrameTime() * UNK_CST < ctr.getLastTime()) {
+        timeOffset += GetFrameTime() * UNK_CST;
       }
       else {
         timeOffset = ctr.getLastTime();

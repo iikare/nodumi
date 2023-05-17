@@ -120,7 +120,7 @@ void midi::buildMessageMap(const MidiFile& mf) {
     //if (mf[0][i].seconds > 0.01){// || mf[0][i].isNote()) { 
     if (mf[0][i].isNote() || mf[0][i].isController()) {
     //if (1) {
-      message_vec.push_back(make_pair(mf[0][i].seconds * 500, static_cast<vector<unsigned char>>(mf[0][i])));
+      message_vec.push_back(make_pair(mf[0][i].seconds * UNK_CST, static_cast<vector<unsigned char>>(mf[0][i])));
     }
   } 
   message = multiset<pair<double, vector<unsigned char>>>(message_vec.begin(), message_vec.end());
@@ -143,14 +143,14 @@ int midi::findMeasure(int offset) const {
   return -1;
 }
 
-void midi::addTimeSignature(int position, const timeSig& timeSignature) {
+void midi::addTimeSignature(double position, const timeSig& timeSignature) {
   if (timeSignatureMap.size() != 0 && timeSignatureMap[timeSignatureMap.size()-1].second == timeSignature) {
     return;
   }
   timeSignatureMap.push_back(make_pair(position, timeSignature));
 }
 
-void midi::addKeySignature(int position, const keySig& keySignature) {
+void midi::addKeySignature(double position, const keySig& keySignature) {
   if (keySignatureMap.size() != 0 && keySignatureMap[keySignatureMap.size()-1].second == keySignature) {
     return;
   }
@@ -212,7 +212,7 @@ keySig midi::eventToKeySignature(int keySigType, bool isMinor, int tick) {
   return keySig(keyType, isMinor, tick);
 }
 
-timeSig midi::getTimeSignature(int offset) {
+timeSig midi::getTimeSignature(double offset) {
   timeSig timeSignature = {0, -1, 1};
   for (unsigned int i = 0; i < timeSignatureMap.size(); i++) {
     if (offset > timeSignatureMap[i].first && offset < timeSignatureMap[i + 1].first) {
@@ -222,7 +222,7 @@ timeSig midi::getTimeSignature(int offset) {
   return timeSignature;
 }
 
-keySig midi::getKeySignature(int offset) {
+keySig midi::getKeySignature(double offset) {
   keySig keySignature = {0, 1, -1};
   for (unsigned int i = 0; i < keySignatureMap.size(); i++) {
     if (offset > keySignatureMap[i].first && offset < keySignatureMap[i + 1].first) {
@@ -298,7 +298,7 @@ void midi::load(stringstream& buf) {
   }
 
   tpq = midifile.getTicksPerQuarterNote();
-  lastTime = midifile.getFileDurationInSeconds() * 500;
+  lastTime = midifile.getFileDurationInSeconds() * UNK_CST;
   lastTick = midifile.getFileDurationInTicks();
 
   buildTickSet();
@@ -311,7 +311,7 @@ void midi::load(stringstream& buf) {
       if (midifile[i][j].isNoteOn()) {
         if (once) {
           once = false;
-          trackInfo.push_back(make_pair(midifile[i][j].seconds * 500, i));
+          trackInfo.push_back(make_pair(midifile[i][j].seconds * UNK_CST, i));
         }
         noteCount++;
       }
@@ -336,8 +336,8 @@ void midi::load(stringstream& buf) {
         notes[idx].tick = midifile[i][j].tick;
         notes[idx].tickDuration = midifile[i][j].getTickDuration();
         notes[idx].track = i;
-        notes[idx].duration = midifile[i][j].getDurationInSeconds() * 500;
-        notes[idx].x  = midifile[i][j].seconds * 500;
+        notes[idx].duration = midifile[i][j].getDurationInSeconds() * UNK_CST;
+        notes[idx].x  = midifile[i][j].seconds * UNK_CST;
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
 
@@ -358,20 +358,20 @@ void midi::load(stringstream& buf) {
   for (int i = 0; i < midifile.getEventCount(0); i++) {
 
     if (midifile[0][i].isTempo()) {
-      tempoMap.push_back(make_pair(midifile[0][i].seconds * 500, midifile[0][i].getTempoBPM()));
+      tempoMap.push_back(make_pair(midifile[0][i].seconds * UNK_CST, midifile[0][i].getTempoBPM()));
     }
     if (midifile[0][i].isTimeSignature()) {
       //log3(LL_INFO, "time sig at event", j);
       //cerr << (int)midifile[0][i][3] << " " << pow(2, (int) midifile[0][i][4])<< endl;
-      addTimeSignature(midifile[0][i].seconds * 500,
+      addTimeSignature(midifile[0][i].seconds * UNK_CST,
                                  {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4]), midifile[0][i].tick});
     }
     if (midifile[0][i].isKeySignature()) {
       //log3(LL_INFO, "key sig at event", i);
       //cerr << (int)midifile[0][i][1] << " " << (int)midifile[0][i][3] << " " << (int)midifile[0][i][4] <<  endl;
-      //cerr << midifile[0][i].seconds * 500 << endl;;
+      //cerr << midifile[0][i].seconds * UNK_CST << endl;;
       keySig tmpKS = eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick);
-      addKeySignature(midifile[0][i].seconds * 500, tmpKS);
+      addKeySignature(midifile[0][i].seconds * UNK_CST, tmpKS);
       //logQ("type, tick", (int)midifile[0][i][3], midifile[0][i].tick);
       //auto a = eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick);
       //logQ("e2ks, tick", a.getAcc(), a.getTick());
@@ -440,7 +440,7 @@ void midi::load(stringstream& buf) {
       }
     }
     //logQ(measureNum, "to",cKeySig.getAcc());
-    measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * 500, cTick, 
+    measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * UNK_CST, cTick, 
                                            cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   }
   measureMap.pop_back(); 

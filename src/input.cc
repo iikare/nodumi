@@ -84,7 +84,7 @@ bool midiInput::updateQueue() {
   int tempTS = midiIn->getMessage(&msgQueue);
   if (isUntimedQueue()) {
     timestamp += GetFrameTime();
-    ctr.livePlayOffset += GetFrameTime() * 500;
+    ctr.livePlayOffset += GetFrameTime() * UNK_CST;
   }
   else {
     timestamp = tempTS;
@@ -130,7 +130,7 @@ void midiInput::convertEvents() {
 
     if (msgQueue[i] == 0b11111000) { // 248: clock signal
       //cerr << "shift by " << timestamp*100 << endl;
-      ctr.livePlayOffset += fmax(0, timestamp) * 500;
+      ctr.livePlayOffset += fmax(0, timestamp) * UNK_CST;
     }
     else if (msgQueue[i] == 0b10010000) { // 144: note on/off
       if (msgQueue[i + 2] != 0) { // if note on
@@ -382,6 +382,6 @@ void midiInput::update() {
   }
   else {
     // shift even when midi input is disconnected
-    ctr.livePlayOffset += GetFrameTime() * 500;
+    ctr.livePlayOffset += GetFrameTime() * UNK_CST;
   }
 }

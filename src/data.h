@@ -6,6 +6,9 @@
 #define W_HEIGHT 740
 #define W_NAME "nodumi"
 #define W_VER "0.01a"
+
+#define UNK_CST 500
+
 #define MIN_NOTE_IDX 21
 #define MAX_NOTE_IDX 108
 #define MIDC_NOTE_IDX 60

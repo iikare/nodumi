@@ -97,9 +97,9 @@ string getSongPercent (double pos, double total) {
 string getSongTime(double pos, double total) {
   string result;
   
-  result += toMinutes(floor(pos / 500.0));
+  result += toMinutes(floor(pos / UNK_CST));
   result += " / ";
-  result += toMinutes(floor(total/500.0));
+  result += toMinutes(floor(total/UNK_CST));
   return result;
 }
 

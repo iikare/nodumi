@@ -97,18 +97,18 @@ class midi {
     vector<pair<double, int>> tempoMap;
     vector<trackController> tracks;
     vector<int> tickMap;
-    vector<pair<int, timeSig>> timeSignatureMap;
-    vector<pair<int, keySig>> keySignatureMap;
+    vector<pair<double, timeSig>> timeSignatureMap;
+    vector<pair<double, keySig>> keySignatureMap;
     
     set<pair<int, int>, tickCmp> tickSet;
     set<pair<int, int>, itemStartCmp> itemStartSet;
 
-    void addTimeSignature(int position, const timeSig& timeSignature);
-    timeSig getTimeSignature(int offset);
+    void addTimeSignature(double position, const timeSig& timeSignature);
+    timeSig getTimeSignature(double offset);
     
-    void addKeySignature(int position, const keySig& keySignature);
+    void addKeySignature(double position, const keySig& keySignature);
     void linkKeySignatures();
-    keySig getKeySignature(int offset);
+    keySig getKeySignature(double offset);
     keySig eventToKeySignature(int keySigType, bool isMinor, int tick);
     
     void buildLineMap();
