@@ -83,7 +83,7 @@ int main (int argc, char* argv[]) {
   bool showKey = true;
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_PULSE;
+  int displayMode = DISPLAY_BAR;
   
   double nowLineX = ctr.getWidth()/2.0f;
 
@@ -131,6 +131,10 @@ int main (int argc, char* argv[]) {
 
     return make_pair(minVal, maxVal);
   };
+  
+  // note trackers
+  vector<int> current_note;
+  vector<int> current_note_last;
 
   // menu variables
   constexpr int songInfoSpacing = 4;
@@ -385,7 +389,8 @@ int main (int argc, char* argv[]) {
       };
 
       pair<double, double> currentBoundaries = inverseSSX();
-      vector<int> curNote;
+      current_note_last = current_note;
+      current_note.clear();
 
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
@@ -418,6 +423,7 @@ int main (int argc, char* argv[]) {
                  (timeOffset >= ctr.getNotes()[i].x && 
                   timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration)) {
                 noteOn = true;
+                current_note.push_back(i);
               }
               if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu.mouseOnMenu()) {
                 updateClickIndex();
@@ -749,7 +755,7 @@ int main (int argc, char* argv[]) {
                 updateClickIndex();
               }
               if(drawFFT) {
-                curNote.push_back(i);
+                current_note.push_back(i);
               }
 
               auto cSet = noteOn ? colorSetOn : colorSetOff;
@@ -761,7 +767,7 @@ int main (int argc, char* argv[]) {
 
       // render FFT lines after notes
       if (displayMode == DISPLAY_FFT) {
-        for (const auto& idx : curNote) {
+        for (const auto& idx : current_note) {
           double freq = ctr.fft.getFundamental(ctr.getNotes()[idx].y);
           int colorID = getColorSet(idx);
           double nowRatio = (timeOffset-ctr.getNotes()[idx].x)/(ctr.getNotes()[idx].duration);
@@ -825,6 +831,41 @@ int main (int argc, char* argv[]) {
           }
         }
       }
+
+      // particle handling
+      //logQ("current_note size:", current_note.size());
+      if (!std::is_sorted(current_note.begin(), current_note.end())) {
+        logW(LL_WARN, "NOT SORTED");
+      }
+      else {
+
+
+
+        vector<int> begin_emit(current_note.size());
+        vector<int> end_emit(current_note_last.size());
+
+        if (!ctr.run) {
+          current_note.clear();
+          begin_emit = {};
+          end_emit = current_note_last;
+        }
+        else {
+          std::set_difference(current_note.begin(), current_note.end(),
+                              current_note_last.begin(), current_note_last.end(),
+                              begin_emit.begin());
+          std::set_difference(current_note_last.begin(), current_note_last.end(),
+                              current_note.begin(), current_note.end(),
+                              end_emit.begin());
+        }
+
+        begin_emit.erase(std::remove(begin_emit.begin(), begin_emit.end(), 0), begin_emit.end());
+        end_emit.erase(std::remove(end_emit.begin(), end_emit.end(), 0), end_emit.end());
+
+        if (begin_emit.size()) logQ("BEGIN EMIT:", begin_emit);
+        if (end_emit.size())   logQ("END EMIT:", end_emit);
+      }
+
+
       
       // menu bar rendering
       drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);  

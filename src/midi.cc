@@ -393,7 +393,7 @@ void midi::load(stringstream& buf) {
     // build track chord map (and implicitly, line map as well)
     track_thread.emplace_back([&](trackController& f) { f.buildChordMap();}, std::ref(tracks[i]));
     //logQ("THREAD SIZE", track_thread.size());
-    logQ("THREAD ID:", track_thread[i].get_id());
+    //logQ("THREAD ID:", track_thread[i].get_id());
     //tracks[i].buildChordMap();
   }
 
