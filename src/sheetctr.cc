@@ -464,6 +464,9 @@ pair<int, int> sheetController::findSheetPageLimit(int measureNum) const {
   // return value is inclusive in interval [min, max]
   pair<int, int> result = { 0, 0 };
 
+  // treat measure 0 as measure 1
+  if (measureNum == 0) { measureNum = 1; }
+
   if (sheetPageSeparator.empty()) {
     return result;
   }
