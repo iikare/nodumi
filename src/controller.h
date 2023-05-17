@@ -24,6 +24,7 @@
 #include "menuctr.h"
 #include "warning.h"
 #include "voronoi.h"
+#include "particle.h"
 #include "colorgen.h"
 #include "output_sync.h"
 
@@ -136,6 +137,7 @@ class controller {
     ioController save_file  = ioController(OSDIALOG_SAVE, FILTER_SAVE);
     warningController warning;
 
+    particleController particle;
     voronoiController voronoi;
     fftController fft;
 

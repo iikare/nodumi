@@ -131,10 +131,6 @@ int main (int argc, char* argv[]) {
 
     return make_pair(minVal, maxVal);
   };
-  
-  // note trackers
-  vector<int> current_note;
-  vector<int> current_note_last;
 
   // menu variables
   constexpr int songInfoSpacing = 4;
@@ -232,6 +228,7 @@ int main (int argc, char* argv[]) {
     // preprocess variables
     clickTmp = -1;
     hoverType.clear();
+    ctr.particle.update();
 
     // update menu variables
     if (sheetMusicDisplay) {
@@ -389,8 +386,7 @@ int main (int argc, char* argv[]) {
       };
 
       pair<double, double> currentBoundaries = inverseSSX();
-      current_note_last = current_note;
-      current_note.clear();
+      vector<int> current_note;
 
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
@@ -423,7 +419,7 @@ int main (int argc, char* argv[]) {
                  (timeOffset >= ctr.getNotes()[i].x && 
                   timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration)) {
                 noteOn = true;
-                current_note.push_back(i);
+                ctr.particle.add_emitter(i);
               }
               if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu.mouseOnMenu()) {
                 updateClickIndex();
@@ -834,35 +830,13 @@ int main (int argc, char* argv[]) {
 
       // particle handling
       //logQ("current_note size:", current_note.size());
-      if (!std::is_sorted(current_note.begin(), current_note.end())) {
-        logW(LL_WARN, "NOT SORTED");
+      
+
+      if (!ctr.run) {
+        ctr.particle.end_emission();
       }
-      else {
-
-
-
-        vector<int> begin_emit(current_note.size());
-        vector<int> end_emit(current_note_last.size());
-
-        if (!ctr.run) {
-          current_note.clear();
-          begin_emit = {};
-          end_emit = current_note_last;
-        }
-        else {
-          std::set_difference(current_note.begin(), current_note.end(),
-                              current_note_last.begin(), current_note_last.end(),
-                              begin_emit.begin());
-          std::set_difference(current_note_last.begin(), current_note_last.end(),
-                              current_note.begin(), current_note.end(),
-                              end_emit.begin());
-        }
-
-        begin_emit.erase(std::remove(begin_emit.begin(), begin_emit.end(), 0), begin_emit.end());
-        end_emit.erase(std::remove(end_emit.begin(), end_emit.end(), 0), end_emit.end());
-
-        if (begin_emit.size()) logQ("BEGIN EMIT:", begin_emit);
-        if (end_emit.size())   logQ("END EMIT:", end_emit);
+      else  {
+        ctr.particle.process();
       }
 
 
