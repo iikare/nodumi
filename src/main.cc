@@ -419,14 +419,19 @@ int main (int argc, char* argv[]) {
                  (timeOffset >= ctr.getNotes()[i].x && 
                   timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration)) {
                 noteOn = true;
-                ctr.particle.add_emitter(i);
               }
               if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu.mouseOnMenu()) {
                 updateClickIndex();
               }
-
               auto cSet = noteOn ? colorSetOn : colorSetOff;
-              drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
+
+              const auto& col = (*cSet)[colorID]; 
+
+              if (noteOn) {
+                ctr.particle.add_emitter(i, {cX, cY, col});
+              }
+
+              drawRectangle(cX, cY, cW, cH, col);
             }
             break;
           case DISPLAY_VORONOI:
@@ -838,6 +843,8 @@ int main (int argc, char* argv[]) {
       else  {
         ctr.particle.process();
       }
+
+      ctr.particle.render();
 
 
       
