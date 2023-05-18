@@ -5,12 +5,13 @@
 #include "particle_info.h"
 
 using std::vector;
+using std::pair;
 
 class emitter {
   
   public:
 
-    void init(unsigned int idx);
+    void init(const pair<int, particleInfo>& p_info);
     void update_part(double t_step);
     void update_data(const particleInfo& p_info);
     void render();
@@ -18,7 +19,7 @@ class emitter {
 
   private:
 
-    void create_particle(unsigned int idx);
+    void create_particle();
 
     particleInfo data;
 

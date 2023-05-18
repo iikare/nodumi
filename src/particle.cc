@@ -63,9 +63,9 @@ void particleController::process() {
   for (const auto& b_idx : begin_emit) {
     auto b_it = emitter_map.find(b_idx);
     if (b_it == emitter_map.end()) {
-      //emitter e = emitter();
-      //e.init(b_idx);
-      //emitter_map.insert(make_pair(b_idx, std::move(e)));
+      emitter e = emitter();
+      e.init(b_idx);
+      emitter_map.insert(make_pair(b_idx, std::move(e)));
     }
   }
 }

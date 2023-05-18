@@ -3,6 +3,7 @@
 #include "build_target.h"
 #include <cstdlib>
 #include <math.h>
+#include "log.h"
 
 class particle {
   public:
@@ -39,21 +40,9 @@ class particle {
       return *this;
     }
 
+    void update(double t_step);
 
-    double ratio() { return r_life/t_life; }
-
-    void update(double t_step) {
-      r_life -= t_step* rand()/float(RAND_MAX);
-      vel = 2 * r_life/t_life * (rand()/float(RAND_MAX));
-      x += 0.1*vel*t_step*cos(angle*M_PI/180.0);
-      y += 0.1*vel*t_step*sin(angle*M_PI/180.0);
-
-
-
-      
-    }
-
-
+    double ratio() const { return r_life/t_life; }
     bool is_end() { return r_life < 0; }
     
     double x;
