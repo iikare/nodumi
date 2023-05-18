@@ -2,6 +2,7 @@
 #include <limits>
 #include <stdlib.h>
 #include <bitset>
+#include <random>
 #include <chrono>
 #include <system_error>
 #include "define.h"
@@ -33,6 +34,8 @@ controller::controller() : midiData() {
 
 void controller::init(vector<asset>& assetSet) {
   srand(time(0));
+
+  std::mt19937 gen(rd());
   
   initData(assetSet);
 
@@ -302,7 +305,7 @@ void controller::update(int offset, double& nowLineX) {
 
   if (run || livePlayState) {
     // persistent randomness for animation
-    psrValue = rand();
+    psrValue = getRandRange(0, std::numeric_limits<int>::max());
   }
 
   updateDroppedFiles();
@@ -1210,4 +1213,19 @@ void controller::save(string path,
 void controller::setCloseFlag() {
   programState = false;
   fileOutput.terminate();
+}
+
+int controller::getRandRange(int a, int b) {
+  if (a > b) {
+    std::swap(a, b);
+  }
+  std::uniform_int_distribution<int> dist(a, b);
+  //auto result = std::bind(dist, std::mt19937(gen));
+  return dist(gen);
+}
+
+double controller::getRandClamp() {
+  int sample = getRandRange(0, std::numeric_limits<int>::max());
+
+  return static_cast<double>(sample) / std::numeric_limits<int>::max();
 }

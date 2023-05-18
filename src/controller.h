@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <random>
 #include <sstream>
 #include "io.h"
 #include "fft.h"
@@ -100,6 +101,8 @@ class controller {
     double getRunTime() { return runTime; }
     double getPauseTime() { return pauseTime; }
     int getPSR() { return psrValue; }
+    int getRandRange(int a, int b);
+    double getRandClamp();
     unsigned int getFrameCounter() { return frameCounter; }
     
     midi& getStream();
@@ -218,6 +221,8 @@ class controller {
     double pauseTime;
     
     int psrValue = 0;
+    std::random_device rd;
+    std::mt19937 gen;
 
     vector<note>* notes;
 
