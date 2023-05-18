@@ -986,6 +986,8 @@ void controller::load(string path, fileType& fType,
   }
   
   fileOutput.load(file.message);
+
+  particle.end_emission();
   
   debug_time(start);
 }

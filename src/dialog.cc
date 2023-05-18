@@ -17,6 +17,10 @@ void dialogController::init() {
                                   optionType::OPTION_TRACK_DIVISION, 
                                   ctr.text.getStringSet("PREF_TRACK_DIVIDE")
                                   ));
+  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+                                  optionType::OPTION_PARTICLE, 
+                                  ctr.text.getStringSet("PREF_PARTICLE")
+                                  ));
   dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
                                   optionType::OPTION_SET_HAND_RANGE,
                                   optionType::OPTION_HAND_RANGE,

@@ -843,14 +843,15 @@ int main (int argc, char* argv[]) {
       //logQ("current_note size:", current_note.size());
       
 
-      if (!ctr.run) {
-        ctr.particle.end_emission();
+      if (ctr.option.get(optionType::OPTION_PARTICLE)) {
+        if (!ctr.run) {
+          ctr.particle.end_emission();
+        }
+        else  {
+          ctr.particle.process();
+        }
+        ctr.particle.render();
       }
-      else  {
-        ctr.particle.process();
-      }
-
-      ctr.particle.render();
 
 
       
