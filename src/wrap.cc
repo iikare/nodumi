@@ -1,5 +1,11 @@
 #include "wrap.h"
 
+void drawPixel(float x, float y, const colorRGB& col, unsigned char alpha) {
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, 
+                        (unsigned char)col.b, (unsigned char)alpha};
+  DrawPixel(x, y, color);
+}
+
 void drawLine(float xi, float yi, float xf, float yf, const colorRGB& col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   DrawLine(xi, yi, xf, yf, color);
@@ -38,6 +44,13 @@ void drawTextEx(const string& msg, int x, int y, const colorRGB& col, unsigned c
 void drawSymbol(int sym, int size, int x, int y, const colorRGB& col, unsigned char alpha, const string& font) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, static_cast<unsigned char>(alpha)};
   DrawTextCodepoint(*ctr.getFont(font, size), sym, (const Vector2){static_cast<float>(x), static_cast<float>(y)}, size, color);
+}
+
+void drawCircle(float x, float y, float r, const colorRGB& col, float alpha) {
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, 
+                        (unsigned char)col.b, (unsigned char)alpha};
+
+  DrawCircle(x, y, r, color);
 }
 
 void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col, float alpha, float sAngle, float eAngle) {

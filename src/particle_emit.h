@@ -12,13 +12,17 @@ class emitter {
   public:
 
     void init(const pair<int, particleInfo>& p_info);
-    void update_part(double t_step);
+    void update_part(double t_step, double zoom);
     void update_data(const particleInfo& p_info);
     void render();
 
+    bool active = false;
 
   private:
 
+    static constexpr int max_parts = 127; 
+    static constexpr int max_cycle_parts = 5; 
+    
     void create_particle();
 
     particleInfo data;

@@ -9,46 +9,40 @@ class particle {
   public:
     
     particle() = delete;
-    particle(double n_x, double n_y, double n_t_life, double n_angle, /*double n_vel,*/ int k_idx) {
-
+    particle(double n_x, double n_y, double n_t_life, double n_angle, double n_vel) {
       x = n_x;
       y = n_y;
       t_life = n_t_life;
       r_life = n_t_life;
       angle = n_angle;
-      vel = 2;//n_vel;
-      idx = k_idx;
+      vel = n_vel;
     }
 
-    //particle(const particle& n) {
-      //x = n.x;
-      //y = n.y;
-      //t_life = n.t_life;
-      //angle = n.angle;
-      //vel = n.vel;
-    //}
+    particle(const particle& n) {
+      x = n.x;
+      y = n.y;
+      t_life = n.t_life;
+      angle = n.angle;
+      vel = n.vel;
+    }
 
-    particle& operator ==(const particle& n) {
+    particle& operator =(const particle& n) {
       x = n.x;
       y = n.y;
       t_life = n.t_life;
       angle = n.angle;
       vel = 2;//n.vel;
 
-      idx = n.idx;
-
       return *this;
     }
 
-    void update(double t_step);
+    void update(double t_step, double zoom, double ratio);
 
     double ratio() const { return r_life/t_life; }
-    bool is_end() { return r_life < 0; }
+    bool is_end() const { return r_life < 0; }
     
     double x;
     double y;
-
-    int idx;
 
   private:
     double r_life;

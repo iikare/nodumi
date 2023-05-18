@@ -267,7 +267,7 @@ void controller::processAction(actionType& action) {
   action = actionType::ACTION_NONE;
 }
 
-void controller::update(int offset, double& nowLineX) {
+void controller::update(int offset, double zoom, double& nowLineX) {
  
   if (!programState) { return; }
 
@@ -289,6 +289,8 @@ void controller::update(int offset, double& nowLineX) {
   updateDimension(nowLineX);
   updateFPS();
   curMeasure = findCurrentMeasure(offset);
+
+  particle.update(zoom);
 
   if(run) {
     runTime += GetFrameTime(); 

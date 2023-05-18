@@ -15,7 +15,7 @@ using std::pair;
 class particleController {
   public:
 
-    void update();
+    void update(double zoom);
     void add_emitter(int index, const particleInfo& p_info);
     void end_emission();
     void process();

@@ -52,6 +52,7 @@ class controller {
     void beginShaderMode(const string& shaderIdentifier) { BeginShaderMode(getShader(shaderIdentifier)); }
     void endShaderMode() { EndShaderMode(); }
 
+    void beginBlendMode(int a) { BeginBlendMode(a); }
     void beginBlendMode(int a, int b, int c);
     void endBlendMode();
 
@@ -66,7 +67,7 @@ class controller {
     void toggleLivePlay();
     void prepareCriticalSection(bool enter);
 
-    void update(int offset, double& nowLineX);
+    void update(int offset, double zoom, double& nowLineX);
     void updateFiles(char** paths, int numFile = 1);
     void processAction(actionType& action);
 

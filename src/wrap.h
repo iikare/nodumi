@@ -11,6 +11,9 @@
 using std::string;
 
 void clearBackground(const colorRGB& col);
+
+void drawPixel(float x, float y, const colorRGB& col, unsigned char alpha = 255);
+
 void drawRectangle(float x, float y, float w, float h, const colorRGB& col, unsigned char alpha = 255);
 void drawRectangleLines(float x, float y, float w, float h, float width, const colorRGB& col);
 void drawLine(float xi, float yi, float xf, float yf, const colorRGB& col);
@@ -23,6 +26,8 @@ void drawTextEx(const string& msg, int x, int y, const colorRGB& col,
                 unsigned char alpha = 255, int size = 14, const string& font = DEFAULT_FONT);
 
 void drawSymbol(int sym, int size, int x, int y, const colorRGB& col, unsigned char alpha = 255, const string& font = GLYPH_FONT);
+
+void drawCircle(float x, float y, float r, const colorRGB& col, float alpha = 255);
 
 void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col, 
               float alpha = 255, float startAngle = 0, float endAngle = 360); 

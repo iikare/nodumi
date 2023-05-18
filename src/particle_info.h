@@ -7,10 +7,13 @@ using std::pair;
 struct particleInfo {
   double x; 
   double y;
+  double w;
+  double h;
   colorRGB col;
+  colorRGB col_inv;
 
   friend ostream& operator << (ostream& out, const particleInfo& p) {
-    out << "{" << p.x << ", " << p.y << ", " << p.col << "}"; 
+    out << "{" << p.x << ", " << p.y << ", " << p.w << ", " << p.h << ", " << p.col << ", " << p.col_inv << "}"; 
     return out;
   }
 };

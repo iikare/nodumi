@@ -70,7 +70,7 @@ int main (int argc, char* argv[]) {
   // view settings
   bool nowLine = true;
   bool nowMove = false;
-  bool showFPS = false;
+  bool showFPS = true;
   bool showImage = true;
   bool colorMove = false;
   bool colorSquare = false;
@@ -228,7 +228,6 @@ int main (int argc, char* argv[]) {
     // preprocess variables
     clickTmp = -1;
     hoverType.clear();
-    ctr.particle.update();
 
     // update menu variables
     if (sheetMusicDisplay) {
@@ -420,15 +419,22 @@ int main (int argc, char* argv[]) {
                   timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration)) {
                 noteOn = true;
               }
+
               if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu.mouseOnMenu()) {
                 updateClickIndex();
               }
+              
               auto cSet = noteOn ? colorSetOn : colorSetOff;
-
+              auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
               const auto& col = (*cSet)[colorID]; 
+              const auto& col_inv = (*cSetInv)[colorID]; 
+              
+              if (timeOffset >= ctr.getNotes()[i].x && 
+                  timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration) {
+                  ctr.particle.add_emitter(i, {nowLineX, cY, 0, cH, col, col_inv});
+              }
 
               if (noteOn) {
-                ctr.particle.add_emitter(i, {cX, cY, col});
               }
 
               drawRectangle(cX, cY, cW, cH, col);
@@ -1794,7 +1800,7 @@ int main (int argc, char* argv[]) {
       hoverType.add(HOVER_MENU);
     }
 
-    ctr.update(timeOffset, nowLineX);
+    ctr.update(timeOffset, zoomLevel, nowLineX);
   }
 
   ctr.unloadData();
