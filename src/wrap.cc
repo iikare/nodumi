@@ -1,5 +1,4 @@
 #include "wrap.h"
-#include <raylib.h>
 
 void drawPixel(float x, float y, const colorRGB& col, unsigned char alpha) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, 

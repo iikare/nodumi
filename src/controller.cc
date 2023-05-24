@@ -1,6 +1,5 @@
 #include "controller.h"
 #include <limits>
-#include <raylib.h>
 #include <stdlib.h>
 #include <bitset>
 #include <random>
