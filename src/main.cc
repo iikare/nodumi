@@ -456,12 +456,20 @@ int main (int argc, char* argv[]) {
               }
 
               auto cSet = noteOn ? colorSetOn : colorSetOff;
+              auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+              const auto& col = (*cSet)[colorID]; 
+              const auto& col_inv = (*cSetInv)[colorID]; 
 
               ctr.voronoi.vertex.push_back({cX/ctr.getWidth(), 1-cY/ctr.getHeight()});
               ctr.voronoi.color.push_back((*cSet)[colorID]);
+              
+              if (timeOffset >= ctr.getNotes()[i].x && 
+                  timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration) {
+                  ctr.particle.add_emitter(i, {cX, cY-radius/2.0, 0, radius, col, col_inv});
+              }
 
-              drawRing({cX, cY+cH}, radius-1, radius+2, ctr.bgDark);
-              drawRing({cX, cY+cH}, 0, radius, (*cSet)[colorID]);
+              drawRing({cX, cY}, radius-1, radius+2, ctr.bgDark);
+              drawRing({cX, cY}, 0, radius, (*cSet)[colorID]);
             }
             break;
           case DISPLAY_BALL:
