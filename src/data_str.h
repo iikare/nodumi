@@ -29,7 +29,7 @@
                         {"VIEW_MENU_SHOW_BACKGROUND",           "Show Background"}, \
                         {"VIEW_MENU_SHOW_FPS",                  "Show FPS"}, \
                         {"VIEW_MENU_HIDE_FPS",                  "Hide FPS"}, \
-                        {"DISPLAY_MENU_DEFAULT",                "Default"}, \
+                        {"DISPLAY_MENU_DEFAULT",                "Bar"}, \
                         {"DISPLAY_MENU_LINE",                   "Line"}, \
                         {"DISPLAY_MENU_PULSE",                  "Pulse"}, \
                         {"DISPLAY_MENU_BALL",                   "Ball"}, \
