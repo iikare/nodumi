@@ -746,34 +746,48 @@ int main (int argc, char* argv[]) {
                                           ))) {
                   updateClickIndex(lp[j].idx);
                 }
+
                 auto cSet = noteOn ? colorSetOn : colorSetOff;
+                auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+                const auto& col = (*cSet)[colorID]; 
+                const auto& col_inv = (*cSetInv)[colorID]; 
+
+
                 double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
+                double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
+                bool nowNote = clickTmp == static_cast<int>(lp[j].idx) ? false : noteOn;
                 if (convSS[2] < nowLineX) {
                 drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                           2, (*cSet)[colorID]);
+                           2, col);
                 }
                 else if (convSS[0] < nowLineX) {
 
-                  double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
-                  bool nowNote = clickTmp == static_cast<int>(lp[j].idx) ? false : noteOn;
                   drawLineEx(convSS[0],
                              convSS[1],
                              nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
                              nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
-                             3, (*cSet)[colorID]);
+                             3, col);
+                }
+
+                if (timeOffset >= ctr.getNotes()[lp[j].idx].x && 
+                    timeOffset < ctr.getNotes()[lp[j].idx].x + ctr.getNotes()[lp[j].idx].duration) {
+                  ctr.particle.add_emitter(lp[j].idx, {
+                           nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
+                           nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
+                           0, 0, col, col_inv});
                 }
                 drawRing({convSS[0], convSS[1]},
-                         0, 3, (*cSet)[colorID]);
+                         0, 3, col);
                 drawRing({convSS[2], convSS[3]},
-                         0, 3, (*cSet)[colorID]);
+                         0, 3, col);
                 if (convSS[2] < nowLineX) {
                   drawRing({convSS[2], convSS[3]},
-                           4, 8, (*cSet)[colorID]);
+                           4, 8, col);
                 }
                 
                 if (nowRatio > 0 && nowRatio < 1) {
                   drawRing({convSS[2], convSS[3]},
-                           4, 8, (*cSet)[colorID], 255, (nowRatio-0.5f)*360.0f, 180.0f);
+                           4, 8, col, 255, (nowRatio-0.5f)*360.0f, 180.0f);
                 }
 
               }
