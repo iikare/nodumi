@@ -475,6 +475,10 @@ int main (int argc, char* argv[]) {
           case DISPLAY_BALL:
             {
               int colorID = getColorSet(i);
+              auto cSet = noteOn ? colorSetOn : colorSetOff;
+              auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+              const auto& col = (*cSet)[colorID]; 
+              const auto& col_inv = (*cSetInv)[colorID]; 
               float radius = -1 + 2 * (32 - __countl_zero(int(cW)));
               float maxRad = radius;
               float ballY = cY + 2;
@@ -508,40 +512,44 @@ int main (int argc, char* argv[]) {
                     updateClickIndex();
                   }
                 }
+
+                if (timeOffset >= ctr.getNotes()[i].x && 
+                    timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration) {
+                    ctr.particle.add_emitter(i, {nowLineX, ballY, 0, 0, col, col_inv});
+                }
                 
                 if (noteOn) {
                   if (cX >= nowLineX) {
-                    drawRing({cX, ballY}, radius - 2, radius, (*colorSetOn)[colorID]);
+                    drawRing({cX, ballY}, radius - 2, radius, col);
                   }
-  
                   else if (cX + cW < nowLineX) {
-                    drawRing({cX + cW, ballY}, radius - 2, radius, (*colorSetOn)[colorID]);
+                    drawRing({cX + cW, ballY}, radius - 2, radius, col);
                   }
                   else if (cX < nowLineX) {
-                    drawRing({cX, ballY}, radius - 2, radius, (*colorSetOn)[colorID], 255*radius/maxRad);
-                    drawRing({static_cast<float>(nowLineX), ballY}, radius - 2, radius, (*colorSetOn)[colorID]);
+                    drawRing({cX, ballY}, radius - 2, radius, col, 255*radius/maxRad);
+                    drawRing({static_cast<float>(nowLineX), ballY}, radius - 2, radius, col);
                     if (nowLineX - cX > 2 * radius) {
                       drawGradientLineH({cX + radius, ballY + 1}, {static_cast<float>(nowLineX) - radius + 1, ballY + 1}, 
-                                        2, (*colorSetOn)[colorID], 255, 255*radius/maxRad);
+                                        2, col, 255, 255*radius/maxRad);
                     }
                   }
                 }
                 else {
                   if (cX < nowLineX && cX + cW > nowLineX) {
-                    drawRing({cX, ballY}, radius - 2, radius, (*colorSetOff)[colorID], 255*radius/maxRad);
-                    drawRing({static_cast<float>(nowLineX), ballY}, radius - 2, radius, (*colorSetOff)[colorID]);
+                    drawRing({cX, ballY}, radius - 2, radius, col_inv, 255*radius/maxRad);
+                    drawRing({static_cast<float>(nowLineX), ballY}, radius - 2, radius, col_inv);
                     if (nowLineX - cX > 2 * radius) {
-                      drawLineEx(cX + radius, ballY + 1, nowLineX - radius, ballY + 1, 2, (*colorSetOff)[colorID]);
+                      drawLineEx(cX + radius, ballY + 1, nowLineX - radius, ballY + 1, 2, col_inv);
                     }
                   }
                   else if (cX < nowLineX) {
-                    drawRing({cX + cW, ballY}, radius - 2, radius, (*colorSetOff)[colorID]);
+                    drawRing({cX + cW, ballY}, radius - 2, radius, col_inv);
                   }
                   else {
-                    drawRing({cX, ballY}, radius - 2, radius, (*colorSetOff)[colorID]);
+                    drawRing({cX, ballY}, radius - 2, radius, col_inv);
                   }
                 }
-                //drawSymbol(SYM_TREBLE, 75, cX,cY, (*colorSetOff)[colorID]);
+                //drawSymbol(SYM_TREBLE, 75, cX,cY, col_inv);
               }
             }
             break;
