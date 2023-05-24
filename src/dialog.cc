@@ -18,6 +18,10 @@ void dialogController::init() {
                                   ctr.text.getStringSet("PREF_PARTICLE")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+                                  optionType::OPTION_DYNAMIC_LABEL,
+                                  ctr.text.getStringSet("PREF_DYNAMIC_LABEL")
+                                  ));
+  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
                                   optionType::OPTION_TRACK_DIVISION, 
                                   ctr.text.getStringSet("PREF_TRACK_DIVIDE")
                                   ));
@@ -27,10 +31,6 @@ void dialogController::init() {
                                   ctr.text.getStringSet("PREF_HAND_RANGE"),
                                   {"8","9","10","11"},
                                   {12,14,16,17}
-                                  ));
-  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
-                                  optionType::OPTION_DYNAMIC_LABEL,
-                                  ctr.text.getStringSet("PREF_DYNAMIC_LABEL")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::SLIDER, 
                                   optionType::OPTION_SET_DARKEN_IMAGE, 
