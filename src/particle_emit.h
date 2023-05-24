@@ -21,7 +21,7 @@ class emitter {
   private:
 
     static constexpr int max_parts = 127; 
-    static constexpr int max_cycle_parts = 5; 
+    static constexpr int max_cycle_parts = 2; 
     
     void create_particle();
 
