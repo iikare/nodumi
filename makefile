@@ -106,6 +106,14 @@ ifneq ($(strip $(relp)),begin)
 	@./tool/generate.sh
 endif
 
+ifneq ($(strip $(rel)),)
+ifeq ($(strip $(arch)),win)
+	@strip $(NAME).exe
+else
+	@strip $(NAME)
+endif
+endif
+
 
 re: clean
 	@$(MAKE) --no-print-directory
