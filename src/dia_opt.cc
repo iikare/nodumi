@@ -92,9 +92,9 @@ int dialogOption::get_height() {
     case CHECK_ONLY:
       return itemRectSize + 4;
     case SLIDER:
-      return itemRectSize + 4 + (!inv_status && opt_status ? boxW + 4 : 0);
+      return itemRectSize + 4 + (1||(!inv_status && opt_status) ? boxW + 4 : 0);
     case SUBBOX:
-      return itemRectSize + 4 + (!inv_status && opt_status ? boxW + 4 : 0);
+      return itemRectSize + 4 + (1||(!inv_status && opt_status) ? boxW + 4 : 0);
     default:
       return 0;
   }
@@ -119,20 +119,17 @@ void dialogOption::render(int in_x, int in_y) {
     drawRectangle(in_x+(itemRectSize-itemRectInnerSize)/2.0f, 
                   in_y+(itemRectSize-itemRectInnerSize)/2.0f, 
                   itemRectInnerSize,itemRectInnerSize, col);
- 
-    if (!inv_status) {
-      using enum DIA_OPT;
-      switch (type) {
-        case SUBBOX:
-          renderBox();
-          break;
-        case SLIDER:
-          renderSlider();
-          break;
-        default:
-          break;
-      }
-    }
+  }
+  switch (type) {
+    using enum DIA_OPT;
+    case SUBBOX:
+      renderBox();
+      break;
+    case SLIDER:
+      renderSlider();
+      break;
+    default:
+      break;
   }
 
   // first element must exist
@@ -144,11 +141,13 @@ void dialogOption::render(int in_x, int in_y) {
 
 void dialogOption::renderBox() {
   if (type != DIA_OPT::SUBBOX) { return; }
-
+  
   int x_start = x + boxOffset;
   int y_start = y + boxOffset;
 
   constexpr int num_size = 15;
+  
+  bool opt_status = ctr.option.get(link_opt);
 
   for (unsigned int v = 0; v < value.size(); ++v) {
 
@@ -166,10 +165,10 @@ void dialogOption::renderBox() {
     float rtY = y_start+boxH/2.0-rtSize.y/2 + 1 + (result[v] == 12 ? 1 : 0);
 
     if (opt_selected) {
-      drawRectangle(x_start, y_start, boxW, boxH, ctr.bgOpt2);
+      drawRectangle(x_start, y_start, boxW, boxH, opt_status ? ctr.bgOpt2 : ctr.bgMenuShade);
     }
     else {
-      drawRectangleLines(x_start, y_start, boxW, boxH, 2, ctr.bgDark);
+      drawRectangleLines(x_start, y_start, boxW, boxH, 2, opt_status ? ctr.bgDark : ctr.bgMenuShade);
     }
 
     x_start += boxW + boxSpacing;
@@ -206,7 +205,9 @@ void dialogOption::renderSlider() {
     float p_ratio = static_cast<float>(sub_opt_value)/(result[1]-result[0]);
     constexpr int p_size = sliderBoxSize;
 
-    drawRectangle(x_start+w*p_ratio-p_size/2.0f, y_start-p_size/2.0f, p_size, p_size, ctr.bgOpt2);
+    const auto& col = ctr.option.get(link_opt) ? ctr.bgOpt2 : ctr.bgMenuShade;
+
+    drawRectangle(x_start+w*p_ratio-p_size/2.0f, y_start-p_size/2.0f, p_size, p_size, col);
 }
 
 void dialogOption::updateSliderValue() {
