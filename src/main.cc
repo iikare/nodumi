@@ -461,7 +461,7 @@ int main (int argc, char* argv[]) {
               const auto& col_inv = (*cSetInv)[colorID]; 
 
               ctr.voronoi.vertex.push_back({cX/ctr.getWidth(), 1-cY/ctr.getHeight()});
-              ctr.voronoi.color.push_back((*cSet)[colorID]);
+              ctr.voronoi.color.push_back(col);
               
               if (timeOffset >= ctr.getNotes()[i].x && 
                   timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration) {
@@ -469,7 +469,7 @@ int main (int argc, char* argv[]) {
               }
 
               drawRing({cX, cY}, radius-1, radius+2, ctr.bgDark);
-              drawRing({cX, cY}, 0, radius, (*cSet)[colorID]);
+              drawRing({cX, cY}, 0, radius, col);
             }
             break;
           case DISPLAY_BALL:
@@ -597,11 +597,11 @@ int main (int argc, char* argv[]) {
 
                 if (convSS[2] - convSS[0] > 3) {
                   drawLineBezier(convSS[0], convSS[1], convSS[2], convSS[3],
-                             2, (*cSet)[colorID]);
+                             2, col);
                 }
                 else {
                   drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                             2, (*cSet)[colorID]);
+                             2, col);
                 }
               }
             }
@@ -664,7 +664,7 @@ int main (int argc, char* argv[]) {
                                           : convSS[0]),
                             float(nowNote ? newY - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) 
                                           : convSS[1])}, 
-                           0, 1.5, (*cSet)[colorID]);
+                           0, 1.5, col);
                   drawRing({float(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) 
                                           : convSS[0]),
                             float(nowNote ? newY - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) 
