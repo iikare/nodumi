@@ -83,7 +83,7 @@ int main (int argc, char* argv[]) {
   bool showKey = true;
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_BAR;
+  int displayMode = DISPLAY_PULSE;
   
   double nowLineX = ctr.getWidth()/2.0f;
 
@@ -814,12 +814,22 @@ int main (int argc, char* argv[]) {
               if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu.mouseOnMenu()) {
                 updateClickIndex();
               }
+
+              auto cSet = noteOn ? colorSetOn : colorSetOff;
+              auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+              const auto& col = (*cSet)[colorID]; 
+              const auto& col_inv = (*cSetInv)[colorID]; 
+              
+              if (timeOffset >= ctr.getNotes()[i].x && 
+                  timeOffset < ctr.getNotes()[i].x + ctr.getNotes()[i].duration) {
+                  ctr.particle.add_emitter(i, {nowLineX, cY, 0, cH, col, col_inv});
+              }
+
               if(drawFFT) {
                 current_note.push_back(i);
               }
 
-              auto cSet = noteOn ? colorSetOn : colorSetOff;
-              drawRectangle(cX, cY, cW, cH, (*cSet)[colorID]);
+              drawRectangle(cX, cY, cW, cH, col);
             }
             break;
         }
