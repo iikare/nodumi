@@ -14,12 +14,12 @@ using std::string;
 
 void dialogController::init() {
   dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
-                                  optionType::OPTION_TRACK_DIVISION, 
-                                  ctr.text.getStringSet("PREF_TRACK_DIVIDE")
-                                  ));
-  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
                                   optionType::OPTION_PARTICLE, 
                                   ctr.text.getStringSet("PREF_PARTICLE")
+                                  ));
+  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+                                  optionType::OPTION_TRACK_DIVISION, 
+                                  ctr.text.getStringSet("PREF_TRACK_DIVIDE")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
                                   optionType::OPTION_SET_HAND_RANGE,
@@ -39,7 +39,7 @@ void dialogController::init() {
                                   {"0","255"},
                                   {0,255}
                                   ));
-  auto cie_opt_vec = vector<decltype(cie2k::TYPE::CIE_00)>{cie2k::TYPE::CIE_00, cie2k::TYPE::CIE_94, cie2k::TYPE::CIE_76};
+  auto cie_opt_vec = vector<cie2k::TYPE>{cie2k::TYPE::CIE_00, cie2k::TYPE::CIE_94, cie2k::TYPE::CIE_76};
   dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
                                   optionType::OPTION_SET_CIE_FUNCTION,
                                   optionType::OPTION_CIE_FUNCTION,
