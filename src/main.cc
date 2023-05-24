@@ -584,7 +584,17 @@ int main (int argc, char* argv[]) {
                                           ))) {
                   updateClickIndex(lp[j].idx);
                 }
+                
                 auto cSet = noteOn ? colorSetOn : colorSetOff;
+                auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+                const auto& col = (*cSet)[colorID]; 
+                const auto& col_inv = (*cSetInv)[colorID]; 
+
+                if (timeOffset >= ctr.getNotes()[lp[j].idx].x && 
+                    timeOffset < ctr.getNotes()[lp[j].idx].x + ctr.getNotes()[lp[j].idx].duration) {
+                    ctr.particle.add_emitter(lp[j].idx, {convSS[0], convSS[1], 0, 0, col, col_inv});
+                }
+
                 if (convSS[2] - convSS[0] > 3) {
                   drawLineBezier(convSS[0], convSS[1], convSS[2], convSS[3],
                              2, (*cSet)[colorID]);
