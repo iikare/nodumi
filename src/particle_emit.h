@@ -20,8 +20,10 @@ class emitter {
 
   private:
 
-    static constexpr int max_parts = 127; 
-    static constexpr int max_cycle_parts = 2; 
+    unsigned int max_parts = 127; 
+    static constexpr unsigned int max_cycle_parts = 1; 
+    static constexpr double spp_const = 1.50;
+    static constexpr double init_ratio = 0.25;
     
     void create_particle();
 

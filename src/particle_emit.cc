@@ -6,10 +6,13 @@
 using std::remove_if;
 
 void emitter::init(const pair<int, particleInfo>& p_info) {
+
+  //logQ(ctr.getNotes()[p_info.first].duration/spp_const);
+  max_parts = (init_ratio+1)*static_cast<unsigned int>(ctr.getNotes()[p_info.first].duration/spp_const);
   part_vec.reserve(max_parts);
 
   update_data(p_info.second);
-  for (int i = 0; i < max_cycle_parts; i++) {
+  for (unsigned int i = 0; i < max_parts*init_ratio; i++) {
     create_particle();
   }
 }
@@ -33,7 +36,7 @@ void emitter::update_data(const particleInfo& p_info) {
   data = p_info;
 
 
-  int add_part = 0;
+  unsigned int add_part = 0;
 
   while (add_part < max_cycle_parts && part_vec.size() != max_parts) {
     create_particle();    
@@ -60,7 +63,7 @@ void emitter::create_particle() {
   constexpr float angle_start = 165.0;
   constexpr float angle_range = 30.0;
 
-  const double t_life = 1.0 +2*ctr.getRandClamp();
+  const double t_life = 1.4 +0.4*ctr.getRandClamp();
 
 
   const double x = data.x + (data.w)*ctr.getRandClamp();
