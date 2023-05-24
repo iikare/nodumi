@@ -112,6 +112,7 @@ void midi::buildTickSet() {
 void midi::buildMessageMap(const MidiFile& mf) {
   //int num_zero = 0;
   vector<pair<double, vector<unsigned char>>> message_vec;
+  message_vec.reserve(mf.getEventCount(0));
   for (int i = 0; i < mf.getEventCount(0); i++) {
     if (i && mf[0][i].seconds < mf[0][i-1].seconds) {
       logW(LL_WARN, "midi has nonlinear events");
@@ -123,7 +124,9 @@ void midi::buildMessageMap(const MidiFile& mf) {
       message_vec.push_back(make_pair(mf[0][i].seconds * UNK_CST, static_cast<vector<unsigned char>>(mf[0][i])));
     }
   } 
+  message_vec.shrink_to_fit();
   message = multiset<pair<double, vector<unsigned char>>>(message_vec.begin(), message_vec.end());
+  message_vec.clear();
 
   //logQ(num_zero, "events at position < 0.0001s");
 }
