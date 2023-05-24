@@ -220,7 +220,7 @@ void controller::processAction(actionType& action) {
   // must be pressed last to prevent repeat inputs
   if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
     // open [file, image]
-    if (IsKeyPressed(KEY_O)) {
+    if (isKeyPressed(KEY_O)) {
       if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
         action = actionType::ACTION_OPEN_IMAGE;
         return;
@@ -229,7 +229,7 @@ void controller::processAction(actionType& action) {
       return;
     } 
     // close [file, image]
-    if (IsKeyPressed(KEY_W)) {
+    if (isKeyPressed(KEY_W)) {
       if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
         action = actionType::ACTION_CLOSE_IMAGE;
         return;
@@ -238,7 +238,7 @@ void controller::processAction(actionType& action) {
       return;
     } 
     // save [save, save as]
-    if (IsKeyPressed(KEY_S)) {
+    if (isKeyPressed(KEY_S)) {
       if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
         action = actionType::ACTION_SAVE_AS;
         return;
@@ -246,15 +246,15 @@ void controller::processAction(actionType& action) {
       action = actionType::ACTION_SAVE;
       return;
     } 
-    if (IsKeyPressed(KEY_COMMA)) {
+    if (isKeyPressed(KEY_COMMA)) {
       action = actionType::ACTION_PREFERENCES;
       return;
     }
-    if (IsKeyPressed(KEY_SPACE)) {
+    if (isKeyPressed(KEY_SPACE)) {
       action = actionType::ACTION_LIVEPLAY;
       return;
     }
-    if (IsKeyPressed(KEY_I)) {
+    if (isKeyPressed(KEY_I)) {
       action = actionType::ACTION_INFO;
       return;
     }
@@ -267,7 +267,7 @@ void controller::processAction(actionType& action) {
 
   }
   
-  if (IsKeyPressed(KEY_TAB)) {
+  if (isKeyPressed(KEY_TAB)) {
     action = actionType::ACTION_PREFERENCES;
     return;
   }

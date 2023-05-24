@@ -960,7 +960,7 @@ int main (int argc, char* argv[]) {
         }
 
        
-        if (IsKeyPressed(KEY_F)) {
+        if (isKeyPressed(KEY_F)) {
           
 
         }
@@ -1148,7 +1148,7 @@ int main (int argc, char* argv[]) {
         break;
       case ACTION_CHANGE_MODE:
         for (unsigned int mode = 0; mode < min(static_cast<unsigned int>(DISPLAY_NONE), 9u); ++mode) {
-          if(IsKeyPressed(KEY_ONE+mode)) {
+          if(isKeyPressed(KEY_ONE+mode)) {
           logC(KEY_ONE, KEY_ONE+mode);
             displayMode = DISPLAY_BAR+mode;
           }
@@ -1174,8 +1174,8 @@ int main (int argc, char* argv[]) {
     }
     
     if ((!IsKeyDown(KEY_LEFT_CONTROL) && !IsKeyDown(KEY_LEFT_SHIFT)) && 
-        (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_UP) || GetMouseWheelMove() != 0)) {
-      if (IsKeyPressed(KEY_DOWN) || (GetMouseWheelMove() < 0)) {
+        (isKeyPressed(KEY_DOWN, KEY_UP) || GetMouseWheelMove() != 0)) {
+      if (isKeyPressed(KEY_DOWN) || (GetMouseWheelMove() < 0)) {
         if (zoomLevel > 0.00001) {
           zoomLevel *= 0.75;
         }
@@ -1186,7 +1186,7 @@ int main (int argc, char* argv[]) {
         }
       }
     }
-    if (IsKeyPressed(KEY_SPACE)) {
+    if (isKeyPressed(KEY_SPACE)) {
       if (timeOffset != ctr.getLastTime()) {
         ctr.run = !ctr.run; 
         pauseOffset = timeOffset;
