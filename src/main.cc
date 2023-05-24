@@ -1,4 +1,5 @@
 #include "build_target.h"
+#include <raylib.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -1143,6 +1144,14 @@ int main (int argc, char* argv[]) {
         ctr.toggleLivePlay();
         if (!ctr.getLiveState()) {
           timeOffset = 0;
+        }
+        break;
+      case ACTION_CHANGE_MODE:
+        for (unsigned int mode = 0; mode < min(static_cast<int>(DISPLAY_NONE), 9); ++mode) {
+          if(IsKeyPressed(KEY_ONE+mode)) {
+          logC(KEY_ONE, KEY_ONE+mode);
+            displayMode = DISPLAY_BAR+mode;
+          }
         }
         break;
       default:

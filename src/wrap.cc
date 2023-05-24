@@ -1,4 +1,5 @@
 #include "wrap.h"
+#include <raylib.h>
 
 void drawPixel(float x, float y, const colorRGB& col, unsigned char alpha) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, 
@@ -80,4 +81,3 @@ const Vector2 measureTextEx(const string& msg, int size, const string& font) {
 
   return {0.0f, 0.0f};
 }
-

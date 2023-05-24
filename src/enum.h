@@ -104,13 +104,14 @@ enum selectType {
 };
 
 enum displayType {
-  DISPLAY_LINE,
   DISPLAY_BAR,
-  DISPLAY_BALL,
+  DISPLAY_LINE,
   DISPLAY_PULSE,
+  DISPLAY_BALL,
   DISPLAY_FFT,
   DISPLAY_VORONOI,
   DISPLAY_LOOP,
+  DISPLAY_NONE
 };
 
 enum menuType {
@@ -270,6 +271,7 @@ enum class actionType {
   ACTION_INFO,
   ACTION_PREFERENCES,
   ACTION_LIVEPLAY,
+  ACTION_CHANGE_MODE,
   ACTION_NONE
 };
 

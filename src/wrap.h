@@ -39,6 +39,15 @@ void drawTextureEx(const Texture2D& tex, const Vector2& pos, float rot = 0.0f, f
 const Vector2 measureTextEx(const string& msg, int size = 14, const string& font = DEFAULT_FONT);
 
 template<class T>
+bool isKeyPressed(T key) {
+  return IsKeyPressed(key);
+}
+template<class T, class... U>
+bool isKeyPressed(T key, U... keys) {
+  return IsKeyPressed(key) || isKeyPressed(keys...);
+}
+
+template<class T>
 auto deltaE(const T& a, const T& b) {
   auto t = static_cast<cie2k::TYPE>(ctr.option.get(optionType::OPTION_CIE_FUNCTION));
   switch (t) {

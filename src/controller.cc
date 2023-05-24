@@ -1,5 +1,6 @@
 #include "controller.h"
 #include <limits>
+#include <raylib.h>
 #include <stdlib.h>
 #include <bitset>
 #include <random>
@@ -9,6 +10,7 @@
 #include "log.h"
 #include "menuctr.h"
 #include "voronoi.h"
+#include "wrap.h"
 
 using std::ofstream;
 using std::stringstream;
@@ -257,6 +259,13 @@ void controller::processAction(actionType& action) {
       action = actionType::ACTION_INFO;
       return;
     }
+
+    if (isKeyPressed(KEY_ONE, KEY_TWO, KEY_THREE, KEY_FOUR, KEY_FIVE, KEY_SIX, KEY_SEVEN, KEY_EIGHT, KEY_NINE)) {
+      action = actionType::ACTION_CHANGE_MODE;
+      return;
+    }
+
+
   }
   
   if (IsKeyPressed(KEY_TAB)) {
