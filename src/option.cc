@@ -23,7 +23,7 @@ void optionController::invert(optionType opt) {
   switch (opt) {
     using enum optionType;
     case OPTION_TRACK_DIVISION:
-      if (!get(opt)) {
+      if (ctr.getLiveState() && !get(opt)) {
         getColorScheme(2, ctr.setTrackOn, ctr.setTrackOff);
       }
       break;
