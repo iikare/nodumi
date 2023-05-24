@@ -218,10 +218,10 @@ void controller::processAction(actionType& action) {
 
   // setup so that the last key in sequence
   // must be pressed last to prevent repeat inputs
-  if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
+  if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
     // open [file, image]
     if (isKeyPressed(KEY_O)) {
-      if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+      if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
         action = actionType::ACTION_OPEN_IMAGE;
         return;
       }
@@ -230,7 +230,7 @@ void controller::processAction(actionType& action) {
     } 
     // close [file, image]
     if (isKeyPressed(KEY_W)) {
-      if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+      if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
         action = actionType::ACTION_CLOSE_IMAGE;
         return;
       }
@@ -239,7 +239,7 @@ void controller::processAction(actionType& action) {
     } 
     // save [save, save as]
     if (isKeyPressed(KEY_S)) {
-      if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+      if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
         action = actionType::ACTION_SAVE_AS;
         return;
       }

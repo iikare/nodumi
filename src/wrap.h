@@ -48,6 +48,15 @@ bool isKeyPressed(T key, U... keys) {
 }
 
 template<class T>
+bool isKeyDown(T key) {
+  return IsKeyDown(key);
+}
+template<class T, class... U>
+bool isKeyDown(T key, U... keys) {
+  return IsKeyDown(key) || isKeyDown(keys...);
+}
+
+template<class T>
 auto deltaE(const T& a, const T& b) {
   auto t = static_cast<cie2k::TYPE>(ctr.option.get(optionType::OPTION_CIE_FUNCTION));
   switch (t) {

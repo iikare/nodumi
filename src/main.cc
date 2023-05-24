@@ -1161,19 +1161,19 @@ int main (int argc, char* argv[]) {
 
 
     // key logic
-    if ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_LEFT_SHIFT)) && GetMouseWheelMove() != 0) {
+    if ((isKeyDown(KEY_LEFT_CONTROL, KEY_LEFT_SHIFT)) && GetMouseWheelMove() != 0) {
       if (ctr.image.exists() && showImage) {
 
         // defaults to ±1, adjusted depending on default image scale value
         float scaleModifier = 0.02f;
-        if (IsKeyDown(KEY_LEFT_SHIFT)) {
+        if (isKeyDown(KEY_LEFT_SHIFT)) {
           scaleModifier = 0.002f;
         }
         ctr.image.changeScale(scaleModifier*GetMouseWheelMove());
       }
     }
     
-    if ((!IsKeyDown(KEY_LEFT_CONTROL) && !IsKeyDown(KEY_LEFT_SHIFT)) && 
+    if ((!isKeyDown(KEY_LEFT_CONTROL, KEY_LEFT_SHIFT)) && 
         (isKeyPressed(KEY_DOWN, KEY_UP) || GetMouseWheelMove() != 0)) {
       if (isKeyPressed(KEY_DOWN) || (GetMouseWheelMove() < 0)) {
         if (zoomLevel > 0.00001) {
@@ -1192,8 +1192,8 @@ int main (int argc, char* argv[]) {
         pauseOffset = timeOffset;
       }
     }
-    if (IsKeyDown(KEY_LEFT)) {
-      if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
+    if (isKeyDown(KEY_LEFT)) {
+      if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
         if (timeOffset > shiftC * 60) {
           timeOffset -= shiftC * 60;
         }
@@ -1201,7 +1201,7 @@ int main (int argc, char* argv[]) {
           timeOffset = 0;
         }
       }
-      else if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+      else if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
         // not supported in live mode
         if (!ctr.getLiveState()) {
           bool measureFirst = true;
@@ -1227,8 +1227,8 @@ int main (int argc, char* argv[]) {
         }
       }
     }
-    if (IsKeyDown(KEY_RIGHT)) {
-      if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
+    if (isKeyDown(KEY_RIGHT)) {
+      if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
         if (timeOffset + shiftC * 60 < ctr.getLastTime()) {
           timeOffset += shiftC * 60;
         }
@@ -1236,7 +1236,7 @@ int main (int argc, char* argv[]) {
           timeOffset = ctr.getLastTime();
         }
       }
-      else if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+      else if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
         // immediately move to next measure
         bool measureLast = true;
         for (auto& measure : ctr.getStream().measureMap) {
@@ -1260,10 +1260,10 @@ int main (int argc, char* argv[]) {
         }
       }
     }
-    if (IsKeyDown(KEY_HOME)) {
+    if (isKeyDown(KEY_HOME)) {
       timeOffset = 0;
     }
-    if (IsKeyDown(KEY_END)) {
+    if (isKeyDown(KEY_END)) {
       timeOffset = ctr.getLastTime();
       pauseOffset = timeOffset;
     }
@@ -1757,7 +1757,7 @@ int main (int argc, char* argv[]) {
       }
       if (nowMove && nowLine) {
         // provide reset
-        if (IsKeyDown(KEY_LEFT_SHIFT)) {
+        if (isKeyDown(KEY_LEFT_SHIFT)) {
           nowLineX = ctr.getWidth()/2.0;
           nowMove = false;  // disable after rest
         }

@@ -187,11 +187,11 @@ void imageController::changeScale(double scaleOffset) {
   
   //logQ("xy", ratioX, ratioY, expX, expY);
 
-  if (IsKeyDown(KEY_F)) {scale = oldScale; }
-  else {
+  //if (isKeyDown(KEY_F)) {scale = oldScale; }
+  //else {
   position.x -= ratioX*expX;
   position.y -= ratioY*expY;
-  }
+  //}
 }
 
 vector<kMeansPoint> imageController::getRawData() {
