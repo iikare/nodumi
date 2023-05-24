@@ -1,6 +1,7 @@
 build/
 tests/
 util/
+doc/
 .clangd/
 .cache/
 *.json
