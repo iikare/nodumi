@@ -558,7 +558,7 @@ int main (int argc, char* argv[]) {
               if (i != 0){
                 break;
               }
-              vector<lineData> lp = ctr.getStream().getLines();
+              const vector<lineData>& lp = ctr.getStream().getLines();
 
               for (unsigned int j = 0; j < lp.size(); ++j) {
                 if (convertSSX(lp[j].x_r) < 0) {
@@ -601,7 +601,7 @@ int main (int argc, char* argv[]) {
               if (i != 0){
                 break;
               }
-              vector<lineData> lp = ctr.getStream().getLines();
+              const vector<lineData>& lp = ctr.getStream().getLines();
 
               for (unsigned int j = 0; j < lp.size(); ++j) {
                 if (convertSSX(lp[j].x_r) < 0) {
@@ -697,7 +697,7 @@ int main (int argc, char* argv[]) {
               if (i != 0){
                 break;
               }
-              vector<lineData> lp = ctr.getStream().getLines();
+              const vector<lineData>& lp = ctr.getStream().getLines();
 
               for (unsigned int j = 0; j < lp.size(); ++j) {
                 if (convertSSX(lp[j].x_r) < 0) {
