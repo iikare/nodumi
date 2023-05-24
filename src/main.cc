@@ -639,6 +639,10 @@ int main (int argc, char* argv[]) {
                 }
 
                 auto cSet = noteOn ? colorSetOn : colorSetOff;
+                auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+                const auto& col = (*cSet)[colorID]; 
+                const auto& col_inv = (*cSetInv)[colorID]; 
+
                 double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
                 if (noteOn || clickTmp == static_cast<int>(lp[j].idx)) {
                   double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
@@ -647,7 +651,15 @@ int main (int argc, char* argv[]) {
                              nowNote ? newY     - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) : convSS[1], 
                              nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
                              nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
-                             3, (*cSet)[colorID]);
+                             3, col);
+                  if (timeOffset >= ctr.getNotes()[lp[j].idx].x && 
+                      timeOffset < ctr.getNotes()[lp[j].idx].x + ctr.getNotes()[lp[j].idx].duration) {
+                    ctr.particle.add_emitter(lp[j].idx, {
+                             nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
+                             nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
+                             0, 0, col, col_inv});
+                  }
+
                   drawRing({float(nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[0])/2.0, nowRatio, INT_SINE) 
                                           : convSS[0]),
                             float(nowNote ? newY - floatLERP(0, (newY-convSS[1])/2.0, nowRatio, INT_SINE) 
@@ -657,17 +669,18 @@ int main (int argc, char* argv[]) {
                                           : convSS[0]),
                             float(nowNote ? newY - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) 
                                           : convSS[1])}, 
-                           0, 1.5, (*cSet)[colorID]);
+                           0, 1.5, col);
                 }
+
                 
                 if (convSS[2] >= nowLineX) {
                   double ringFadeAlpha = noteOn ? 255*(1-nowRatio) : 255;
                   drawRing({convSS[0], convSS[1]},
-                           0, 3, (*cSet)[colorID], ringFadeAlpha);
+                           0, 3, col, ringFadeAlpha);
                 }
                 if (convSS[2] <= nowLineX) {
                   drawRing({convSS[2], convSS[3]},
-                           0, 3, (*cSet)[colorID]);
+                           0, 3, col);
                 }
 
                 int ringLimit = 400;
@@ -695,7 +708,7 @@ int main (int argc, char* argv[]) {
                   if (ringRatio > 0) {
                     drawRing({convSS[0], convSS[1]},
                              ringRad-3, ringRad, 
-                             colorLERP((*colorSetOn)[colorID], (*colorSetOff)[colorID], ringRatio, INT_ICIRCULAR),
+                             colorLERP(col, col_inv, ringRatio, INT_ICIRCULAR),
                              floatLERP(0,255, ringRatio, INT_ICIRCULAR));
                   }
                 }
