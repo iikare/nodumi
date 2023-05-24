@@ -84,17 +84,14 @@ void dialogOption::end_process() {
 }
 
 int dialogOption::get_height() {
-  bool opt_status = ctr.option.get(link_opt);
-  bool inv_status = ctr.option.invalid(link_opt);
-
   switch (type) {
     using enum DIA_OPT;
     case CHECK_ONLY:
       return itemRectSize + 4;
-    case SLIDER:
-      return itemRectSize + 4 + (1||(!inv_status && opt_status) ? boxW + 4 : 0);
     case SUBBOX:
-      return itemRectSize + 4 + (1||(!inv_status && opt_status) ? boxW + 4 : 0);
+      [[fallthrough]];
+    case SLIDER:
+      return itemRectSize + 4 + boxW + 4;
     default:
       return 0;
   }
