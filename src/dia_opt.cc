@@ -154,6 +154,7 @@ void dialogOption::renderBox() {
     // 11: 17
 
     bool opt_selected = result[v] == ctr.option.get(link_sub_opt);
+    bool inv_status = ctr.option.invalid(link_opt);
     //logQ(conv_range,ctr.option.get(link_sub_opt));
 
     colorRGB& col = opt_selected ? ctr.bgMenu : ctr.bgDark;
@@ -162,10 +163,10 @@ void dialogOption::renderBox() {
     float rtY = y_start+boxH/2.0-rtSize.y/2 + 1 + (result[v] == 12 ? 1 : 0);
 
     if (opt_selected) {
-      drawRectangle(x_start, y_start, boxW, boxH, opt_status ? ctr.bgOpt2 : ctr.bgMenuShade);
+      drawRectangle(x_start, y_start, boxW, boxH, opt_status || !inv_status ? ctr.bgOpt2 : ctr.bgMenuShade);
     }
     else {
-      drawRectangleLines(x_start, y_start, boxW, boxH, 2, opt_status ? ctr.bgDark : ctr.bgMenuShade);
+      drawRectangleLines(x_start, y_start, boxW, boxH, 2, opt_status || !inv_status ? ctr.bgDark : ctr.bgMenuShade);
     }
 
     x_start += boxW + boxSpacing;
