@@ -1,7 +1,6 @@
 build/
 tests/
 util/
-doc/
 .clangd/
 .cache/
 *.json
@@ -9,9 +8,9 @@ gmon.out
 output.png
 
 # latex output
-docs/_minted-info/
-docs/info.aux
-docs/info.log
-docs/info.toc
+docs/_minted-guide/
+docs/guide.aux
+docs/guide.log
+docs/guide.toc
 docs/svg-inkscape/
 docs/yklight.otf

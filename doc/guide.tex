@@ -1,0 +1,773 @@
+\documentclass[english]{article}
+\usepackage[margin=1in,letterpaper]{geometry}
+\usepackage[dvipsnames, table]{xcolor}
+\usepackage[T1]{fontenc}
+\usepackage[calc]{datetime2} 
+\usepackage[labelformat=empty]{caption}
+\usepackage[hidelinks]{hyperref}
+\usepackage[compact]{titlesec}
+\usepackage{
+  floatrow,
+  amsmath, amssymb,
+  listings, fancyhdr,
+  xfrac, changepage, svg,
+  minted, bookmark, fontspec, 
+  tocloft, fontawesome5
+}
+
+\newfontface\titlefont{yklight.otf}
+\renewcommand{\cfttoctitlefont}{\scshape\huge}
+\renewcommand{\cftsecfont}{\scshape\large}
+\renewcommand{\cftsubsecfont}{\scshape\normalsize}
+\renewcommand{\cftsubsubsecfont}{\scshape\small}
+\DTMsavenow{now}
+\usemintedstyle{tango}
+
+%\titlespacing{\subsection}{0pt}{0.5em}{0.5em}
+%\titlespacing{\section}{0pt}{2em}{2em}
+\titlespacing{\section}{0pt}{2ex}{1ex}
+\titlespacing{\subsection}{0pt}{1ex}{1ex}
+\titlespacing{\subsubsection}{0pt}{0.5ex}{0ex}
+
+\lstset{
+  % frame=tb,
+  aboveskip=3mm,
+  language=R,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=2
+}
+
+\providecommand{\floor}[1]{\left \lfloor #1 \right \rfloor }
+\providecommand{\ceil}[1]{\left \lceil #1 \right \rceil }
+
+\makeatletter
+\newenvironment{restoretext}%
+    {\@parboxrestore%
+     \begin{adjustwidth}{}{\leftmargin}%
+    }{\end{adjustwidth}
+     }
+\makeatother
+
+\def\rcbegin{\begin{restoretext}\centering}
+\def\rcend{\end{restoretext}}
+
+\newcommand{\rcg}[4][]{
+  \rcbegin
+    \includegraphics[width=#2\textwidth]{#3}
+    \captionof{figure}{#4}
+  \rcend
+  \vspace{1em}
+}
+\newcommand{\rcgnc}[3][]{
+  \rcbegin
+    \includegraphics[width=#2\textwidth]{#3}
+  \rcend
+  \vspace{1em}
+}
+
+\newcommand\faqQ[1]{%
+  \leavevmode\par
+  \noindent
+{\hspace{4pt}\Large Q} \raisebox{0.1em}{--} {\large #1}\par \vspace{-0.5em}}
+
+\newcommand\faqA[2][]{%
+  \leavevmode\par\noindent
+  {\leftskip30pt
+  {\large A} \raisebox{0.05em}{--} \textbf{#1}#2\par \vspace{-0.25em}}}
+
+  \providecommand{\mi}[1]{\mintinline[breaklines]{text}{#1}}
+\definecolor{lcol}{HTML}{227396}
+
+\newcommand{\docname}{User Manual}
+\newcommand{\progname}{\mi{nodumi} -- Interactive MIDI Visualizer}
+\newcommand{\nowdate}{\DTMordinal{\day}\DTMmonthname{\month} \DTMfetchyear{now}}
+
+\pagestyle{fancy}
+\lhead{\progname}
+\chead{\docname}
+\rhead{\nowdate}
+\cfoot{\thepage}
+\begin{document}
+
+\title{
+
+  {\Huge\textsc{\docname}}\\
+
+
+  \vspace{-0.3em}
+
+  {\large\progname}\\
+
+  \author{}
+
+  \vspace{-2.1em}
+
+  \date{\small\textsc{\nowdate}}
+  
+
+}
+\maketitle
+
+\vspace{-1.5em}
+
+\href{https://iika.re/nodumi/}{
+\begin{minipage}{.54\textwidth}
+  \raggedleft
+  {\includesvg[width=1.6in]{image/logo.svg}}
+\end{minipage}%
+\begin{minipage}{.46\textwidth}
+  \raggedright
+  \raisebox{0.6em}{\hspace{-0.5em}{\titlefont\huge \textcolor{lcol}{nodumi}}}
+\end{minipage}
+}
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+\label{sec:intro}
+
+\rcgnc{1.0}{image/intro.png}
+
+\mi{nodumi} is an interactive MIDI visualizer. Both live input (such as from a MIDI-enabled instrument) and prerecorded MIDI
+files are supported. Moreover, this program defines, implements, and supports a custom file format (MKI) for
+parametrizing a visualization scheme.
+\mi{nodumi} is inspired by the \textit{Music Animation Machine} (MAM2006) by Stephen Malinowski, 
+and aims to function as a modernized version of the public-facing MAM2006 program. Many features from MAM2006 are present,
+and additional features have been added as well. Notably, support for both Windows and many Linux systems is provided, in
+contrast to the Windows-exclusive nature of MAM2006. Currently, macOS is not supported due to 
+the resources required to create builds for the Mac ecosystem.
+This software is also licensed under GPLv3 -- therefore the source code is made freely available:
+\textcolor{lcol}{(\raisebox{-0.1\height}{\faGithub} \href{https://github.com/iikare/nodumi}{iikare/nodumi})}.
+
+This application was created by \textcolor{lcol}{\href{https://iika.re}{iika-re}}.
+
+\section{System Requirements}
+
+For Linux systems, you will need to install \mi{raylib}, either through your distribution's package manager or by directly
+building and installing the required shared libraries. You will also need the libraries output by the following command:
+\mi{pkg-config --libs gtk+-3.0}. As of 24 May 2023, these are (identified via corresponding linker flag): 
+
+\vspace{1em}
+
+\rcbegin
+  \mi{-lgtk-3 -lgdk-3 -lz -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0
+      -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0}
+\rcend
+
+\vspace{1em}
+
+For Windows systems, all dependencies are bundled into the executable. A reasonably modern OS is required (testing has
+only been done on Windows 10, but theoretically earlier Windows versions should be compatible).
+
+A GPU supporting OpenGL 3.3 or higher is required. A relatively modern CPU is desirable, but not necessary.
+The performance demands of this application are low unless you wish to visualize very large MIDI files.
+One exception is the Voronoi rendering mode, which requires a reasonably powerful GPU to maintain an acceptable framerate.
+
+\section{Obtaining Binaries}
+\label{sec:obtain}
+
+This section entails how to obtain \mi{nodumi} -- either downloading prebuilt binaries for supported operating systems,
+or by building directly from source.
+
+\subsection{Prebuilt Binaries}
+
+At the moment, there is no set release schedule. Prebuilt binaries are often (but not always) available at 
+\textcolor{lcol}{(\raisebox{-0.1\height}{\faGithub} \href{https://github.com/iikare/nodumi}{iikare/nodumi})}
+in the \mi{bin} directory. Use \mi{nodumi} for Linux-based systems, and \mi{nodumi.exe} for Windows-based systems.
+Note that there is \textit{no} installer for either operating system. As there are no persistent configuration files,
+the application is portable by default.
+
+\subsection{Compilation from Source}
+
+\textbf{NOTE} -- building from source requires a Linux development environment, as the build process involves several
+shell scripts. This means that both Linux and Windows executables must be built from Linux.
+
+\vspace{1em}
+
+First, obtain the source code by cloning 
+\textcolor{lcol}{(\raisebox{-0.1\height}{\faGithub} \href{https://github.com/iikare/nodumi}{iikare/nodumi})}.
+Then, simply run \mi{make rel=y} for a Linux release build, or \mi{make arch=win rel=y} for a Windows release build.
+Compile-time dependencies are listed as submodules in the directory, so make sure to download them as well. Cross-compilation
+from Linux to Windows requires 
+\mi{x86_64-w64-mingw32-g++},
+\mi{x86_64-w64-mingw32-gcc}, and
+\mi{x86_64-w64-mingw32-ld}. The final executable can be then found in the \mi{bin} directory.
+
+\section{Usage}
+
+A very brief usage overview is provided below. Further usage information is given in a later section.
+
+\subsection{Command Line Interface}
+
+While there is no true terminal-based interface, both a MIDI/MKI file and an image can be loaded automatically through
+the proper command line arguments. Any order of arguments is accepted, with the first MIDI/MKI file and image file in the list
+being taken. Any MIDI/MKI or image files past the first of each type and any invalid paths are ignored. An example is given below.
+
+\begin{minted}{shell}
+  ./bin/nodumi [path to MIDI/MKI] [path to image]
+\end{minted}
+
+There are no other command line parameters. After executing the above command, the graphical interface will start automatically. 
+
+\subsection{Graphical Interface}
+
+If not starting the application from the command line, the graphical interface will open automatically without any files loaded.
+
+
+\newpage
+\section{Keyboard Shortcuts}
+
+For ease of use, keyboard shortcuts have been implemented for common actions. These shortcuts are defined via the table below.
+
+\vspace{1em}
+
+\rcbegin
+\begin{tabular}{|l|l|}
+  \hline
+  \textbf{Key}                 														& \textbf{Action} \\
+  \hline
+  \mi{Ctrl-O}       					 														& Open MIDI/MKI File \\
+  \mi{Ctrl-Shift-O} 					 														& Open MIDI File \\
+  \mi{Ctrl-W}       					 														& Close MIDI/MKI File \\
+  \mi{Ctrl-Shift-W} 					 														& Close MIDI File \\
+  \mi{Ctrl-S}       					 														& Save (to MKI) \\
+  \mi{Ctrl-Shift-S} 					 														& Save As (to MKI) \\
+  \mi{Ctrl-,}       					 														& Open Preferences \\
+  \mi{Ctrl-I}       					 														& Open Info \\
+  \mi{F7}       					     														& Exit \\
+  \mi{Ctrl-Space}   					 														& Toggle Live Play Mode \\
+  \mi{Space}   					 														      & Toggle Playback \\
+  \mi{Ctrl-}$n, n \in [1,9]$   														& Enable $n^\text{th}$ Display Mode\\
+  \mi{Ctrl-Home}   					 														  & Jump to Start \\
+  \mi{Ctrl-End}   					 														  & Jump to End \\
+  \mi{Scr.Wheel}       			 										  				& Zoom \\
+  $\uparrow \cdot \downarrow$       			                & Zoom \\
+  $\leftarrow \cdot \rightarrow$       			              & Move Back/Forward \\
+  \mi{Ctrl-}$\leftarrow \cdot \rightarrow$       			    & Move Back/Forward (faster) \\
+  \mi{Shift-}$\leftarrow \cdot \rightarrow$       			  & Move Back/Forward (by measure) \\
+  \mi{Ctrl-Scr.Wheel}       			 										  	& Image Zoom \\
+  \mi{Shift-Scr.Wheel}       			 										  	& Image Zoom (precise) \\
+  \hline
+\end{tabular}
+\rcend
+
+\section{Features}
+
+An explanation of the major features of this program follows.
+
+\subsection{Display Modes}
+
+Currently, there are six fully implemented display modes, all of which are usable for both live input and
+while using prerecorded files. For all display modes, the $x$ direction represents time, and the $y$ direction
+represents the 88 keys playable on a standard piano. While the MIDI specification provides for input key numbers
+0-127, only values 21-108 are visualized by this application. There are three classes of display modes:
+
+\rcbegin
+\begin{align*}
+  \textbf{Bar-based }  | & \text{ Ignores temporal context of notes.}\\
+  \textbf{Line-based } | & \text{ Accounts for temporal context of notes.}\\
+  \textbf{Other }      | & \text{ Not encapsulated by the above types.}\\
+\end{align*}
+\rcend
+
+Each mode is marked with its corresponding type. Line-based modes link temporally adjacent notes on the same track.
+
+All display modes are accessible via 
+\mi{View} $\rightarrow$ \mi{Display Mode:} $\rightarrow$ \mi{[mode]}.
+
+\newpage
+
+\subsubsection{Bar}
+
+\rcgnc{0.86}{image/bar.png}
+
+The simplest display mode, this simply draws a bar at the $x$ position of the note with length
+determined by its duration.
+This is a \textbf{Bar-based} display mode.
+
+\subsubsection{FFT}
+
+\rcgnc{0.86}{image/fft.png}
+
+Identical to the \textbf{Bar} mode, with the addition of note frequencies via 
+an FFT approximation algorithm. The amplitude of a given frequency bin is
+displayed along the bottom of the screen, and all bins combined encompass the
+frequency range $[20, 44100]$Hz.
+Since MIDI data does not contain actual samples, an envelope function
+must be chosen to approximate bin lengths. Currently, this function
+is only modelled for a piano even when another MIDI instrument is present on track. Amplitudes are calculated
+for each track, and then a summation over all tracks is done to obtain the final frequency bin distribution.
+This can be seen in the overlapping colors in the spectrum about halfway across the above image. In practice, 
+even accounting for overtones, harmonics, and other signal behavior, not all of the spectrum is used 
+(note that C8 on a piano only emits ~4.2KHz). The display is logarthimic in frequency. 
+This is a \textbf{Bar-based} display mode.
+
+\newpage
+\subsubsection{Pulse}
+
+\rcgnc{0.86}{image/pulse.png}
+
+A portion of the straight line between points is drawn instead. The length of this
+line segment is dependent on the relative position and duration of the note in respect to the \textit{now}-line.
+Additionally, a pulse appears at a note-on event and fades out over time.
+This is a \textbf{Line-based} display mode.
+
+
+\subsubsection{Ball}
+
+\rcgnc{0.86}{image/ball.png}
+
+A large circle slowly shrinks as a note is played, and follows the \textit{now}-line. Along with it, a 
+circle is also drawn at the note's original start position, and a line connects the two circles. Once the duration
+of the note has passed, only a small circle remains at that note's ending position.
+This is a \textbf{Bar-based} display mode.
+
+\newpage
+
+\subsubsection{Line}
+
+\rcgnc{0.86}{image/line.png}
+
+This mode draws a continous bezier curve between notes. For line segments shorter than a given threshold,
+a single straight line segment is drawn to optimize performance.
+This is a \textbf{Line-based} display mode.
+
+
+\subsubsection{Voronoi}
+
+\rcgnc{0.86}{image/voronoi.png}
+
+Spatial distance is encoded in a Voronoi-based diagram, calculated in real-time via GPU. Additionally, a circle
+is placed at the start possition of each note to mark the origin of each Voronoi cell. The algorithm used to 
+create this visualization is $O(k^2)$ in the number of points, so performance may suffer on older, slower, or 
+integrated GPUs. Image backgrounds cannot be seen when using this visualization.
+This is an \textbf{Other} display mode.
+
+\newpage
+
+\subsection{Sheet Music Generation}
+
+\rcgnc{1.0}{image/sheet.png}
+
+The ability to generate sheet music from MIDI/MKI files or from live input is supported.
+Keep in mind this feature is still in development, and the current progress on this feature
+is not representative of its final state.
+
+Take note of the ill-placed note markings and lack of flags or beaming. Future iterations of the
+sheet music creation algorithm are planned to fix these shortcomings. It is best to think of the
+sheet music generator as a technical preview rather than a full-fledged feature.
+
+This feature is accessible via \mi{Edit} $\rightarrow$ \mi{Enable Sheet Music}.
+
+\subsection{Song Time}
+
+This option places a marker of the current piece's position in the upper right corner of the display.
+Two options are provided for the format: \textit{Relative Song Time}, and \textit{Absolute Song Time}.
+For live input, the time given is proportional to the amount of time spent in this mode.
+
+\subsubsection{Relative Song Time}
+
+The \textit{Relative Song Time} option displays a percentage that corresponds to the percentage of the piece
+complete relative to the \textit{Now}-Line. For live input, this value is not rendered at all instead.
+
+This feature is accessible via 
+\mi{View} $\rightarrow$ \mi{{Display, Hide} Song Time} $\rightarrow$ \mi{Relative}.
+
+\subsubsection{Absolute Song Time}
+
+The \textit{Absolute Song Time} option displays two numbers -- the first one corresponds to the 
+current amount of time elapsed for the current file, while the second is the total length of the file.
+For live input, this value consists of only one number --
+the amount of time since the Live Play mode was initiated.
+
+This feature is accessible via 
+\mi{View} $\rightarrow$ \mi{{Display, Hide} Song Time} $\rightarrow$ \mi{Absolute}.
+
+\subsection{Key Signature Detection}
+
+For MIDI/MKI files, an option to extract and render the current key signature from the file is provided. For live input,
+a heuristic-based key detection algorithm is planned.
+
+This feature is accessible via 
+\mi{View} $\rightarrow$ \mi{{Display, Hide} Key Signature}.
+
+\subsection{\textit{Now}-Line}
+
+A vertical line is displayed at the $x$-position of the current time marker. This line is static in relation to the notes.
+It is possible to reposition the line to any valid $x$-position. To do this, left-click on the line and drag to the 
+intended position. When this is done, the notes will move along with the line as well. In addition, to reset the position of
+the line, hold \mi{Shift} while left-clicking.
+
+This feature is accessible via 
+\mi{View} $\rightarrow$ \mi{{Display, Hide} Now Line}.
+
+\subsection{Measure Lines}
+
+Like the \textit{Now}-Line, vertical lines are placed at the start of each measure. These lines cannot be moved, as 
+they are fixed to the timestamp at which they appear in the MIDI/MKI file.
+There are no measure lines displayed when the Live Input mode is active.
+
+This feature is accessible via 
+\mi{View} $\rightarrow$ \mi{{Display, Hide} Measure Line}.
+
+\subsection{Measure Numbers}
+
+With this option, each measure has a corresponding measure number displayed at the top of the screen. The number is rendered
+slightly to the right of the measure line to prevent overlap. When zooming out, only a subset of measure numbers are shown in
+order to preserve readability.
+
+This feature is accessible via 
+\mi{View} $\rightarrow$ \mi{{Display, Hide} Measure Number}.
+
+\subsection{Hide Background}
+
+If an image is loaded, this option prevents it from being rendered. Otherwise, this option has no effect.
+
+This feature is accessible via 
+\mi{View} $\rightarrow$ \mi{{Show, Hide} Background}.
+
+\section{Real-Time I/O}
+
+Communication to external MIDI devices is possible. This includes sending MIDI events to a synthesizer,
+and processing incoming MIDI data from a device. This option also allows the user to play a MIDI instrument and
+view a live visualization at the same time. When MIDI ports are displayed, a short version of the device-provided
+port name is provided, and each input or output port is uniquely numbered.
+
+\subsection{Input}
+
+If an input MIDI port is selected, the program will listen on that port for incoming MIDI messages. Valid messages will
+be displayed on screen as if they came from a prerecorded file. Note that an input port can only be opened when the
+Live Play mode is activated. Attempting to open a port when not in the Live Play mode will emit a warning instead.
+
+This feature is accessible via 
+\mi{Midi} $\rightarrow$ \mi{Input} $\rightarrow$ \mi{[port]}.
+
+\subsection{Output}
+\label{subsec:output}
+
+If an output MIDI port is selected, the program will output MIDI messages to that port. If a file is loaded, sent messages
+correspond with the currently playing notes. If the Live Input mode is selected (and a valid input port is open), the program
+will instead act in a MIDI Through regime. Therefore, input notes will still 
+be rendered while allowing for audio to be provided by an external synthesizer.
+
+\textbf{NOTE:} Using virtual MIDI ports on Windows is not supported, and will likely crash the application. This has been
+reproduced by creating virtual ports with \mi{loopMIDI} and trying to send MIDI messages via those ports.
+
+This feature is accessible via 
+\mi{Midi} $\rightarrow$ \mi{Output} $\rightarrow$ \mi{[port]}.
+
+\subsection{Live Play Mode}
+
+This mode allows live MIDI data to be displayed on screen. To do this, connect a MIDI device to the computer, enable
+this mode, and then select the corresponding MIDI input port via 
+\mi{Midi} $\rightarrow$ \mi{Input} $\rightarrow$ \mi{[port]}.
+
+This feature is accessible via 
+\mi{Midi} $\rightarrow$ \mi{{Enable, Disable} Live Play}.
+
+\section{Color Selection}
+
+Almost every UI element has a user-controllable color parameter. This section details the ways in which these
+parameters can be manipulated by the user.
+
+\subsection{Color By}
+
+This function allows for the coloring of notes via different methods. Each note has two associated colors at all times --
+one for when it currently playing or selected by the user, and another for all other cases. These options allow
+setting both of these colors for all notes at the same time using a predefined algorithm. Even when using these options,
+the user can still manually override any algorithmically generated color.
+
+\vspace{1em}
+
+\rcbegin
+\begin{tabular}{|l|l|}
+  \hline
+  \textbf{Object}           & \textbf{Controllable Values} \\
+  \hline
+  Note                    & \{On, Off\} Color (for each \{Track, Tonic Offset, Velocity Value\})\\
+  \textit{Now}-Line       & Line Color \\
+  Measure Lines           & Line Color \\
+  Sheet Music             & Background Color \\
+  Background              & Background Color \\
+  \hline
+\end{tabular}
+\rcend
+
+\vspace{1em}
+
+\subsubsection{Part}
+
+In this coloring mode, each track has a unique on/off color. In addition, for MIDI/MKI files, the hue of the generated
+color is determined by ordering each track by its average $y$ value (i.e. the MIDI note \#), and assigning
+a color based on the track's position in this ordering.
+
+This feature is accessible via 
+\mi{Color} $\rightarrow$ \mi{Color By:} $\rightarrow$ \mi{Part}.
+
+\subsubsection{Velocity}
+
+MIDI events provide for each note a velocity value $V \in [0, 127]$. Then, the color is determined by simply mapping 
+the note's velocity to a set of 128 possible colors. This set of colors is evenly-distributed around
+the HSV color wheel, and each color only differs in hue.
+
+This feature is accessible via 
+\mi{Color} $\rightarrow$ \mi{Color By:} $\rightarrow$ \mi{Velocity}.
+
+\subsubsection{Tonic}
+
+This colors notes based on the musical concept of \textit{tonic}. The tonic can be set manually via right clicking on a
+a note and pressing the \mi{Set Tonic} option. This will set the reference tonic as the selected note.
+
+This feature is accessible via 
+\mi{Color} $\rightarrow$ \mi{Color By:} $\rightarrow$ \mi{Tonic}.
+
+\subsection{Color Scheme}
+
+A color scheme is also able to be derived from the provided background image. By default this is disabled (i.e.
+this option is preset to the \mi{Default} mode). When an image is loaded, the \mi{From Background} mode is available.
+
+\subsubsection{Default}
+
+The default color scheme. If an image is loaded, it is not used to calculate any element color values.
+
+This feature is accessible via 
+\mi{Color} $\rightarrow$ \mi{Color Scheme:} $\rightarrow$ \mi{Default}.
+
+\subsubsection{From Background}
+
+The note color scheme is determined using the background image. This uses a randomized \textit{k-means} algorithm
+to pick the amount of colors. Note that the random nature of this process sometimes leads to unsatisfactory results.
+In that case, simply rerun the operation until the desired color palette has been generated. This operation will
+generate values for every \textit{Color By} option simultaneously. Using this operation on an image with less
+than $\max(\text{\# Tracks}, 12)$ colors is undefined behavior, and is therefore not supported. In this case,
+the program will emit a warning.
+
+This feature is accessible via 
+\mi{Color} $\rightarrow$ \mi{Color Scheme:} $\rightarrow$ \mi{From Background}.
+
+\subsection{Color Swapping}
+
+This option swaps the note-on and note-off color sets without changing any other color options.
+
+This feature is accessible via 
+\mi{Color} $\rightarrow$ \mi{Swap Colors}.
+
+\subsection{Color Inversion}
+
+This option inverts the object colors specified by the table below. For any given RGB input color 
+$C= (C_r,C_g,C_b), C_r,C_g,C_b \in [0,255]$, the inverted color $C'$ is defined as 
+$C' = (255-C_r, 255-C_g, 255-C_b)$.
+
+This feature is accessible via 
+\mi{Color} $\rightarrow$ \mi{Invert Color Scheme}.
+
+\vspace{1em}
+
+\rcbegin
+\begin{tabular}{|l|l|}
+  \hline
+  \textbf{Object}         & \textbf{Invertible Values} \\
+  \hline
+  Note                    & \{On, Off\} Color (for each \{Track, Tonic Offset, Velocity Value\})\\
+  \textit{Now}-Line       & Line Color \\
+  Measure Lines           & Line Color \\
+  Sheet Music             & Background Color \\
+  Background              & Background Color \\
+  \hline
+\end{tabular}
+\rcend
+
+\section{The MKI File Format}
+
+Normal MIDI files do not provide the ability to store visualization-related metadata such as color scheme,
+rendering options, etc. Therefore, the custom file format MKI has been created to alleviate this problem.
+This program defines, implements, and provides support for the MKI file format. Notably, every visualization-related
+parameter accepted by this program is able to be stored in the MKI format. A MIDI bitstream is embedded into the format,
+and user-provided images are able to be stored in the format as well.
+
+To save a file in MKI format, use the \mi{Ctrl-S}/\mi{Ctrl-Shift-S} keyboard shortcuts, which correspond to the 
+\mi{File} $\rightarrow$ \mi{Save}/\mi{File} $\rightarrow$ \mi{Save As}
+options.
+
+\subsection{Specification}
+
+The MKI file format is open and non-proprietary -- anyone is free to use the specification described below. However,
+due to the frequency changing nature of this program, this specification is subject to change at any time. This software
+provides no guarantees that a MKI file created today will be compatible with future versions of the program. Moreover,
+many of the options are very specific to this program.
+
+The MKI format is defined as follows:
+
+\vspace{1em}
+
+\rcbegin
+\begin{tabular}{|l|l|}
+  \hline
+  \textbf{Offset[start:end]}    & \textbf{Value} \\
+  \hline
+  \mi{0x00[7:7]}                  & \textit{Now}-Line \\
+  \mi{0x00[6:6]}                  & Display FPS \\
+  \mi{0x00[5:5]}                  & Display Background \\
+  \mi{0x00[4:4]}                  & Display Sheet Music \\
+  \mi{0x00[3:3]}                  & Display Measure Line \\
+  \mi{0x00[2:2]}                  & Display Measure Number \\
+  \mi{0x00[1:1]}                  & Image Exists? \\
+  \mi{0x00[0:0]-0x02}             & \mi{[reserved]} \\
+  \mi{0x03[7:4]}                  & Color Scheme \\
+  \mi{0x03[3:0]}                  & Display Mode \\
+  \mi{0x04[7:4]}                  & Song Time Mode \\
+  \mi{0x04[3:0]}                  & Tonic Offset \\
+  \mi{0x05-0x07}			            & \mi{[reserved]} \\
+  \mi{0x07-0x0B}                  & Zoom \\
+  \mi{0x0C-0x1F}                  & Image Metadata (if exists) \\
+  \mi{0x20-0x67}                  & Tonic Color Data \\
+  \mi{0x68-0x367}                 & Velocity Color Data \\
+  \mi{0x368-0x36A}                & Background Color \\
+  \mi{0x36B-0x36E}                & Track Size Marker \\
+  \mi{0x36F-0x36F+N}              & Track Color Data \\
+  \mi{0x36F+N-0x36F+N+M}          & Raw MIDI Data \\
+  \mi{0x36F+N+M-0x36F+N+M+P}      & Raw Image Data (if exists) \\
+
+  \hline
+\end{tabular}
+\rcend
+
+\vspace{1em}
+
+$N$ refers to $\text{\# Tracks}*6$, $M$ is the size of the MIDI bitstream, $P$ is the size of the image bitstream.
+
+\section{User Preferences}
+
+This section pertains to the file-agnostic preferences a user can set.
+All of these options are available via the keyboard shortcut \mi{Ctrl-,},
+which corresponds to the \mi{Edit} $\rightarrow$ \mi{Preferences} action.
+
+\subsection{Particle Emission}
+
+This option controls the particle system. Depending on the selected display mode, particles will be emitted from a 
+predefined location on a note-on event. A pictorial example is provided in the 
+\textcolor{lcol}{\hyperref[sec:intro]{introduction}}.
+
+\subsection{Dynamic Label Coloring}
+
+The label color for measure numbers, key signatures, etc. may not be visible on bright backgrounds. Therefore,
+this option exists to automatically select the grayscale RGB color $C_\text{RGB}=(c,c,c)$
+given the background color $B_\text{RGB}$,
+that maximizes $\Delta E(C_\text{LAB}, B_\text{LAB})$.
+This color will then be set as the default label color.
+
+\subsection{Adaptive Track Division}
+
+Many MIDI devices such as digital pianos only support single-channel MIDI output. Then, it can become difficult to discern the
+hand that plays a specific section of a piece. This option enables an algorithm that processes live MIDI input to split
+single-channel input into two tracks automatically. Options such as the time differential between successive notes, 
+player hand size, and other factors are taken into account. Note that the algorithm output is tuned for use with MIDI-enabled
+pianos, so using other two-handed (or greater) instruments as input may lead to confusing results.
+
+\subsection{Hand Range Selection}
+
+This option is available only when the Adaptive Track Division option is enabled. The user is able to select the 
+maximum hand range ($8^\text{th}$, $9^\text{th}$, $10^\text{th}$, or $11^\text{th}$) that suits them best. The 
+track division algorithm will then take the user's choice into effect. The default hand range is a $10^\text{th}$.
+
+\subsection{Image Darkening}
+
+If the user-supplied image is too bright, a darkening option has been provided. Note that full image manipulation is
+beyond the scope of this program, and so if the user has a problem that cannot be solved via this option, they
+should fix their issue by using an external image editor.
+
+\subsection{Color Distance Algorithms}
+
+This program supports $\Delta E$ calculation via three different color distance algorithms: CIE76, CIE94 and CIEDE2000.
+The user is able to choose freely between these algorithms, which will then be used throughout the entire program.
+A table summarizing the benefits of each follows.
+
+\vspace{1em}
+
+\rcbegin
+\begin{tabular}{|l|l|}
+  \hline
+  $\Delta\bf{E}$\textbf{ Formula}   & \textbf{Properties} \\
+  \hline
+  CIE76                             & Fastest, Least Accurate\\
+  CIE94                             & Moderate Speed \& Accuracy\\
+  CIEDE2000                         & Slowest, Most Accurate\\
+  \hline
+\end{tabular}
+\rcend
+
+\vspace{1em}
+
+\subsection{Display FPS}
+
+It simply displays the current FPS at the top right corner.
+
+This feature is accessible via 
+\mi{View} $\rightarrow$ \mi{{Show, Hide} FPS}.
+
+\section{Frequently Asked Questions}
+
+\faqQ{How can I enable audio output?}
+
+\faqA{This program does not itself produce audio. This is by the nature of MIDI messages, which do not encode audio samples,
+but rather note data \& metadata. You can enable the MIDI output feature by following the instructions in the 
+\textcolor{lcol}{\hyperref[subsec:output]{Output}} section, which will allow you to hear note events with an external
+synthesizer.}
+
+\faqQ{I enabled MIDI Output, but my audio quality is subpar. How can I fix this?}
+
+\faqA{The quality of software MIDI synthesizers greatly varies. Often, a simple way to make a MIDI synthesizer sound
+far better is to install a custom soundfont. A good free option is \mi{FluidR3_GM.sf2}, available in many
+package repositories. For Windows, if you are stuck using the terrible \mi{Microsoft GS Wavetable Synth} as your
+MIDI output device, finding a better alternative is strongly recommended.}
+
+\faqQ{Are languages other than English supported?}
+
+\faqA{While support for changing languages exists, there are currently no translations available. Therefore,
+English is the only supported language. Community translations are welcome, and translation is possible simply by
+duplicating \mi{LABEL_LANG_EN} in \mi{src/data_str.h}, replacing \mi{EN} with the respective ISO 639-1 language code,
+and replacing the \textit{value} of each map entry with the correct translated string. Note that the keys \textit{must} be
+kept in English -- they are internal identifiers and are required for the program to function. However, these internal
+identifiers will not be shown to the end-user.}
+
+\faqQ{How is this software licensed and is it free?}
+
+\faqA{This program is provided free-of-charge to everyone. Instructions to download the software are provided in the
+\textcolor{lcol}{\hyperref[sec:obtain]{Obtaining Binaries}} section. The license chosen is the GNU General 
+Public License v3.0 (GPLv3), and the license terms are provided in the repository. As a summary, the end user is 
+guaranteed the freedom to run, study, share, and modify this program subject to the stipulations in the GPLv3 license.}
+
+\section{Remarks}
+
+This program is open-source
+\textcolor{lcol}{(\raisebox{-0.1\height}{\faGithub} \href{https://github.com/iikare/nodumi}{iikare/nodumi})}, 
+and community contributions are welcome.
+
+Additional information can be found on \textcolor{lcol}{\href{https://iika.re/nodumi/}{my website}}.
+
+\vspace*{\fill}
+\href{https://iika.re/nodumi/}{
+\begin{minipage}{.54\textwidth}
+  \raggedleft
+  {\includesvg[width=1.6in]{image/logo.svg}}
+\end{minipage}%
+\begin{minipage}{.46\textwidth}
+  \raggedright
+  \raisebox{0.6em}{\hspace{-0.5em}{\titlefont\huge \textcolor{lcol}{nodumi}}}
+\end{minipage}
+}
+\vspace*{\fill}
+
+\end{document}
