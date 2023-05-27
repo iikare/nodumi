@@ -8,9 +8,9 @@ gmon.out
 output.png
 
 # latex output
-docs/_minted-guide/
-docs/guide.aux
-docs/guide.log
-docs/guide.toc
-docs/svg-inkscape/
-docs/yklight.otf
+doc/_minted-guide/
+doc/guide.aux
+doc/guide.log
+doc/guide.toc
+doc/svg-inkscape/
+doc/missfont.log

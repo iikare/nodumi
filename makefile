@@ -126,6 +126,9 @@ pre:
 	@./tool/generate.sh ON
 	@./tool/codepoint.sh
 
+doc:
+	@$(MAKE) -C doc
+
 $(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) | $(@D)
 	$(PREREQ_DIR)
 	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(LFLAGS) $(NONSTD)
