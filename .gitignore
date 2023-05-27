@@ -7,3 +7,11 @@ doc/
 *.json
 gmon.out
 output.png
+
+# latex output
+docs/_minted-info/
+docs/info.aux
+docs/info.log
+docs/info.toc
+docs/svg-inkscape/
+docs/yklight.otf
