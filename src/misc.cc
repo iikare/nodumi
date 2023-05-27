@@ -69,15 +69,20 @@ string getNoteInfo(int noteTrack, int notePos, bool isFlat) {
   return result;
 }
 
-string getSongPercent (double pos, double total) {
+string getSongPercent (double pos) {
+  if (ctr.getLiveState()) {
+    return "";
+  }
+
+  double total = ctr.getLastTime();
   string untruncText = to_string(100 * pos / total);
   double position = 100 * pos / total;
-
   string result = "100.00%";
   
   if (pos == 0) {
     return "0.00%";
   }
+
   if (untruncText[0] == 1) {
     result = untruncText.substr(0,6);
   }
@@ -94,12 +99,16 @@ string getSongPercent (double pos, double total) {
   return result;
 }
 
-string getSongTime(double pos, double total) {
+string getSongTime(double pos) {
   string result;
+  double total = ctr.getLastTime();
   
-  result += toMinutes(floor(pos / UNK_CST));
-  result += " / ";
-  result += toMinutes(floor(total/UNK_CST));
+  result += toMinutes(floor(pos/UNK_CST));
+  if (!ctr.getLiveState()) {
+    result += " / ";
+    result += toMinutes(floor(total/UNK_CST));
+  }
+
   return result;
 }
 

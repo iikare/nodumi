@@ -40,8 +40,8 @@ string colorToHex(const colorRGB& col);
 
 string getNoteInfo(int noteTrack, int notePos, bool isFlat);
 
-string getSongPercent (double pos, double total);
-string getSongTime(double pos,  double total);
+string getSongPercent (double pos);
+string getSongTime(double pos);
 string toMinutes(double seconds);
 
 vector<string>& formatPortName(vector<string>& ports);

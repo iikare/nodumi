@@ -319,10 +319,10 @@ int main (int argc, char* argv[]) {
               Vector2 songInfoSize = {0,0}; 
               switch (songTimeType) {
                 case SONGTIME_ABSOLUTE:
-                 songInfoSize = measureTextEx(getSongTime(timeOffset, ctr.getLastTime()));
+                 songInfoSize = measureTextEx(getSongTime(timeOffset));
                  break;
                 case SONGTIME_RELATIVE: 
-                 songInfoSize = measureTextEx(getSongPercent(timeOffset, ctr.getLastTime()));
+                 songInfoSize = measureTextEx(getSongPercent(timeOffset));
                  break;
               }
               if (showKey) {
@@ -976,10 +976,10 @@ int main (int argc, char* argv[]) {
 
       switch (songTimeType) {
         case SONGTIME_RELATIVE:
-          songTimeContent = getSongPercent(timeOffset, ctr.getLastTime());
+          songTimeContent = getSongPercent(timeOffset);
           break;
         case SONGTIME_ABSOLUTE:
-          songTimeContent = getSongTime(timeOffset, ctr.getLastTime());
+          songTimeContent = getSongTime(timeOffset);
           break;
         case SONGTIME_NONE:
           break;
