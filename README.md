@@ -2,9 +2,8 @@
 
 <img align="left" src="https://user-images.githubusercontent.com/13582030/193442487-40aadaf9-0b11-4309-907b-e481856bcb1d.svg" width="130px">
 
-Currently, docs and info are in the process of being updated -- please wait warmly!.
 
-At some point in the future as development progresses, a usage guide will be available [on my website](https://iika.re/nodumi/ "nodumi website").
+A usage guide is now available [on my website](https://iika.re/nodumi/guide.pdf "nodumi website").
 
 `nodumi` — ನೋಡು (look/see) + [mi]di
 
