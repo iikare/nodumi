@@ -107,7 +107,6 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
     return;
   }
 
-
   auto push_verts = [&](unsigned int n_l, unsigned int n_r) {
     const auto& l_note = n_vec->at(chord_l[n_l]);
     const auto& r_note = n_vec->at(chord_r[n_r]);
@@ -125,6 +124,14 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
                      r_note.y});
   };
 
+  auto get_y_l = [&](unsigned int idx) {
+    return n_vec->at(chord_l[idx]).y;
+  };
+  auto get_y_r = [&](unsigned int idx) {
+    return n_vec->at(chord_r[idx]).y;
+  };
+
+
   if (chord_l.size() == chord_r.size()) {
     // equal size
     for (unsigned int n_l = 0; n_l < chord_l.size(); ++n_l) {
@@ -133,21 +140,80 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
   }
   else if (chord_l.size() < chord_r.size()) {
     // left side smaller
+    unsigned int dup = chord_r.size() - chord_l.size();
     unsigned int n_l = 0;
-    for (n_l = 0; n_l < chord_l.size(); ++n_l) {
-      push_verts(n_l, n_l);
-    }
-    n_l--;
-    for (unsigned int n_r = n_l+1; n_r < chord_r.size(); ++n_r) {
+    unsigned int n_r = 0;
+
+    while (n_r < chord_r.size()) {
+  
+      if (dup > 0) {
+        // can choose between left endpoints
+        if (n_l + 1 < chord_l.size()) {
+          bool use_current = abs(get_y_l(n_l)-get_y_r(n_r)) < abs(get_y_l(n_l+1) - get_y_r(n_r));
+
+          if (use_current) {
+            dup--;
+          }
+          else {
+            n_l++;
+          }
+
+        }
+      }
+      else if (n_l + 1 < chord_l.size()) {
+        // must choose next endpoint
+        n_l++;
+      }
+
       push_verts(n_l, n_r);
+      n_r++;
     }
 
+    //unsigned int n_l = 0;
+    //for (n_l = 0; n_l < chord_l.size(); ++n_l) {
+      //push_verts(n_l, n_l);
+    //}
+    //n_l--;
+    //for (unsigned int n_r = n_l+1; n_r < chord_r.size(); ++n_r) {
+      //push_verts(n_l, n_r);
+    //}
   }
   else {
     // right side smaller
-    for (unsigned int n_l = 0; n_l < chord_l.size(); ++n_l) {
-      push_verts(n_l, (n_l < chord_r.size()) ? n_l : chord_r.size()-1);
+    unsigned int dup = chord_l.size() - chord_r.size();
+    unsigned int n_l = 0;
+    unsigned int n_r = 0;
+
+    while (n_l < chord_l.size()) {
+  
+      if (dup > 0) {
+        // can choose between right endpoints
+        if (n_r + 1 < chord_r.size()) {
+          bool use_current = abs(get_y_l(n_l)-get_y_r(n_r)) < abs(get_y_l(n_l) - get_y_r(n_r+1));
+
+          if (use_current) {
+            dup--;
+          }
+          else {
+            n_r++;
+          }
+        }
+        else {
+          n_r = chord_r.size()-1;
+        }
+      }
+      else if (n_r + 1 < chord_r.size()){
+        // must choose next endpoint
+        n_r++;
+      }
+
+      push_verts(n_l, n_r);
+      n_l++;
     }
+
+    //for (unsigned int n_l = 0; n_l < chord_l.size(); ++n_l) {
+      //push_verts(n_l, (n_l < chord_r.size()) ? n_l : chord_r.size()-1);
+    //}
   }
 
   //unsigned int r_line = max(chord_l.size(), chord_r.size());
@@ -174,67 +240,4 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
       //logQ("EQUAL");
     //}
   //}
-
-  //vector<int> linePos = {};
-
-  //note& pNow = n_vec->at(note_idx[l]);
-  //note& pNext = n_vec->at(note_idx[r]);
-  //bool pushLine = false;
-
-  //auto pushVerts = [&] {
-      //linePos.push_back(pNow.number);
-      
-      //linePos.push_back(pNow.x);
-      //linePos.push_back(pNow.y);
-      
-      //if (!pushLine) {
-        //linePos.push_back(pNext.x);
-        //linePos.push_back(pNext.y);
-      //}
-      //else {
-        //linePos.push_back(pNow.x + pNow.duration);
-        //linePos.push_back(pNow.y);
-      //}
-  //};
-
-  //// only link spatially near notes
-  //if (now.x + 2 * now.duration < next.x) {
-    //pushLine = true;
-  //}
-
-
-  //if (now.getChordSize() == next.getChordSize()) {
-    //for (int i = 0; i < now.getChordSize(); i++) {
-      //pushVerts();
-      //pNow = pNow.chordNext;
-      //pNext = pNext.chordNext;
-    //}
-  //}
-  //else if (now.getChordSize() > next.getChordSize()) {
-    //for (int i = 0; i < next.getChordSize(); i++) {
-      //pushVerts();
-      //pNow = pNow.chordNext;
-      //if (i != next.getChordSize() - 1) {
-        //pNext = pNext.chordNext;
-      //}
-    //}
-    //for (int i = 0; i < now.getChordSize() - next.getChordSize(); i++) {
-      //pushVerts();
-      //pNow = pNow.chordNext;
-    //}
-  //}
-  //else {
-    //for (int i = 0; i < now.getChordSize(); i++) {
-      //pushVerts();
-      //pNext = pNext.chordNext;
-      //if (i != now.getChordSize() - 1) {
-        //pNow = pNow.chordNext;
-      //}
-    //}
-    //for (int i = 0; i < next.getChordSize() - now.getChordSize(); i++) {
-      //pushVerts();
-      //pNext = pNext.chordNext;
-    //}
-  //}
-
 }
