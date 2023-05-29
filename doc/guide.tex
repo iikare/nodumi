@@ -717,6 +717,14 @@ It simply displays the current FPS at the top right corner.
 This feature is accessible via 
 \mi{View} $\rightarrow$ \mi{{Show, Hide} FPS}.
 
+\subsection{Velocity Scaling}
+
+The default velocity color mode expects velocities in $[0, 127]$. Therefore, if a piece uses a small subset of this range,
+the contrast between rendered colors is low. This option allows the user to map the full color range provided by this
+color mode to the velocity range of the file. Currently, this option only works for prerecorded pieces, not live input.
+If a piece has a velocity range of zero, then this option does nothing and the default velocity coloring will
+be shown.
+
 \section{Frequently Asked Questions}
 
 \faqQ{How can I enable audio output?}
