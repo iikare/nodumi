@@ -47,6 +47,10 @@ void dialogController::init() {
                                   {"00", "94", "76"},
                                   convertEnum(cie_opt_vec)
                                   ));
+  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+                                  optionType::OPTION_SCALE_VELOCITY,
+                                  ctr.text.getStringSet("PREF_SCALE_VELOCITY")
+                                  ));
 }
 
 void dialogController::render() {
@@ -96,13 +100,9 @@ void dialogController::renderPreference() {
     if (y_sum + i.get_height() > (ctr.getHeight()+ctr.prefHeight)/2.0 + optBottomMargin) {
       x_sum = getItemX(1);
       y_sum = getItemY(0);
-      i.render(x_sum, y_sum);
     }
-    else {
-      i.render(x_sum, y_sum);
-      y_sum += i.get_height(); 
-    }
-
+    i.render(x_sum, y_sum);
+    y_sum += i.get_height(); 
   }
 
 }

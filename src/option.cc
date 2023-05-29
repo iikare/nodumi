@@ -13,8 +13,9 @@ optionController::optionController() {
   opts[static_cast<int>(optionType::OPTION_CIE_FUNCTION)] = static_cast<int>(cie2k::TYPE::CIE_00);
   opts[static_cast<int>(optionType::OPTION_SET_CIE_FUNCTION)] = false;
   opts[static_cast<int>(optionType::OPTION_DARKEN_IMAGE)] = 0;
-  opts[static_cast<int>(optionType::OPTION_DYNAMIC_LABEL)] = 1;
-  opts[static_cast<int>(optionType::OPTION_PARTICLE)] = 0;
+  opts[static_cast<int>(optionType::OPTION_DYNAMIC_LABEL)] = true;
+  opts[static_cast<int>(optionType::OPTION_PARTICLE)] = false;
+  opts[static_cast<int>(optionType::OPTION_SCALE_VELOCITY)] = false;
 }
 
 void optionController::invert(optionType opt) {
@@ -37,6 +38,8 @@ void optionController::invert(optionType opt) {
     case OPTION_SET_CIE_FUNCTION:
       break;
     case OPTION_PARTICLE:
+      break;
+    case OPTION_SCALE_VELOCITY:
       break;
     default:
       logW(LL_WARN, "cannot invert option of type", static_cast<int>(opt));

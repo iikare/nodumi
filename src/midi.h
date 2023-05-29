@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
+#include <sys/types.h>
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -53,6 +55,8 @@ class midi {
 
 
       tracks.resize(2);
+
+      velocityBounds = make_pair(127, 0);
       
       trackCount = 0;
       noteCount = 0;
@@ -89,6 +93,9 @@ class midi {
     vector<measureController> measureMap;
 
     vector<pair<int, double>> trackHeightMap;
+
+    // min, max
+    pair<int, int> velocityBounds;
 
     friend class midiInput;
     friend class trackController;

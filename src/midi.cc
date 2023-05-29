@@ -265,6 +265,8 @@ void midi::clear() {
 
   sheetData.reset();
 
+  velocityBounds = make_pair(127, 0);
+
   noteCount = 0;
   trackCount = 0;
   tpq = 0;
@@ -343,6 +345,9 @@ void midi::load(stringstream& buf) {
         notes[idx].x  = midifile[i][j].seconds * UNK_CST;
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
+
+        velocityBounds.first  = min(notes[idx].velocity, velocityBounds.first);
+        velocityBounds.second = max(notes[idx].velocity, velocityBounds.second);
 
         //cerr << midifile.getTimeInSeconds(notes[idx].tick) << " " << midifile[i][j].seconds << endl;
         

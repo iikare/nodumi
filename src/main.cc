@@ -380,7 +380,15 @@ int main (int argc, char* argv[]) {
           case COLOR_PART:
             return notes[idx].track;
           case COLOR_VELOCITY:
-            return notes[idx].velocity;
+            if (ctr.option.get(optionType::OPTION_SCALE_VELOCITY) && 
+                !ctr.getLiveState() &&
+                stream.velocityBounds.first != stream.velocityBounds.second) {
+              int range = stream.velocityBounds.second-stream.velocityBounds.first;
+              return static_cast<int>((notes[idx].velocity-stream.velocityBounds.first)*(127.0/range));
+            }
+            else {
+              return notes[idx].velocity;
+            }
           case COLOR_TONIC:
             return (notes[idx].y - MIN_NOTE_IDX + tonicOffset) % 12 ;
         }

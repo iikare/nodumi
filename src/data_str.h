@@ -77,5 +77,6 @@
                         {"PREF_DYNAMIC_LABEL",                  "Dynamic Label Color"}, \
                         {"PREF_CIE_FUNCTION",                   "Set CIE Distance Function"}, \
                         {"PREF_PARTICLE",                       "Enable Particle Effects"}, \
+                        {"PREF_SCALE_VELOCITY",                 "Use Scaled Velocities"}, \
                         {"",                                    ""}, \
                       }
