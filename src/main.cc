@@ -339,7 +339,7 @@ int main (int argc, char* argv[]) {
                   songInfoSize.x += tl_spacing;
                 }
               }
-              if (showTempo) {
+              if (showTempo && !ctr.getLiveState()) {
                 songInfoSize.x += measureTextEx(to_string(ctr.getTempo(timeOffset))+" BPM").x;
                 songInfoSize.x += tl_spacing;
                 if (songTimeType != SONGTIME_NONE || showKey) {
@@ -350,7 +350,8 @@ int main (int argc, char* argv[]) {
               double fadeWidth = 2.0*measureSpacing;
               int measureLineTextAlpha = 255*(min(fadeWidth, ctr.getWidth()-measureLineX))/fadeWidth;
 
-              if ((showTempo || showKey || songTimeType != SONGTIME_NONE) && measureLineX + 4 < songInfoSize.x+fadeWidth/2.0) {
+              if (((showTempo && !ctr.getLiveState()) || showKey || songTimeType != SONGTIME_NONE) && 
+                  measureLineX + 4 < songInfoSize.x+fadeWidth/2.0) {
                 measureLineTextAlpha = max(0.0,min(255.0, 
                                                    255.0 * (1-(songInfoSize.x+fadeWidth/2.0 - measureLineX - 4)/10)));
               }
@@ -1025,7 +1026,7 @@ int main (int argc, char* argv[]) {
         tl_offset += measureTextEx(ctr.getKeySigLabel(timeOffset)).x;
       }
 
-      if (showTempo) {
+      if (showTempo && !ctr.getLiveState()) {
         tl_offset += tl_spacing;
         if (songTimeType != SONGTIME_NONE || showKey) {
           tl_offset += tl_spacing;
