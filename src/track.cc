@@ -92,6 +92,8 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
   double l_duration = n_vec->at(l_end_note).duration; 
   double r_start = n_vec->at(chord_r[0]).x;    
 
+  //unsigned int n_line = 0;
+  
   // only link spatially near notes
   if (l==r || l_start + 2*l_duration < r_start) {
     for (unsigned int n_l = 0; n_l < chord_l.size(); ++n_l) {
@@ -105,6 +107,7 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
     return;
   }
 
+
   auto push_verts = [&](unsigned int n_l, unsigned int n_r) {
     const auto& l_note = n_vec->at(chord_l[n_l]);
     const auto& r_note = n_vec->at(chord_r[n_r]);
@@ -113,6 +116,7 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
       //logQ("NEGATIVE LINE OFFSET");
       //return;
     //}
+    //n_line++;
 
     lines.push_back({chord_l[n_l],
                      l_note.x,
@@ -130,11 +134,11 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
   else if (chord_l.size() < chord_r.size()) {
     // left side smaller
     unsigned int n_l = 0;
-    for (; n_l < chord_l.size(); ++n_l) {
+    for (n_l = 0; n_l < chord_l.size(); ++n_l) {
       push_verts(n_l, n_l);
     }
     n_l--;
-    for (unsigned int n_r = n_l; n_r < chord_r.size(); ++n_r) {
+    for (unsigned int n_r = n_l+1; n_r < chord_r.size(); ++n_r) {
       push_verts(n_l, n_r);
     }
 
@@ -146,6 +150,30 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
     }
   }
 
+  //unsigned int r_line = max(chord_l.size(), chord_r.size());
+
+  //if (r_line > n_line) {
+    //logQ(l, "LESS: need", r_line, "got", n_line);
+
+
+  //}
+  //if (r_line < n_line) {
+    //logQ(l, "MORE: need", r_line, "got", n_line);
+  //}
+
+  //if (r_line != n_line) {
+
+    //if (chord_l.size() > chord_r.size()) {
+      //logQ("LEFT LARGE");
+    //}
+    //else if (chord_l.size() < chord_r.size()) {
+      //logQ("RIGHT LARGE");
+
+    //}
+    //else {
+      //logQ("EQUAL");
+    //}
+  //}
 
   //vector<int> linePos = {};
 
