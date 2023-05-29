@@ -490,7 +490,7 @@ int main (int argc, char* argv[]) {
               auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
               const auto& col = (*cSet)[colorID]; 
               const auto& col_inv = (*cSetInv)[colorID]; 
-              float radius = -1 + 2 * (32 - __countl_zero(int(cW)));
+              float radius = -1 + 2 * (32 - __countl_zero(static_cast<int>(cW)));
               float maxRad = radius;
               float ballY = cY + 2;
               if (cX + cW + radius > 0 && cX - radius < ctr.getWidth()) {
@@ -787,18 +787,20 @@ int main (int argc, char* argv[]) {
                            nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
                            0, 0, col, col_inv});
                 }
+
+                double scale = (2*(32 - __countl_zero(static_cast<int>(cW))))/8.0;
                 drawRing({convSS[0], convSS[1]},
-                         0, 3, col);
+                         0, 3*scale, col);
                 drawRing({convSS[2], convSS[3]},
-                         0, 3, col);
+                         0, 3*scale, col);
                 if (convSS[2] < nowLineX) {
                   drawRing({convSS[2], convSS[3]},
-                           4, 8, col);
+                           4*scale, 8*scale, col);
                 }
                 
                 if (nowRatio > 0 && nowRatio < 1) {
                   drawRing({convSS[2], convSS[3]},
-                           4, 8, col, 255, (nowRatio-0.5f)*360.0f, 180.0f);
+                           4*scale, 8*scale, col, 255, (nowRatio-0.5f)*360.0f, 180.0f);
                 }
 
               }
