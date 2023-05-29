@@ -81,7 +81,8 @@ int main (int argc, char* argv[]) {
   bool measureLine = true;
   bool measureNumber = true;
 
-  bool showKey = true;
+  bool showKey = false;
+  bool showTempo = false;
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
   int displayMode = DISPLAY_PULSE;
@@ -1161,7 +1162,6 @@ int main (int argc, char* argv[]) {
       case ACTION_CHANGE_MODE:
         for (unsigned int mode = 0; mode < min(static_cast<unsigned int>(DISPLAY_NONE), 9u); ++mode) {
           if(isKeyPressed(KEY_ONE+mode)) {
-          logC(KEY_ONE, KEY_ONE+mode);
             displayMode = DISPLAY_BAR+mode;
           }
         }
@@ -1435,6 +1435,10 @@ int main (int argc, char* argv[]) {
             case VIEW_MENU_KEY_SIGNATURE:
               viewMenu.swapLabel("VIEW_MENU_SHOW_KEY_SIGNATURE", "VIEW_MENU_HIDE_KEY_SIGNATURE", VIEW_MENU_KEY_SIGNATURE);
               showKey = !showKey;
+              break;
+            case VIEW_MENU_TEMPO:
+              viewMenu.swapLabel("VIEW_MENU_SHOW_TEMPO", "VIEW_MENU_HIDE_TEMPO", VIEW_MENU_TEMPO);
+              showTempo = !showTempo;
               break;
             case VIEW_MENU_NOW_LINE:
               viewMenu.swapLabel("VIEW_MENU_SHOW_NOW_LINE", "VIEW_MENU_HIDE_NOW_LINE", VIEW_MENU_NOW_LINE);

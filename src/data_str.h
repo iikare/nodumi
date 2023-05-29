@@ -19,6 +19,8 @@
                         {"VIEW_MENU_HIDE_SONG_TIME",            "Hide Song Time"}, \
                         {"VIEW_MENU_SHOW_KEY_SIGNATURE",        "Show Key Signature"}, \
                         {"VIEW_MENU_HIDE_KEY_SIGNATURE",        "Hide Key Signature"}, \
+                        {"VIEW_MENU_SHOW_TEMPO",                "Show Tempo"}, \
+                        {"VIEW_MENU_HIDE_TEMPO",                "Hide Tempo"}, \
                         {"VIEW_MENU_HIDE_NOW_LINE",             "Hide Now Line"}, \
                         {"VIEW_MENU_SHOW_NOW_LINE",             "Show Now Line"}, \
                         {"VIEW_MENU_HIDE_MEASURE_LINE",         "Hide Measure Line"}, \
