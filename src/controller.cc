@@ -553,7 +553,7 @@ int controller::getLastTime() {
   return file.getLastTime();
 }
 
-int controller::getTempo(int idx) {
+int controller::getTempo(int idx) const {
   if (livePlayState) {
     return 120;
   }
@@ -620,8 +620,23 @@ string controller::getNoteLabel(int index) {
   return getNoteInfo(getNotes()[index].track, getNotes()[index].y - MIN_NOTE_IDX, is_flat);
 }
 
-string controller::getKeySigLabel(int offset) const {
+string controller::getTempoLabel(int offset) const {
+  if (livePlayState) {
+    return "";
+  }
 
+  if (file.measureMap.size() == 0) {
+    return "";
+  }
+  
+  if (offset == 0) {
+    offset = 1;
+  }
+  
+  return to_string(getTempo(offset)) + " BPM";
+}
+
+string controller::getKeySigLabel(int offset) const {
   if (livePlayState) {
     // TODO: detect key signature from already-played notes
     //return "NULL";

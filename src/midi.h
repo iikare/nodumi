@@ -80,7 +80,7 @@ class midi {
     int getLastTick() const { return lastTick; }
     int getLastTime() const { return lastTime; }
     int getTPQ() const { return tpq; }
-    int getTempo(int offset);
+    int getTempo(int offset) const;
     vector<trackController>& getTracks() { return tracks;}
     
     void setNoteCount(int nc) { noteCount = nc; }

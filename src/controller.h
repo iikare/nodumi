@@ -111,11 +111,12 @@ class controller {
     int getTrackCount();
     int getNoteCount();
     int getLastTime();
-    int getTempo(int idx);
+    int getTempo(int idx) const;
     int getMinTickLen() const;
     int getCurrentMeasure() const;
     int getMeasureCount() const;
     string getKeySigLabel(int offset) const;
+    string getTempoLabel(int offset) const;
     string getNoteLabel(int index);
 
     int getWidth() const { return GetScreenWidth(); }

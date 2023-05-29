@@ -340,7 +340,7 @@ int main (int argc, char* argv[]) {
                 }
               }
               if (showTempo && !ctr.getLiveState()) {
-                songInfoSize.x += measureTextEx(to_string(ctr.getTempo(timeOffset))+" BPM").x;
+                songInfoSize.x += measureTextEx(ctr.getTempoLabel(timeOffset)).x;
                 songInfoSize.x += tl_spacing;
                 if (songTimeType != SONGTIME_NONE || showKey) {
                   songInfoSize.x += tl_spacing;
@@ -1031,7 +1031,7 @@ int main (int argc, char* argv[]) {
         if (songTimeType != SONGTIME_NONE || showKey) {
           tl_offset += tl_spacing;
         }
-        drawTextEx(to_string(ctr.getTempo(timeOffset))+" BPM", tl_offset, songTimePosition.y, ctr.bgColor2);
+        drawTextEx(ctr.getTempoLabel(timeOffset), tl_offset, songTimePosition.y, ctr.bgColor2);
       }
 
       if (showFPS) {

@@ -13,7 +13,7 @@
 using std::priority_queue;
 using std::thread;
 
-int midi::getTempo(int offset) {
+int midi::getTempo(int offset) const {
   if (tempoMap.size() != 0 && offset == 0) {
     return tempoMap[0].second;
   }
