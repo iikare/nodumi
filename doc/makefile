@@ -4,6 +4,7 @@ NAME = $(basename $(call wild,./,*.tex))
 all:
 	$(MAKE) $(NAME)
 	$(MAKE) $(NAME)
+	$(MAKE) $(NAME)
 	$(MAKE) clean
 
 $(NAME):
