@@ -270,6 +270,11 @@ void midi::clear() {
   noteCount = 0;
   trackCount = 0;
   tpq = 0;
+
+  lastTime = 0;
+  lastTick = 0;
+
+
 }
 
 void midi::load(string file, stringstream& buf) {
