@@ -135,7 +135,7 @@ int main (int argc, char* argv[]) {
   };
 
   // menu variables
-  constexpr int songInfoSpacing = 4;
+  constexpr int tl_spacing = 4;
   Vector2 songTimePosition = {6.0f, 26.0f};
 
   // menu objects
@@ -232,6 +232,7 @@ int main (int argc, char* argv[]) {
     hoverType.clear();
     const vector<note>& notes = ctr.getNotes();
     midi& stream = ctr.getStream();
+    unsigned int tl_offset = 4;
 
     // update menu variables
     if (sheetMusicDisplay) {
@@ -334,15 +335,22 @@ int main (int argc, char* argv[]) {
                 songInfoSize.x += keySigSize.x;
                 songInfoSize.y += keySigSize.y;
 
-                if (songTimeType == SONGTIME_ABSOLUTE || songTimeType == SONGTIME_RELATIVE) {
-                  songInfoSize.x += songInfoSpacing;
+                if (songTimeType != SONGTIME_NONE) {
+                  songInfoSize.x += tl_spacing;
+                }
+              }
+              if (showTempo) {
+                songInfoSize.x += measureTextEx(to_string(ctr.getTempo(timeOffset))+" BPM").x;
+                songInfoSize.x += tl_spacing;
+                if (songTimeType != SONGTIME_NONE || showKey) {
+                  songInfoSize.x += tl_spacing;
                 }
               }
 
               double fadeWidth = 2.0*measureSpacing;
               int measureLineTextAlpha = 255*(min(fadeWidth, ctr.getWidth()-measureLineX))/fadeWidth;
 
-              if ((showKey || songTimeType != SONGTIME_NONE) && measureLineX + 4 < songInfoSize.x+fadeWidth/2.0) {
+              if ((showTempo || showKey || songTimeType != SONGTIME_NONE) && measureLineX + 4 < songInfoSize.x+fadeWidth/2.0) {
                 measureLineTextAlpha = max(0.0,min(255.0, 
                                                    255.0 * (1-(songInfoSize.x+fadeWidth/2.0 - measureLineX - 4)/10)));
               }
@@ -984,7 +992,6 @@ int main (int argc, char* argv[]) {
       
       // option actions
 
-      Vector2 songTimeSizeV = {0.0, 0.0};
       string songTimeContent = "";
 
       switch (songTimeType) {
@@ -1002,18 +1009,28 @@ int main (int argc, char* argv[]) {
       }
       
       drawTextEx(songTimeContent, songTimePosition, ctr.bgColor2);
-      songTimeSizeV = measureTextEx(songTimeContent);
+      tl_offset = measureTextEx(songTimeContent).x;
 
       // draw key signature label
       if (showKey) {
-        if (songTimeType == SONGTIME_ABSOLUTE || songTimeType == SONGTIME_RELATIVE) {
-          songTimeSizeV.x += songInfoSpacing;
+        if (songTimeType != SONGTIME_NONE) { 
+          tl_offset += tl_spacing;
         }
         //logQ("got label:", ctr.getKeySigLabel(timeOffset));
         string ksl = ctr.getKeySigLabel(timeOffset);
-        int cKSOffset = songTimePosition.x+songTimeSizeV.x;
+        int cKSOffset = songTimePosition.x + tl_offset;
 
         drawNoteLabel(ksl, cKSOffset, songTimePosition.y, 14, 74, ctr.bgColor2);
+
+        tl_offset += measureTextEx(ctr.getKeySigLabel(timeOffset)).x;
+      }
+
+      if (showTempo) {
+        tl_offset += tl_spacing;
+        if (songTimeType != SONGTIME_NONE || showKey) {
+          tl_offset += tl_spacing;
+        }
+        drawTextEx(to_string(ctr.getTempo(timeOffset))+" BPM", tl_offset, songTimePosition.y, ctr.bgColor2);
       }
 
       if (showFPS) {
