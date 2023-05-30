@@ -27,7 +27,7 @@ T colorLERP(const T& a, const T& b, double ratio, int type = INT_LINEAR) {
                       (a.b*(1-ratio)+b.b*(ratio))};
   }
 
-  logW(LL_WARN, "call to", __func__, "using invalid type", typeid(T).name());
+  //logW(LL_WARN, "call to", __func__, "using invalid type", typeid(T).name());
   return T();
 }
 //Color colorLERP(const Color& a, Color& b, double ratio, int type = INT_LINEAR);

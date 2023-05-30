@@ -397,8 +397,11 @@ This feature is accessible via
 
 \subsection{Key Signature Detection}
 
-For MIDI/MKI files, an option to extract and render the current key signature from the file is provided. For live input,
-a heuristic-based key detection algorithm is planned.
+For MIDI/MKI files, an option to extract and render the current key signature from the file is provided. In most cases,
+key signature data is generated directly from the MIDI/MKI file.
+If an input MIDI file does not have any key signatures, the key signature with the smallest number of off-key notes
+is used instead. Currently, this assumes the entire piece uses the same key signature. 
+For live input, a heuristic-based key detection algorithm is planned.
 
 This feature is accessible via 
 \mi{View} $\rightarrow$ \mi{{Show, Hide} Key Signature}.

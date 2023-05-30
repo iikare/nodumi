@@ -117,6 +117,7 @@ class midi {
     void linkKeySignatures();
     keySig getKeySignature(double offset);
     keySig eventToKeySignature(int keySigType, bool isMinor, int tick);
+    int findKeySig();
     
     void buildLineMap();
     void buildTickSet();

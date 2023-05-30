@@ -3,6 +3,7 @@
 #include <queue>
 #include <utility>
 #include <thread>
+#include "enum.h"
 #include "midi.h"
 #include "misc.h"
 #include "data.h"
@@ -215,6 +216,37 @@ keySig midi::eventToKeySignature(int keySigType, bool isMinor, int tick) {
   return keySig(keyType, isMinor, tick);
 }
 
+int midi::findKeySig() {
+  vector<pair<int,keySig>> match(KEYSIG_NONE-2);
+
+  for (int ch = 0; auto& m : match) {
+    // exclude 7flat/sharp
+    int k_t = KEYSIG_C+ch;
+    if (k_t == KEYSIG_CSHARP || k_t == KEYSIG_CFLAT) {
+      ch++;
+      k_t++;
+    }
+
+    m = make_pair(0, keySig(k_t, 0, 0));
+    ch++;
+  }
+
+  for (const auto& n : notes) {
+    for (auto& m : match) {
+      int y_norm = n.y+12*12;
+      int ks_idx = (y_norm+m.second.getIndex()) % 12;
+
+      bool on_key = ks_idx == 0 || ks_idx == 2 || ks_idx == 4 || ks_idx == 5 || ks_idx == 7 || ks_idx == 9 || ks_idx == 11;
+      on_key ? m.first++ : m.first--;
+    }
+  }
+
+  //for (const auto& m : match) { logQ(m.first, "-", m.second.getLabel()); }
+  auto max_it = std::max_element(match.begin(), match.end(), [&](const auto& a, const auto& b) {return a.first < b.first;});
+  return max_it->second.getKey();
+  //return KEYSIG_C;
+}
+
 timeSig midi::getTimeSignature(double offset) {
   timeSig timeSignature = {0, -1, 1};
   for (unsigned int i = 0; i < timeSignatureMap.size(); i++) {
@@ -424,8 +456,13 @@ void midi::load(stringstream& buf) {
     timeSignatureMap.push_back(make_pair(0,timeSig(4,4,0)));
   }
   if (keySignatureMap.size() == 0) {
-    logW(LL_INFO, "no key signatures detected, adding default key signature");
-    keySignatureMap.push_back(make_pair(0,keySig(KEYSIG_C,0,0)));
+    int detect_ks_t = findKeySig();
+    keySig detect_ks = keySig(detect_ks_t, 0, 0);
+    
+    logW(LL_INFO, "no key signatures detected, adding closest match -", detect_ks.getLabel());
+
+    //keySignatureMap.push_back(make_pair(0,keySig(KEYSIG_C,0,0)));
+    keySignatureMap.push_back(make_pair(0, detect_ks));
   }
 
   int cTick = 0;

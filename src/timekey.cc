@@ -150,13 +150,6 @@ int keySig::getStaveOffset() const {
       return 0;
   }
 }
-    
-// TODO:
-// TODO:
-// TODO:      using DEFAULT_FONT to render unicode breaks things,
-// TODO:      use GLYPH_FONT for unicode
-// TODO:
-// TODO:
 
 string keySig::getLabel() const {
   // NOTE: "#" used as replacement for sharp,

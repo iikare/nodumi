@@ -30,7 +30,7 @@ bool pointInBox(const T& pt, const rect& box) {
            static_cast<int>(pt.y) >= box.y && static_cast<int>(pt.y) < box.y + box.height;
   }
   
-  logW(LL_WARN, "call to", __func__, "using invalid type", typeid(T).name());
+  //logW(LL_WARN, "call to", __func__, "using invalid type", typeid(T).name());
   return false;
 }
 rect pointToRect(const point& a, const point& b);
