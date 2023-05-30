@@ -12,7 +12,7 @@ double scaleInterpolationRatio(double ratio, int type = INT_LINEAR);
 
 
 template<class T>
-T colorLERP(const T& a, const T& b, double ratio, int type) {
+T colorLERP(const T& a, const T& b, double ratio, int type = INT_LINEAR) {
   ratio = scaleInterpolationRatio(ratio, type);
 
   if constexpr (is_same<T, Color>::value) {

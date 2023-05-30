@@ -6,7 +6,9 @@
 #include <chrono>
 #include <thread>
 #include <map>
+#include "data.h"
 #include "log.h"
+#include "lerp.h"
 #include "color.h"
 #include "colorgen.h"
 #include "define.h"
@@ -80,7 +82,19 @@ void getColorSchemeImage(schemeType type, vector<colorRGB>& colorVecA, vector<co
                          const vector<pair<int, double>>& weight) {
   switch (type) {
     case SCHEME_KEY:
-      getColorSchemeImage(KEY_COUNT, 2, colorVecA, colorVecB, weight);
+      getColorSchemeImage(2, 2, colorVecA, colorVecB, weight);
+
+      colorVecA.resize(KEY_COUNT);
+      colorVecB.resize(KEY_COUNT);
+
+      colorVecA[KEY_COUNT-1] = colorVecA[1];
+      colorVecB[KEY_COUNT-1] = colorVecB[1];
+
+      for (unsigned int i = 1; i < KEY_COUNT-1; ++i) {
+        double ratio = static_cast<double>(i)/(KEY_COUNT-1);
+        colorVecA[i] = colorLERP(colorVecA[0], colorVecA[KEY_COUNT-1], ratio);
+        colorVecB[i] = colorLERP(colorVecB[0], colorVecB[KEY_COUNT-1], ratio);
+      }
       break;
     case SCHEME_TONIC:
       getColorSchemeImage(TONIC_COUNT, 2, colorVecA, colorVecB, weight);
