@@ -162,11 +162,14 @@ void dialogOption::renderBox() {
     float rtX = x_start+boxH/2.0-rtSize.x/2 - 1;
     float rtY = y_start+boxH/2.0-rtSize.y/2 + 1 + (result[v] == 12 ? 1 : 0);
 
+
+    bool is_active = opt_status && !inv_status;
+
     if (opt_selected) {
-      drawRectangle(x_start, y_start, boxW, boxH, opt_status || !inv_status ? ctr.bgOpt2 : ctr.bgMenuShade);
+      drawRectangle(x_start, y_start, boxW, boxH, is_active ? ctr.bgOpt2 : ctr.bgMenuShade);
     }
     else {
-      drawRectangleLines(x_start, y_start, boxW, boxH, 2, opt_status || !inv_status ? ctr.bgDark : ctr.bgMenuShade);
+      drawRectangleLines(x_start, y_start, boxW, boxH, 2, is_active ? ctr.bgDark : ctr.bgMenuShade);
     }
 
     x_start += boxW + boxSpacing;
