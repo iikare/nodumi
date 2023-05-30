@@ -44,6 +44,8 @@ will be formed at `./bin/nodumi`
 
 Cross-compilation to Windows is done through `make arch=win`, and the following executable is formed at `./bin/nodumi.exe`
 
+To compile the documentation, run `make doc` (a $\LaTeX$ compiler and related software is required).
+
 # usage
 If executing `nodumi` from the command-line, up to two optional arguments (in any order) are accepted:
 ```sh
