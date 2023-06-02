@@ -1,16 +1,13 @@
 #include "output.h"
 #include "misc.h"
+#include <memory>
 
 
 midiOutput::midiOutput() : midiOut(nullptr), msgQueue(0), numPort(0), curPort(-1) {
-  midiOut = new RtMidiOut();
+  midiOut = unique_ptr<RtMidiOut>{new RtMidiOut()};
   if (midiOut == nullptr) {
     logW(LL_WARN, "unable to initialize midi output");
   }
-}
-
-midiOutput::~midiOutput() {
-  delete midiOut;
 }
 
 void midiOutput::openPort(int port) {

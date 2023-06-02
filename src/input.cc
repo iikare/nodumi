@@ -7,14 +7,10 @@
 #include "log.h"
 
 midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
-  midiIn = new RtMidiIn();
+  midiIn = unique_ptr<RtMidiIn>(new RtMidiIn());
   if (midiIn == nullptr) {
     logW(LL_WARN, "unable to initialize midi input");
   }
-}
-
-midiInput::~midiInput() {
-  delete midiIn;
 }
 
 void midiInput::openPort(int port, bool pauseEvent) {

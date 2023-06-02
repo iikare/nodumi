@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include "../dpd/rtmidi/RtMidi.h"
 #include "note.h"
 #include "midi.h"
@@ -9,11 +10,11 @@
 
 using std::vector;
 using std::string;
+using std::unique_ptr;
 
 class midiInput {
   public:
     midiInput();
-    ~midiInput();
 
     void openPort(int port, bool pauseEvent = false);
     void resetInput();
@@ -34,7 +35,7 @@ class midiInput {
     int findNoteIndex(int key);
     int findPartition(const note& n);
     
-    RtMidiIn* midiIn;
+    unique_ptr<RtMidiIn> midiIn;
     vector<unsigned char> msgQueue;
     int numPort;
     int curPort;
