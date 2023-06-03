@@ -183,10 +183,10 @@ class controller {
     static constexpr int sheetSymbolWidth = sheetSideMargin + 42;
 
     static constexpr int prefWidth   =   500;
-    static constexpr int prefHeight  =   268;
+    static constexpr int prefHeight  =   254;
 
     static constexpr int infoWidth   =   500;
-    static constexpr int infoHeight  =   268;
+    static constexpr int infoHeight  =   254;
 
     // shared across load/save routines
     static constexpr int imageBlockSize = 20;

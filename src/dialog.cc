@@ -116,7 +116,7 @@ void dialogController::renderInfo() {
   double iconTextHeight = iconTextVec.y;
   double iconBoxWidth = iconTextVec.x + ctr.getImage("ICON").width*iconScale +
                         borderMargin*2 - iconTextAdjust;
-  double iconBoxHeight = ctr.getImage("ICON").height*iconScale + borderMargin;
+  //double iconBoxHeight = ctr.getImage("ICON").height*iconScale + borderMargin;
   double iconTextX = infoSideMargin/2.0f + (ctr.infoWidth - iconBoxWidth)/2.0f + 
                      ctr.getImage("ICON").width*iconScale + borderMargin - iconTextAdjust;
   double iconTextY = infoTopMargin/2.0f + ctr.getImage("ICON").height*iconScale/2.0f + borderMargin - iconTextHeight/2.0f;
@@ -125,23 +125,27 @@ void dialogController::renderInfo() {
   Vector2 iconPos = {static_cast<float>(infoSideMargin/2.0f + (ctr.infoWidth-iconBoxWidth)/2.0f + borderMargin), 
                      static_cast<float>(infoTopMargin/2.0f + borderMargin)};
   drawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3);
-  
-  drawTextEx(ctr.text.getString("INFO_BOX_BUILD_DATE")+ " " + string(BUILD_DATE), 
-             infoSideMargin/2.0f+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2.0f, ctr.bgDark);
-  drawTextEx(ctr.text.getString("INFO_BOX_VER") + " " + string(W_VER), 
-             infoSideMargin/2.0f+borderMargin, iconPos.y+iconBoxHeight-borderMargin/2.0f+16, ctr.bgDark);
-  
+
   double copySymWidth = measureTextEx(copySym, copySymSize).x;
   double copyWidth = measureTextEx(copy).x;
+  double copyHeight = measureTextEx(copy).y;
   double licenseWidth = measureTextEx(ctr.text.getString("INFO_BOX_LICENSE_GPL3")).x;
+  
+  drawTextEx(ctr.text.getString("INFO_BOX_BUILD_DATE")+ " " + string(BUILD_DATE), 
+             infoSideMargin/2.0f+borderMargin, 
+             infoTopMargin/2.0f+ctr.infoHeight-borderMargin-20, ctr.bgDark);
+  drawTextEx(ctr.text.getString("INFO_BOX_VER") + " " + string(W_VER), 
+             infoSideMargin/2.0f+borderMargin, 
+             infoTopMargin/2.0f+ctr.infoHeight+copyHeight-borderMargin-20, ctr.bgDark);
+  
   
 
   drawTextEx(copySym, infoSideMargin/2.0f+ctr.infoWidth-borderMargin-copySymWidth-copyWidth, 
-             iconPos.y+iconBoxHeight-borderMargin/2.0f + 2, ctr.bgDark, 255, copySymSize);
+             infoTopMargin/2.0f+ctr.infoHeight-borderMargin-20, ctr.bgDark, 255, copySymSize);
   drawTextEx(copy, infoSideMargin/2.0f+ctr.infoWidth-borderMargin-copyWidth, 
-             iconPos.y+iconBoxHeight-borderMargin/2.0f, ctr.bgDark);
+             infoTopMargin/2.0f+ctr.infoHeight-borderMargin-20, ctr.bgDark);
   drawTextEx(ctr.text.getString("INFO_BOX_LICENSE_GPL3"), infoSideMargin/2.0f+ctr.infoWidth-borderMargin-licenseWidth, 
-             iconPos.y+iconBoxHeight-borderMargin/2+16, ctr.bgDark);
+             infoTopMargin/2.0f+ctr.infoHeight+copyHeight-borderMargin-20, ctr.bgDark);
 }
 
 bool dialogController::hover() {
