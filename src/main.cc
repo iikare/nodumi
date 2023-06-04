@@ -419,7 +419,7 @@ int main (int argc, char* argv[]) {
         
         const auto updateClickIndex = [&](int clickIndex = -1){
           if (!hoverType.contains(HOVER_DIALOG)) {
-            noteOn ? clickOnTmp = true : clickOnTmp = false;
+            clickOnTmp = noteOn;
             noteOn = !noteOn;
             clickTmp = clickIndex == -1 ? i : clickIndex;
             hoverType.add(HOVER_NOTE);
@@ -776,41 +776,35 @@ int main (int argc, char* argv[]) {
 
                 double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
                 double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
-                bool nowNote = clickTmp == static_cast<int>(lp[j].idx) ? false : noteOn;
-                if (convSS[2] < nowLineX) {
-                drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3],
-                           2, col);
+                if (convSS[2] < nowLineX || noteOn) {
+                  drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3], 2, col);
                 }
                 else if (convSS[0] < nowLineX) {
-
                   drawLineEx(convSS[0],
                              convSS[1],
-                             nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
-                             nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
+                             noteOn ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
+                             noteOn ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
                              3, col);
                 }
+
 
                 if (timeOffset >= notes[lp[j].idx].x && 
                     timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
                   ctr.particle.add_emitter(lp[j].idx, {
-                           nowNote ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
-                           nowNote ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
+                           noteOn ? nowLineX - floatLERP(0, (nowLineX-convSS[2])/2.0, nowRatio, INT_ISINE) : convSS[2], 
+                           noteOn ? newY     - floatLERP(0, (newY-convSS[3])/2.0, nowRatio, INT_ISINE) : convSS[3], 
                            0, 0, col, col_inv});
                 }
 
                 double scale = (1.2*(32 - __countl_zero(static_cast<int>(cW))))/8.0;
-                drawRing({convSS[0], convSS[1]},
-                         0, 3*scale, col);
-                drawRing({convSS[2], convSS[3]},
-                         0, 3*scale, col);
+                drawRing({convSS[0], convSS[1]}, 0, 3*scale, col);
+                drawRing({convSS[2], convSS[3]}, 0, 3*scale, col);
                 if (convSS[2] < nowLineX) {
-                  drawRing({convSS[2], convSS[3]},
-                           4*scale, 8*scale, col);
+                  drawRing({convSS[2], convSS[3]}, 4*scale, 8*scale, col);
                 }
                 
                 if (nowRatio > 0 && nowRatio < 1) {
-                  drawRing({convSS[2], convSS[3]},
-                           4*scale, 8*scale, col, 255, 180.0f, (-nowRatio+0.5f)*360.0f);//, 180.0f);
+                  drawRing({convSS[2], convSS[3]}, 4*scale, 8*scale, col, 255, 180.0f, (-nowRatio+0.5f)*360.0f);
                 }
 
               }
