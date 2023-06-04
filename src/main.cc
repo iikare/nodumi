@@ -798,7 +798,7 @@ int main (int argc, char* argv[]) {
                            0, 0, col, col_inv});
                 }
 
-                double scale = (2*(32 - __countl_zero(static_cast<int>(cW))))/8.0;
+                double scale = (1.2*(32 - __countl_zero(static_cast<int>(cW))))/8.0;
                 drawRing({convSS[0], convSS[1]},
                          0, 3*scale, col);
                 drawRing({convSS[2], convSS[3]},
@@ -810,7 +810,7 @@ int main (int argc, char* argv[]) {
                 
                 if (nowRatio > 0 && nowRatio < 1) {
                   drawRing({convSS[2], convSS[3]},
-                           4*scale, 8*scale, col, 255, (nowRatio-0.5f)*360.0f, 180.0f);
+                           4*scale, 8*scale, col, 255, 180.0f, (-nowRatio+0.5f)*360.0f);//, 180.0f);
                 }
 
               }
