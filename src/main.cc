@@ -28,7 +28,7 @@ using std::vector;
 using std::min;
 using std::max;
 using std::to_string;
-using std::__countl_zero;
+using std::countl_zero;
 
 controller ctr;
 
@@ -470,7 +470,7 @@ int main (int argc, char* argv[]) {
                 noteOn = true;
               }
 
-              //float radius = -1 + 2 * (32 - __countl_zero(int(cW)));
+              //float radius = -1 + 2 * (32 - countl_zero(int(cW)));
               float radius = 1 + log2(cW+1);
               if (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, cY + cH) < radius + 2) {
                 updateClickIndex();
@@ -500,7 +500,7 @@ int main (int argc, char* argv[]) {
               auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
               const auto& col = (*cSet)[colorID]; 
               const auto& col_inv = (*cSetInv)[colorID]; 
-              float radius = -1 + 2 * (32 - __countl_zero(static_cast<int>(cW)));
+              float radius = -1 + 2 * (32 - countl_zero(static_cast<unsigned int>(cW)));
               float maxRad = radius;
               float ballY = cY + 2;
               if (cX + cW + radius > 0 && cX - radius < ctr.getWidth()) {
@@ -721,9 +721,9 @@ int main (int argc, char* argv[]) {
                 }
                 //logQ(timeOffset, (linePositions[j+1], linePositions[j+2]));
                 if (ringDist <= ringLimit && ringDist > 4) {
-                  int noteLen = notes[lp[j].idx].duration * zoomLevel < 1 ? 
+                  unsigned int noteLen = notes[lp[j].idx].duration * zoomLevel < 1 ? 
                               1 : notes[lp[j].idx].duration * zoomLevel;
-                  noteLen = noteLen ? 32 - __countl_zero(noteLen) : 0;
+                  noteLen = noteLen ? 32 - countl_zero(noteLen) : 0;
                   double ringRad = floatLERP(6, 5*noteLen, ringRatio, INT_ILINEAR);
 
                   if (ringRatio > 0) {
@@ -776,7 +776,10 @@ int main (int argc, char* argv[]) {
 
                 double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
                 double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
-                if (convSS[2] < nowLineX || noteOn) {
+                if (noteOn) {
+                  drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3], 2, col);
+                }
+                else if (convSS[2] < nowLineX) {
                   drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3], 2, col);
                 }
                 else if (convSS[0] < nowLineX) {
@@ -796,7 +799,7 @@ int main (int argc, char* argv[]) {
                            0, 0, col, col_inv});
                 }
 
-                double scale = (1.2*(32 - __countl_zero(static_cast<int>(cW))))/8.0;
+                double scale = (1.2*(32 - countl_zero(static_cast<unsigned int>(cW))))/8.0;
                 drawRing({convSS[0], convSS[1]}, 0, 3*scale, col);
                 drawRing({convSS[2], convSS[3]}, 0, 3*scale, col);
                 if (convSS[2] < nowLineX) {
