@@ -410,6 +410,17 @@ int main (int argc, char* argv[]) {
 
       // note rendering
       for (int i = 0; i < ctr.getNoteCount(); i++) {
+        auto break_line = [&]() {
+          switch (displayMode) {
+            case DISPLAY_LINE:
+            case DISPLAY_PULSE:
+            case DISPLAY_LOOP:
+              return i != 0;
+            default:
+              return false;
+          }
+        };
+        if (break_line()) { break; }
         
         if (notes[i].x < currentBoundaries.first*0.9 && notes[i].x > currentBoundaries.second*1.1) {
           continue;
@@ -576,11 +587,7 @@ int main (int argc, char* argv[]) {
             break;
           case DISPLAY_LINE:
             {
-              if (i != 0){
-                break;
-              }
               const vector<lineData>& lp = stream.getLines();
-
               for (unsigned int j = 0; j < lp.size(); ++j) {
                 if (convertSSX(lp[j].x_r) < 0) {
                   continue;
@@ -629,11 +636,7 @@ int main (int argc, char* argv[]) {
             break;
           case DISPLAY_PULSE:
             {
-              if (i != 0){
-                break;
-              }
               const vector<lineData>& lp = stream.getLines();
-
               for (unsigned int j = 0; j < lp.size(); ++j) {
                 if (convertSSX(lp[j].x_r) < 0) {
                   continue;
@@ -738,11 +741,7 @@ int main (int argc, char* argv[]) {
             break;
           case DISPLAY_LOOP:
             {
-              if (i != 0){
-                break;
-              }
               const vector<lineData>& lp = stream.getLines();
-
               for (unsigned int j = 0; j < lp.size(); ++j) {
                 if (convertSSX(lp[j].x_r) < 0) {
                   continue;
