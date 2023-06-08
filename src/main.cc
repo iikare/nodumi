@@ -776,10 +776,7 @@ int main (int argc, char* argv[]) {
 
                 double nowRatio = (nowLineX-convSS[0])/(convSS[2]-convSS[0]);
                 double newY = (convSS[3]-convSS[1])*nowRatio + convSS[1];
-                if (noteOn) {
-                  drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3], 2, col);
-                }
-                else if (convSS[2] < nowLineX) {
+                if (clickTmp == static_cast<int>(lp[j].idx) || convSS[2] < nowLineX) {
                   drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3], 2, col);
                 }
                 else if (convSS[0] < nowLineX) {
