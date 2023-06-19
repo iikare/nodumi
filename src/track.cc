@@ -17,6 +17,7 @@ void trackController::insert(unsigned int n) {
 }
 
 void trackController::buildChordMap() {
+  chords.clear();
   // requires notes to be added first already in note_idx
   //logQ("track has", note_idx.size(), "notes");
   if (note_idx.size() == 0) {
@@ -62,6 +63,7 @@ void trackController::buildChordMap() {
 }
 
 void trackController::buildLineMap() {
+  lines.clear();
   for (unsigned int c_chord = 0; c_chord < chords.size(); ++c_chord) {
     if (c_chord+1 == chords.size()) {
       buildLine(c_chord, c_chord);
@@ -91,6 +93,7 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
   int l_end_note = chords[l].latest_end(n_vec);
   double l_duration = n_vec->at(l_end_note).duration; 
   double r_start = n_vec->at(chord_r[0]).x;    
+  bool in_progress = n_vec->at(chord_l[0]).isOn;
 
   //unsigned int n_line = 0;
   
@@ -102,7 +105,8 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
                        l_note.x,
                        l_note.y,
                        l_note.x+l_note.duration,
-                       l_note.y});
+                       l_note.y,
+                       in_progress});
     }
     return;
   }
@@ -121,7 +125,8 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
                      l_note.x,
                      l_note.y,
                      r_note.x,
-                     r_note.y});
+                     r_note.y,
+                     in_progress});
   };
 
   auto get_y_l = [&](unsigned int idx) {

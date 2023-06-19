@@ -421,9 +421,11 @@ int main (int argc, char* argv[]) {
           }
         };
         if (break_line()) { break; }
-        
-        if (notes[i].x < currentBoundaries.first*0.9 && notes[i].x > currentBoundaries.second*1.1) {
-          continue;
+       
+        if (!ctr.getLiveState()) {
+          if (notes[i].x < currentBoundaries.first*0.9 && notes[i].x > currentBoundaries.second*1.1) {
+            continue;
+          }
         }
         
         bool noteOn = false;
@@ -589,11 +591,13 @@ int main (int argc, char* argv[]) {
             {
               const vector<lineData>& lp = stream.getLines();
               for (unsigned int j = 0; j < lp.size(); ++j) {
-                if (convertSSX(lp[j].x_r) < 0) {
-                  continue;
-                }
-                if (convertSSX(lp[j].x_l) > ctr.getWidth()) {
-                  break;
+                if (!ctr.getLiveState()) {
+                  if (convertSSX(lp[j].x_r) < 0) {
+                    continue;
+                  }
+                  if (convertSSX(lp[j].x_l) > ctr.getWidth()) {
+                    break;
+                  }
                 }
                 int colorID = getColorSet(lp[j].idx);
 
@@ -603,6 +607,9 @@ int main (int argc, char* argv[]) {
                                     static_cast<float>(convertSSX(lp[j].x_r)),
                                     static_cast<float>(convertSSY(lp[j].y_r))
                                   };
+                if (lp[j].in_progress) {
+                  convSS[2] = nowLineX;
+                }
 
                 noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
                 if (pointInBox(getMousePosition(), 
@@ -638,11 +645,13 @@ int main (int argc, char* argv[]) {
             {
               const vector<lineData>& lp = stream.getLines();
               for (unsigned int j = 0; j < lp.size(); ++j) {
-                if (convertSSX(lp[j].x_r) < 0) {
-                  continue;
-                }
-                if (convertSSX(lp[j].x_l) > ctr.getWidth()) {
-                  break;
+                if (!ctr.getLiveState()) {
+                  if (convertSSX(lp[j].x_r) < 0) {
+                    continue;
+                  }
+                  if (convertSSX(lp[j].x_l) > ctr.getWidth()) {
+                    break;
+                  }
                 }
                 int colorID = getColorSet(lp[j].idx);
 
@@ -652,6 +661,9 @@ int main (int argc, char* argv[]) {
                                     static_cast<float>(convertSSX(lp[j].x_r)),
                                     static_cast<float>(convertSSY(lp[j].y_r))
                                   };
+                if (lp[j].in_progress) {
+                  convSS[2] = nowLineX;
+                }
 
                 noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
                 if (pointInBox(getMousePosition(), 
@@ -743,11 +755,13 @@ int main (int argc, char* argv[]) {
             {
               const vector<lineData>& lp = stream.getLines();
               for (unsigned int j = 0; j < lp.size(); ++j) {
-                if (convertSSX(lp[j].x_r) < 0) {
-                  continue;
-                }
-                if (convertSSX(lp[j].x_l) > ctr.getWidth()) {
-                  break;
+                if (!ctr.getLiveState()) {
+                  if (convertSSX(lp[j].x_r) < 0) {
+                    continue;
+                  }
+                  if (convertSSX(lp[j].x_l) > ctr.getWidth()) {
+                    break;
+                  }
                 }
                 int colorID = getColorSet(lp[j].idx);
 
@@ -757,6 +771,9 @@ int main (int argc, char* argv[]) {
                                     static_cast<float>(convertSSX(lp[j].x_r)),
                                     static_cast<float>(convertSSY(lp[j].y_r))
                                   };
+                if (lp[j].in_progress) {
+                  convSS[2] = nowLineX;
+                }
 
                 noteOn = convSS[0] <= nowLineX && convSS[2] > nowLineX;
                 if (pointInBox(getMousePosition(), 

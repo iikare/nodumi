@@ -11,6 +11,9 @@ midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), 
   if (midiIn == nullptr) {
     logW(LL_WARN, "unable to initialize midi input");
   }
+  for (auto& t : noteStream.getTracks()){
+    t.setNoteVector(&noteStream.notes);
+  }
 }
 
 void midiInput::openPort(int port, bool pauseEvent) {
@@ -154,7 +157,6 @@ void midiInput::convertEvents() {
         // update track after determination
         noteStream.notes[noteCount].track = tmpNote.track;
 
-
         noteStream.getTracks()[tmpNote.track].insert(noteCount);
         
         // update last index only AFTER track splitter
@@ -170,6 +172,7 @@ void midiInput::convertEvents() {
         //cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
         
         noteStream.setNoteCount(noteCount);
+
       }
       else {
         int idx = findNoteIndex(static_cast<int>(msgQueue[i + 1]));
@@ -180,6 +183,12 @@ void midiInput::convertEvents() {
 
         //cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
       }
+
+        for (auto& t : noteStream.getTracks()){
+          t.buildChordMap();
+        }
+        noteStream.buildLineMap();
+        //logQ("line size:", noteStream.lines.size());
     }
   }
 }

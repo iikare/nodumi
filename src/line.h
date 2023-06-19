@@ -8,4 +8,5 @@ class lineData {
     int y_l;
     double x_r;
     int y_r;
+    bool in_progress = false;
 };

@@ -47,7 +47,12 @@ void midi::buildLineMap() {
     return a.x_l >= b.x_l;
   };
 
-  if (tracks.size() > 1) {
+  if (ctr.getLiveState()) {
+    lines.insert(lines.begin(), tracks[0].lines.begin(), tracks[0].lines.end());
+    lines.insert(lines.begin(), tracks[1].lines.begin(), tracks[1].lines.end());
+    sort(lines.begin(), lines.end(), track_comp);
+  }
+  else if (tracks.size() > 1) {
     unsigned int n_line = 0;
     for (unsigned int t = 0; t < tracks.size(); ++t) {
       n_line += tracks[t].lines.size();
