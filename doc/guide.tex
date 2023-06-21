@@ -459,8 +459,8 @@ port name is provided, and each input or output port is uniquely numbered.
 \subsection{Input}
 
 If an input MIDI port is selected, the program will listen on that port for incoming MIDI messages. Valid messages will
-be displayed on screen as if they came from a prerecorded file. Note that an input port can only be opened when the
-Live Play mode is activated. Attempting to open a port when not in the Live Play mode will emit a warning instead.
+be displayed on screen as if they came from a prerecorded file. Note that an input port can be opened even when the
+Live Play mode is not activated.
 
 This feature is accessible via 
 \mi{Midi} $\rightarrow$ \mi{Input} $\rightarrow$ \mi{[port]}.
@@ -480,6 +480,7 @@ This feature is accessible via
 \mi{Midi} $\rightarrow$ \mi{Output} $\rightarrow$ \mi{[port]}.
 
 \subsection{Live Play Mode}
+\label{subsec:liveplay}
 
 This mode allows live MIDI data to be displayed on screen. To do this, connect a MIDI device to the computer, enable
 this mode, and then select the corresponding MIDI input port via 
@@ -744,6 +745,11 @@ be shown.
 but rather note data \& metadata. You can enable the MIDI output feature by following the instructions in the 
 \textcolor{lcol}{\hyperref[subsec:output]{Output}} section, which will allow you to hear note events with an external
 synthesizer.}
+
+\faqQ{I enabled MIDI Input, but there is no visualization shown. How can I fix this?}
+
+\faqA{Assuming your MIDI device is working correctly, the most likely explanation is that you have not activated the
+\textcolor{lcol}{\hyperref[subsec:liveplay]{Live Play Mode}}.}
 
 \faqQ{I enabled MIDI Output, but my audio quality is subpar. How can I fix this?}
 
