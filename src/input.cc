@@ -17,29 +17,24 @@ midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), 
 }
 
 void midiInput::openPort(int port, bool pauseEvent) {
-  if (ctr.getLiveState()) {
-    if (!pauseEvent) {
-      resetInput();
-    }
-
-    numPort = midiIn->getPortCount();
-    if (port < 0 || port >= numPort) {
-      logW(LL_WARN, "unable to open port number", port);
-      return;
-    }
-
-    midiIn->openPort(port, midiIn->getPortName(port));
-    midiIn->ignoreTypes(false, false, false);
-
-    curPort = port;
-    timestamp = midiIn->getMessage(&msgQueue);
-
-    if (!pauseEvent) {
-      logW(LL_INFO, "[IN] opened port", port);
-    }
+  if (!pauseEvent) {
+    resetInput();
   }
-  else {
-    logW(LL_WARN, "cannot open input port in normal mode");
+
+  numPort = midiIn->getPortCount();
+  if (port < 0 || port >= numPort) {
+    logW(LL_WARN, "unable to open port number", port);
+    return;
+  }
+
+  midiIn->openPort(port, midiIn->getPortName(port));
+  midiIn->ignoreTypes(false, false, false);
+
+  curPort = port;
+  timestamp = midiIn->getMessage(&msgQueue);
+
+  if (!pauseEvent) {
+    logW(LL_INFO, "[IN] opened port", port);
   }
 }
 
@@ -377,16 +372,27 @@ int midiInput::findNoteIndex(int key) {
 }
 
 void midiInput::update() {
-  if (midiIn->isPortOpen()) {
-    while (updateQueue()) {
-      convertEvents();
-      updatePosition();
+  if (ctr.getLiveState()) {
+    if (midiIn->isPortOpen()) {
+      while (updateQueue()) {
+        convertEvents();
+        updatePosition();
+      }
+      // TODO: consider optimization
+      //ctr.input.noteStream.buildLineMap();
     }
-    // TODO: consider optimization
-    //ctr.input.noteStream.buildLineMap();
+    else {
+      // shift even when midi input is disconnected
+      ctr.livePlayOffset += GetFrameTime() * UNK_CST;
+    }
   }
   else {
-    // shift even when midi input is disconnected
-    ctr.livePlayOffset += GetFrameTime() * UNK_CST;
+    // empty midi queue
+    while (true) {
+      midiIn->getMessage(&msgQueue);
+      if (!msgQueue.size()) {
+        break;
+      }
+    }
   }
 }

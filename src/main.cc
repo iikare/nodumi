@@ -220,9 +220,10 @@ int main (int argc, char* argv[]) {
 
     if (ctr.getLiveState()) {
       timeOffset = ctr.livePlayOffset;
-      ctr.input.update();
       ctr.run = false;
     }
+    // empty input queue even if not rendering live input
+    ctr.input.update();
 
     // fix FPS count bug
     GetFPS();
