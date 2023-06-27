@@ -1,5 +1,6 @@
 #include "build_target.h"
 
+#include <raylib.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -1244,14 +1245,15 @@ int main (int argc, char* argv[]) {
     
     if ((!isKeyDown(KEY_LEFT_CONTROL, KEY_LEFT_SHIFT)) && 
         (isKeyPressed(KEY_DOWN, KEY_UP) || GetMouseWheelMove() != 0)) {
+      const double zoom_amt = isKeyDown(KEY_LEFT_ALT, KEY_RIGHT_ALT) ? 0.9 : 0.75;
       if (isKeyPressed(KEY_DOWN) || (GetMouseWheelMove() < 0)) {
         if (zoomLevel > 0.00001) {
-          zoomLevel *= 0.75;
+          zoomLevel *= zoom_amt; 
         }
       }
       else {
         if (zoomLevel < 1.2) {
-          zoomLevel *= 1.0/0.75;
+          zoomLevel *= 1.0/zoom_amt;
         }
       }
     }
