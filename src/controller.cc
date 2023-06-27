@@ -395,7 +395,7 @@ void controller::updateDroppedFiles() {
 }
 
 void controller::toggleLivePlay() {
-  if (setTrackOn.size() < 1 || option.get(optionType::OPTION_TRACK_DIVISION)) {
+  if (setTrackOn.size() < 1 || option.get(OPTION::TRACK_DIVISION)) {
     getColorScheme(2, setTrackOn, setTrackOff);
   }
   livePlayState = !livePlayState;
@@ -442,7 +442,7 @@ void controller::prepareCriticalSection(bool enter) {
 
 void controller::optimizeBGColor(bool invert) {
   // invert exists only for when a option switch is pending, but not yet done
-  bgColor2 = (invert^static_cast<bool>(option.get(optionType::OPTION_DYNAMIC_LABEL))) ? maximizeDeltaE(bgColor) : bgLight;
+  bgColor2 = (invert^static_cast<bool>(option.get(OPTION::DYNAMIC_LABEL))) ? maximizeDeltaE(bgColor) : bgLight;
 }
 
 vector<string> controller::generateMenuLabels(const menuContentType& contentType) {
@@ -536,7 +536,7 @@ vector<note>& controller::getNotes() {
 
 int controller::getTrackCount() {
   if (livePlayState) {
-    return option.get(optionType::OPTION_TRACK_DIVISION) ? 2 : 1;
+    return option.get(OPTION::TRACK_DIVISION) ? 2 : 1;
   }
   return file.getTrackCount();
 }

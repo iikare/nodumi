@@ -15,10 +15,10 @@ class dialogOption {
     dialogOption() = delete;
 
     // basic check box
-    dialogOption(DIA_OPT t, optionType opt_t, const vector<string>& label);
+    dialogOption(DIA_OPT t, OPTION opt_t, const vector<string>& label);
     
     // check box with subboxes OR slider
-    dialogOption(DIA_OPT t, optionType opt_t, optionType sub_opt_t, const vector<string>& label, 
+    dialogOption(DIA_OPT t, OPTION opt_t, OPTION sub_opt_t, const vector<string>& label, 
                  const vector<string>& val, const vector<int>& res);
 
     void render(int in_x, int in_y);
@@ -36,8 +36,8 @@ class dialogOption {
     void updateSliderValue();
 
     DIA_OPT type;
-    optionType link_opt;
-    optionType link_sub_opt;
+    OPTION link_opt;
+    OPTION link_sub_opt;
    
     bool sliderActive = false;
 

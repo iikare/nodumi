@@ -124,9 +124,9 @@ void imageController::render() {
   if (isLoaded) {
     drawTextureEx(imageTex, Vector2{(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, 0, scale);
 
-    if (ctr.option.get(optionType::OPTION_SET_DARKEN_IMAGE)) {
+    if (ctr.option.get(OPTION::SET_DARKEN_IMAGE)) {
 
-      int v = ctr.option.get(optionType::OPTION_DARKEN_IMAGE);
+      int v = ctr.option.get(OPTION::DARKEN_IMAGE);
 
       constexpr double reduce_ratio = 8.0;
       colorRGB c(v/reduce_ratio,v/reduce_ratio,v/reduce_ratio);

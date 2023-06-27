@@ -386,7 +386,7 @@ int main (int argc, char* argv[]) {
         case DISPLAY_VORONOI:
           break;
         default:
-          if (ctr.option.get(optionType::OPTION_SHADOW)) {
+          if (ctr.option.get(OPTION::SHADOW)) {
             ctr.beginTextureMode(ctr.shadow.buffer);
             clearBackground();
           }
@@ -397,7 +397,7 @@ int main (int argc, char* argv[]) {
           case COLOR_PART:
             return notes[idx].track;
           case COLOR_VELOCITY:
-            if (ctr.option.get(optionType::OPTION_SCALE_VELOCITY) && 
+            if (ctr.option.get(OPTION::SCALE_VELOCITY) && 
                 !ctr.getLiveState() &&
                 stream.velocityBounds.first != stream.velocityBounds.second) {
               int range = stream.velocityBounds.second-stream.velocityBounds.first;
@@ -946,7 +946,7 @@ int main (int argc, char* argv[]) {
       //logQ("current_note size:", current_note.size());
       
 
-      if (ctr.option.get(optionType::OPTION_PARTICLE)) {
+      if (ctr.option.get(OPTION::PARTICLE)) {
         if (!ctr.run) {
           ctr.particle.end_emission();
         }
@@ -960,13 +960,13 @@ int main (int argc, char* argv[]) {
         case DISPLAY_VORONOI:
           break;
         default:
-          if (ctr.option.get(optionType::OPTION_SHADOW)) {
+          if (ctr.option.get(OPTION::SHADOW)) {
             ctr.endTextureMode();
 
             ctr.beginShaderMode("SH_SHADOW");
             constexpr double shadow_angle = M_PI/4.0; 
-            float shadow_off_x = -ctr.option.get(optionType::OPTION_SHADOW_DISTANCE)*cos(shadow_angle);
-            float shadow_off_y = ctr.option.get(optionType::OPTION_SHADOW_DISTANCE)*sin(shadow_angle);
+            float shadow_off_x = -ctr.option.get(OPTION::SHADOW_DISTANCE)*cos(shadow_angle);
+            float shadow_off_y = ctr.option.get(OPTION::SHADOW_DISTANCE)*sin(shadow_angle);
             DrawTextureRec(ctr.shadow.buffer.texture,
                            { 0, 0, float(ctr.shadow.buffer.texture.width), float(-ctr.shadow.buffer.texture.height) }, 
                            { shadow_off_x, shadow_off_y}, WHITE);

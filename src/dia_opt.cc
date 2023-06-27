@@ -5,7 +5,7 @@
 #include "lerp.h"
 #include "box.h"
 
-dialogOption::dialogOption(DIA_OPT t, optionType opt_t, const vector<string>& label) {
+dialogOption::dialogOption(DIA_OPT t, OPTION opt_t, const vector<string>& label) {
   if (t != DIA_OPT::CHECK_ONLY) {
     logW(LL_CRIT, "invalid constructor for dialog option of type", t, "- expecting type", DIA_OPT::CHECK_ONLY);
     return;
@@ -21,7 +21,7 @@ dialogOption::dialogOption(DIA_OPT t, optionType opt_t, const vector<string>& la
 
 }
 
-dialogOption::dialogOption(DIA_OPT t, optionType opt_t, optionType sub_opt_t, const vector<string>& label, 
+dialogOption::dialogOption(DIA_OPT t, OPTION opt_t, OPTION sub_opt_t, const vector<string>& label, 
                            const vector<string>& val, const vector<int>& res) {
 
       if (t != DIA_OPT::SUBBOX && t != DIA_OPT::SLIDER) {

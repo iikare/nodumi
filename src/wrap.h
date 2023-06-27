@@ -59,7 +59,7 @@ bool isKeyDown(T key, U... keys) {
 
 template<class T>
 auto deltaE(const T& a, const T& b) {
-  auto t = static_cast<cie2k::TYPE>(ctr.option.get(optionType::OPTION_CIE_FUNCTION));
+  auto t = static_cast<cie2k::TYPE>(ctr.option.get(OPTION::CIE_FUNCTION));
   switch (t) {
     using enum cie2k::TYPE;
     case CIE_00:

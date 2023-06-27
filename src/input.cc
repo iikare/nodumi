@@ -138,7 +138,7 @@ void midiInput::convertEvents() {
         // if this is the note on event, duration is undefined
         tmpNote.duration = -1;
 
-        //tmpNote.track = ctr.option.get(optionType::OPTION_TRACK_DIVISION) ? findPartition(tmpNote) : 1; // by default
+        //tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION) ? findPartition(tmpNote) : 1; // by default
        
         //logQ("count, x, track, trackct:", noteCount, tmpNote.x, tmpNote.track, 
              //noteStream.getTracks()[tmpNote.track].getNoteCount());
@@ -147,7 +147,7 @@ void midiInput::convertEvents() {
         noteStream.notes.push_back(tmpNote);
         
         numOn++;
-        tmpNote.track = ctr.option.get(optionType::OPTION_TRACK_DIVISION) ? findPartition(tmpNote) : 1; // by default
+        tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION) ? findPartition(tmpNote) : 1; // by default
                                                                                                         
         // update track after determination
         noteStream.notes[noteCount].track = tmpNote.track;
@@ -256,7 +256,7 @@ int midiInput::findPartition(const note& n) {
   int tr1maxY = 0;
 
   // one hand range (approx. a 10th)
-  const int handRange = ctr.option.get(optionType::OPTION_HAND_RANGE);
+  const int handRange = ctr.option.get(OPTION::HAND_RANGE);
   constexpr int onLimit = 350;
 
   vector<int> considerN;

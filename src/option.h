@@ -7,12 +7,12 @@ class optionController {
   public:
     optionController();
 
-    void invert(optionType opt);
+    void invert(OPTION opt);
 
-    bool invalid(optionType opt);
+    bool invalid(OPTION opt);
 
-    int get(optionType opt);
-    void set(optionType opt, int value);
+    int get(OPTION opt);
+    void set(OPTION opt, int value);
   private:
     vector<int> opts;
 };

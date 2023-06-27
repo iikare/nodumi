@@ -14,46 +14,46 @@ using std::string;
 
 void dialogController::init() {
   dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
-                                  optionType::OPTION_PARTICLE, 
+                                  OPTION::PARTICLE, 
                                   ctr.text.getStringSet("PREF_PARTICLE")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
-                                  optionType::OPTION_DYNAMIC_LABEL,
+                                  OPTION::DYNAMIC_LABEL,
                                   ctr.text.getStringSet("PREF_DYNAMIC_LABEL")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
-                                  optionType::OPTION_TRACK_DIVISION, 
+                                  OPTION::TRACK_DIVISION, 
                                   ctr.text.getStringSet("PREF_TRACK_DIVIDE")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
-                                  optionType::OPTION_SET_HAND_RANGE,
-                                  optionType::OPTION_HAND_RANGE,
+                                  OPTION::SET_HAND_RANGE,
+                                  OPTION::HAND_RANGE,
                                   ctr.text.getStringSet("PREF_HAND_RANGE"),
                                   {"8","9","10","11"},
                                   {12,14,16,17}
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::SLIDER, 
-                                  optionType::OPTION_SET_DARKEN_IMAGE, 
-                                  optionType::OPTION_DARKEN_IMAGE, 
+                                  OPTION::SET_DARKEN_IMAGE, 
+                                  OPTION::DARKEN_IMAGE, 
                                   ctr.text.getStringSet("PREF_IMAGE_DARKEN"),
                                   {"0","255"},
                                   {0,255}
                                   ));
   auto cie_opt_vec = vector<cie2k::TYPE>{cie2k::TYPE::CIE_00, cie2k::TYPE::CIE_94, cie2k::TYPE::CIE_76};
   dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
-                                  optionType::OPTION_SET_CIE_FUNCTION,
-                                  optionType::OPTION_CIE_FUNCTION,
+                                  OPTION::SET_CIE_FUNCTION,
+                                  OPTION::CIE_FUNCTION,
                                   ctr.text.getStringSet("PREF_CIE_FUNCTION"),
                                   {"00", "94", "76"},
                                   convertEnum(cie_opt_vec)
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
-                                  optionType::OPTION_SCALE_VELOCITY,
+                                  OPTION::SCALE_VELOCITY,
                                   ctr.text.getStringSet("PREF_SCALE_VELOCITY")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::SLIDER, 
-                                  optionType::OPTION_SHADOW, 
-                                  optionType::OPTION_SHADOW_DISTANCE, 
+                                  OPTION::SHADOW, 
+                                  OPTION::SHADOW_DISTANCE, 
                                   ctr.text.getStringSet("PREF_SHADOW"),
                                   {"0","20"},
                                   {0,20}
