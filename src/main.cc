@@ -92,7 +92,7 @@ int main (int argc, char* argv[]) {
   string FPSText = "";
 
   enumChecker<hoverType> hoverType;
-  actionType action = actionType::ACTION_NONE;
+  ACTION action = ACTION::NONE;
 
   // color variables
   int selectType = SELECT_NONE;
@@ -1141,26 +1141,25 @@ int main (int argc, char* argv[]) {
     }
     
     switch (action) {
-      using enum actionType;
-      case ACTION_OPEN:
+      case ACTION::OPEN:
         //logQ("offset before:", timeOffset);
         ctr.open_file.dialog();
         ctr.menu.hide();
         //logQ("offset after:", timeOffset);
         break;
-      case ACTION_OPEN_IMAGE:
+      case ACTION::OPEN_IMAGE:
         ctr.open_image.dialog();
         showImage = true; 
         viewMenu.setContentLabel("VIEW_MENU_HIDE_BACKGROUND", VIEW_MENU_BACKGROUND);
         ctr.menu.hide();
         break;
-      case ACTION_CLOSE:
+      case ACTION::CLOSE:
         clearFile = true;
         break;
-      case ACTION_CLOSE_IMAGE:
+      case ACTION::CLOSE_IMAGE:
         ctr.image.unloadData();
         break;
-      case ACTION_SAVE:
+      case ACTION::SAVE:
         if (ctr.getPlayState()) {
           break; 
         }
@@ -1170,7 +1169,7 @@ int main (int argc, char* argv[]) {
           break;
         }
         [[fallthrough]];
-      case ACTION_SAVE_AS:
+      case ACTION::SAVE_AS:
         if (!ctr.getPlayState() && curFileType != FILE_NONE) {
 
            ctr.save_file.dialog();
@@ -1191,20 +1190,20 @@ int main (int argc, char* argv[]) {
           }
         }
         break;
-      case ACTION_SHEET:
+      case ACTION::SHEET:
         editMenu.swapLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", "EDIT_MENU_ENABLE_SHEET_MUSIC", EDIT_MENU_SHEET_MUSIC);
         sheetMusicDisplay = !sheetMusicDisplay;
         ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
         break;
-      case ACTION_PREFERENCES:
+      case ACTION::PREFERENCES:
         ctr.dialog.infoDisplay = false;
         ctr.dialog.preferenceDisplay = !ctr.dialog.preferenceDisplay;
         break;
-      case ACTION_INFO:
+      case ACTION::INFO:
         ctr.dialog.preferenceDisplay = false;
         ctr.dialog.infoDisplay = !ctr.dialog.infoDisplay;
         break;
-      case ACTION_LIVEPLAY:
+      case ACTION::LIVEPLAY:
         if (midiMenu.isContentLabel("MIDI_MENU_ENABLE_LIVE_PLAY", MIDI_MENU_LIVE_PLAY)) {
           zoomLevel *= 3;
         }
@@ -1217,7 +1216,7 @@ int main (int argc, char* argv[]) {
           timeOffset = 0;
         }
         break;
-      case ACTION_CHANGE_MODE:
+      case ACTION::CHANGE_MODE:
         for (unsigned int mode = 0; mode < min(static_cast<unsigned int>(DISPLAY_NONE), 9u); ++mode) {
           if(isKeyPressed(KEY_ONE+mode)) {
             displayMode = DISPLAY_BAR+mode;
@@ -1227,7 +1226,7 @@ int main (int argc, char* argv[]) {
       default:
         break;
     }
-    action = actionType::ACTION_NONE;
+    action = ACTION::NONE;
 
 
     // key logic
@@ -1351,22 +1350,22 @@ int main (int argc, char* argv[]) {
           }
           switch(fileMenu.getActiveElement()) {
             case FILE_MENU_OPEN_FILE:
-              action = actionType::ACTION_OPEN;
+              action = ACTION::OPEN;
               break;
             case FILE_MENU_OPEN_IMAGE:
-              action = actionType::ACTION_OPEN_IMAGE;
+              action = ACTION::OPEN_IMAGE;
               break;
             case FILE_MENU_SAVE:
-              action = actionType::ACTION_SAVE;
+              action = ACTION::SAVE;
               break;
             case FILE_MENU_SAVE_AS:
-              action = actionType::ACTION_SAVE_AS;
+              action = ACTION::SAVE_AS;
               break;
             case FILE_MENU_CLOSE_FILE:
-              action = actionType::ACTION_CLOSE;
+              action = ACTION::CLOSE;
               break;
             case FILE_MENU_CLOSE_IMAGE:
-              action = actionType::ACTION_CLOSE_IMAGE;
+              action = ACTION::CLOSE_IMAGE;
               break;
             case FILE_MENU_EXIT:
                 ctr.setCloseFlag(); 
@@ -1387,10 +1386,10 @@ int main (int argc, char* argv[]) {
           }
           switch(editMenu.getActiveElement()) {
             case EDIT_MENU_SHEET_MUSIC:
-              action = actionType::ACTION_SHEET;
+              action = ACTION::SHEET;
               break;
             case EDIT_MENU_PREFERENCES:
-              action = actionType::ACTION_PREFERENCES;
+              action = ACTION::PREFERENCES;
               break;
           }
           break;
@@ -1583,7 +1582,7 @@ int main (int argc, char* argv[]) {
               }
               break;
             case MIDI_MENU_LIVE_PLAY:
-              action = actionType::ACTION_LIVEPLAY;
+              action = ACTION::LIVEPLAY;
               break;
           }
           break;
@@ -1706,7 +1705,7 @@ int main (int argc, char* argv[]) {
           }
           switch(infoMenu.getActiveElement()) {
             case INFO_MENU_PROGRAM_INFO:
-              action = actionType::ACTION_INFO;
+              action = ACTION::INFO;
               break;
             case INFO_MENU_HELP:
               infoMenu.render = false;
@@ -1784,7 +1783,7 @@ int main (int argc, char* argv[]) {
           }
           break;
       }
-      if (!hoverType.contains(HOVER_DIALOG) && (action != actionType::ACTION_PREFERENCES && action != actionType::ACTION_INFO)) {
+      if (!hoverType.contains(HOVER_DIALOG) && (action != ACTION::PREFERENCES && action != ACTION::INFO)) {
         ctr.dialog.preferenceDisplay = ctr.dialog.infoDisplay = false;
       }
 

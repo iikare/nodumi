@@ -70,7 +70,7 @@ class controller {
 
     void update(int offset, double zoom, double& nowLineX);
     void updateFiles(char** paths, int numFile = 1);
-    void processAction(actionType& action);
+    void processAction(ACTION& action);
 
     void optimizeBGColor(bool invert = false);
 

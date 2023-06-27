@@ -211,9 +211,9 @@ void controller::endBlendMode() {
   EndBlendMode();
 }
 
-void controller::processAction(actionType& action) {
+void controller::processAction(ACTION& action) {
   // do not overwrite pending event
-  if (action != actionType::ACTION_NONE) {
+  if (action != ACTION::NONE) {
     return;
   }
 
@@ -223,45 +223,45 @@ void controller::processAction(actionType& action) {
     // open [file, image]
     if (isKeyPressed(KEY_O)) {
       if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
-        action = actionType::ACTION_OPEN_IMAGE;
+        action = ACTION::OPEN_IMAGE;
         return;
       }
-      action = actionType::ACTION_OPEN;
+      action = ACTION::OPEN;
       return;
     } 
     // close [file, image]
     if (isKeyPressed(KEY_W)) {
       if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
-        action = actionType::ACTION_CLOSE_IMAGE;
+        action = ACTION::CLOSE_IMAGE;
         return;
       }
-      action = actionType::ACTION_CLOSE;
+      action = ACTION::CLOSE;
       return;
     } 
     // save [save, save as]
     if (isKeyPressed(KEY_S)) {
       if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
-        action = actionType::ACTION_SAVE_AS;
+        action = ACTION::SAVE_AS;
         return;
       }
-      action = actionType::ACTION_SAVE;
+      action = ACTION::SAVE;
       return;
     } 
     if (isKeyPressed(KEY_COMMA)) {
-      action = actionType::ACTION_PREFERENCES;
+      action = ACTION::PREFERENCES;
       return;
     }
     if (isKeyPressed(KEY_SPACE)) {
-      action = actionType::ACTION_LIVEPLAY;
+      action = ACTION::LIVEPLAY;
       return;
     }
     if (isKeyPressed(KEY_I)) {
-      action = actionType::ACTION_INFO;
+      action = ACTION::INFO;
       return;
     }
 
     if (isKeyPressed(KEY_ONE, KEY_TWO, KEY_THREE, KEY_FOUR, KEY_FIVE, KEY_SIX, KEY_SEVEN, KEY_EIGHT, KEY_NINE)) {
-      action = actionType::ACTION_CHANGE_MODE;
+      action = ACTION::CHANGE_MODE;
       return;
     }
 
@@ -269,11 +269,11 @@ void controller::processAction(actionType& action) {
   }
   
   if (isKeyPressed(KEY_TAB)) {
-    action = actionType::ACTION_PREFERENCES;
+    action = ACTION::PREFERENCES;
     return;
   }
   
-  action = actionType::ACTION_NONE;
+  action = ACTION::NONE;
 }
 
 void controller::update(int offset, double zoom, double& nowLineX) {
