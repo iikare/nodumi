@@ -1231,19 +1231,19 @@ int main (int argc, char* argv[]) {
 
 
     // key logic
-    if ((isKeyDown(KEY_LEFT_CONTROL, KEY_LEFT_SHIFT)) && GetMouseWheelMove() != 0) {
+    if ((isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) && GetMouseWheelMove() != 0) {
       if (ctr.image.exists() && showImage) {
 
         // defaults to ±1, adjusted depending on default image scale value
         float scaleModifier = 0.02f;
-        if (isKeyDown(KEY_LEFT_SHIFT)) {
+        if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
           scaleModifier = 0.002f;
         }
         ctr.image.changeScale(scaleModifier*GetMouseWheelMove());
       }
     }
     
-    if ((!isKeyDown(KEY_LEFT_CONTROL, KEY_LEFT_SHIFT)) && 
+    if ((!isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) && 
         (isKeyPressed(KEY_DOWN, KEY_UP) || GetMouseWheelMove() != 0)) {
       const double zoom_amt = isKeyDown(KEY_LEFT_ALT, KEY_RIGHT_ALT) ? 0.9 : 0.75;
       if (isKeyPressed(KEY_DOWN) || (GetMouseWheelMove() < 0)) {
