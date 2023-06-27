@@ -10,6 +10,7 @@
 
 using std::string;
 
+void clearBackground();
 void clearBackground(const colorRGB& col);
 
 void drawPixel(float x, float y, const colorRGB& col, unsigned char alpha = 255);

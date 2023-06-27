@@ -54,6 +54,7 @@ void controller::init(vector<asset>& assetSet) {
     
   setShaderValue("SH_FXAA", "u_resolution", (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
 
+  shadow.init();
   voronoi.init();
   fft.updateFFTBins();
 
@@ -340,6 +341,7 @@ void controller::updateDimension(double& nowLineX) {
     setShaderValue("SH_FXAA", "u_resolution", (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
 
 
+    shadow.update();
     voronoi.update();
     fft.updateFFTBins();
 

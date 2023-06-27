@@ -18,6 +18,9 @@ void drawLineBezier(float xi, float yi, float xf, float yf, float thick, const c
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   DrawLineBezier((const Vector2){(float)xi, (float)yi}, (const Vector2){(float)xf, (float)yf}, thick, color);
 }
+void clearBackground() {
+  ClearBackground({0,0,0,0});
+}
 void clearBackground(const colorRGB& col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   ClearBackground(color);

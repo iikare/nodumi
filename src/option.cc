@@ -16,6 +16,8 @@ optionController::optionController() {
   opts[static_cast<int>(optionType::OPTION_DYNAMIC_LABEL)] = true;
   opts[static_cast<int>(optionType::OPTION_PARTICLE)] = false;
   opts[static_cast<int>(optionType::OPTION_SCALE_VELOCITY)] = false;
+  opts[static_cast<int>(optionType::OPTION_SHADOW)] = false;
+  opts[static_cast<int>(optionType::OPTION_SHADOW_DISTANCE)] = 8;
 }
 
 void optionController::invert(optionType opt) {
@@ -41,6 +43,8 @@ void optionController::invert(optionType opt) {
       break;
     case OPTION_SCALE_VELOCITY:
       break;
+    case OPTION_SHADOW:
+      break;
     default:
       logW(LL_WARN, "cannot invert option of type", static_cast<int>(opt));
       return;
@@ -60,6 +64,8 @@ bool optionController::invalid(optionType opt) {
       [[fallthrough]];
     case OPTION_DARKEN_IMAGE:
       return !ctr.image.exists();
+    case OPTION_SHADOW_DISTANCE:
+      return !get(OPTION_SHADOW);
     default:
       return false;
   }
@@ -76,6 +82,8 @@ void optionController::set(optionType opt, int value) {
     case OPTION_DARKEN_IMAGE:
       [[fallthrough]];
     case OPTION_CIE_FUNCTION:
+      [[fallthrough]];
+    case OPTION_SHADOW_DISTANCE:
       break;
     default:
       logW(LL_WARN, "cannot modify option of type", static_cast<int>(opt));

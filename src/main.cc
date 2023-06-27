@@ -273,9 +273,7 @@ int main (int argc, char* argv[]) {
           if (ctr.voronoi.vertex.size() != 0) {
             int voro_y = (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
             ctr.voronoi.resample(voro_y);
-
             ctr.voronoi.render();
-           
           }
           break;
       }
@@ -382,6 +380,16 @@ int main (int argc, char* argv[]) {
           hoverType.add(HOVER_NOW);
         }
         drawLineEx(nowLineX, nowLineY, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow);
+      }
+
+      switch(displayMode) {
+        case DISPLAY_VORONOI:
+          break;
+        default:
+          if (ctr.option.get(optionType::OPTION_SHADOW)) {
+            ctr.beginTextureMode(ctr.shadow.buffer);
+            clearBackground();
+          }
       }
 
       auto getColorSet = [&](int idx) {
@@ -946,6 +954,29 @@ int main (int argc, char* argv[]) {
           ctr.particle.process();
         }
         ctr.particle.render();
+      }
+
+      switch(displayMode) {
+        case DISPLAY_VORONOI:
+          break;
+        default:
+          if (ctr.option.get(optionType::OPTION_SHADOW)) {
+            ctr.endTextureMode();
+
+            ctr.beginShaderMode("SH_SHADOW");
+            constexpr double shadow_angle = M_PI/4.0; 
+            float shadow_off_x = -ctr.option.get(optionType::OPTION_SHADOW_DISTANCE)*cos(shadow_angle);
+            float shadow_off_y = ctr.option.get(optionType::OPTION_SHADOW_DISTANCE)*sin(shadow_angle);
+            DrawTextureRec(ctr.shadow.buffer.texture,
+                           { 0, 0, float(ctr.shadow.buffer.texture.width), float(-ctr.shadow.buffer.texture.height) }, 
+                           { shadow_off_x, shadow_off_y}, WHITE);
+            ctr.endShaderMode();
+            
+            DrawTextureRec(ctr.shadow.buffer.texture,
+                           { 0, 0, float(ctr.shadow.buffer.texture.width), float(-ctr.shadow.buffer.texture.height) }, 
+                           { 0, 0}, WHITE);
+
+          }
       }
 
 

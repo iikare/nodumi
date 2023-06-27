@@ -22,6 +22,7 @@
 #include "shader.h"
 #include "option.h"
 #include "dialog.h"
+#include "shadow.h"
 #include "menuctr.h"
 #include "warning.h"
 #include "voronoi.h"
@@ -143,6 +144,7 @@ class controller {
     warningController warning;
 
     particleController particle;
+    shadowController shadow;
     voronoiController voronoi;
     fftController fft;
 

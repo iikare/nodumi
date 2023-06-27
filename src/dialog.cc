@@ -51,6 +51,13 @@ void dialogController::init() {
                                   optionType::OPTION_SCALE_VELOCITY,
                                   ctr.text.getStringSet("PREF_SCALE_VELOCITY")
                                   ));
+  dia_opts.push_back(dialogOption(DIA_OPT::SLIDER, 
+                                  optionType::OPTION_SHADOW, 
+                                  optionType::OPTION_SHADOW_DISTANCE, 
+                                  ctr.text.getStringSet("PREF_SHADOW"),
+                                  {"0","20"},
+                                  {0,20}
+                                  ));
 }
 
 void dialogController::render() {
