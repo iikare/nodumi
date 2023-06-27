@@ -17,7 +17,7 @@ void drawPixel(float x, float y, const colorRGB& col, unsigned char alpha = 255)
 void drawRectangle(float x, float y, float w, float h, const colorRGB& col, unsigned char alpha = 255);
 void drawRectangleLines(float x, float y, float w, float h, float width, const colorRGB& col);
 void drawLine(float xi, float yi, float xf, float yf, const colorRGB& col);
-void drawLineEx(float xi, float yi, float xf, float yf, float thick, const colorRGB& col);
+void drawLineEx(float xi, float yi, float xf, float yf, float thick, const colorRGB& col, unsigned char alpha = 255);
 void drawLineBezier(float xi, float yi, float xf, float yf, float thick, const colorRGB& col);
 
 void drawTextEx(const string& msg, const Vector2& pos, const colorRGB& col, 

@@ -287,35 +287,34 @@ int main (int argc, char* argv[]) {
           break;
       }
 
-
       int lastMeasureNum = 0;
-
       double measureSpacing = measureTextEx(to_string(stream.measureMap.size() - 1)).x; 
 
       if (measureLine || measureNumber) {
+        constexpr int maxMeasureSpacing = 5;
         for (unsigned int i = 0; i < stream.measureMap.size(); i++) {
           float measureLineWidth = 0.5;
           int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
           double measureLineX = convertSSX(stream.measureMap[i].getLocation());
-          bool hideLine = false;
+          double line_ratio = 1.0;
           if (i && i + 1 < stream.measureMap.size()) {
-            if (convertSSX(stream.measureMap[i + 1].getLocation()) - measureLineX < 10) {
-              hideLine = true;
+            double m_space = convertSSX(stream.measureMap[i + 1].getLocation()) - measureLineX;
+            if (m_space < maxMeasureSpacing) {
+              line_ratio = clampValue(m_space/maxMeasureSpacing ,0.0, 1.0);
             }
           }
                 
-          if (measureLine && !hideLine) {
+          if (measureLine) {
             if (pointInBox(getMousePosition(), {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
-                !hoverType.containsLastFrame(HOVER_MENU) && !hoverType.contains(HOVER_DIALOG)) {
+                !hoverType.containsLastFrame(HOVER_MENU) && !hoverType.contains(HOVER_DIALOG, HOVER_MEASURE)) {
               measureLineWidth = 1;
               hoverType.add(HOVER_MEASURE);
             }
             if (!nowLine || fabs(nowLineX - measureLineX) > 3) {  
               drawLineEx(static_cast<int>(measureLineX), measureLineY,
-                         static_cast<int>(measureLineX), ctr.getHeight(), measureLineWidth, ctr.bgMeasure);
+                         static_cast<int>(measureLineX), ctr.getHeight(), measureLineWidth, ctr.bgMeasure, 255*line_ratio);
             }
           }
-
 
           if (measureNumber) {
             double lastMeasureLocation = convertSSX(stream.measureMap[lastMeasureNum].getLocation()); 
@@ -353,8 +352,7 @@ int main (int argc, char* argv[]) {
 
               if (((showTempo && !ctr.getLiveState()) || showKey || songTimeType != SONGTIME_NONE) && 
                   measureLineX + 4 < songInfoSize.x+fadeWidth/2.0) {
-                measureLineTextAlpha = max(0.0,min(255.0, 
-                                                   255.0 * (1-(songInfoSize.x+fadeWidth/2.0 - measureLineX - 4)/10)));
+                measureLineTextAlpha = max(0.0,min(255.0, 255.0 * (1-(songInfoSize.x+fadeWidth/2.0 - measureLineX - 4)/10)));
               }
               else if (measureLineX < fadeWidth) {
                 measureLineTextAlpha = 255*max(0.0, (min(fadeWidth, measureLineX+measureSpacing))/fadeWidth);

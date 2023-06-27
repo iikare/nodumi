@@ -10,8 +10,8 @@ void drawLine(float xi, float yi, float xf, float yf, const colorRGB& col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   DrawLine(xi, yi, xf, yf, color);
 }
-void drawLineEx(float xi, float yi, float xf, float yf, float thick, const colorRGB& col) {
-  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
+void drawLineEx(float xi, float yi, float xf, float yf, float thick, const colorRGB& col, unsigned char alpha) {
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, alpha};
   DrawLineEx((const Vector2){(float)xi, (float)yi}, (const Vector2){(float)xf, (float)yf}, thick, color);
 }
 void drawLineBezier(float xi, float yi, float xf, float yf, float thick, const colorRGB& col) {
