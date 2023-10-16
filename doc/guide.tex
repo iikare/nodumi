@@ -79,18 +79,18 @@
 \newcommand\faqQ[1]{%
   \leavevmode\par
   \noindent
-{\hspace{4pt}\Large Q} \raisebox{0.1em}{\textendash} {\large #1}\par \vspace{-0.5em}}
+{\hspace{4pt}\Large Q} \raisebox{0.1em}{\textendash{}} {\large #1}\par \vspace{-0.5em}}
 
 \newcommand\faqA[2][]{%
   \leavevmode\par\noindent
   {\leftskip30pt
-  {\large A} \raisebox{0.05em}{\textendash} \textbf{#1}#2\par \vspace{-0.25em}}}
+  {\large A} \raisebox{0.05em}{\textendash{}} \textbf{#1}#2\par \vspace{-0.25em}}}
 
   \providecommand{\mi}[1]{\mintinline[breaklines]{text}{#1}}
 \definecolor{lcol}{HTML}{227396}
 
 \newcommand{\docname}{User Manual}
-\newcommand{\progname}{\mi{nodumi} \textendash Interactive MIDI Visualizer}
+\newcommand{\progname}{\mi{nodumi} \textendash{} Interactive MIDI Visualizer}
 \newcommand{\nowdate}{\DTMordinal{\day}\DTMmonthname{\month} \DTMfetchyear{now}}
 
 \pagestyle{fancy}
@@ -149,7 +149,7 @@ and aims to function as a modernized version of the public-facing MAM2006 progra
 and additional features have been added as well. Notably, support for both Windows and many Linux systems is provided, in
 contrast to the Windows-exclusive nature of MAM2006. Currently, macOS is not supported due to 
 the specific resources required to create builds for the Mac ecosystem.
-This software is licensed under GPLv3 \textendash therefore the source code is made freely available:
+This software is licensed under GPLv3 \textendash{} therefore the source code is made freely available:
 \textcolor{lcol}{(\raisebox{-0.1\height}{\faGithub} \href{https://github.com/iikare/nodumi}{iikare/nodumi})}.
 
 This application was created by \textcolor{lcol}{\href{https://iika.re}{iika-re}}.
@@ -179,7 +179,7 @@ One exception is the Voronoi rendering mode, which requires a reasonably perform
 \section{Obtaining Binaries}
 \label{sec:obtain}
 
-This section entails how to obtain \mi{nodumi} \textendash either downloading prebuilt binaries for supported operating systems,
+This section entails how to obtain \mi{nodumi} \textendash{} either downloading prebuilt binaries for supported operating systems,
 or by building directly from source.
 
 \subsection{Prebuilt Binaries}
@@ -192,7 +192,7 @@ the application is portable by default.
 
 \subsection{Compilation from Source}
 
-\textbf{NOTE} \textendash building from source requires a Linux development environment, as the compilation process depends on 
+\textbf{NOTE} \textendash{} building from source requires a Linux development environment, as the compilation process depends on 
 tools that are not Windows-compatible. This means that both Linux and Windows executables must be built from Linux.
 
 \vspace{1em}
@@ -306,7 +306,7 @@ All display modes are accessible via
 
 \rcgnc{0.86}{image/bar.png}
 
-The simplest display mode \textendash this simply draws a bar at the $x$ position of the note with length
+The simplest display mode \textendash{} this simply draws a bar at the $x$ position of the note with length
 determined by its duration.
 This is a \textbf{Bar-based} display mode.
 
@@ -400,9 +400,9 @@ This feature is accessible via
 
 \subsubsection{Absolute Song Time}
 
-The \textit{Absolute Song Time} option displays two numbers \textendash the first one corresponds to the 
+The \textit{Absolute Song Time} option displays two numbers \textendash{} the first one corresponds to the 
 current amount of time elapsed for the current file, while the second is the total length of the file.
-For live input, this value consists of only one number \textendash
+For live input, this value consists of only one number \textendash{}
 the amount of time since the Live Play mode was initiated.
 
 This feature is accessible via 
@@ -510,7 +510,7 @@ parameters can be manipulated by the user.
 \subsection{Color By}
 
 This function allows for the coloring of notes via different methods. Each note has two associated colors at all times
-\textendash one for when it currently playing or selected by the user, and another for all other cases. These options allow
+\textendash{} one for when it currently playing or selected by the user, and another for all other cases. These options allow
 setting both of these colors for all notes at the same time using a predefined algorithm. Even when using these options,
 the user can still manually override any algorithmically generated color.
 
@@ -629,7 +629,7 @@ options.
 
 \subsection{Specification}
 
-The MKI file format is open and non-proprietary \textendash anyone is free to use the specification described below. However,
+The MKI file format is open and non-proprietary \textendash{} anyone is free to use the specification described below. However,
 due to the frequency changing nature of this program, this specification is subject to change at any time. This software
 provides no guarantees that a MKI file created today will be compatible with future versions of the program. Moreover,
 many of the options are very specific to this program.
@@ -785,7 +785,7 @@ MIDI output device, finding a better alternative is strongly recommended.}
 \faqA{These visualization modes expect "fully-formed" notes.
 Since the duration of notes played via live MIDI input cannot be inferred until the note ends, 
 strange behavior often occurs. Even then,
-all visualization modes still function \textendash albeit to a lesser standard of quality \textendash during live input. 
+all visualization modes still function \textendash{} albeit to a lesser standard of quality \textendash{} during live input. 
 }
 
 \faqQ{Are languages other than English supported?}
@@ -794,7 +794,7 @@ all visualization modes still function \textendash albeit to a lesser standard o
 English is the only supported language. Community translations are welcome, and translation is possible simply by
 duplicating \mi{LABEL_LANG_EN} in \mi{src/data_str.h}, replacing \mi{EN} with the respective ISO 639-1 language code,
 and replacing the \textit{value} of each map entry with the correct translated string. Note that the keys \textit{must} be
-kept in English \textendash they are internal identifiers and are required for the program to function. However, these internal
+kept in English \textendash{} they are internal identifiers and are required for the program to function. However, these internal
 identifiers will not be shown to the end-user.}
 
 \faqQ{How is this software licensed and is it free?}
