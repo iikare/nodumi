@@ -40,7 +40,7 @@ void outputInstance::updateOffset(double off) {
   //send = offset > offset_last;
   //offset_last = offset;
 
-  auto it = message.upper_bound(make_pair(off+ (off <= 0 ? 0 : 1), vector<unsigned char>{}));
+  auto it = message.upper_bound(make_pair(off + (off <= 0 ? 0 : 1), vector<unsigned char>{}));
   //if (it != message.begin()) { it--; }
 
   int new_index = distance(message.begin(), it);

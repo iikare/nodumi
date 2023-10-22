@@ -1,6 +1,5 @@
 #include "build_target.h"
 
-#include <raylib.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -973,6 +972,7 @@ int main (int argc, char* argv[]) {
                            { shadow_off_x, shadow_off_y}, WHITE);
             ctr.endShaderMode();
             
+          
             DrawTextureRec(ctr.shadow.buffer.texture,
                            { 0, 0, float(ctr.shadow.buffer.texture.width), float(-ctr.shadow.buffer.texture.height) }, 
                            { 0, 0}, WHITE);
