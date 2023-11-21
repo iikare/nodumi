@@ -6,7 +6,7 @@
 
 optionController::optionController() {
   opts.resize(static_cast<int>(OPTION::NONE), 0);
-  opts[static_cast<int>(OPTION::TRACK_DIVISION)] = true;
+  opts[static_cast<int>(OPTION::TRACK_DIVISION_LIVE)] = true;
   opts[static_cast<int>(OPTION::SET_HAND_RANGE)] = false;
   opts[static_cast<int>(OPTION::HAND_RANGE)] = MAX_HAND_RANGE;
   opts[static_cast<int>(OPTION::SET_DARKEN_IMAGE)] = false;
@@ -24,10 +24,12 @@ void optionController::invert(OPTION opt) {
   if (invalid(opt)) { return; }
 
   switch (opt) {
-    case OPTION::TRACK_DIVISION:
+    case OPTION::TRACK_DIVISION_LIVE:
       if (ctr.getLiveState() && !get(opt)) {
         getColorScheme(2, ctr.setTrackOn, ctr.setTrackOff);
       }
+      break;
+    case OPTION::TRACK_DIVISION_MIDI:
       break;
     case OPTION::DYNAMIC_LABEL:
       ctr.optimizeBGColor(true);
@@ -57,7 +59,7 @@ bool optionController::invalid(OPTION opt) {
     case OPTION::SET_HAND_RANGE:
       [[fallthrough]];
     case OPTION::HAND_RANGE:
-      return !get(OPTION::TRACK_DIVISION);
+      return !get(OPTION::TRACK_DIVISION_LIVE);
     case OPTION::SET_DARKEN_IMAGE:
       [[fallthrough]];
     case OPTION::DARKEN_IMAGE:

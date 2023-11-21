@@ -138,7 +138,7 @@ void midiInput::convertEvents() {
         // if this is the note on event, duration is undefined
         tmpNote.duration = -1;
 
-        //tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION) ? findPartition(tmpNote) : 1; // by default
+        //tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ? findPartition(tmpNote) : 1; // by default
        
         //logQ("count, x, track, trackct:", noteCount, tmpNote.x, tmpNote.track, 
              //noteStream.getTracks()[tmpNote.track].getNoteCount());
@@ -147,7 +147,7 @@ void midiInput::convertEvents() {
         noteStream.notes.push_back(tmpNote);
         
         numOn++;
-        tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION) ? findPartition(tmpNote) : 1; // by default
+        tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ? findPartition(tmpNote) : 1; // by default
                                                                                                         
         // update track after determination
         noteStream.notes[noteCount].track = tmpNote.track;

@@ -395,7 +395,7 @@ void controller::updateDroppedFiles() {
 }
 
 void controller::toggleLivePlay() {
-  if (setTrackOn.size() < 1 || option.get(OPTION::TRACK_DIVISION)) {
+  if (setTrackOn.size() < 1 || option.get(OPTION::TRACK_DIVISION_LIVE)) {
     getColorScheme(2, setTrackOn, setTrackOff);
   }
   livePlayState = !livePlayState;
@@ -536,7 +536,7 @@ vector<note>& controller::getNotes() {
 
 int controller::getTrackCount() {
   if (livePlayState) {
-    return option.get(OPTION::TRACK_DIVISION) ? 2 : 1;
+    return option.get(OPTION::TRACK_DIVISION_LIVE) ? 2 : 1;
   }
   return file.getTrackCount();
 }

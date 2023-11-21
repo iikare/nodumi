@@ -73,7 +73,8 @@
                         {"INFO_BOX_VER",                        "Ver."}, \
                         {"INFO_BOX_LICENSE_GPL3",               "Licensed under GPLv3"}, \
                         {"PREF_LABEL",                          "Preferences"}, \
-                        {"PREF_TRACK_DIVIDE",                   "Adaptive Track Division"}, \
+                        {"PREF_TRACK_DIVIDE_LIVE",              "Adaptive Track Division (live)"}, \
+                        {"PREF_TRACK_DIVIDE_MIDI",              "Adaptive Track Division (file)"}, \
                         {"PREF_HAND_RANGE",                     "Custom Hand Range"}, \
                         {"PREF_IMAGE_DARKEN",                   "Darken Background Image"}, \
                         {"PREF_DYNAMIC_LABEL",                  "Dynamic Label Color"}, \

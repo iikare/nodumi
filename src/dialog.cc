@@ -22,8 +22,16 @@ void dialogController::init() {
                                   ctr.text.getStringSet("PREF_DYNAMIC_LABEL")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
-                                  OPTION::TRACK_DIVISION, 
-                                  ctr.text.getStringSet("PREF_TRACK_DIVIDE")
+                                  OPTION::SCALE_VELOCITY,
+                                  ctr.text.getStringSet("PREF_SCALE_VELOCITY")
+                                  ));
+  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+                                  OPTION::TRACK_DIVISION_LIVE, 
+                                  ctr.text.getStringSet("PREF_TRACK_DIVIDE_LIVE")
+                                  ));
+  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+                                  OPTION::TRACK_DIVISION_MIDI, 
+                                  ctr.text.getStringSet("PREF_TRACK_DIVIDE_MIDI")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
                                   OPTION::SET_HAND_RANGE,
@@ -46,10 +54,6 @@ void dialogController::init() {
                                   ctr.text.getStringSet("PREF_CIE_FUNCTION"),
                                   {"00", "94", "76"},
                                   convertEnum(cie_opt_vec)
-                                  ));
-  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
-                                  OPTION::SCALE_VELOCITY,
-                                  ctr.text.getStringSet("PREF_SCALE_VELOCITY")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::SLIDER, 
                                   OPTION::SHADOW, 
