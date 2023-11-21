@@ -1,12 +1,16 @@
 #pragma once
 
-#include "build_target.h"
-
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
 #include <vector>
+
+#ifdef __WIN32
+#define LOGQ_SEP " -> "
+#else
+#define LOGQ_SEP " ➜ "
+#endif
 
 using std::cerr; 
 using std::endl;
@@ -247,7 +251,7 @@ void logOutput(logLevel level, string file, int line, const V& arg1, const W&...
     logRecursive((out << arg1), args...);
   }
     
-  out << " → " << file << ":" << line << endl;
+  out << LOGQ_SEP << file << ":" << line << endl;
 
   cerr << out.str();
 }
@@ -283,7 +287,7 @@ void logOutput(logLevel level, string file, int line, const V& arg1) {
     out << arg1;
   }
     
-  out << " → " << file << ":" << line << endl;
+  out << LOGQ_SEP << file << ":" << line << endl;
 
   cerr << out.str();
 }
