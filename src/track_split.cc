@@ -5,7 +5,7 @@
 int findTrack(const note& n, const midi& m_stream, bool live, int numOn) {
 
   if (!live) {
-    return 1;
+    //return n.y % 2;
   }
 
 
@@ -47,7 +47,7 @@ int findTrack(const note& n, const midi& m_stream, bool live, int numOn) {
     j--;
   }
 
-  if (i != numOn) {
+  if (i != numOn && live) {
     for (; j >= 0; --j) {
       // avoid this note (which is ON by definition)
       if (i == numOn) {

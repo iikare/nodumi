@@ -405,18 +405,19 @@ void midi::load(stringstream& buf) {
 
   // TODO: make an option for solo tracks?
   if (ctr.option.get(OPTION::TRACK_DIVISION) && trackCount == 1) {
-    //trackCount = 2;
-    //tracks.push_back(tracks[0]);
-    //trackInfo.push_back(trackInfo[0]);
-    //trackInfo[1].second = 1;
+    trackCount = 2;
+    tracks.push_back(tracks[0]);
+    trackInfo.push_back(trackInfo[0]);
+    trackInfo[1].second = 1;
    
-    //for (auto& t : tracks) { t.reset(); }
-    //for (int idx = 0; auto& n : notes) {
-      //n.track = findTrack(n, *this, false, idx);
-      ////logQ(n.track);
-      //tracks.at(n.track).insert(idx);
-      //idx++;
-    //}
+    for (auto& t : tracks) { t.reset(); }
+    for (int idx = 0; auto& n : notes) {
+      n.track = findTrack(n, *this, false, idx);
+      //logQ(n.track);
+      logQ(tracks.at(n.track).getNoteCount());
+      tracks.at(n.track).insert(idx);
+      idx++;
+    }
   }
 
 
