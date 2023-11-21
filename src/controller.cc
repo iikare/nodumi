@@ -269,7 +269,7 @@ void controller::processAction(ACTION& action) {
   }
   
   if (isKeyPressed(KEY_TAB)) {
-    action = ACTION::PREFERENCES;
+    action = ACTION::SHEET;
     return;
   }
   

@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include "../dpd/rtmidi/RtMidi.h"
+#include "track_split.h"
 #include "note.h"
 #include "midi.h"
 #include "log.h"

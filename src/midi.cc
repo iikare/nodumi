@@ -10,6 +10,7 @@
 #include "sheetctr.h"
 #include "define.h"
 #include "track.h"
+#include "track_split.h"
 
 using std::priority_queue;
 using std::thread;
@@ -339,6 +340,7 @@ void midi::load(stringstream& buf) {
   midifile.doTimeAnalysis();
   
   trackCount = midifile.getTrackCount();
+
   tracks.resize(trackCount);
   for (auto& t : tracks) {
     t.setNoteVector(&notes);
@@ -392,6 +394,7 @@ void midi::load(stringstream& buf) {
         velocityBounds.second = max(notes[idx].velocity, velocityBounds.second);
 
         //cerr << midifile.getTimeInSeconds(notes[idx].tick) << " " << midifile[i][j].seconds << endl;
+        //
         
         notes[idx].findSize(tickSet);
         tracks.at(notes[idx].track).insert(idx);
@@ -399,6 +402,23 @@ void midi::load(stringstream& buf) {
       }
     }
   }
+
+  // TODO: make an option for solo tracks?
+  if (ctr.option.get(OPTION::TRACK_DIVISION) && trackCount == 1) {
+    //trackCount = 2;
+    //tracks.push_back(tracks[0]);
+    //trackInfo.push_back(trackInfo[0]);
+    //trackInfo[1].second = 1;
+   
+    //for (auto& t : tracks) { t.reset(); }
+    //for (int idx = 0; auto& n : notes) {
+      //n.track = findTrack(n, *this, false, idx);
+      ////logQ(n.track);
+      //tracks.at(n.track).insert(idx);
+      //idx++;
+    //}
+  }
+
 
   midifile.joinTracks();
   midifile.sortTracks();
@@ -585,5 +605,7 @@ void midi::load(stringstream& buf) {
   //logII(LL_CRIT, measureMap.size());
   
   //logQ("total ks", keySignatureMap.size());
+  
+
 }
 
