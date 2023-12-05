@@ -3,7 +3,10 @@
 <img align="left" src="https://user-images.githubusercontent.com/13582030/193442487-40aadaf9-0b11-4309-907b-e481856bcb1d.svg" width="130px">
 
 
-A usage guide is now available [on my website](https://iika.re/nodumi/guide.pdf "nodumi website").
+For more information, see the [project page](https://iika.re/nodumi/ "nodumi website").
+
+A usage guide is now [available](https://iika.re/nodumi/guide.pdf "nodumi usage guide").
+
 
 `nodumi` — ನೋಡು (look/see) + [mi]di
 
