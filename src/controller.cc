@@ -212,7 +212,7 @@ void controller::endBlendMode() {
   EndBlendMode();
 }
 
-void controller::processAction(ACTION& action) {
+ACTION controller::process(ACTION action) {
   // if needed, clear buffer first
   if (isKeyPressed(KEY_ESCAPE)) {
     buffer.clear();
@@ -220,20 +220,17 @@ void controller::processAction(ACTION& action) {
 
   // do not overwrite pending event
   if (action != ACTION::NONE) {
-    return;
+    return action;
   }
 
   // process key buffer
   auto buf_action = buffer.process();
   if (buf_action != ACTION::NONE) {
     if (buf_action == ACTION::NAV_SET_MEASURE) {
-      pendingMeasure = buffer.get_pending();
+      pendingActionValue = buffer.get_pending();
     }
-    action = buf_action;
-    return;
+    return buf_action;
   }
-
-
 
   // setup so that the last key in sequence
   // must be pressed last to prevent repeat inputs
@@ -241,64 +238,92 @@ void controller::processAction(ACTION& action) {
     // open [file, image]
     if (isKeyPressed(KEY_O)) {
       if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
-        action = ACTION::OPEN_IMAGE;
-        return;
+        return ACTION::OPEN_IMAGE;
       }
-      action = ACTION::OPEN;
-      return;
+      return ACTION::OPEN;
     } 
     // close [file, image]
     if (isKeyPressed(KEY_W)) {
       if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
-        action = ACTION::CLOSE_IMAGE;
-        return;
+        return ACTION::CLOSE_IMAGE;
       }
-      action = ACTION::CLOSE;
-      return;
+      return ACTION::CLOSE;
     } 
     // save [save, save as]
     if (isKeyPressed(KEY_S)) {
       if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
-        action = ACTION::SAVE_AS;
-        return;
+        return ACTION::SAVE_AS;
       }
-      action = ACTION::SAVE;
-      return;
+      return ACTION::SAVE;
     } 
     if (isKeyPressed(KEY_COMMA)) {
-      action = ACTION::PREFERENCES;
-      return;
+      return ACTION::PREFERENCES;
     }
     if (isKeyPressed(KEY_SPACE)) {
-      action = ACTION::LIVEPLAY;
-      return;
+      return ACTION::LIVEPLAY;
     }
     if (isKeyPressed(KEY_I)) {
-      action = ACTION::INFO;
-      return;
+      return ACTION::INFO;
     }
 
     if (isKeyPressed(KEY_ONE, KEY_TWO, KEY_THREE, KEY_FOUR, KEY_FIVE, KEY_SIX, KEY_SEVEN, KEY_EIGHT, KEY_NINE)) {
-      action = ACTION::CHANGE_MODE;
-      return;
+      return ACTION::CHANGE_MODE;
     }
   }
 
+  if ((isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) && GetMouseWheelMove() != 0) {
+    return ACTION::NAV_ZOOM_IMAGE;
+  }
+  if ((!isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) && 
+      (isKeyPressed(KEY_DOWN, KEY_UP) || GetMouseWheelMove() != 0)) {
+      pendingActionValue = isKeyDown(KEY_LEFT_ALT, KEY_RIGHT_ALT);
+      if (isKeyPressed(KEY_DOWN) || (GetMouseWheelMove() < 0)) {
+        return ACTION::NAV_ZOOM_IN;
+      }
+      else {
+        return ACTION::NAV_ZOOM_OUT;
+      }
+  }
+
+  if (isKeyDown(KEY_LEFT)) {
+    if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
+      return ACTION::NAV_PREV_FAST;
+    }
+    else if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
+      return ACTION::NAV_PREV_MEASURE;
+    }
+    else {
+      return ACTION::NAV_PREV;
+    }
+  }
+
+  if (isKeyDown(KEY_RIGHT)) {
+    if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
+      return ACTION::NAV_NEXT_FAST;
+    }
+    else if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
+      return ACTION::NAV_NEXT_MEASURE;
+    }
+    else {
+      return ACTION::NAV_NEXT;
+    }
+  }
+
+  if (isKeyPressed(KEY_SPACE)) {
+    return ACTION::NAV_SPACE;
+  }
+
   if (isKeyDown(KEY_HOME)) {
-    action = ACTION::NAV_HOME;
-    return;
+    return ACTION::NAV_HOME;
   }
   if (isKeyDown(KEY_END)) {
-    action = ACTION::NAV_END;
-    return;
+    return ACTION::NAV_END;
   }
-  
   if (isKeyPressed(KEY_TAB)) {
-    action = ACTION::PREFERENCES;
-    return;
+    return ACTION::PREFERENCES;
   }
-  
-  action = ACTION::NONE;
+
+  return ACTION::NONE;
 }
 
 void controller::update(int offset, double zoom, double& nowLineX) {
@@ -440,7 +465,7 @@ void controller::toggleLivePlay() {
   }
 }
 
-void controller::prepareCriticalSection(bool enter) {
+void controller::criticalSection(bool enter) {
   // if something blocks main thread for too long
   // this function notifies other threads that
   // the main thread is currently unresponsive

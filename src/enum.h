@@ -272,9 +272,19 @@ enum class ACTION {
   PREFERENCES,
   LIVEPLAY,
   CHANGE_MODE,
-  NAV_HOME,  // gg
-  NAV_END,   // G
+  NAV_HOME,         // gg
+  NAV_END,          // G
   NAV_SET_MEASURE,  // #G
+  NAV_NEXT,
+  NAV_NEXT_FAST,
+  NAV_NEXT_MEASURE,
+  NAV_PREV,
+  NAV_PREV_FAST,
+  NAV_PREV_MEASURE,
+  NAV_SPACE,
+  NAV_ZOOM_IN,
+  NAV_ZOOM_OUT,
+  NAV_ZOOM_IMAGE,
   NONE
 };
 

@@ -1085,13 +1085,12 @@ int main (int argc, char* argv[]) {
 
       ctr.menu.render();
       ctr.dialog.render();
-      // warning about windows stability
-      ctr.warning.render();
+      ctr.warning.render(); // warning about windows stability
     
     EndDrawing();
 
     // key actions
-    ctr.processAction(action);
+    action = ctr.process(action);
 
     if (ctr.run) {
       if (timeOffset + GetFrameTime() * UNK_CST < ctr.getLastTime()) {
@@ -1173,13 +1172,9 @@ int main (int argc, char* argv[]) {
         [[fallthrough]];
       case ACTION::SAVE_AS:
         if (!ctr.getPlayState() && curFileType != FILE_NONE) {
-
            ctr.save_file.dialog();
-
            if (ctr.save_file.pending()) {
-
             string save_path = ctr.save_file.getPath();
-
             if (getExtension(save_path, true) != ".mki") {
               save_path += ".mki";
             }
@@ -1187,7 +1182,6 @@ int main (int argc, char* argv[]) {
             ctr.save(save_path, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
                      colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
             curFileType = FILE_MKI;
-
             ctr.save_file.resetPending();
           }
         }
@@ -1225,15 +1219,34 @@ int main (int argc, char* argv[]) {
           }
         }
         break;
+      case ACTION::NAV_ZOOM_IMAGE:
+        if (ctr.image.exists() && showImage) {
+          // defaults to ±1, adjusted depending on default image scale value
+          float scaleModifier = 0.02f;
+          if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
+            scaleModifier = 0.002f;
+          }
+          ctr.image.changeScale(scaleModifier*GetMouseWheelMove());
+        }
+        break;
+      case ACTION::NAV_ZOOM_IN:
+        if (zoomLevel > 0.00001) {
+          zoomLevel *= (ctr.pendingActionValue ? 0.9 : 0.75);
+        }
+        break;
+      case ACTION::NAV_ZOOM_OUT:
+        if (zoomLevel < 1.2) {
+          zoomLevel *= 1.0/(ctr.pendingActionValue ? 0.9 : 0.75);
+        }
+        break;
       case ACTION::NAV_HOME:
         timeOffset = 0;
         break;
       case ACTION::NAV_SET_MEASURE:
-        if (ctr.pendingMeasure < 0) { logW(LL_WARN, "invalid pending measure:", ctr.pendingMeasure); }
-        if (ctr.pendingMeasure < ctr.getMeasureCount()) {
-          // TODO: setCurrentMeasure()
+        if (ctr.pendingActionValue < 0) { logW(LL_WARN, "invalid pending measure:", ctr.pendingActionValue); }
+        if (ctr.pendingActionValue < ctr.getMeasureCount()) {
           if (!ctr.getLiveState()) {
-            double measureLineX = convertSSX(stream.measureMap[ctr.pendingMeasure-1].getLocation());
+            double measureLineX = convertSSX(stream.measureMap[ctr.pendingActionValue-1].getLocation());
             timeOffset = unconvertSSX(measureLineX);
           }
           break;
@@ -1243,113 +1256,71 @@ int main (int argc, char* argv[]) {
         timeOffset = ctr.getLastTime();
         pauseOffset = timeOffset;
         break;
-      default:
-        break;
-    }
-    action = ACTION::NONE;
-
-
-    // key logic
-    if ((isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) && GetMouseWheelMove() != 0) {
-      if (ctr.image.exists() && showImage) {
-
-        // defaults to ±1, adjusted depending on default image scale value
-        float scaleModifier = 0.02f;
-        if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
-          scaleModifier = 0.002f;
-        }
-        ctr.image.changeScale(scaleModifier*GetMouseWheelMove());
-      }
-    }
-    
-    if ((!isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) && 
-        (isKeyPressed(KEY_DOWN, KEY_UP) || GetMouseWheelMove() != 0)) {
-      const double zoom_amt = isKeyDown(KEY_LEFT_ALT, KEY_RIGHT_ALT) ? 0.9 : 0.75;
-      if (isKeyPressed(KEY_DOWN) || (GetMouseWheelMove() < 0)) {
-        if (zoomLevel > 0.00001) {
-          zoomLevel *= zoom_amt; 
-        }
-      }
-      else {
-        if (zoomLevel < 1.2) {
-          zoomLevel *= 1.0/zoom_amt;
-        }
-      }
-    }
-    if (isKeyPressed(KEY_SPACE)) {
-      if (timeOffset != ctr.getLastTime()) {
-        ctr.run = !ctr.run; 
-        pauseOffset = timeOffset;
-      }
-    }
-    if (isKeyDown(KEY_LEFT)) {
-      if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
-        if (timeOffset > shiftC * 60) {
-          timeOffset -= shiftC * 60;
-        }
-        else if (timeOffset > 0) {
-          timeOffset = 0;
-        }
-      }
-      else if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
-        // not supported in live mode
-        if (!ctr.getLiveState()) {
-          bool measureFirst = true;
-          for (unsigned int i = stream.measureMap.size()-1; i > 0; --i) {
-            double measureLineX = convertSSX(stream.measureMap[i].getLocation());
-            if (measureLineX < nowLineX-1) {
-              timeOffset = unconvertSSX(measureLineX);
-              measureFirst = false;
-              break;
-            }
-          }
-          if (measureFirst) {
-            timeOffset = 0;
-          }
-        }
-      }
-      else {
+      case ACTION::NAV_PREV:
         if (timeOffset > shiftC * 6) {
           timeOffset -= shiftC * 6;
         }
         else if (timeOffset > 0) {
           timeOffset = 0;
         }
-      }
-    }
-    if (isKeyDown(KEY_RIGHT)) {
-      if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
-        if (timeOffset + shiftC * 60 < ctr.getLastTime()) {
-          timeOffset += shiftC * 60;
+        break;
+      case ACTION::NAV_PREV_FAST:
+        if (timeOffset > shiftC * 60) {
+          timeOffset -= shiftC * 60;
         }
-        else if (timeOffset < ctr.getLastTime()) {
-          timeOffset = ctr.getLastTime();
+        else if (timeOffset > 0) {
+          timeOffset = 0;
         }
-      }
-      else if (isKeyDown(KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) {
-        // immediately move to next measure
-        bool measureLast = true;
-        for (auto& measure : stream.measureMap) {
-          double measureLineX = convertSSX(measure.getLocation());
-          if (measureLineX > nowLineX+1) {
-            timeOffset = unconvertSSX(measureLineX);
-            measureLast = false;
-            break;
+        break;
+      case ACTION::NAV_PREV_MEASURE:
+        if (!ctr.getLiveState()) {
+          int foundMeasure = ctr.findCurrentMeasure(timeOffset-1);
+          if (foundMeasure != 0) {
+            timeOffset = unconvertSSX(convertSSX(stream.measureMap[foundMeasure-1].getLocation()));
           }
         }
-        if (measureLast) {
-          timeOffset = ctr.getLastTime();
-        }
-      }
-      else {
+        break;
+      case ACTION::NAV_NEXT:
         if (timeOffset + shiftC * 6 < ctr.getLastTime()) {
           timeOffset += shiftC * 6;
         }
         else {
           timeOffset = ctr.getLastTime();
         }
-      }
+        break;
+      case ACTION::NAV_NEXT_FAST:
+        if (timeOffset + shiftC * 60 < ctr.getLastTime()) {
+          timeOffset += shiftC * 60;
+        }
+        else if (timeOffset < ctr.getLastTime()) {
+          timeOffset = ctr.getLastTime();
+        }
+        break;
+      case ACTION::NAV_NEXT_MEASURE:
+        // not supported in live mode
+        if (!ctr.getLiveState()) {
+          // immediately move to next measure
+          int foundMeasure = ctr.findCurrentMeasure(timeOffset);
+          if (foundMeasure >= ctr.getMeasureCount()-1) {
+            timeOffset = ctr.getLastTime();
+          }
+          else {
+            timeOffset = unconvertSSX(convertSSX(stream.measureMap[foundMeasure+1].getLocation()));
+          }
+        }
+        break;
+      case ACTION::NAV_SPACE:
+        if (timeOffset != ctr.getLastTime()) {
+          ctr.run = !ctr.run; 
+          pauseOffset = timeOffset;
+        }
+        break;
+      default:
+        break;
     }
+    action = ACTION::NONE;
+
+    // mouse button handling
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       switch(fileMenu.getActiveElement()) {
         case MENU_INACTIVE:
@@ -1650,11 +1621,11 @@ int main (int argc, char* argv[]) {
               if (ctr.image.exists()) {
                 // prevent overflow on RT audio thread
 
-                ctr.prepareCriticalSection(true);
+                ctr.criticalSection(true);
                 getColorSchemeImage(SCHEME_KEY, ctr.setVelocityOn, ctr.setVelocityOff);
                 getColorSchemeImage(SCHEME_TONIC, ctr.setTonicOn, ctr.setTonicOff);
                 getColorSchemeImage(SCHEME_TRACK, ctr.setTrackOn, ctr.setTrackOff, ctr.file.trackHeightMap);
-                ctr.prepareCriticalSection(false);
+                ctr.criticalSection(false);
               }
               else{
                 logW(LL_WARN, "attempt to get color scheme from nonexistent image");

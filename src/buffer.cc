@@ -1,6 +1,7 @@
 #include "build_target.h"
 
 #include <cctype>
+#include <raylib.h>
 #include "log.h"
 #include "wrap.h"
 #include "buffer.h"
@@ -12,15 +13,17 @@ ACTION bufferController::process() {
   }
   while (key) {
     //logQ("f",static_cast<char>(key));
-    if (isKeyPressed(KEY_BACKSPACE) && !empty()) {
-      buf.pop_back();
-    }
-    else {
-      buf.push_back(key);
+    if (key != ' ') {
+      if (isKeyPressed(KEY_BACKSPACE) && !empty()) {
+        buf.pop_back();
+      }
+      else {
+        buf.push_back(key);
 
-      ACTION result = pending_action();
-      if (result != ACTION::NONE) {
-        return result;
+        ACTION result = pending_action();
+        if (result != ACTION::NONE) {
+          return result;
+        }
       }
     }
     key = GetCharPressed();
@@ -32,13 +35,21 @@ ACTION bufferController::pending_action() {
 
   string sbuf = read();
 
-  if (sbuf == "gg") {
+  if (sbuf == "gg" || sbuf == "0") {
     clear();
     return ACTION::NAV_HOME;
   }
-  if (sbuf == "G") { 
+  if (sbuf == "G" || sbuf == "$") { 
     clear();
     return ACTION::NAV_END;
+  }
+  if (sbuf == "w") {
+    clear();
+    return ACTION::NAV_NEXT_MEASURE;
+  }
+  if (sbuf == "b") {
+    clear();
+    return ACTION::NAV_PREV_MEASURE;;
   }
 
   if (sbuf.length() > 1 && sbuf.back() == 'G') {

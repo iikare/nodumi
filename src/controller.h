@@ -67,11 +67,11 @@ class controller {
     }
 
     void toggleLivePlay();
-    void prepareCriticalSection(bool enter);
+    void criticalSection(bool enter);
 
     void update(int offset, double zoom, double& nowLineX);
     void updateFiles(char** paths, int numFile = 1);
-    void processAction(ACTION& action);
+    ACTION process(ACTION action);
 
     void optimizeBGColor(bool invert = false);
 
@@ -128,6 +128,8 @@ class controller {
     int getMouseY() const { return getMousePosition().y; }; 
     
     int getSheetSize() const { return getWidth() - SHEET_LMARGIN - SHEET_RMARGIN; }
+
+    int findCurrentMeasure(int pos) const;
 
     midi file;
     midiInput input;
@@ -197,7 +199,7 @@ class controller {
 
     double livePlayOffset;
     int curMeasure;
-    int pendingMeasure;
+    int pendingActionValue;
 
 
     friend class ioController;
@@ -210,7 +212,6 @@ class controller {
     void updateFPS();
     void updateDroppedFiles();
     
-    int findCurrentMeasure(int pos) const;
 
 
     
