@@ -1,5 +1,6 @@
 #include "build_target.h"
 
+#include <raylib.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -1224,6 +1225,24 @@ int main (int argc, char* argv[]) {
           }
         }
         break;
+      case ACTION::NAV_HOME:
+        timeOffset = 0;
+        break;
+      case ACTION::NAV_SET_MEASURE:
+        if (ctr.pendingMeasure < 0) { logW(LL_WARN, "invalid pending measure:", ctr.pendingMeasure); }
+        if (ctr.pendingMeasure < ctr.getMeasureCount()) {
+          // TODO: setCurrentMeasure()
+          if (!ctr.getLiveState()) {
+            double measureLineX = convertSSX(stream.measureMap[ctr.pendingMeasure-1].getLocation());
+            timeOffset = unconvertSSX(measureLineX);
+          }
+          break;
+        }
+        [[fallthrough]];
+      case ACTION::NAV_END:
+        timeOffset = ctr.getLastTime();
+        pauseOffset = timeOffset;
+        break;
       default:
         break;
     }
@@ -1330,13 +1349,6 @@ int main (int argc, char* argv[]) {
           timeOffset = ctr.getLastTime();
         }
       }
-    }
-    if (isKeyDown(KEY_HOME)) {
-      timeOffset = 0;
-    }
-    if (isKeyDown(KEY_END)) {
-      timeOffset = ctr.getLastTime();
-      pauseOffset = timeOffset;
     }
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       switch(fileMenu.getActiveElement()) {
@@ -1943,6 +1955,14 @@ int main (int argc, char* argv[]) {
           }
         }
       }
+    }
+    if (!ctr.buffer.empty()) {
+      Vector2 bufText = measureTextEx(ctr.buffer.read());
+      bufText.x = min(100.0f, bufText.x);
+
+      drawRectangle(ctr.getWidth()-bufText.x-4, ctr.getHeight()-bufText.y-4, bufText.x+4, bufText.y+4, ctr.bgMenuShade);
+      drawTextEx(ctr.buffer.read(), ctr.getWidth()-bufText.x-2, ctr.getHeight()-bufText.y-2, ctr.bgColor);
+
     }
     if (ctr.menu.mouseOnMenu() || pointInBox(getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
       hoverType.add(HOVER_MENU);

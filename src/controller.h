@@ -23,6 +23,7 @@
 #include "option.h"
 #include "dialog.h"
 #include "shadow.h"
+#include "buffer.h"
 #include "menuctr.h"
 #include "warning.h"
 #include "voronoi.h"
@@ -142,6 +143,7 @@ class controller {
     ioController open_image = ioController(OSDIALOG_OPEN, FILTER_IMAGE);
     ioController save_file  = ioController(OSDIALOG_SAVE, FILTER_SAVE);
     warningController warning;
+    bufferController buffer;
 
     particleController particle;
     shadowController shadow;
@@ -195,6 +197,7 @@ class controller {
 
     double livePlayOffset;
     int curMeasure;
+    int pendingMeasure;
 
 
     friend class ioController;

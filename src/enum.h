@@ -272,6 +272,9 @@ enum class ACTION {
   PREFERENCES,
   LIVEPLAY,
   CHANGE_MODE,
+  NAV_HOME,  // gg
+  NAV_END,   // G
+  NAV_SET_MEASURE,  // #G
   NONE
 };
 

@@ -1,5 +1,6 @@
 #include "controller.h"
 #include <limits>
+#include <raylib.h>
 #include <stdlib.h>
 #include <bitset>
 #include <random>
@@ -212,10 +213,27 @@ void controller::endBlendMode() {
 }
 
 void controller::processAction(ACTION& action) {
+  // if needed, clear buffer first
+  if (isKeyPressed(KEY_ESCAPE)) {
+    buffer.clear();
+  }
+
   // do not overwrite pending event
   if (action != ACTION::NONE) {
     return;
   }
+
+  // process key buffer
+  auto buf_action = buffer.process();
+  if (buf_action != ACTION::NONE) {
+    if (buf_action == ACTION::NAV_SET_MEASURE) {
+      pendingMeasure = buffer.get_pending();
+    }
+    action = buf_action;
+    return;
+  }
+
+
 
   // setup so that the last key in sequence
   // must be pressed last to prevent repeat inputs
@@ -264,8 +282,15 @@ void controller::processAction(ACTION& action) {
       action = ACTION::CHANGE_MODE;
       return;
     }
+  }
 
-
+  if (isKeyDown(KEY_HOME)) {
+    action = ACTION::NAV_HOME;
+    return;
+  }
+  if (isKeyDown(KEY_END)) {
+    action = ACTION::NAV_END;
+    return;
   }
   
   if (isKeyPressed(KEY_TAB)) {
