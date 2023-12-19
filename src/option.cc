@@ -7,6 +7,7 @@
 optionController::optionController() {
   opts.resize(static_cast<int>(OPTION::NONE), 0);
   opts[static_cast<int>(OPTION::TRACK_DIVISION_LIVE)] = true;
+  opts[static_cast<int>(OPTION::TRACK_DIVISION_MIDI)] = true;
   opts[static_cast<int>(OPTION::SET_HAND_RANGE)] = false;
   opts[static_cast<int>(OPTION::HAND_RANGE)] = MAX_HAND_RANGE;
   opts[static_cast<int>(OPTION::SET_DARKEN_IMAGE)] = false;
@@ -59,7 +60,7 @@ bool optionController::invalid(OPTION opt) {
     case OPTION::SET_HAND_RANGE:
       [[fallthrough]];
     case OPTION::HAND_RANGE:
-      return !get(OPTION::TRACK_DIVISION_LIVE);
+      return !get(OPTION::TRACK_DIVISION_LIVE) && !get(OPTION::TRACK_DIVISION_MIDI);
     case OPTION::SET_DARKEN_IMAGE:
       [[fallthrough]];
     case OPTION::DARKEN_IMAGE:

@@ -404,12 +404,14 @@ void midi::load(stringstream& buf) {
   }
 
   if (ctr.option.get(OPTION::TRACK_DIVISION_MIDI) && trackCount == 1) {
+    logW(LL_INFO, "MIDI track division enabled - performing division");
+
     trackCount = 2;
     tracks.push_back(tracks[0]);
     trackInfo.push_back(trackInfo[0]);
     trackInfo[1].second = 1;
-   
     for (auto& t : tracks) { t.reset(); }
+
     for (int idx = 0; auto& n : notes) {
       n.track = findTrack(n, *this, false, idx);
       //logQ(n.track);
@@ -417,6 +419,28 @@ void midi::load(stringstream& buf) {
       tracks.at(n.track).insert(idx);
       idx++;
     }
+
+    //for (auto& t: tracks) {
+      //unsigned int avg = 0;
+      //unsigned int avg_n = 100;
+      //unsigned int idx = 0;
+      //for (unsigned int ni = 0; ni < t.note_idx.size(); ++ni) {
+        //if (idx > avg_n) {
+          //avg -= notes[t.note_idx[ni-avg_n]].y;
+        //}
+
+        //avg += notes[t.note_idx[ni]].y;
+        ////logQ(avg);
+
+        //if (idx > avg_n) {
+          //notes[t.note_idx[ni]].y = avg/avg_n;
+        //}
+        //else {
+          //notes[t.note_idx[ni]].y = avg/(idx+1);
+        //}
+        //idx++;
+      //}
+    //}
   }
 
 

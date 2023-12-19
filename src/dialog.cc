@@ -26,12 +26,12 @@ void dialogController::init() {
                                   ctr.text.getStringSet("PREF_SCALE_VELOCITY")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
-                                  OPTION::TRACK_DIVISION_LIVE, 
-                                  ctr.text.getStringSet("PREF_TRACK_DIVIDE_LIVE")
-                                  ));
-  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
                                   OPTION::TRACK_DIVISION_MIDI, 
                                   ctr.text.getStringSet("PREF_TRACK_DIVIDE_MIDI")
+                                  ));
+  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+                                  OPTION::TRACK_DIVISION_LIVE, 
+                                  ctr.text.getStringSet("PREF_TRACK_DIVIDE_LIVE")
                                   ));
   dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
                                   OPTION::SET_HAND_RANGE,
