@@ -30,6 +30,9 @@ class bufferController {
     ACTION pending_action(bool apply_enter = false);
     void set_pending(int val) { p_val = val; }
 
+
+    bool all_num(const string& ref_str) const;
+
     int p_val;
     vector<char> buf;
 

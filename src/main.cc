@@ -1241,6 +1241,9 @@ int main (int argc, char* argv[]) {
           if(isKeyPressed(KEY_ONE+mode)) {
             displayMode = DISPLAY_BAR+mode;
           }
+          else if (ctr.pendingActionValue != -1) {
+            displayMode = DISPLAY_BAR+ctr.pendingActionValue;
+          }
         }
         break;
       case ACTION::NAV_ZOOM_IMAGE:

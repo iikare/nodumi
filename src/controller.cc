@@ -229,7 +229,8 @@ ACTION controller::process(ACTION action) {
   if (buf_action != ACTION::NONE) {
     if (buf_action == ACTION::NAV_SET_MEASURE || 
         buf_action == ACTION::NAV_PREV_MEASURE || 
-        buf_action == ACTION::NAV_NEXT_MEASURE) {
+        buf_action == ACTION::NAV_NEXT_MEASURE ||
+        buf_action == ACTION::CHANGE_MODE) {
       pendingActionValue = buffer.get_pending();
     }
     return buf_action;

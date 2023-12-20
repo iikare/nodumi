@@ -89,18 +89,23 @@ ACTION bufferController::pending_action(bool apply_enter) {
     if (sbuf == ":i") {
       return ACTION::PREFERENCES;
     }
+    if (sbuf.substr(0,2) == ":d") {
+      if (sbuf.size() > 2 && all_num(sbuf.substr(2))) {
+        string disp_num = sbuf.substr(2);
+        if (disp_num.size() < 2) {
+          int disp_val = stoi(disp_num);
+            if (disp_val != 0) {
+            set_pending(min(DISPLAY_NONE-1, disp_val-1));
+            return ACTION::CHANGE_MODE;
+          }
+        }
+      }
+    }
   }
 
   if (sbuf.length() > 1 && (sbuf.back() == 'G' || sbuf.back() == 'w' || sbuf.back() == 'b')) {
-    bool all_num = true;
-    for (unsigned int i = 0; i < sbuf.size() - 1; ++i) {
-      if (!isdigit(sbuf[i])) {
-        all_num = false;
-        break;
-      }
-    }
     clear();
-    if (all_num) {
+    if (all_num(sbuf.substr(0,sbuf.size()-2))) {
       if (sbuf.size() < 11) {
         set_pending(stoi(sbuf.substr(0,sbuf.size()-1)));
       }
@@ -120,4 +125,13 @@ ACTION bufferController::pending_action(bool apply_enter) {
 
 
   return ACTION::NONE;
+}
+
+bool bufferController::all_num(const string& ref_str) const {
+  for (unsigned int i = 0; i < ref_str.size(); ++i) {
+    if (!isdigit(ref_str[i])) {
+      return false;
+    }
+  }
+  return true;
 }
