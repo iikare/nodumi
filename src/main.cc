@@ -1,5 +1,6 @@
 #include "build_target.h"
 
+#include <ctime>
 #include <raylib.h>
 #include <string>
 #include <vector>
@@ -1075,6 +1076,26 @@ int main (int argc, char* argv[]) {
         }
         drawTextEx(ctr.getTempoLabel(timeOffset), tl_offset, songTimePosition.y, ctr.bgColor2);
       }
+      
+      if (!ctr.buffer.empty()) {
+        string keyBuffer = ctr.buffer.read();
+        Vector2 bufText = measureTextEx(keyBuffer);
+        if (bufText.x > 100.0f) {
+          for (unsigned int c = keyBuffer.size()-1; c >= 0; --c) {
+            bufText = measureTextEx(keyBuffer.substr(c));
+            if (bufText.x > 100.0f) {
+              bufText = measureTextEx(keyBuffer.substr(c+1));
+              bufText.x = 100.0f;
+              keyBuffer = keyBuffer.substr(c+1);
+              break;
+            }
+          }
+        }
+        bufText.x = min(100.0f, bufText.x);
+        drawRectangle(ctr.getWidth()-bufText.x-4, ctr.getHeight()-bufText.y-4, bufText.x+4, bufText.y+4, ctr.bgOpt);
+        drawTextEx(keyBuffer, ctr.getWidth()-bufText.x-2, ctr.getHeight()-bufText.y-2, ctr.bgSheet);
+      }
+    
 
       if (showFPS) {
         if (GetTime() - (int)GetTime() < GetFrameTime()) {
@@ -1086,7 +1107,7 @@ int main (int argc, char* argv[]) {
       ctr.menu.render();
       ctr.dialog.render();
       ctr.warning.render(); // warning about windows stability
-    
+
     EndDrawing();
 
     // key actions
@@ -1186,6 +1207,9 @@ int main (int argc, char* argv[]) {
           }
         }
         break;
+      case ACTION::EXIT:
+        ctr.setCloseFlag();
+        break;
       case ACTION::SHEET:
         editMenu.swapLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", "EDIT_MENU_ENABLE_SHEET_MUSIC", EDIT_MENU_SHEET_MUSIC);
         sheetMusicDisplay = !sheetMusicDisplay;
@@ -1274,9 +1298,13 @@ int main (int argc, char* argv[]) {
         break;
       case ACTION::NAV_PREV_MEASURE:
         if (!ctr.getLiveState()) {
-          int foundMeasure = ctr.findCurrentMeasure(timeOffset-1);
-          if (foundMeasure != 0) {
+          int foundMeasure = ctr.findCurrentMeasure(timeOffset+1);
+          foundMeasure -= ctr.pendingActionValue <= 1 ? 0 : ctr.pendingActionValue-1;
+          if (foundMeasure > 0) {
             timeOffset = unconvertSSX(convertSSX(stream.measureMap[foundMeasure-1].getLocation()));
+          }
+          else {
+            timeOffset = 0;
           }
         }
         break;
@@ -1297,11 +1325,10 @@ int main (int argc, char* argv[]) {
         }
         break;
       case ACTION::NAV_NEXT_MEASURE:
-        // not supported in live mode
         if (!ctr.getLiveState()) {
-          // immediately move to next measure
-          int foundMeasure = ctr.findCurrentMeasure(timeOffset);
-          if (foundMeasure >= ctr.getMeasureCount()-1) {
+          int foundMeasure = ctr.findCurrentMeasure(timeOffset-1);
+          foundMeasure += ctr.pendingActionValue <= 1 ? 0 : ctr.pendingActionValue-1;
+          if (foundMeasure >= ctr.getMeasureCount()) {
             timeOffset = ctr.getLastTime();
           }
           else {
@@ -1353,7 +1380,7 @@ int main (int argc, char* argv[]) {
               action = ACTION::CLOSE_IMAGE;
               break;
             case FILE_MENU_EXIT:
-                ctr.setCloseFlag(); 
+              action = ACTION::EXIT;
               break;
           }
           break;
@@ -1926,14 +1953,6 @@ int main (int argc, char* argv[]) {
           }
         }
       }
-    }
-    if (!ctr.buffer.empty()) {
-      Vector2 bufText = measureTextEx(ctr.buffer.read());
-      bufText.x = min(100.0f, bufText.x);
-
-      drawRectangle(ctr.getWidth()-bufText.x-4, ctr.getHeight()-bufText.y-4, bufText.x+4, bufText.y+4, ctr.bgMenuShade);
-      drawTextEx(ctr.buffer.read(), ctr.getWidth()-bufText.x-2, ctr.getHeight()-bufText.y-2, ctr.bgColor);
-
     }
     if (ctr.menu.mouseOnMenu() || pointInBox(getMousePosition(), {0, 0, ctr.getWidth(), ctr.menuHeight})) {
       hoverType.add(HOVER_MENU);

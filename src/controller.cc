@@ -216,6 +216,7 @@ ACTION controller::process(ACTION action) {
   // if needed, clear buffer first
   if (isKeyPressed(KEY_ESCAPE)) {
     buffer.clear();
+    pendingActionValue = -1;
   }
 
   // do not overwrite pending event
@@ -226,7 +227,9 @@ ACTION controller::process(ACTION action) {
   // process key buffer
   auto buf_action = buffer.process();
   if (buf_action != ACTION::NONE) {
-    if (buf_action == ACTION::NAV_SET_MEASURE) {
+    if (buf_action == ACTION::NAV_SET_MEASURE || 
+        buf_action == ACTION::NAV_PREV_MEASURE || 
+        buf_action == ACTION::NAV_NEXT_MEASURE) {
       pendingActionValue = buffer.get_pending();
     }
     return buf_action;
@@ -260,7 +263,9 @@ ACTION controller::process(ACTION action) {
       return ACTION::PREFERENCES;
     }
     if (isKeyPressed(KEY_SPACE)) {
-      return ACTION::LIVEPLAY;
+      if (!buffer.entry_in_progress()) {
+        return ACTION::LIVEPLAY;
+      }
     }
     if (isKeyPressed(KEY_I)) {
       return ACTION::INFO;
@@ -310,7 +315,9 @@ ACTION controller::process(ACTION action) {
   }
 
   if (isKeyPressed(KEY_SPACE)) {
-    return ACTION::NAV_SPACE;
+    if (!buffer.entry_in_progress()) {
+      return ACTION::NAV_SPACE;
+    }
   }
 
   if (isKeyDown(KEY_HOME)) {

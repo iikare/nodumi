@@ -175,6 +175,7 @@ class controller {
     colorRGB bgIcon         = colorRGB(34 , 115, 150);
     colorRGB bgOpt          = colorRGB(215, 38 , 61 );
     colorRGB bgOpt2         = colorRGB(56 , 145, 166);
+    colorRGB bgWhite        = colorRGB(255, 255, 255);
 
     static constexpr int menuHeight  =   20;
     static constexpr int sheetHeight =   250;

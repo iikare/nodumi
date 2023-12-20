@@ -267,6 +267,7 @@ enum class ACTION {
   CLOSE_IMAGE,
   SAVE,
   SAVE_AS,
+  EXIT,
   SHEET,
   INFO,
   PREFERENCES,
