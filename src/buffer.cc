@@ -96,7 +96,7 @@ ACTION bufferController::pending_action(bool apply_enter) {
         string disp_num = sbuf.substr(2);
         if (disp_num.size() < 2) {
           int disp_val = stoi(disp_num);
-            if (disp_val != 0) {
+          if (disp_val != 0) {
             set_pending(min(DISPLAY_NONE-1, disp_val-1));
             return ACTION::CHANGE_MODE;
           }
