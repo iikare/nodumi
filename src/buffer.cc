@@ -87,7 +87,10 @@ ACTION bufferController::pending_action(bool apply_enter) {
       return ACTION::SHEET;
     }
     if (sbuf == ":i") {
-      return ACTION::PREFERENCES;
+      return ACTION::INFO;
+    }
+    if (sbuf == ":l") {
+      return ACTION::LIVEPLAY;
     }
     if (sbuf.substr(0,2) == ":d") {
       if (sbuf.size() > 2 && all_num(sbuf.substr(2))) {
