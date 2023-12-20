@@ -240,7 +240,13 @@ line. An example is shown below.
 \newpage
 \section{Keyboard Shortcuts}
 
-For ease of use, keyboard shortcuts have been implemented for common actions. These shortcuts are defined via the table below.
+For ease of use, keyboard shortcuts have been implemented for common actions. They are able to be used both through conventional
+means as well as through a set of \mi{vim}-like bindings. There is currently no option to rebind shortcuts (of either type).
+
+\subsection{Standard}
+\label{subsec:kbshortcut}
+
+A set of shortcuts (mostly) conforming to conventional norms are defined via the table below.
 
 \vspace{1em}
 
@@ -271,6 +277,43 @@ For ease of use, keyboard shortcuts have been implemented for common actions. Th
   \mi{Shift-}$\leftarrow \cdot \rightarrow$       			  & Move Back/Forward (by measure) \\
   \mi{Ctrl-Scr.Wheel}       			 										  	& Image Zoom \\
   \mi{Shift-Scr.Wheel}       			 										  	& Image Zoom (precise) \\
+  \hline
+\end{tabular}
+\rcend
+
+\newpage
+
+\subsection{\mi{vim}-like}
+
+Similar to the list in Section \textcolor{lcol}{\hyperref[subsec:kbshortcut]{\ref{subsec:kbshortcut}}}, these shortcuts are bound to common actions. These use the command 
+buffer, which is visible at the bottom right corner of the window. Pressing \mi{esc} or enter will clear the buffer. Once a 
+valid command is input to the buffer, it will either be (a) executed immediately if not beginning with \mi{:}, or 
+(b) executed after \mi{<Enter>} is pressed by the user. The list of these bindings is presented below. 
+
+\vspace{1em}
+
+\rcbegin
+\begin{tabular}{|l|l|}
+  \hline
+  \textbf{Binding}                 												& \textbf{Action} \\
+  \hline
+  \mi{:o}       					 														    & Open MIDI/MKI File \\
+  \mi{:oi} 					 														          & Open Image File \\
+  \mi{:q}       					 														    & Close MIDI/MKI File \\
+  \mi{:qi} 					 														          & Close Image File \\
+  \mi{:qa} 					 														          & Exit \\
+  \mi{:p}       					 														    & Open Preferences \\
+  \mi{:i}       					 														    & Open Info \\
+  \mi{:l}   					 														        & Toggle Live Play Mode \\
+  \mi{:s}   					 														        & Toggle Sheet Music Display \\
+  \mi{:d}$n, n \in [1,99]$   														  & Enable $n^\text{th}$ Display Mode\\
+  \mi{gg}   					 														        & Jump to Start \\
+  \mi{G}   					 														          & Jump to End \\
+  $n$\mi{G}       			                                  & Jump to $n^\text{th}$ Measure \\
+  \mi{b}       			                                      & Move Back One Measure \\
+  $n$\mi{b}       			                                  & Move Back $n$ Measures \\
+  \mi{w}       			                                      & Move Forward One Measure \\
+  $n$\mi{w}       			                                  & Move Forward $n$ Measures \\
   \hline
 \end{tabular}
 \rcend
@@ -390,7 +433,7 @@ This option places a marker of the current piece's position in the upper right c
 Two options are provided for the format: \textit{Relative Song Time}, and \textit{Absolute Song Time}.
 For live input, this value is proportional to the amount of time spent in the Live Play mode.
 
-\subsubsection{Relative Song Time}
+\subsubsection{Relative}
 
 The \textit{Relative Song Time} option displays a percentage that corresponds to the percentage of the piece
 complete relative to the \textit{Now}-Line. For live input, this value is not rendered at all instead.
@@ -398,7 +441,7 @@ complete relative to the \textit{Now}-Line. For live input, this value is not re
 This feature is accessible via 
 \mi{View} $\rightarrow$ \mi{{Display, Hide} Song Time} $\rightarrow$ \mi{Relative}.
 
-\subsubsection{Absolute Song Time}
+\subsubsection{Absolute}
 
 The \textit{Absolute Song Time} option displays two numbers \textendash{} the first one corresponds to the 
 current amount of time elapsed for the current file, while the second is the total length of the file.
@@ -615,6 +658,8 @@ This feature is accessible via
 \end{tabular}
 \rcend
 
+\newpage
+
 \section{The MKI File Format}
 
 Normal MIDI files do not provide the ability to store visualization-related metadata such as color scheme,
@@ -674,6 +719,8 @@ The MKI format is defined as follows:
 
 $N$ refers to $\text{\# Tracks}*6$, $M$ is the size of the MIDI bitstream, $P$ is the size of the image bitstream.
 
+\newpage
+
 \section{User Preferences}
 
 This section pertains to the file-agnostic preferences a user can set.
@@ -703,19 +750,24 @@ single-channel input into two tracks automatically. Options such as the time dif
 player hand size, and other factors are taken into account. Note that the algorithm output is tuned for use with MIDI-enabled
 pianos, so using other two-handed (or greater) instruments as input may lead to confusing results.
 
+Note that it is possible to automatically divide one-channel tracks as well. An option for this is present in the user
+preferences screen. There are separate options for track division \textendash{} one for live input, and one for MIDI/MKI files.
+If the corresponding option for MIDI/MKI files is enabled after a single-track MIDI/MKI file is loaded, the user must reload
+that file for this option to take effect. This option has no effect on multi-track MIDI/MKI files.
+
 \subsection{Hand Range Selection}
 
 This option is available only when the Adaptive Track Division option is enabled. The user is able to select the 
 maximum hand range ($8^\text{th}$, $9^\text{th}$, $10^\text{th}$, or $11^\text{th}$) that suits them best. The 
 track division algorithm will then take the user's choice into effect. The default hand range is a $10^\text{th}$.
 
-\subsection{Image Darkening}
+\subsection{Image Adjustment}
 
 If the user-supplied image is too bright, a darkening option has been provided. Note that full image manipulation is
 beyond the scope of this program, and so if the user has a problem that cannot be solved via this option, they
 should fix their issue by using an external image editor.
 
-\subsection{Color Distance Algorithms}
+\subsection{Color Distance Calculation}
 
 This program supports $\Delta E$ calculation via three different color distance algorithms: CIE76, CIE94 and CIEDE2000.
 The user is able to choose freely between these algorithms, which will then be used throughout the entire program. The
@@ -777,8 +829,6 @@ synthesizer.}
 far better is to install a custom soundfont. A good free option is \mi{FluidR3_GM.sf2}, available in many
 package repositories. For Windows, if you are stuck using the terrible \mi{Microsoft GS Wavetable Synth} as your
 MIDI output device, finding a better alternative is strongly recommended.}
-
-\newpage
 
 \faqQ{Why do some visualizations look different in the Live Play Mode?}
 

@@ -2,7 +2,6 @@
 
 #include <cctype>
 #include <limits>
-#include <raylib.h>
 #include "log.h"
 #include "wrap.h"
 #include "misc.h"

@@ -1,6 +1,7 @@
+#include "build_target.h"
+
 #include "controller.h"
 #include <limits>
-#include <raylib.h>
 #include <stdlib.h>
 #include <bitset>
 #include <random>

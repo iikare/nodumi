@@ -1,7 +1,6 @@
 #include "build_target.h"
 
 #include <ctime>
-#include <raylib.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -1081,7 +1080,7 @@ int main (int argc, char* argv[]) {
         string keyBuffer = ctr.buffer.read();
         Vector2 bufText = measureTextEx(keyBuffer);
         if (bufText.x > 100.0f) {
-          for (unsigned int c = keyBuffer.size()-1; c >= 0; --c) {
+          for (unsigned int c = keyBuffer.size()-1; c != 0; --c) {
             bufText = measureTextEx(keyBuffer.substr(c));
             if (bufText.x > 100.0f) {
               bufText = measureTextEx(keyBuffer.substr(c+1));
