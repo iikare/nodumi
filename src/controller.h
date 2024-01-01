@@ -79,7 +79,7 @@ class controller {
     vector<string> generateMenuLabels(const menuContentType& contentType);
 
     void clear();
-    void load(string path, fileType& fType, 
+    void load(string path,
               bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
               bool& measureLine, bool& measureNumber, 
 
@@ -98,15 +98,17 @@ class controller {
 
               double zoomLevel);
 
-    bool getProgramState() { return programState; }
-    bool getPlayState() { return playState; }
-    bool getLiveState() { return livePlayState; }
-    double getRunTime() { return runTime; }
-    double getPauseTime() { return pauseTime; }
-    int getPSR() { return psrValue; }
+    bool getProgramState() const { return programState; }
+    bool getPlayState() const { return playState; }
+    bool getLiveState() const { return livePlayState; }
+    fileType getFileType() const;
+    string getFilePath() const;
+    double getRunTime() const { return runTime; }
+    double getPauseTime() const { return pauseTime; }
+    int getPSR() const { return psrValue; }
     int getRandRange(int a, int b);
     double getRandClamp();
-    unsigned int getFrameCounter() { return frameCounter; }
+    unsigned int getFrameCounter() const { return frameCounter; }
     
     midi& getStream();
     vector<note>& getNotes();
@@ -223,6 +225,8 @@ class controller {
     bool programState = true;
     bool playState;
     bool livePlayState;
+    fileType fType;
+    string fPath;
 
     unsigned int frameCounter = 0;
     int curMon;

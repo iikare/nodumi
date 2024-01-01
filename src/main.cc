@@ -100,7 +100,6 @@ int main (int argc, char* argv[]) {
   vector<colorRGB>* colorSetOn = &ctr.setTrackOn;
   vector<colorRGB>* colorSetOff = &ctr.setTrackOff;
 
-  fileType curFileType = FILE_NONE; 
   bool clearFile = false;
 
   // right click variables
@@ -176,7 +175,6 @@ int main (int argc, char* argv[]) {
 
   if (argc >= 2) {
     // input parameter order is arbitrary
-    // avoid argv[0]
     ctr.updateFiles(&argv[1], argc-1);
   }
 
@@ -194,14 +192,14 @@ int main (int argc, char* argv[]) {
       pauseOffset = 0;
 
       if (ctr.open_file.pending()) {
-        ctr.load(ctr.open_file.getPath(), curFileType,
+        ctr.load(ctr.open_file.getPath(),
                  nowLine,  showFPS,  showImage,  sheetMusicDisplay,
                  measureLine,  measureNumber, 
                  colorMode,  displayMode,
                  songTimeType,  tonicOffset, 
                  zoomLevel);
         
-        if (curFileType == FILE_MKI) {
+        if (ctr.getFileType() == FILE_MKI) {
           ctr.save_file.setPending(ctr.open_file.getPath());
         }
 
@@ -1093,14 +1091,29 @@ int main (int argc, char* argv[]) {
         drawRectangle(ctr.getWidth()-bufText.x-4, ctr.getHeight()-bufText.y-4, bufText.x+4, bufText.y+4, ctr.bgOpt);
         drawTextEx(keyBuffer, ctr.getWidth()-bufText.x-2, ctr.getHeight()-bufText.y-2, ctr.bgSheet);
       }
-    
+   
+      double rtOffset = ctr.getWidth() - 4;
 
       if (showFPS) {
         if (GetTime() - (int)GetTime() < GetFrameTime()) {
           FPSText = to_string(GetFPS());
         }
-        drawTextEx(FPSText, ctr.getWidth() - measureTextEx(FPSText).x - 4, 4, ctr.bgDark);
+        rtOffset -= measureTextEx(FPSText).x;
+        drawTextEx(FPSText, rtOffset, 4, ctr.bgDark);
       }
+
+
+      string zoomText = to_string(zoomLevel) + (showFPS ? " |" : "");
+      rtOffset -= 1 + measureTextEx(zoomText).x;
+      drawTextEx(zoomText, rtOffset, 4, ctr.bgDark);
+
+      if (!ctr.getLiveState() && ctr.getFilePath() != "") {
+        string fileText = ctr.getFilePath() + " |";
+        rtOffset -= 1 + measureTextEx(fileText).x;
+        drawTextEx(fileText, rtOffset, 4, ctr.bgDark);
+      }
+
+
 
       ctr.menu.render();
       ctr.dialog.render();
@@ -1183,14 +1196,14 @@ int main (int argc, char* argv[]) {
         if (ctr.getPlayState()) {
           break; 
         }
-        if (curFileType == FILE_MKI) {
+        if (ctr.getFileType() == FILE_MKI) {
           ctr.save(ctr.save_file.getPath(), nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
                    colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
           break;
         }
         [[fallthrough]];
       case ACTION::SAVE_AS:
-        if (!ctr.getPlayState() && curFileType != FILE_NONE) {
+        if (!ctr.getPlayState() && ctr.getFileType() != FILE_NONE) {
            ctr.save_file.dialog();
            if (ctr.save_file.pending()) {
             string save_path = ctr.save_file.getPath();
@@ -1200,7 +1213,6 @@ int main (int argc, char* argv[]) {
 
             ctr.save(save_path, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
                      colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
-            curFileType = FILE_MKI;
             ctr.save_file.resetPending();
           }
         }

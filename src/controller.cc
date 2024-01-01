@@ -1,6 +1,7 @@
 #include "build_target.h"
 
 #include "controller.h"
+#include <filesystem>
 #include <limits>
 #include <stdlib.h>
 #include <bitset>
@@ -579,6 +580,20 @@ vector<string> controller::generateMenuLabels(const menuContentType& contentType
   }
 }
 
+fileType controller::getFileType() const { 
+  if (getLiveState()) {
+    return FILE_NONE;
+  }
+  return fType;
+}
+string controller::getFilePath() const {
+  if (getLiveState()) {
+    return "";
+  }
+  return std::filesystem::path(fPath).filename();
+}
+
+
 midi& controller::getStream() {
   if (livePlayState) {
     return input.noteStream;
@@ -723,9 +738,11 @@ void controller::clear() {
   runTime = 0;
   pauseTime = 0;
   bgColor = colorRGB(0,0,0);
+  fType = FILE_NONE;
+  fPath = "";
 }
 
-void controller::load(string path, fileType& fType, 
+void controller::load(string path,
                       bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
                       bool& measureLine, bool& measureNumber, 
 
@@ -1069,6 +1086,8 @@ void controller::load(string path, fileType& fType,
     // last, set non-MKI loaded flag
     fType = FILE_MIDI;
   }
+
+  fPath = path;
   
   fileOutput.load(file.message);
 
@@ -1296,6 +1315,9 @@ void controller::save(string path,
 
   //logQ(image.buf.str());
   }
+
+  fType = FILE_MKI;
+  fPath = path;
 
 }
 
