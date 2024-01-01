@@ -54,7 +54,6 @@ int main (int argc, char* argv[]) {
   #endif
 
   InitWindow(W_WIDTH, W_HEIGHT, windowTitle.c_str());
-  SetTargetFPS(60);
   SetExitKey(KEY_F7);
   SetWindowMinSize(W_WIDTH, W_HEIGHT);
   
@@ -1237,7 +1236,7 @@ int main (int argc, char* argv[]) {
         break;
       case ACTION::CHANGE_MODE:
         for (unsigned int mode = 0; mode < min(static_cast<unsigned int>(DISPLAY_NONE), 9u); ++mode) {
-          if(isKeyPressed(KEY_ONE+mode)) {
+          if(isKeyDown(KEY_ONE+mode)) {
             displayMode = DISPLAY_BAR+mode;
           }
           else if (ctr.pendingActionValue != -1) {

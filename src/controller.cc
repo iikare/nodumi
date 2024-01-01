@@ -133,7 +133,7 @@ Font* controller::getFont(const string& id, int size) {
     asset& tmpFontAsset = fit->second.first;
 
     // SMuFL defines at most 3423 (0xE000 - 0xED5F) glyphs
-    logQ("loading", tmpFontAsset.assetName, "with size", size);
+    //logQ("loading", tmpFontAsset.assetName, "with size", size);
 
     int lim = 255;
     int* loc = nullptr;
@@ -215,9 +215,9 @@ void controller::endBlendMode() {
 
 ACTION controller::process(ACTION action) {
   // if needed, clear buffer first
+  pendingActionValue = -1;
   if (isKeyPressed(KEY_ESCAPE)) {
     buffer.clear();
-    pendingActionValue = -1;
   }
 
   // do not overwrite pending event
