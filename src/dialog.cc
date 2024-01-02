@@ -13,34 +13,40 @@
 using std::string;
 
 void dialogController::init() {
-  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+  for (unsigned int n = 0; n < static_cast<int>(PREF::NONE); ++n) {
+    dia_opts.insert(make_pair(static_cast<PREF>(n), vector<dialogOption>{}));
+    logQ(n);
+  }
+  logQ(dia_opts.size());
+
+  dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
                                   OPTION::PARTICLE, 
                                   ctr.text.getStringSet("PREF_PARTICLE")
                                   ));
-  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+  dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
                                   OPTION::DYNAMIC_LABEL,
                                   ctr.text.getStringSet("PREF_DYNAMIC_LABEL")
                                   ));
-  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+  dia_opts.find(PREF::P1)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
                                   OPTION::SCALE_VELOCITY,
                                   ctr.text.getStringSet("PREF_SCALE_VELOCITY")
                                   ));
-  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+  dia_opts.find(PREF::P1)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
                                   OPTION::TRACK_DIVISION_MIDI, 
                                   ctr.text.getStringSet("PREF_TRACK_DIVIDE_MIDI")
                                   ));
-  dia_opts.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
+  dia_opts.find(PREF::P1)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, 
                                   OPTION::TRACK_DIVISION_LIVE, 
                                   ctr.text.getStringSet("PREF_TRACK_DIVIDE_LIVE")
                                   ));
-  dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
+  dia_opts.find(PREF::P1)->second.push_back(dialogOption(DIA_OPT::SUBBOX, 
                                   OPTION::SET_HAND_RANGE,
                                   OPTION::HAND_RANGE,
                                   ctr.text.getStringSet("PREF_HAND_RANGE"),
                                   {"8","9","10","11"},
                                   {12,14,16,17}
                                   ));
-  dia_opts.push_back(dialogOption(DIA_OPT::SLIDER, 
+  dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SLIDER, 
                                   OPTION::SET_DARKEN_IMAGE, 
                                   OPTION::DARKEN_IMAGE, 
                                   ctr.text.getStringSet("PREF_IMAGE_DARKEN"),
@@ -48,14 +54,14 @@ void dialogController::init() {
                                   {0,255}
                                   ));
   auto cie_opt_vec = vector<cie2k::TYPE>{cie2k::TYPE::CIE_00, cie2k::TYPE::CIE_94, cie2k::TYPE::CIE_76};
-  dia_opts.push_back(dialogOption(DIA_OPT::SUBBOX, 
+  dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SUBBOX, 
                                   OPTION::SET_CIE_FUNCTION,
                                   OPTION::CIE_FUNCTION,
                                   ctr.text.getStringSet("PREF_CIE_FUNCTION"),
                                   {"00", "94", "76"},
                                   convertEnum(cie_opt_vec)
                                   ));
-  dia_opts.push_back(dialogOption(DIA_OPT::SLIDER, 
+  dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SLIDER, 
                                   OPTION::SHADOW, 
                                   OPTION::SHADOW_DISTANCE, 
                                   ctr.text.getStringSet("PREF_SHADOW"),
@@ -86,13 +92,27 @@ int dialogController::getItemY(int pos) const {
 }
 
 void dialogController::process() {
-  for (auto& d_opt : dia_opts) {
+  const int prefSideMargin = ctr.getWidth() - ctr.prefWidth;
+  const int prefTopMargin = ctr.getHeight() - ctr.prefHeight;
+  int in_x = prefSideMargin/2.0f + 12 + measureTextEx(ctr.text.getString("PREF_LABEL"), 24).x + 8;
+  int in_y = prefTopMargin/2.0f + 12;
+
+  for (unsigned int n = 0; n < static_cast<int>(PREF::NONE); ++n) {
+    if (pointInBox(getMousePosition(), {in_x, in_y, itemRectSize, itemRectSize})) {
+      c_pref_t = static_cast<PREF>(n);
+      break;
+    }
+    in_x += itemRectSize + 3;
+  }
+
+
+  for (auto& d_opt : dia_opts.find(c_pref_t)->second) {
     d_opt.process();
   }
 }
 
 void dialogController::end_process() {
-  for (auto& d_opt : dia_opts) {
+  for (auto& d_opt : dia_opts.find(c_pref_t)->second) {
     d_opt.end_process();
   }
 }
@@ -103,11 +123,28 @@ void dialogController::renderPreference() {
   drawRectangle(prefSideMargin/2.0f, prefTopMargin/2.0f, ctr.prefWidth, ctr.prefHeight, ctr.bgMenu);  
 
   drawTextEx(ctr.text.getString("PREF_LABEL"), prefSideMargin/2.0f + 12, prefTopMargin/2.0f + 12, ctr.bgDark, 255, 24);
+
+  int in_x = prefSideMargin/2.0f + 12 + measureTextEx(ctr.text.getString("PREF_LABEL"), 24).x + 8;
+  int in_y = prefTopMargin/2.0f + 12;
+
+  for (unsigned int n = 0; n < static_cast<int>(PREF::NONE); ++n) {
+    bool active = static_cast<PREF>(n) == c_pref_t; 
+    auto col = active ? ctr.bgOpt2 : ctr.bgDark;
+
+    drawRectangleLines(in_x, in_y, itemRectSize,itemRectSize, 3, col);
+    if (active) {
+      drawRectangle(in_x+(itemRectSize-itemRectInnerSize)/2.0f, 
+                    in_y+(itemRectSize-itemRectInnerSize)/2.0f, 
+                    itemRectInnerSize,itemRectInnerSize, col);
+    }
+    in_x += itemRectSize + 3;
+  }
   
   int x_sum = getItemX(0);
   int y_sum = getItemY(0);
 
-  for (auto& i : dia_opts) {
+  for (auto& i : dia_opts.find(c_pref_t)->second) {
+
     if (y_sum + i.get_height() > (ctr.getHeight()+ctr.prefHeight)/2.0 + optBottomMargin) {
       x_sum = getItemX(1);
       y_sum = getItemY(0);

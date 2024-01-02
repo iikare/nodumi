@@ -1,11 +1,12 @@
 #pragma once
 
-
+#include <map>
 #include <string>
 #include "log.h"
 #include "aghdef.h"
 #include "dia_opt.h"
 
+using std::map;
 using std::string;
 
 class dialogController {
@@ -23,9 +24,11 @@ class dialogController {
     bool preferenceDisplay = false;
     bool infoDisplay = false;
 
+    PREF c_pref_t = PREF::P1;
+
   private:
 
-    vector<dialogOption> dia_opts;
+    map<PREF, vector<dialogOption>> dia_opts;
 
     void renderPreference();
     void renderInfo();

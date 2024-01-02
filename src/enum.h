@@ -318,6 +318,12 @@ enum class langType {
   LANG_NONE,
 };
 
+enum class PREF {
+  P1,
+  P2,
+  NONE
+};
+
 enum panelType {
 
   MENU_INACTIVE = -1,
