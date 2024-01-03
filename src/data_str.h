@@ -73,6 +73,8 @@
                         {"INFO_BOX_VER",                        "Ver."}, \
                         {"INFO_BOX_LICENSE_GPL3",               "Licensed under GPLv3"}, \
                         {"PREF_LABEL",                          "Preferences"}, \
+                        {"PREF_P1",                             "Display"}, \
+                        {"PREF_P2",                             "Effects"}, \
                         {"PREF_TRACK_DIVIDE_LIVE",              "Adaptive Track Division (live)"}, \
                         {"PREF_TRACK_DIVIDE_MIDI",              "Adaptive Track Division (file)"}, \
                         {"PREF_HAND_RANGE",                     "Custom Hand Range"}, \

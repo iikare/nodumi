@@ -1,12 +1,12 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <string>
 #include "log.h"
 #include "aghdef.h"
 #include "dia_opt.h"
 
-using std::map;
+using std::unordered_map;
 using std::string;
 
 class dialogController {
@@ -28,7 +28,11 @@ class dialogController {
 
   private:
 
-    map<PREF, vector<dialogOption>> dia_opts;
+    unordered_map<PREF, vector<dialogOption>> dia_opts;
+    unordered_map<PREF, string> dia_menu_label = {
+      {PREF::P1, "PREF_P1"},
+      {PREF::P2, "PREF_P2"},
+    };
 
     void renderPreference();
     void renderInfo();
