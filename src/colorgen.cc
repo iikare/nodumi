@@ -350,10 +350,6 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
 
 vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
 
-  #if !defined(COLDIST_CIE76) && !defined (COLDIST_CIE94) && !defined(COLDIST_CIE00)
-  #error "CIE distance formula not specified at compile time!"
-  #endif
-
   //double maxE = 0;
   //int maxI, maxJ, maxK = 0;
  
@@ -542,6 +538,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
     }
 
     // update centroids based on mean of clustered points
+    #pragma omp parallel for
     for (unsigned int i = 0; i < centroidMap.size(); ++i) {
       float newL = sumL.at(i) / nPoints.at(i); 
       float newA = sumA.at(i) / nPoints.at(i); 
@@ -552,6 +549,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
   }
 
 
+  #pragma omp parallel for
   for (const auto& i : centroidMap) {
 
     logQ("centroid", i.first, "has", i.second.size(), "linked points with LAB:", colorData[i.first].data);
