@@ -202,6 +202,7 @@ void controller::unloadData() {
   image.unloadData();
   
   voronoi.unloadData();
+  fft.generator_join();
 
   CloseWindow();
 }

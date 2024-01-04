@@ -7,6 +7,7 @@
 #include <thread>
 #include <algorithm>
 #include <bit>
+#include "fft.h"
 #include "gl_compat.h"
 #include "aghfile.h"
 #include "enum.h"
@@ -875,80 +876,50 @@ int main (int argc, char* argv[]) {
 
       // render FFT lines after notes
       if (displayMode == DISPLAY_FFT) {
-        for (const auto& idx : current_note) {
-          double freq = ctr.fft.getFundamental(notes[idx].y);
-          int colorID = getColorSet(idx);
-          double nowRatio = (timeOffset-notes[idx].x)/(notes[idx].duration);
-          double pitchRatio = 0;
-          if (nowRatio > -0.25 && nowRatio < 0) {
-            pitchRatio = 16*pow(nowRatio+0.25,2);
-          }
-          else if (nowRatio < 1) {
-            pitchRatio = 1-1.8*pow(nowRatio,2)/4.5;
-          }
-          else if (nowRatio < 1.78) {                   // TODO: smoothen interpolation functions
-            pitchRatio = 1.0*pow(nowRatio-1.78,2);      // TODO: make function duration-invariant
-          }
-          int binScale = 2+5*(1+log(1+notes[idx].duration)) +
-                         (15.0/128)*((notes[idx].velocity)+1);
+        //int pf_calls = 0;
+        // must obtain last bins before dispatching next set
+        const auto bins = ctr.fft.getFFTBins();
+        ctr.fft.generateFFTBins(current_note, timeOffset);
 
-          //logQ(notes[idx].y, freq, ctr.fft.fftbins.size());
-          // simulate harmonics
+        bool foundNote = false;
+        for (unsigned int bin = 0; bin < bins.size(); ++bin) {
+          for (const auto& note_pair : bins[bin]) {
+            const int idx = note_pair.first;
+            const int bin_len = note_pair.second;
+            int colorID = getColorSet(idx);
 
-          for (unsigned int bin = 0; bin < ctr.fft.fftbins.size(); ++bin) {
-            ctr.fft.fftbins[bin].second = 0;
-          }
-
-          bool foundNote = false;
-          for (unsigned int harmonicScale = 0; harmonicScale < ctr.fft.harmonicsSize; ++harmonicScale) {
-            for (unsigned int bin = 0; bin < ctr.fft.fftbins.size(); ++bin) {
-              if (freq*ctr.fft.harmonics[harmonicScale] < FFT_MIN_FREQ ||
-                  freq*ctr.fft.harmonics[harmonicScale] > FFT_MAX_FREQ) {
-                continue;
-              }
-              double fftBinLen = ctr.fft.harmonicsCoefficient[harmonicScale]*binScale*pitchRatio * 
-                                 ctr.fft.fftAC(freq*ctr.fft.harmonics[harmonicScale], ctr.fft.fftbins[bin].first);
-              
-              // pseudo-random numerically stable offset
-              
-              // TODO: implement spectral rolloff in decay (based on BIN FREQ v. spectral rolloff curve)
-              
-              fftBinLen *= 1+0.7*pow(((ctr.getPSR() ^ static_cast<int>(ctr.fft.fftbins[bin].first)) % 
-                                      static_cast<int>(ctr.fft.fftbins[bin].first)) / ctr.fft.fftbins[bin].first - 0.5, 2);
-              
+            if (bin_len >= 1) {
               int startX = FFT_BIN_WIDTH*(bin + 1);
-             
               auto cSet = colorSetOn;
 
               //collision
-              if (!foundNote && !hoverType.contains(HOVER_DIALOG) && pointInBox(getMousePosition(), 
-                             {startX-3, static_cast<int>(ctr.getHeight()-ctr.fft.fftbins[bin].second-fftBinLen), 
-                              7,        static_cast<int>(fftBinLen)})) {
+              if (clickTmp == idx || (!foundNote && !hoverType.contains(HOVER_DIALOG) && pointInBox(getMousePosition(), 
+                             {startX-3, static_cast<int>(ctr.getHeight()-ctr.fft.bins[bin].second-bin_len), 
+                              7,        static_cast<int>(bin_len)}))) {
                 foundNote = true;
                 cSet = colorSetOff;
                 hoverType.add(HOVER_NOTE);
                 clickOnTmp = true;
                 clickTmp = idx;
-
               }
-              
-              drawLineEx(startX,ctr.getHeight()-ctr.fft.fftbins[bin].second,
-                         startX,ctr.getHeight()-ctr.fft.fftbins[bin].second-fftBinLen,1, (*cSet)[colorID]);
-              ctr.fft.fftbins[bin].second += fftBinLen;
+         
+              //pf_calls++;
+              drawLineEx(startX,ctr.getHeight()-ctr.fft.bins[bin].second,
+                         startX,ctr.getHeight()-ctr.fft.bins[bin].second-bin_len,1, (*cSet)[colorID]);
+              ctr.fft.bins[bin].second += bin_len;
             }
           }
         }
+        //logQ("pf_calls:", pf_calls);
+        //logQ("current_note size:", current_note.size());
       }
 
       // particle handling
-      //logQ("current_note size:", current_note.size());
-      
-
       if (ctr.option.get(OPTION::PARTICLE)) {
         if (!ctr.run) {
           ctr.particle.end_emission();
         }
-        else  {
+        else {
           ctr.particle.process();
         }
         ctr.particle.render();
@@ -1660,7 +1631,6 @@ int main (int argc, char* argv[]) {
             case PALETTE_MENU_FROM_BACKGROUND:
               if (ctr.image.exists()) {
                 // prevent overflow on RT audio thread
-
                 ctr.criticalSection(true);
                 getColorSchemeImage(SCHEME_KEY, ctr.setVelocityOn, ctr.setVelocityOff);
                 getColorSchemeImage(SCHEME_TONIC, ctr.setTonicOn, ctr.setTonicOff);

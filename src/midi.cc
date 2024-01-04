@@ -490,7 +490,7 @@ void midi::load(stringstream& buf) {
     // build track chord map (and implicitly, line map as well)
     if (tracks[i].getNoteCount() > 1000) {
       track_thread.emplace_back([&](trackController& f) { f.buildChordMap();}, std::ref(tracks[i]));
-      logQ("#, S: {", i, tracks[i].getNoteCount(), "}");
+      //logQ("#, S: {", i, tracks[i].getNoteCount(), "}");
     }
     else {
       //tracks[i].buildChordMap();
