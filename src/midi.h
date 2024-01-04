@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <string>
-#include <sys/types.h>
 #include <vector>
 #include <algorithm>
 #include <functional>

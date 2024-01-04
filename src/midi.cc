@@ -403,6 +403,8 @@ void midi::load(stringstream& buf) {
     }
   }
 
+  tracks.erase(remove_if(tracks.begin(), tracks.end(), [&](auto& tr) { return !tr.getNoteCount();}), tracks.end());
+
   if (ctr.option.get(OPTION::TRACK_DIVISION_MIDI) && trackCount == 1) {
     logW(LL_INFO, "MIDI track division enabled - performing division");
 
@@ -482,13 +484,24 @@ void midi::load(stringstream& buf) {
   }
 
   vector<thread> track_thread;
+  vector<int> st_track_idx;
 
   for (unsigned int i = 0; i < tracks.size(); i++) {
     // build track chord map (and implicitly, line map as well)
-    track_thread.emplace_back([&](trackController& f) { f.buildChordMap();}, std::ref(tracks[i]));
-    //logQ("THREAD SIZE", track_thread.size());
+    if (tracks[i].getNoteCount() > 1000) {
+      track_thread.emplace_back([&](trackController& f) { f.buildChordMap();}, std::ref(tracks[i]));
+      logQ("#, S: {", i, tracks[i].getNoteCount(), "}");
+    }
+    else {
+      //tracks[i].buildChordMap();
+      st_track_idx.push_back(i);
+    }
     //logQ("THREAD ID:", track_thread[i].get_id());
     //tracks[i].buildChordMap();
+  }
+  
+  for (auto& i : st_track_idx) {
+    tracks[i].buildChordMap();
   }
 
   for (auto& t : track_thread) {
