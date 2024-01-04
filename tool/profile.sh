@@ -12,7 +12,7 @@ then
   echo "executing program"
   echo
 
-  ./bin/nodumi tests/sym2_1.mid tests/bg8c.png
+  ./bin/nodumi tests/sym2_1.mid
 
   echo
   echo "running gprof"

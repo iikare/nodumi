@@ -7,7 +7,7 @@ endif
 ifeq ($(strip $(prof)),)
 #NONSTD+=
 else
-NONSTD+=-pg 
+NONSTD+=-pg -g 
 endif
 
 ifeq ($(strip $(arch)),)
@@ -106,10 +106,12 @@ ifneq ($(strip $(relp)),begin)
 endif
 
 ifneq ($(strip $(rel)),)
+ifeq ($(strip $(prof)),)
 ifeq ($(strip $(arch)),win)
 	@strip $(NAME).exe
 else
 	@strip $(NAME)
+endif
 endif
 endif
 
