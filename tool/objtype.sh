@@ -33,6 +33,8 @@ then
   else 
     # expecting objects of type ELF
     elfcount=$(find build -type f -name '*.o' -exec sh -c 'file {} | grep ELF' \; | wc -l)
+    elfcount2=$(find build -type f -name '*.o' -exec sh -c 'file {} | grep LLVM' \; | wc -l)
+    elfcount=$(echo "$elfcount+$elfcount2" | bc)
     if (( elfcount != objcount ))
     then
       # discrepancy found
