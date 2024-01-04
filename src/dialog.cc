@@ -1,6 +1,5 @@
 #include "dialog.h"
 
-#include <raylib.h>
 #include <string>
 
 #include "define.h"

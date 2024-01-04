@@ -1,7 +1,6 @@
 #include "build_target.h"
 
 #include "controller.h"
-#include <filesystem>
 #include <limits>
 #include <stdlib.h>
 #include <bitset>
@@ -591,7 +590,7 @@ string controller::getFilePath() const {
   if (getLiveState()) {
     return "";
   }
-  return std::filesystem::path(fPath).filename();
+  return fPath.substr(fPath.find_last_of("/\\")+1);
 }
 
 

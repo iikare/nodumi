@@ -19,6 +19,7 @@ This project requires several dependencies, many of which are submodules to this
 * `osdialog` (supplied as a submodule)
 * `rtmidi` (supplied as a submodule)
 * `raylib`* (see below)
+* `openmp`
 * `make`
 * `xxd`
 

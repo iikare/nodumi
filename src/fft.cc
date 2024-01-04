@@ -55,26 +55,29 @@ void fftController::generate(const vector<int> c_note, double offset) {
     bin_map[bin].clear();
   }
 
-  for (const auto& idx : c_note) {
-    double freq = getFundamental(notes[idx].y);
-    double nowRatio = (offset-notes[idx].x)/(notes[idx].duration);
-    double pitchRatio = 0;
-    if (nowRatio > -0.25 && nowRatio < 0) {
-      pitchRatio = 16*pow(nowRatio+0.25,2);
-    }
-    else if (nowRatio < 1) {
-      pitchRatio = 1-1.8*pow(nowRatio,2)/4.5;
-    }
-    else if (nowRatio < 1.78) {                   // TODO: smoothen interpolation functions
-      pitchRatio = 1.0*pow(nowRatio-1.78,2);      // TODO: make function duration-invariant
-    }
-    int binScale = 2+5*(1+log(1+notes[idx].duration)) +
-                   (15.0/128)*((notes[idx].velocity)+1);
+  #pragma omp parallel for num_threads(4)
+  for (unsigned int bin = 0; bin < bins.size(); ++bin) {
+    vector<pair<int, int>> result;
+    for (const auto& idx : c_note) {
+      double freq = getFundamental(notes[idx].y);
+      double nowRatio = (offset-notes[idx].x)/(notes[idx].duration);
+      double pitchRatio = 0;
+      if (nowRatio > -0.25 && nowRatio < 0) {
+        pitchRatio = 16*pow(nowRatio+0.25,2);
+      }
+      else if (nowRatio < 1) {
+        pitchRatio = 1-1.8*pow(nowRatio,2)/4.5;
+      }
+      else if (nowRatio < 1.78) {                   // TODO: smoothen interpolation functions
+        pitchRatio = 1.0*pow(nowRatio-1.78,2);      // TODO: make function duration-invariant
+      }
+      int binScale = 2+5*(1+log(1+notes[idx].duration)) +
+                     (15.0/128)*((notes[idx].velocity)+1);
 
-    //logQ(notes[idx].y, freq, bins.size());
-    // simulate harmonics
-    for (unsigned int harmonicScale = 0; harmonicScale < harmonicsSize; ++harmonicScale) {
-      for (unsigned int bin = 0; bin < bins.size(); ++bin) {
+      //logQ(notes[idx].y, freq, bins.size());
+      // simulate harmonics
+      double fftBinLenAll = 0;
+      for (unsigned int harmonicScale = 0; harmonicScale < harmonicsSize; ++harmonicScale) {
         double fftBinLen = 0;
         if (freq*harmonics[harmonicScale] < FFT_MIN_FREQ ||
             freq*harmonics[harmonicScale] > FFT_MAX_FREQ) {
@@ -88,10 +91,14 @@ void fftController::generate(const vector<int> c_note, double offset) {
         // TODO: implement spectral rolloff in decay (based on BIN FREQ v. spectral rolloff curve)
         fftBinLen *= 1+0.7*pow(((ctr.getPSR() ^ static_cast<int>(bins[bin].first)) % 
                                 static_cast<int>(bins[bin].first)) / bins[bin].first - 0.5, 2);
-        
-        bin_map[bin].push_back(make_pair(idx, fftBinLen));
+       
+        fftBinLenAll += fftBinLen;
       } 
+
+      result.push_back(make_pair(idx, fftBinLenAll));
     }
+    #pragma omp critical 
+    bin_map[bin] = result;
   }
 
   // normalization
