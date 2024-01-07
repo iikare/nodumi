@@ -33,17 +33,6 @@ int midi::getTempo(int offset) const {
 void midi::buildLineMap() {
   lines.clear();
 
-  //logQ("there are", tracks.size(), "line vectors to merge");
-  //
-  //for (unsigned int t = 0; t < tracks.size(); ++t) {
-    //for (unsigned int i = 0; i+1 < tracks[t].lines.size(); ++i) {  
-      //if (tracks[t].lines[i].x_l > tracks[t].lines[i+1].x_l) {
-        //logQ("idx:", i, "|",tracks[t].lines[i].x_l ,tracks[t].lines[i+1].x_l);
-        ////logQ(LL_WARN, "PROBLEM: unsorted tracks");
-
-      //}
-    //}
-  //}
   auto track_comp = [] (const auto& a, const auto& b) {
     return a.x_l >= b.x_l;
   };
@@ -79,27 +68,6 @@ void midi::buildLineMap() {
   else if (tracks.size() == 1) {
     lines = tracks[0].lines;
   }
-
-  //for (unsigned int i = 0; i+1 < lines.size(); ++i) {  
-    //if (lines[i].x_l > lines[i+1].x_l) {
-      //logQ("idx:", i, "|",lines[i].x_l ,lines[i+1].x_l);
-      //logQ(LL_WARN, "PROBLEM: unsorted lines");
-      //int tr_l = notes[lines[i].idx].track;
-      //int tr_r = notes[lines[i+1].idx].track;
-      //logQ("TRACK^:", tr_l, tr_r);
-    //}
-  //}
-  //for (unsigned int i = 0; i < lines.size(); ++i) {  
-    //if (lines[i].x_r < lines[i].x_l) {
-      ////logQ("NEGATIVE LINE OFFSET");
-    //}
-    //else if (lines[i].x_r - lines[i].x_l > tpq*40) {
-      //logQ("TOO LONG LINE");
-      //logQ(lines[i].x_r - lines[i].x_l);
-    //}
-  //}
-
-  //logQ("total line size", lines.size());
 }
 
 void midi::buildTickSet() {
@@ -237,8 +205,8 @@ int midi::findKeySig() {
     ch++;
   }
 
-  for (const auto& n : notes) {
-    for (auto& m : match) {
+  for (auto& m : match) {
+    for (const auto& n : notes) {
       int y_norm = n.y+12*12;
       int ks_idx = (y_norm+m.second.getIndex()) % 12;
 
@@ -326,7 +294,6 @@ void midi::load(string file, stringstream& buf) {
 }
   
 void midi::load(stringstream& buf) {
-  
   MidiFile midifile(buf);
   if (!midifile.status()) {
     logW(LL_WARN, "invalid MIDI file");
@@ -336,11 +303,9 @@ void midi::load(stringstream& buf) {
   clear();
 
   midifile.linkNotePairs();
- 
   midifile.doTimeAnalysis();
   
   trackCount = midifile.getTrackCount();
-
   tracks.resize(trackCount);
   for (auto& t : tracks) {
     t.setNoteVector(&notes);
@@ -373,7 +338,6 @@ void midi::load(stringstream& buf) {
   }
 
   //sort(trackInfo.begin(), trackInfo.end());
-
   notes.resize(noteCount);
   int idx = 0;
 
@@ -393,9 +357,6 @@ void midi::load(stringstream& buf) {
         velocityBounds.first  = min(notes[idx].velocity, velocityBounds.first);
         velocityBounds.second = max(notes[idx].velocity, velocityBounds.second);
 
-        //cerr << midifile.getTimeInSeconds(notes[idx].tick) << " " << midifile[i][j].seconds << endl;
-        //
-        
         notes[idx].findSize(tickSet);
         tracks.at(notes[idx].track).insert(idx);
         idx++;
@@ -421,56 +382,27 @@ void midi::load(stringstream& buf) {
       tracks.at(n.track).insert(idx);
       idx++;
     }
-
-    //for (auto& t: tracks) {
-      //unsigned int avg = 0;
-      //unsigned int avg_n = 100;
-      //unsigned int idx = 0;
-      //for (unsigned int ni = 0; ni < t.note_idx.size(); ++ni) {
-        //if (idx > avg_n) {
-          //avg -= notes[t.note_idx[ni-avg_n]].y;
-        //}
-
-        //avg += notes[t.note_idx[ni]].y;
-        ////logQ(avg);
-
-        //if (idx > avg_n) {
-          //notes[t.note_idx[ni]].y = avg/avg_n;
-        //}
-        //else {
-          //notes[t.note_idx[ni]].y = avg/(idx+1);
-        //}
-        //idx++;
-      //}
-    //}
   }
-
 
   midifile.joinTracks();
   midifile.sortTracks();
 
-  buildMessageMap(midifile);
+  thread message_thread = thread(&midi::buildMessageMap, this, std::ref(midifile));
+  //buildMessageMap(midifile);
    
   for (int i = 0; i < midifile.getEventCount(0); i++) {
-
     if (midifile[0][i].isTempo()) {
       tempoMap.push_back(make_pair(midifile[0][i].seconds * UNK_CST, midifile[0][i].getTempoBPM()));
     }
     if (midifile[0][i].isTimeSignature()) {
-      //log3(LL_INFO, "time sig at event", j);
-      //cerr << (int)midifile[0][i][3] << " " << pow(2, (int) midifile[0][i][4])<< endl;
+      //logQ(LL_INFO, "time sig at event", j);
       addTimeSignature(midifile[0][i].seconds * UNK_CST,
                                  {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4]), midifile[0][i].tick});
     }
     if (midifile[0][i].isKeySignature()) {
-      //log3(LL_INFO, "key sig at event", i);
-      //cerr << (int)midifile[0][i][1] << " " << (int)midifile[0][i][3] << " " << (int)midifile[0][i][4] <<  endl;
-      //cerr << midifile[0][i].seconds * UNK_CST << endl;;
+      //logQ(LL_INFO, "key sig at event", i);
       keySig tmpKS = eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick);
       addKeySignature(midifile[0][i].seconds * UNK_CST, tmpKS);
-      //logQ("type, tick", (int)midifile[0][i][3], midifile[0][i].tick);
-      //auto a = eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick);
-      //logQ("e2ks, tick", a.getAcc(), a.getTick());
     }
   }
 
@@ -480,7 +412,6 @@ void midi::load(stringstream& buf) {
   for (unsigned int i = 0; i < tracks.size(); i++) {
     // build track height map
     trackHeightMap.push_back(make_pair(i, tracks[i].getAverageY()));
-
   }
 
   vector<thread> track_thread;
@@ -533,9 +464,9 @@ void midi::load(stringstream& buf) {
   idx = 0;
   int idxK = 0;
 
-
   int measureNum = 1;
 
+  measureMap.reserve(4*lastTick/(cTimeSig.getQPM()*tpq));
   measureMap.push_back(measureController(measureNum++, 0, 0, cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   while (cTick < lastTick) {
     cTick += cTimeSig.getQPM() * tpq;
@@ -556,6 +487,7 @@ void midi::load(stringstream& buf) {
                                            cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   }
   measureMap.pop_back(); 
+  measureMap.shrink_to_fit();
 
   //auto itemStartCmp = [] (pair<int, int> a, pair<int, int> b) { return a.first <= b.first; };
   //set<pair<int, int>, decltype(itemStartCmp)> itemStartSet = {};
@@ -571,13 +503,9 @@ void midi::load(stringstream& buf) {
     int noteMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
     //logQ(note.tick, "has closest measure start", noteMeasure);
-
     note.measure = noteMeasure;
-
     measureMap[noteMeasure].addNote(note);
-
   }
-
 
   for (auto& ts : timeSignatureMap) {
     auto mIt = itemStartSet.lower_bound(make_pair(ts.second.getTick(), 0));
@@ -586,29 +514,22 @@ void midi::load(stringstream& buf) {
 
     //logQ("ts", ts.second.getTick(), "has closest measure start", 1+tsMeasure);
     //logQ("ts", ts.second.getTick(), "has value", ts.second.getTop(), ts.second.getBottom());
-
     ts.second.setMeasure(tsMeasure);
-
     measureMap[tsMeasure].timeSignatures.push_back(ts.second);
   }
 
-  
   for (auto& ks : keySignatureMap) {
     auto mIt = itemStartSet.lower_bound(make_pair(ks.second.getTick(), 0));
     // measures have 0-based index, but 1-based for rendering
     int ksMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
     //logQ("ks", ks.second.getAcc(),"@", ks.second.getTick(), "has closest measure start", 1+ksMeasure);
-
     ks.second.setMeasure(ksMeasure);
-
     measureMap[ksMeasure].keySignatures.push_back(ks.second);
   }
 
   // create sheet music position data
   for (/*int z = 0;*/ auto& measure : measureMap) {
-
-
     //logQ("measure",z+1,"at tick",measure.getTick());
     //if (measure.keySignatures.size() > 0) {
       //logQ("measure",z+1,"has INSIDE",measure.keySignatures[0].getAcc(), measure.keySignatures[0].getTick());
@@ -619,13 +540,9 @@ void midi::load(stringstream& buf) {
     //z++;
 
     for (auto& note : measure.notes) {
-
       // map note position to key (only if on/off signature)
-
       note->findKeyPos(measure.currentKey);
-
     }
-
     sheetData.disectMeasure(measure);
   }
 
@@ -643,6 +560,6 @@ void midi::load(stringstream& buf) {
   
   //logQ("total ks", keySignatureMap.size());
   
-
+  message_thread.join();
 }
 
