@@ -69,8 +69,9 @@ vector<int> convertEnum(const vector<T>& ev) {
 }
 
 template <class T>
-void debug_time(const T& start) {
+void debug_time(const T& start, string msg = "") {
   T end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsedTime = end - start;
-  logW(LL_INFO, "elapsed time:", elapsedTime.count(), "seconds");
+  msg = (msg == "") ? "seconds" : "seconds (" + msg + ")"; 
+  logW(LL_INFO, "elapsed time:", elapsedTime.count(), msg);
 }
