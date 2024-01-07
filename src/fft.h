@@ -1,5 +1,7 @@
 #pragma once
 
+#include "build_target.h"
+
 #include <vector>
 #include <thread>
 #include <mutex>

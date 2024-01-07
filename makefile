@@ -35,7 +35,7 @@ endif
 ifeq ($(strip $(rel)),)
 RELFLAGS=-Og -g
 else # release build
-RELFLAGS=-DTARGET_REL -O3 -fno-rtti
+RELFLAGS=-DTARGET_REL -Ofast -fno-rtti
 # thinLTO doesn't exist for cross-compiler
 ifeq ($(strip $(arch)),)
 RELFLAGS+=-flto=thin

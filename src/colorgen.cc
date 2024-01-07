@@ -349,8 +349,60 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
 } 
 
 vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
-  // timer
-  auto start = std::chrono::high_resolution_clock::now();
+
+  #if !defined(COLDIST_CIE76) && !defined (COLDIST_CIE94) && !defined(COLDIST_CIE00)
+  #error "CIE distance formula not specified at compile time!"
+  #endif
+
+  //double maxE = 0;
+  //int maxI, maxJ, maxK = 0;
+ 
+  //int r = 0;
+  //int g = 255;
+  //int b = 0;
+
+  //int _i = 0;
+  //int _j = 0;
+  //int _k = 0;
+  
+  //kMeansPoint e(colorRGB(r,g,b));
+  //kMeansPoint f(colorRGB(_i,_j,_k));
+  
+  ////kMeansPoint e(50.0,2.6772,-79.7751);
+  ////kMeansPoint f(50.0,0.0,-82.7485);
+  //logQ("l a b: ", e.data.l, e.data.a, e.data.b);
+  //logQ("l a b: ", f.data.l, f.data.a, f.data.b);
+
+  
+  //logQ("deltaE:", e.distance(f), "on map - RGB: {", r, g, b,"} -> RGB: {", _i, _j, _k, "}");
+
+  //for (int i = _i; i<=255; i++) {
+    //logQ("i:",i);
+    ////for (int j = _j; j<=255; j++) {
+      ////for (int k = _k; k<=255; k++) {
+        //kMeansPoint f(colorRGB(i,i,i));
+
+
+
+        //double q = e.distance(f);
+        
+        //if (q > maxE) {
+          //maxE = q;
+          //maxI = i;
+          ////maxJ = j;
+          ////maxK = k;
+        //}
+        ////if (q>150)
+          ////logQ("rgb:", i, j, k, "deltaE:", q);
+      ////}
+    ////}
+  //}
+
+  //logQ("max deltaE:", maxE, "on map - RGB: {", r, g, b,"} -> RGB: {", maxI, maxI, maxI, "}");
+  //exit(1);
+  //return vector<colorRGB>();
+ 
+  
 
   // result container
   vector<colorRGB> colors;
@@ -360,11 +412,13 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
     return colors;
   }
 
-  colors.reserve(k);
 
-  logE();
-  //logE();
-  //logE();
+
+  logQ("");
+  logQ("");
+  logQ("");
+  logQ("");
+  logQ("");
 
   // init rng
   mt19937::result_type gen = high_resolution_clock::now().time_since_epoch().count();
@@ -439,17 +493,17 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
   for (unsigned int it = 0; it < KMEANS_ITERATIONS; ++it) {
     // clear LAB sums
     sumL.clear();
-    sumL.reserve(centroidMap.size());
+    sumL.resize(centroidMap.size());
     sumA.clear();
-    sumA.reserve(centroidMap.size());
+    sumA.resize(centroidMap.size());
     sumB.clear();
-    sumB.reserve(centroidMap.size());
+    sumB.resize(centroidMap.size());
 
     // clear point counter per centroid
     nPoints.clear();
     nPoints.resize(centroidMap.size());
 
-   // calculate initial distance to centroids and assign centroids to points
+    // calculate initial distance to centroids and assign centroids to points
     for (unsigned int pixel = 0; pixel < colorData.size(); ++pixel) {
      // first reset distance measurements
       colorData[pixel].cluster = -1;
@@ -474,40 +528,36 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
         }
       }
       // assign this point to the specified cluster vector
-      //logQ("cluster, pixel: ", colorData[pixel].cluster, pixel);
-      centroidMap[colorData[pixel].cluster].second.push_back(pixel);
+      //logQ("cluster, pixel: ", colorData.at(pixel).cluster, pixel);
+      centroidMap.at(colorData.at(pixel).cluster).second.push_back(pixel);
 
       // add this point's LAB values to the sum total for the specified pixel's cluster
-      sumL[colorData[pixel].cluster] += colorData[pixel].data.l;
-      sumA[colorData[pixel].cluster] += colorData[pixel].data.a;
-      sumB[colorData[pixel].cluster] += colorData[pixel].data.b;
+      sumL.at(colorData.at(pixel).cluster) += colorData.at(pixel).data.l;
+      sumA.at(colorData.at(pixel).cluster) += colorData.at(pixel).data.a;
+      sumB.at(colorData.at(pixel).cluster) += colorData.at(pixel).data.b;
 
       // increment the amount of points assigned to this pixel's centroid
-      nPoints[colorData[pixel].cluster]++;
+      nPoints.at(colorData.at(pixel).cluster)++;
 
     }
 
     // update centroids based on mean of clustered points
     for (unsigned int i = 0; i < centroidMap.size(); ++i) {
-      float newL = sumL[i] / nPoints[i]; 
-      float newA = sumA[i] / nPoints[i]; 
-      float newB = sumB[i] / nPoints[i];
+      float newL = sumL.at(i) / nPoints.at(i); 
+      float newA = sumA.at(i) / nPoints.at(i); 
+      float newB = sumB.at(i) / nPoints.at(i);
 
-      centroids[i].second.data = colorLAB(newL, newA, newB);
+      centroids.at(i).second.data = colorLAB(newL, newA, newB);
     }
   }
 
 
-  for (int c = 0; const auto& i : centroidMap) {
+  for (const auto& i : centroidMap) {
 
-    //logQ("centroid", i.first, "has", i.second.size(), "linked points with LAB:", colorData[i.first].data);
-    colors[c] = colorRGB(colorData[i.first].data);
-    c++;
+    logQ("centroid", i.first, "has", i.second.size(), "linked points with LAB:", colorData[i.first].data);
+    colors.push_back(colorRGB(colorData[i.first].data));
   }
   
-  
-  debug_time(start, "k-means - " + to_string(k));
 
-  
   return colors;
 }

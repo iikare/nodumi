@@ -12,6 +12,8 @@ double fftController::fftAC(double f_1, double f_2) {
   // func: sin(f_1) * sin(f_2)
   
   double sum = 0;
+  // NOTE: SIMD optimizations disabled on debug builds
+  OPENMP_USE_SIMD
   for (auto i = 0; i < FFT_AC_BINS; ++i) {
     double fN = sin(f_1) * sin(f_2);
     double fNpK = sin(f_1+i) * sin(f_2+i);
