@@ -1632,9 +1632,11 @@ int main (int argc, char* argv[]) {
               if (ctr.image.exists()) {
                 // prevent overflow on RT audio thread
                 ctr.criticalSection(true);
+                auto start = std::chrono::high_resolution_clock::now();
                 getColorSchemeImage(SCHEME_KEY, ctr.setVelocityOn, ctr.setVelocityOff);
                 getColorSchemeImage(SCHEME_TONIC, ctr.setTonicOn, ctr.setTonicOff);
                 getColorSchemeImage(SCHEME_TRACK, ctr.setTrackOn, ctr.setTrackOff, ctr.file.trackHeightMap);
+                debug_time(start, "color-bg");
                 ctr.criticalSection(false);
               }
               else{

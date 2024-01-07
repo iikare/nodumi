@@ -1093,7 +1093,7 @@ void controller::load(string path,
 
   particle.end_emission();
   
-  debug_time(start);
+  debug_time(start, "load");
 }
 
 void controller::save(string path, 

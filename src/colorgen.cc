@@ -31,10 +31,6 @@ void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>* on, vecto
     ((*off)[i]).invert();
   }
 }
-void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB) {
-  vector<pair<int, double>> tmp;
-  getColorScheme(n, colorVecA, colorVecB, tmp);
-}
 
 void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, const vector<pair<int, double>>& weight) {
   
@@ -107,9 +103,9 @@ void getColorSchemeImage(schemeType type, vector<colorRGB>& colorVecA, vector<co
       break;
   }
 }
+
 void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB, 
                          const vector<pair<int, double>>& weight) {
-
   // check zero k
   if (!n) {
     logW(LL_WARN, "call to getColorSchemeImage with n = ", n);
@@ -157,8 +153,9 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
       return false; 
     };
 
-    // sample ~10 colors
-    for (int i = 0; i < min(MAX_UNIQUE_COLORS, min(ctr.image.getNumColors(), 10)); ++i) {
+    // sample a small amount of colors
+    constexpr int sampleLimit = 4;
+    for (int i = 0; i < min(MAX_UNIQUE_COLORS, min(ctr.image.getNumColors(), sampleLimit)); ++i) {
       int intermediate_idx = getPoint();
       colorLAB cenCol = colorData[intermediate_idx].data;
    
@@ -246,7 +243,7 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<color
 } 
 
 vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
-  auto start = std::chrono::high_resolution_clock::now();
+  //auto start = std::chrono::high_resolution_clock::now();
   // result container
   vector<colorRGB> colors(k);
     
@@ -298,6 +295,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
   for (unsigned int it = 0; it < KMEANS_ITERATIONS; ++it) {
     nPoints.clear();
 
+    #pragma omp parallel for
     for (unsigned int pixel = 0; pixel < colorData.size(); ++pixel) {
       colorData[pixel].cluster = -1;
       colorData[pixel].cDist = __DBL_MAX__;
@@ -316,6 +314,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
 
     vector<colorLAB> centroidSum(centroids.size(), {0.0,0.0,0.0});
 
+    #pragma omp parallel for
     for (unsigned int centroid = 0; centroid < centroids.size(); ++centroid) {
       for (unsigned int pixel = 0; pixel < colorData.size(); ++pixel) {
         if (static_cast<int>(centroid) == colorData[pixel].cluster) {
@@ -341,7 +340,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
     colors[centroid] = (colorRGB(centroids[centroid].second.data));
   }
 
-  debug_time(start);
+  //debug_time(start);
   
   return colors;
 }
