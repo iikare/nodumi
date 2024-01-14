@@ -5,6 +5,9 @@ util/
 .cache/
 *.json
 gmon.out
+*.perf
+*perf.data
+*.data.old
 output.png
 
 # latex output
