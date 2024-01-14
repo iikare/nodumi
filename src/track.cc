@@ -120,12 +120,21 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
       //return;
     //}
     //n_line++;
+    
+    constexpr int line_max_height = 32;
+    int line_end_y = r_note.y;
+
+    if (abs(l_note.y - r_note.y) > line_max_height) {
+      //logQ(abs(l_note.y-r_note.y));
+      line_end_y = l_note.y;
+    }
 
     lines.push_back({chord_l[n_l],
                      l_note.x,
                      l_note.y,
                      r_note.x,
-                     r_note.y,
+                     line_end_y,
+                     //r_note.y,
                      in_progress});
   };
 
