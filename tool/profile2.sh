@@ -10,6 +10,6 @@ then
 fi
 
 
-perf record -g -F 999 ./bin/nodumi $1
+perf record -g -F 20100 ./bin/nodumi $1
 perf script -F +pid > /tmp/test.perf
 rm -f perf.data
