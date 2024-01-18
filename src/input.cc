@@ -84,17 +84,10 @@ bool midiInput::updateQueue() {
     timestamp = tempTS;
   }
     
-
-  for (long unsigned int i = 0; i < msgQueue.size(); i++) {
-    if ((int)msgQueue[i] != 248 && (int)msgQueue[i] != 254){ 
-      //cerr << "byte " << i << " is " << (int)msgQueue[i] << ", ";
-    }
-
-  }
   if (msgQueue.size() > 0) {
     ctr.output.sendMessage(&msgQueue);
-    if ((int)msgQueue[0] != 248 && (int)msgQueue[0] != 254){ 
-      //cerr << "timestamp: " << timestamp << endl;
+    if (!any_of(static_cast<int>(msgQueue[0]), 248, 254)){ 
+      logQ("timestamp:", timestamp);
     }
     return true;
   }

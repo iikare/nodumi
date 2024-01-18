@@ -425,12 +425,12 @@ void controller::updateDimension(double& nowLineX) {
 void controller::updateFiles(char** paths, int numFile) {
   for (auto item = 0; item < numFile; ++item) {
     string ext = getExtension(paths[item]);
-    if (ext == "mid" || ext == "mki") {
+    if (any_of(ext, "mid", "mki")) {
       if (!ctr.open_file.pending()) {
         ctr.open_file.setPending(paths[item]);
       }
     }
-    else if (ext == "png" || ext == "jpg") {
+    else if (any_of(ext, "png", "jpg")) {
       if (!ctr.open_image.pending()) {
         ctr.open_image.setPending(paths[item]);
       }

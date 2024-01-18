@@ -1782,10 +1782,9 @@ int main (int argc, char* argv[]) {
           }
           break;
       }
-      if (!hoverType.contains(HOVER_DIALOG) && (action != ACTION::PREFERENCES && action != ACTION::FILE_INFO && action != ACTION::INFO)) {
+      if (!hoverType.contains(HOVER_DIALOG) && !any_of(action, ACTION::PREFERENCES, ACTION::FILE_INFO, ACTION::INFO)) {
         ctr.dialog.clear_status();
       }
-
 
       if (!hoverType.contains(HOVER_NOW, HOVER_NOTE, HOVER_MEASURE, HOVER_MENU, HOVER_SHEET, HOVER_DIALOG) && 
           !hoverType.containsLastFrame(HOVER_MENU, HOVER_MEASURE)) {
@@ -1808,7 +1807,6 @@ int main (int argc, char* argv[]) {
         colorCircle = false;
 
         nowMove = false;
-
         ctr.image.finalizePosition();
 
         if (ctr.dialog.get_status(DIALOG::PREFERENCES)) {

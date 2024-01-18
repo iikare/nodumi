@@ -196,7 +196,7 @@ int midi::findKeySig() {
   for (int ch = 0; auto& m : match) {
     // exclude 7flat/sharp
     int k_t = KEYSIG_C+ch;
-    if (k_t == KEYSIG_CSHARP || k_t == KEYSIG_CFLAT) {
+    if (any_of(k_t, KEYSIG_CSHARP, KEYSIG_CFLAT)) {
       ch++;
       k_t++;
     }
@@ -210,7 +210,7 @@ int midi::findKeySig() {
       int y_norm = n.y+12*12;
       int ks_idx = (y_norm+m.second.getIndex()) % 12;
 
-      bool on_key = ks_idx == 0 || ks_idx == 2 || ks_idx == 4 || ks_idx == 5 || ks_idx == 7 || ks_idx == 9 || ks_idx == 11;
+      bool on_key = any_of(ks_idx, 0, 2, 4, 5, 7, 9, 11);
       on_key ? m.first++ : m.first--;
     }
   }

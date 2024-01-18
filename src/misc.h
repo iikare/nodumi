@@ -18,6 +18,16 @@ using std::is_enum;
 
 double getDistance(int x1, int y1, int x2, int y2);
 
+template<class U, class ... V>
+bool any_of(U target, V ... args) {
+   return (... || (target == args));
+}
+
+template<class U, class ... V>
+bool all_of(U target, V ... args) {
+   return (... && (target == args));
+}
+
 template<class T> 
 T clampValue(T val, T lo, T hi) {
   return val > hi ? hi : (val < lo ? lo : val);

@@ -5,7 +5,7 @@
 //   | label[1]    | accidental (if exist, "#" or "b")
 //   | label[2..n] | not considered
 void drawNoteLabel(string label, int x, int y, int size, int sym_size, const colorRGB& col) {
-  if (label.length() > 0 && (label[1] == 'b' || label[1] == '#')) {
+  if (label.length() > 0 && any_of(label[1], 'b', '#')) {
     drawTextEx(label.substr(0,1), x, y, col);
     x += measureTextEx(label.substr(0,0)).x + 6;
 

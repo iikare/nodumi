@@ -178,7 +178,7 @@ vector<string>& formatPortName(vector<string>& ports) {
     int sp = 0;
     for (unsigned int j = 0; j < ports[i].length(); j++) {
       // break after second space/colon
-      if (ports[i][j] == ' ' || ports[i][j] == ':') {
+      if (any_of(ports[i][j], ' ', ':')) {
         sp++;
       }
       if (sp == 2) {
@@ -221,9 +221,9 @@ bool isValidPath(const string& path, int pathTypes...) {
 bool isValidExtension(const string& ext, int pathType) {
   switch (pathType) {
     case PATH_DATA:
-      return ext == "mid" || ext == "mki";
+      return any_of(ext, "mid", "mki");
     case PATH_IMAGE:
-      return ext == "png" || ext == "jpg";
+      return any_of(ext, "png", "jpg");
     case PATH_MKI:
       return ext == "mki";
     default:

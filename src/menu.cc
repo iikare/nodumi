@@ -381,7 +381,7 @@ bool menu::clickCircle(int circleType) const {
     
 void menu::setColor(const colorRGB& col) {
   
-  if (col.r == 0 && col.g == 0 && col.b == 0) {
+  if (all_of(0, col.r, col.g, col.b)) {
     angle = 0;
     pX = 0;
     pY = squareDim + 1;

@@ -45,11 +45,11 @@ ACTION bufferController::pending_action(bool apply_enter) {
 
   string sbuf = read();
 
-  if (sbuf == "gg" || sbuf == "0") {
+  if (any_of(sbuf, "gg", "0")) {
     clear();
     return ACTION::NAV_HOME;
   }
-  if (sbuf == "G" || sbuf == "$") { 
+  if (any_of(sbuf, "G", "$")) {
     clear();
     return ACTION::NAV_END;
   }
@@ -108,7 +108,7 @@ ACTION bufferController::pending_action(bool apply_enter) {
     }
   }
 
-  if (sbuf.length() > 1 && (sbuf.back() == 'G' || sbuf.back() == 'w' || sbuf.back() == 'b')) {
+  if (sbuf.length() > 1 && any_of(sbuf.back(), 'G', 'w', 'b')) {
     clear();
     if (all_num(sbuf.substr(0,sbuf.size()-2))) {
       if (sbuf.size() < 11) {
