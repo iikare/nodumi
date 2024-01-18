@@ -85,6 +85,9 @@ ACTION bufferController::pending_action(bool apply_enter) {
     if (sbuf == ":s") {
       return ACTION::SHEET;
     }
+    if (sbuf == ":f") {
+      return ACTION::FILE_INFO;
+    }
     if (sbuf == ":i") {
       return ACTION::INFO;
     }
