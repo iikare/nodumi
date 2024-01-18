@@ -263,7 +263,8 @@ A set of shortcuts (mostly) conforming to conventional norms are defined via the
   \mi{Ctrl-S}       					 														& Save (to MKI) \\
   \mi{Ctrl-Shift-S} 					 														& Save As (to MKI) \\
   \mi{Ctrl-,}       					 														& Open Preferences \\
-  \mi{Ctrl-I}       					 														& Open Info \\
+  \mi{Ctrl-F}       					 														& Open File Info \\
+  \mi{Ctrl-I}       					 														& Open Program Info \\
   \mi{F7}       					     														& Exit \\
   \mi{Ctrl-Space}   					 														& Toggle Live Play Mode \\
   \mi{Space}   					 														      & Toggle Playback \\
@@ -304,7 +305,8 @@ valid command is input to the buffer, it will either be (a) executed immediately
   \mi{:qi} 					 														          & Close Image File \\
   \mi{:qa} 					 														          & Exit \\
   \mi{:p}       					 														    & Open Preferences \\
-  \mi{:i}       					 														    & Open Info \\
+  \mi{:f}       					 														    & Open File Info \\
+  \mi{:i}       					 														    & Open Program Info \\
   \mi{:l}   					 														        & Toggle Live Play Mode \\
   \mi{:s}   					 														        & Toggle Sheet Music Display \\
   \mi{:d}$n, n \in [1,99]$   														  & Enable $n^\text{th}$ Display Mode\\
@@ -333,9 +335,9 @@ input in the key range
 
 \rcbegin
 \begin{align*}
-  \textbf{Bar-based }  | & \text{ Ignores temporal context of notes.}\\
-  \textbf{Line-based } | & \text{ Accounts for temporal context of notes.}\\
-  \textbf{Other }      | & \text{ Not encapsulated by the above types.}\\
+  \textsc{Bar-based }  | & \text{ Ignores temporal context of notes.}\\
+  \textsc{Line-based } | & \text{ Accounts for temporal context of notes.}\\
+  \textsc{Other }      | & \text{ Not encapsulated by the above types.}\\
 \end{align*}
 \rcend
 
@@ -352,13 +354,13 @@ All display modes are accessible via
 
 The simplest display mode \textendash{} this simply draws a bar at the $x$ position of the note with length
 determined by its duration.
-This is a \textbf{Bar-based} display mode.
+This is a \textsc{Bar-based} display mode.
 
 \subsubsection{FFT}
 
 \rcgnc{0.86}{image/fft.png}
 
-Identical to the \textbf{Bar} mode, with the addition of note frequencies via 
+Identical to the \textsc{Bar} mode, with the addition of note frequencies via 
 an FFT approximation algorithm. The amplitude of a given frequency bin is
 displayed along the bottom of the screen, and all bins combined encompass the
 frequency range $[20, 44100]$Hz.
@@ -369,7 +371,7 @@ for each track, and then a summation over all tracks is done to obtain the final
 This can be seen in the overlapping colors in the spectrum about halfway across the above image. In practice, 
 when accounting for overtones, harmonics, and other signal behavior, not all of the spectrum is used equally
 (note that C8 on a piano only emits ~4.2KHz). The display is logarthimic in frequency. 
-This is a \textbf{Bar-based} display mode.
+This is a \textsc{Bar-based} display mode.
 
 \newpage
 \subsubsection{Pulse}
@@ -379,7 +381,7 @@ This is a \textbf{Bar-based} display mode.
 A portion of the straight line between points is drawn instead. The length of this
 line segment is dependent on the relative position and duration of the note in respect to the \textit{now}-line.
 Additionally, a pulse appears at a note-on event and fades out over time.
-This is a \textbf{Line-based} display mode.
+This is a \textsc{Line-based} display mode.
 
 
 \subsubsection{Ball}
@@ -389,7 +391,7 @@ This is a \textbf{Line-based} display mode.
 A large circle slowly shrinks as a note is played, and follows the \textit{now}-line. Along with it, a 
 circle is also drawn at the note's original start position, and a line connects the two circles. Once the duration
 of the note has passed, only a small circle remains at that note's ending position.
-This is a \textbf{Bar-based} display mode.
+This is a \textsc{Bar-based} display mode.
 
 \newpage
 
@@ -399,7 +401,7 @@ This is a \textbf{Bar-based} display mode.
 
 This mode draws a continous bezier curve between notes. For line segments shorter than a given threshold,
 a single straight line segment is drawn to optimize performance.
-This is a \textbf{Line-based} display mode.
+This is a \textsc{Line-based} display mode.
 
 
 \subsubsection{Voronoi}
@@ -410,7 +412,7 @@ Spatial distance is encoded in a Voronoi-based diagram, calculated in real-time 
 is placed at the start possition of each note to mark the origin of each Voronoi cell. The algorithm used to 
 create this visualization is $O(k^2)$ in the number of points, so performance may suffer on older, slower, or 
 integrated GPUs. Image backgrounds cannot be seen when using this visualization.
-This is an \textbf{Other} display mode.
+This is an \textsc{Other} display mode.
 
 \newpage
 
@@ -637,7 +639,7 @@ This feature is accessible via
 \subsection{Color Inversion}
 
 This option inverts the object colors specified by the table below. For any given RGB input color 
-$C= (C_r,C_g,C_b), C_r,C_g,C_b \in [0,255]$, the inverted color $C'$ is defined as 
+$C= (C_r,C_g,C_b)$ such that $C_r,C_g,C_b \in [0,255]$, the inverted color $C'$ is defined as 
 $C' = (255-C_r, 255-C_g, 255-C_b)$.
 
 This feature is accessible via 
