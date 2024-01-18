@@ -1202,6 +1202,9 @@ int main (int argc, char* argv[]) {
       case ACTION::INFO:
         ctr.dialog.clear_invert_status(DIALOG::INFO);
         break;
+      case ACTION::FILE_INFO:
+        ctr.dialog.clear_invert_status(DIALOG::FILE);
+        break;
       case ACTION::LIVEPLAY:
         if (midiMenu.isContentLabel("MIDI_MENU_ENABLE_LIVE_PLAY", MIDI_MENU_LIVE_PLAY)) {
           zoomLevel *= 3;
@@ -1700,6 +1703,9 @@ int main (int argc, char* argv[]) {
             case INFO_MENU_PROGRAM_INFO:
               action = ACTION::INFO;
               break;
+            case INFO_MENU_FILE_INFO:
+              action = ACTION::FILE_INFO;
+              break;
             case INFO_MENU_HELP:
               infoMenu.render = false;
               OpenURL(SITE_LINK);
@@ -1776,7 +1782,7 @@ int main (int argc, char* argv[]) {
           }
           break;
       }
-      if (!hoverType.contains(HOVER_DIALOG) && (action != ACTION::PREFERENCES && action != ACTION::INFO)) {
+      if (!hoverType.contains(HOVER_DIALOG) && (action != ACTION::PREFERENCES && action != ACTION::FILE_INFO && action != ACTION::INFO)) {
         ctr.dialog.clear_status();
       }
 
@@ -1785,7 +1791,6 @@ int main (int argc, char* argv[]) {
           !hoverType.containsLastFrame(HOVER_MENU, HOVER_MEASURE)) {
         if (hoverType.contains(HOVER_IMAGE)) {
           ctr.image.updateBasePosition();
-          //logQ("UPDATE BASE");
         }
       }
 

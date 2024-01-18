@@ -74,6 +74,9 @@ void dialogController::render() {
   if (get_status(DIALOG::PREFERENCES)) { 
     renderPreference();
   }
+  if (get_status(DIALOG::FILE)) {
+    renderFile();
+  }
   if (get_status(DIALOG::INFO)) {
     renderInfo();
   }
@@ -164,6 +167,12 @@ void dialogController::renderPreference() {
 
 }
 
+void dialogController::renderFile() {
+  const int fileSideMargin = ctr.getWidth() - ctr.fileWidth;
+  const int fileTopMargin = ctr.getHeight() - ctr.fileHeight;
+  drawRectangle(fileSideMargin/2.0f, fileTopMargin/2.0f, ctr.fileWidth, ctr.fileHeight, ctr.bgMenu);  
+}
+
 void dialogController::renderInfo() {
   const int infoSideMargin = ctr.getWidth() - ctr.infoWidth;
   const int infoTopMargin = ctr.getHeight() - ctr.infoHeight;
@@ -220,6 +229,10 @@ bool dialogController::hover() {
                                                       ctr.getHeight()/2 - ctr.prefHeight/2,
                                                       ctr.prefWidth,
                                                       ctr.prefHeight) ||
+         hoverDialog(get_status(DIALOG::FILE),        ctr.getWidth()/2  - ctr.fileWidth/2,
+                                                      ctr.getHeight()/2 - ctr.fileHeight/2,
+                                                      ctr.fileWidth,
+                                                      ctr.fileHeight) ||
          hoverDialog(get_status(DIALOG::INFO),        ctr.getWidth()/2  - ctr.infoWidth/2,
                                                       ctr.getHeight()/2 - ctr.infoHeight/2,
                                                       ctr.infoWidth,

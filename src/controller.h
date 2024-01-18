@@ -194,6 +194,9 @@ class controller {
     static constexpr int prefWidth   =   500;
     static constexpr int prefHeight  =   254;
 
+    static constexpr int fileWidth   =   500;
+    static constexpr int fileHeight  =   254;
+
     static constexpr int infoWidth   =   500;
     static constexpr int infoHeight  =   254;
 

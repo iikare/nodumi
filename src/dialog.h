@@ -41,6 +41,7 @@ class dialogController {
     vector<bool> dialog_status = {false, false, false};
 
     void renderPreference();
+    void renderFile();
     void renderInfo();
 
     int getItemX(int pos) const;

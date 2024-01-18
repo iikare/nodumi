@@ -273,6 +273,9 @@ ACTION controller::process(ACTION action) {
     if (isKeyPressed(KEY_I)) {
       return ACTION::INFO;
     }
+    if (isKeyPressed(KEY_F)) {
+      return ACTION::FILE_INFO;
+    }
 
     if (isKeyPressed(KEY_ONE, KEY_TWO, KEY_THREE, KEY_FOUR, KEY_FIVE, KEY_SIX, KEY_SEVEN, KEY_EIGHT, KEY_NINE)) {
       return ACTION::CHANGE_MODE;
@@ -564,6 +567,7 @@ vector<string> controller::generateMenuLabels(const menuContentType& contentType
   	case CONTENT_INFO:
 			return text.getStringSet("INFO_MENU_INFO",
 															 "INFO_MENU_PROGRAM_INFO",
+															 "INFO_MENU_FILE_INFO",
 															 "INFO_MENU_HELP");
   	case CONTENT_PALETTE:
 			return text.getStringSet("PALETTE_MENU_DEFAULT",

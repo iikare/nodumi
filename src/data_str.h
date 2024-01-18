@@ -55,6 +55,7 @@
                         {"SCHEME_MENU_TONIC",                   "Tonic"}, \
                         {"INFO_MENU_INFO",                      "Info"}, \
                         {"INFO_MENU_PROGRAM_INFO",              "Program Info"}, \
+                        {"INFO_MENU_FILE_INFO",                 "File Info"}, \
                         {"INFO_MENU_HELP",                      "Help"}, \
                         {"PALETTE_MENU_DEFAULT",                "Default"}, \
                         {"PALETTE_MENU_FROM_BACKGROUND",        "From Background"}, \
