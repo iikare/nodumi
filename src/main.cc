@@ -1197,12 +1197,10 @@ int main (int argc, char* argv[]) {
         ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
         break;
       case ACTION::PREFERENCES:
-        ctr.dialog.infoDisplay = false;
-        ctr.dialog.preferenceDisplay = !ctr.dialog.preferenceDisplay;
+        ctr.dialog.clear_invert_status(DIALOG::PREFERENCES);
         break;
       case ACTION::INFO:
-        ctr.dialog.preferenceDisplay = false;
-        ctr.dialog.infoDisplay = !ctr.dialog.infoDisplay;
+        ctr.dialog.clear_invert_status(DIALOG::INFO);
         break;
       case ACTION::LIVEPLAY:
         if (midiMenu.isContentLabel("MIDI_MENU_ENABLE_LIVE_PLAY", MIDI_MENU_LIVE_PLAY)) {
@@ -1779,7 +1777,7 @@ int main (int argc, char* argv[]) {
           break;
       }
       if (!hoverType.contains(HOVER_DIALOG) && (action != ACTION::PREFERENCES && action != ACTION::INFO)) {
-        ctr.dialog.preferenceDisplay = ctr.dialog.infoDisplay = false;
+        ctr.dialog.clear_status();
       }
 
 
@@ -1791,7 +1789,7 @@ int main (int argc, char* argv[]) {
         }
       }
 
-      if (ctr.dialog.preferenceDisplay) {
+      if (ctr.dialog.get_status(DIALOG::PREFERENCES)) {
         ctr.dialog.process();
       }
 
@@ -1808,11 +1806,11 @@ int main (int argc, char* argv[]) {
 
         ctr.image.finalizePosition();
 
-        if (ctr.dialog.preferenceDisplay) {
+        if (ctr.dialog.get_status(DIALOG::PREFERENCES)) {
           ctr.dialog.end_process();
         }
     }
-    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {    
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
       ctr.image.updatePosition();
 
       if (pointInBox(getMousePosition(), 
@@ -1931,7 +1929,7 @@ int main (int argc, char* argv[]) {
           rightMenu.setXY(rightX, rightY);
           
           if (!hoverType.contains(HOVER_DIALOG)) {
-            ctr.dialog.preferenceDisplay = ctr.dialog.infoDisplay = false;
+            ctr.dialog.clear_status();
             rightMenu.render = true;
           }
         }

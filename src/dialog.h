@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <string>
+#include "enum.h"
 #include "log.h"
 #include "aghdef.h"
 #include "dia_opt.h"
@@ -20,9 +21,12 @@ class dialogController {
     void end_process();
 
     bool hover();
-    
-    bool preferenceDisplay = false;
-    bool infoDisplay = false;
+
+    bool get_status(DIALOG d) const;
+    void set_status(DIALOG d, bool value);
+    void invert_status(DIALOG d);
+    void clear_status();
+    void clear_invert_status(DIALOG d);
 
     PREF c_pref_t = PREF::P1;
 
@@ -33,6 +37,8 @@ class dialogController {
       {PREF::P1, "PREF_P1"},
       {PREF::P2, "PREF_P2"},
     };
+
+    vector<bool> dialog_status = {false, false, false};
 
     void renderPreference();
     void renderInfo();

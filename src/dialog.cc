@@ -12,6 +12,7 @@
 #include "aghdef.h"
 
 using std::string;
+using std::fill;
 
 void dialogController::init() {
   for (unsigned int n = 0; n < static_cast<int>(PREF::NONE); ++n) {
@@ -70,10 +71,10 @@ void dialogController::init() {
 }
 
 void dialogController::render() {
-  if (preferenceDisplay) { 
+  if (get_status(DIALOG::PREFERENCES)) { 
     renderPreference();
   }
-  if (infoDisplay) {
+  if (get_status(DIALOG::INFO)) {
     renderInfo();
   }
 }
@@ -215,12 +216,44 @@ bool dialogController::hover() {
     }
     return false;
   };
-  return hoverDialog(preferenceDisplay, ctr.getWidth()/2  - ctr.prefWidth/2,
-                                        ctr.getHeight()/2 - ctr.prefHeight/2,
-                                        ctr.prefWidth,
-                                        ctr.prefHeight) ||
-         hoverDialog(infoDisplay,       ctr.getWidth()/2  - ctr.infoWidth/2,
-                                        ctr.getHeight()/2 - ctr.infoHeight/2,
-                                        ctr.infoWidth,
-                                        ctr.infoHeight);
+  return hoverDialog(get_status(DIALOG::PREFERENCES), ctr.getWidth()/2  - ctr.prefWidth/2,
+                                                      ctr.getHeight()/2 - ctr.prefHeight/2,
+                                                      ctr.prefWidth,
+                                                      ctr.prefHeight) ||
+         hoverDialog(get_status(DIALOG::INFO),        ctr.getWidth()/2  - ctr.infoWidth/2,
+                                                      ctr.getHeight()/2 - ctr.infoHeight/2,
+                                                      ctr.infoWidth,
+                                                      ctr.infoHeight);
+}
+
+bool dialogController::get_status(DIALOG d) const {
+  if (d == DIALOG::NONE) { 
+    logW(LL_WARN, "invalid dialog option:", static_cast<int>(d));
+    return false;
+  }
+  return dialog_status[static_cast<int>(d)];
+}
+
+void dialogController::set_status(DIALOG d, bool value) {
+  if (d == DIALOG::NONE) { 
+    logW(LL_WARN, "invalid dialog option:", static_cast<int>(d));
+  }
+  dialog_status[static_cast<int>(d)] = value;
+}
+
+void dialogController::invert_status(DIALOG d) {
+  if (d == DIALOG::NONE) { 
+    logW(LL_WARN, "invalid dialog option:", static_cast<int>(d));
+  }
+  dialog_status[static_cast<int>(d)] = !dialog_status[static_cast<int>(d)];
+}
+
+void dialogController::clear_status() {
+  fill(dialog_status.begin(), dialog_status.end(), false);
+}
+
+void dialogController::clear_invert_status(DIALOG d) {
+  bool d_o = get_status(d);
+  clear_status();
+  set_status(d, !d_o);
 }

@@ -324,6 +324,13 @@ enum class PREF {
   NONE
 };
 
+enum class DIALOG {
+  PREFERENCES = 0,
+  FILE = 1,
+  INFO = 2,
+  NONE = -1
+};
+
 enum panelType {
 
   MENU_INACTIVE = -1,
