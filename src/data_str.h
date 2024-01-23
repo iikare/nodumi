@@ -85,5 +85,10 @@
                         {"PREF_PARTICLE",                       "Enable Particle Effects"}, \
                         {"PREF_SCALE_VELOCITY",                 "Use Scaled Velocities"}, \
                         {"PREF_SHADOW",                         "Enable Drop Shadow"}, \
+                        {"FILE_INFO_LABEL",                     "Information"}, \
+                        {"FILE_TYPE",                           "Format"}, \
+                        {"FILE_NOTE_COUNT",                     "Note Count"}, \
+                        {"FILE_MEASURE_COUNT",                  "Measure Count"}, \
+                        {"FILE_TRACK_COUNT",                    "Track Count"}, \
                         {"",                                    ""}, \
                       }

@@ -108,7 +108,6 @@ void dialogController::process() {
     in_x += itemRectSize + 3;
   }
 
-
   for (auto& d_opt : dia_opts.find(c_pref_t)->second) {
     d_opt.process();
   }
@@ -125,7 +124,6 @@ void dialogController::renderPreference() {
   const int prefTopMargin = ctr.getHeight() - ctr.prefHeight;
   drawRectangle(prefSideMargin/2.0f, prefTopMargin/2.0f, ctr.prefWidth, ctr.prefHeight, ctr.bgMenu);  
 
-
   const int pref_fsize = 25;
   drawTextEx(ctr.text.getString("PREF_LABEL"), prefSideMargin/2.0f + 12, prefTopMargin/2.0f + 12, ctr.bgDark, 255, pref_fsize);
 
@@ -137,7 +135,6 @@ void dialogController::renderPreference() {
   //int in_l_x = (ctr.getWidth() + ctr.prefWidth)/2.0f - menu_label_size.x - 12;
   int in_l_y = in_y + 6;
   
-
   for (unsigned int n = 0; n < static_cast<int>(PREF::NONE); ++n) {
     bool active = static_cast<PREF>(n) == c_pref_t; 
     auto col = active ? ctr.bgOpt2 : ctr.bgDark;
@@ -156,7 +153,6 @@ void dialogController::renderPreference() {
   int y_sum = getItemY(0);
 
   for (auto& i : dia_opts.find(c_pref_t)->second) {
-
     if (y_sum + i.get_height() > (ctr.getHeight()+ctr.prefHeight)/2.0 + optBottomMargin) {
       x_sum = getItemX(1);
       y_sum = getItemY(0);
@@ -164,13 +160,74 @@ void dialogController::renderPreference() {
     i.render(x_sum, y_sum);
     y_sum += i.get_height(); 
   }
-
 }
 
 void dialogController::renderFile() {
   const int fileSideMargin = ctr.getWidth() - ctr.fileWidth;
   const int fileTopMargin = ctr.getHeight() - ctr.fileHeight;
   drawRectangle(fileSideMargin/2.0f, fileTopMargin/2.0f, ctr.fileWidth, ctr.fileHeight, ctr.bgMenu);  
+
+  int begin_x = fileSideMargin/2.0f + 12;
+  int begin_y = fileTopMargin/2.0f + 12;
+  string file_label_str = ctr.text.getString("FILE_INFO_LABEL");
+  const int file_label_fsize = 25;
+  Vector2 file_label_size = measureTextEx(file_label_str, file_label_fsize);
+  drawTextEx(file_label_str, begin_x, begin_y, ctr.bgDark, 255, file_label_fsize);
+
+  vector<string> file_labels = {
+                                 "FILE_TYPE",
+                                 "FILE_NOTE_COUNT",
+                                 "FILE_MEASURE_COUNT",
+                                 "FILE_TRACK_COUNT",
+                               };
+
+  vector<pair<string, string>> file_infos;
+  for (const auto& i : file_labels) {
+    string i_res = "";
+    if (i == "FILE_TYPE") {
+      if (ctr.getLiveState()) {
+        i_res = "N/A (live)";
+      }
+      else { 
+        fileType ft = ctr.getFileType();
+        switch(ft) {
+          case FILE_MIDI:
+            i_res = "MIDI";
+            break;
+          case FILE_MKI:
+            i_res = "MKI";
+            break;
+          default:
+            break;
+        }
+      }
+    }
+    else if (i == "FILE_NOTE_COUNT") {
+      i_res = to_string(ctr.getNoteCount());
+    }
+    else if (i == "FILE_MEASURE_COUNT") {
+      i_res = to_string(ctr.getMeasureCount());
+    }
+    else if (i == "FILE_TRACK_COUNT") {
+      i_res = to_string(ctr.getTrackCount());
+    }
+    file_infos.push_back(make_pair(ctr.text.getString(i), i_res));
+  }
+
+  begin_y += file_label_size.y + 4;
+
+  for (const auto& i : file_infos) {
+    Vector2 if_size = measureTextEx(i.first, itemFontSize); 
+    drawTextEx(i.first, begin_x, begin_y, ctr.bgDark, 255, itemFontSize);
+
+    Vector2 is_size = measureTextEx(i.second, itemFontSize); 
+    int begin_s_x = ctr.getWidth() / 2.0f - 4 - is_size.x;
+    drawTextEx(i.second, begin_s_x, begin_y, ctr.bgDark, 255, itemFontSize);
+
+
+    begin_y += max(if_size.y, is_size.y) + 4;
+  }
+
 }
 
 void dialogController::renderInfo() {
@@ -215,7 +272,6 @@ void dialogController::renderInfo() {
 }
 
 bool dialogController::hover() {
-
   const auto hoverDialog = [&](bool diaDisplay, int x, int y, int w, int h) {
     if (diaDisplay) {
       const rect boundingBox = { x, y, w, h };
