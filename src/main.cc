@@ -1313,6 +1313,7 @@ int main (int argc, char* argv[]) {
         if (!ctr.getLiveState()) {
           int foundMeasure = ctr.findCurrentMeasure(timeOffset-1);
           foundMeasure += ctr.pendingActionValue <= 1 ? 0 : ctr.pendingActionValue-1;
+          //logQ("alert:", foundMeasure, ctr.getMeasureCount(), timeOffset-1);
           if (foundMeasure >= ctr.getMeasureCount()) {
             timeOffset = ctr.getLastTime();
           }

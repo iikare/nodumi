@@ -107,7 +107,10 @@ void midi::buildMessageMap(const MidiFile& mf) {
 }
 
 int midi::findMeasure(int offset) const {
-  if (offset <= 0) { return 0; }
+  if (offset <= 0) { 
+    //logQ("bad offset", offset);
+    return 0;
+  }
   if (measureMap[measureMap.size() - 1].getLocation() < offset) {
     return measureMap.size();
   } 

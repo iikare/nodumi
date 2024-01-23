@@ -2,6 +2,7 @@ build/
 tests/
 util/
 .clangd/
+.ccls-cache/
 .cache/
 *.json
 gmon.out

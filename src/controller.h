@@ -244,12 +244,8 @@ class controller {
 
     outputInstance fileOutput;
 
-
-
     unordered_map<string, pair<asset, map<int, Font>>> fontMap;
     unordered_map <string, Texture2D> imageMap;
     unordered_map <string, shaderData> shaderMap;
-    
-
 };
 
