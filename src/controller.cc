@@ -656,7 +656,6 @@ int controller::findCurrentMeasure(int pos) const {
   else {
     return file.findMeasure(pos);
   }
-  return 0;
 }
 
 int controller::getMeasureCount() const {

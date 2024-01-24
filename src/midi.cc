@@ -118,8 +118,8 @@ int midi::findMeasure(int offset) const {
   }
   // requires a built measure map
   for (unsigned int i = 0; i < measureMap.size(); i++) {
-    if (measureMap[i].getLocation() < offset &&
-        measureMap[i + 1].getLocation() >= offset) {
+    if (measureMap[i].getLocation() <= offset &&
+        measureMap[i + 1].getLocation() > offset) {
       return i + 1;
     }
   }

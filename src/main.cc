@@ -1,3 +1,4 @@
+#include <raylib.h>
 #include <algorithm>
 #include <bit>
 #include <ctime>
@@ -1155,23 +1156,16 @@ int main(int argc, char* argv[]) {
     if (!ctr.buffer.empty()) {
       string keyBuffer = ctr.buffer.read();
       Vector2 bufText = measureTextEx(keyBuffer);
-      if (bufText.x > 100.0f) {
-        for (unsigned int c = keyBuffer.size() - 1; c != 0; --c) {
-          bufText = measureTextEx(keyBuffer.substr(c));
-          if (bufText.x > 100.0f) {
-            bufText = measureTextEx(keyBuffer.substr(c + 1));
-            bufText.x = 100.0f;
-            keyBuffer = keyBuffer.substr(c + 1);
-            break;
-          }
-        }
-      }
-      bufText.x = min(100.0f, bufText.x);
-      drawRectangle(ctr.getWidth() - bufText.x - 4,
-                    ctr.getHeight() - bufText.y - 4, bufText.x + 4,
+      float bufX = min(100.0f, bufText.x);
+      BeginScissorMode(ctr.getWidth() - bufX - 4,
+                       ctr.getHeight() - bufText.y - 4, bufX + 4,
+                       bufText.y+4);
+      drawRectangle(ctr.getWidth() - bufX - 4,
+                    ctr.getHeight() - bufText.y - 4, bufX + 4,
                     bufText.y + 4, ctr.bgOpt);
       drawTextEx(keyBuffer, ctr.getWidth() - bufText.x - 2,
                  ctr.getHeight() - bufText.y - 2, ctr.bgSheet);
+      EndScissorMode();
     }
 
     double rtOffset = ctr.getWidth() - 4;
@@ -1373,9 +1367,6 @@ int main(int argc, char* argv[]) {
         timeOffset = 0;
         break;
       case ACTION::NAV_SET_MEASURE:
-        if (ctr.pendingActionValue < 0) {
-          logW(LL_WARN, "invalid pending measure:", ctr.pendingActionValue);
-        }
         if (ctr.pendingActionValue < ctr.getMeasureCount()) {
           if (!ctr.getLiveState()) {
             double measureLineX = convertSSX(
@@ -1407,12 +1398,11 @@ int main(int argc, char* argv[]) {
         break;
       case ACTION::NAV_PREV_MEASURE:
         if (!ctr.getLiveState()) {
-          int foundMeasure = ctr.findCurrentMeasure(timeOffset + 1);
+          int foundMeasure = ctr.findCurrentMeasure(timeOffset);
           foundMeasure -=
-              ctr.pendingActionValue <= 1 ? 0 : ctr.pendingActionValue - 1;
+              ctr.pendingActionValue <= 0 ? 1 : ctr.pendingActionValue;
           if (foundMeasure > 0) {
-            timeOffset = unconvertSSX(
-                convertSSX(stream.measureMap[foundMeasure - 1].getLocation()));
+            timeOffset = stream.measureMap[foundMeasure].getLocation()-1;
           }
           else {
             timeOffset = 0;
@@ -1428,6 +1418,7 @@ int main(int argc, char* argv[]) {
         }
         break;
       case ACTION::NAV_NEXT_FAST:
+
         if (timeOffset + shiftC * 60 < ctr.getLastTime()) {
           timeOffset += shiftC * 60;
         }
@@ -1437,16 +1428,14 @@ int main(int argc, char* argv[]) {
         break;
       case ACTION::NAV_NEXT_MEASURE:
         if (!ctr.getLiveState()) {
-          int foundMeasure = ctr.findCurrentMeasure(timeOffset - 1);
+          int foundMeasure = ctr.findCurrentMeasure(timeOffset);
           foundMeasure +=
-              ctr.pendingActionValue <= 1 ? 0 : ctr.pendingActionValue - 1;
-          // logQ("alert:", foundMeasure, ctr.getMeasureCount(), timeOffset-1);
-          if (foundMeasure >= ctr.getMeasureCount()) {
-            timeOffset = ctr.getLastTime();
+              ctr.pendingActionValue <= 0 ? 1 : ctr.pendingActionValue;
+          if (foundMeasure < ctr.getMeasureCount()) {
+            timeOffset = stream.measureMap[foundMeasure].getLocation();
           }
           else {
-            timeOffset = unconvertSSX(
-                convertSSX(stream.measureMap[foundMeasure + 1].getLocation()));
+            timeOffset = ctr.getLastTime();
           }
         }
         break;

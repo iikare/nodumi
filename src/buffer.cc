@@ -115,7 +115,7 @@ bufferController::pending_action(bool apply_enter) {
 
   if (sbuf.length() > 1 && any_of(sbuf.back(), 'G', 'w', 'b')) {
     clear();
-    if (all_num(sbuf.substr(0, sbuf.size() - 2))) {
+    if (all_num(sbuf.substr(0, sbuf.size() - 1))) {
       if (sbuf.size() < 11) {
         set_pending(stoi(sbuf.substr(0, sbuf.size() - 1)));
       }
@@ -137,10 +137,5 @@ bufferController::pending_action(bool apply_enter) {
 }
 
 bool bufferController::all_num(const string& ref_str) const {
-  for (unsigned int i = 0; i < ref_str.size(); ++i) {
-    if (!isdigit(ref_str[i])) {
-      return false;
-    }
-  }
-  return true;
+  return ref_str.find_first_not_of("0123456789") == ref_str.npos;
 }
