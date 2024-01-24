@@ -1,4 +1,5 @@
 #include <raylib.h>
+
 #include <algorithm>
 #include <bit>
 #include <ctime>
@@ -1159,10 +1160,9 @@ int main(int argc, char* argv[]) {
       float bufX = min(100.0f, bufText.x);
       BeginScissorMode(ctr.getWidth() - bufX - 4,
                        ctr.getHeight() - bufText.y - 4, bufX + 4,
-                       bufText.y+4);
-      drawRectangle(ctr.getWidth() - bufX - 4,
-                    ctr.getHeight() - bufText.y - 4, bufX + 4,
-                    bufText.y + 4, ctr.bgOpt);
+                       bufText.y + 4);
+      drawRectangle(ctr.getWidth() - bufX - 4, ctr.getHeight() - bufText.y - 4,
+                    bufX + 4, bufText.y + 4, ctr.bgOpt);
       drawTextEx(keyBuffer, ctr.getWidth() - bufText.x - 2,
                  ctr.getHeight() - bufText.y - 2, ctr.bgSheet);
       EndScissorMode();
@@ -1294,7 +1294,9 @@ int main(int argc, char* argv[]) {
         }
         break;
       case ACTION::RELOAD:
-        ctr.open_file.setPending(ctr.getFileFullPath());
+        if (!ctr.getLiveState()) {
+          ctr.open_file.setPending(ctr.getFileFullPath());
+        }
         break;
       case ACTION::EXIT:
         ctr.setCloseFlag();
@@ -1402,7 +1404,7 @@ int main(int argc, char* argv[]) {
           foundMeasure -=
               ctr.pendingActionValue <= 0 ? 1 : ctr.pendingActionValue;
           if (foundMeasure > 0) {
-            timeOffset = stream.measureMap[foundMeasure].getLocation()-1;
+            timeOffset = stream.measureMap[foundMeasure].getLocation() - 1;
           }
           else {
             timeOffset = 0;
