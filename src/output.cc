@@ -1,9 +1,11 @@
 #include "output.h"
-#include "misc.h"
+
 #include <memory>
 
+#include "misc.h"
 
-midiOutput::midiOutput() : midiOut(nullptr), msgQueue(0), numPort(0), curPort(-1) {
+midiOutput::midiOutput()
+    : midiOut(nullptr), msgQueue(0), numPort(0), curPort(-1) {
   midiOut = unique_ptr<RtMidiOut>{new RtMidiOut()};
   if (midiOut == nullptr) {
     logW(LL_WARN, "unable to initialize midi output");
@@ -33,7 +35,7 @@ vector<string> midiOutput::getPorts() {
   for (int i = 0; i < numPort; i++) {
     ports[i] = midiOut->getPortName(i);
   }
-  
+
   return formatPortName(ports);
 }
 

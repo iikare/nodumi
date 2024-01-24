@@ -26,15 +26,14 @@
 #define MAX_HAND_RANGE 16
 
 #define DEFAULT_FONT "YKLIGHT"
-#define GLYPH_FONT   "LELAND"
+#define GLYPH_FONT "LELAND"
 #define TEXT_SPACING 0
 
-#define FILTER_FILE  "midi/mki:mid,mki"
+#define FILTER_FILE "midi/mki:mid,mki"
 #define FILTER_IMAGE "image:png,jpeg,jpg"
-#define FILTER_SAVE  "mki:mki"
+#define FILTER_SAVE "mki:mki"
 
 #define SITE_LINK "https://iika.re/nodumi/"
-
 
 #define TONIC_COUNT 12
 #define KEY_COUNT 128
@@ -51,8 +50,8 @@
 #define VORONOI_MAX_POINTS 496
 
 // already defined in <raylib.h>
-//#define RAD2DEG M_PI/180.0f
-//#define DEG2RAD 180.0f/M_PI
+// #define RAD2DEG M_PI/180.0f
+// #define DEG2RAD 180.0f/M_PI
 
-#define sinDeg(x) sin(x*RAD2DEG)
-#define cosDeg(x) cos(x*RAD2DEG)
+#define sinDeg(x) sin(x* RAD2DEG)
+#define cosDeg(x) cos(x* RAD2DEG)

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "build_target.h"
-
 #include <vector>
+
+#include "build_target.h"
 #include "controller.h"
 
 using std::vector;

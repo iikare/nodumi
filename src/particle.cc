@@ -1,10 +1,11 @@
-#include "build_target.h"
 #include "particle.h"
-#include "log.h"
-#include "define.h"
 
-using std::remove_if;
+#include "build_target.h"
+#include "define.h"
+#include "log.h"
+
 using std::make_pair;
+using std::remove_if;
 using std::set_difference;
 
 void particleController::update(double zoom) {
@@ -15,16 +16,16 @@ void particleController::update(double zoom) {
     em.second.update_part(GetFrameTime(), zoom);
   }
 }
-    
+
 void particleController::add_emitter(int index, const particleInfo& p_info) {
   current_emit.push_back(make_pair(index, p_info));
 }
-    
+
 void particleController::end_emission() {
   current_emit.clear();
   process();
 }
-    
+
 void particleController::process() {
   vector<pair<int, particleInfo>> begin_emit(current_emit.size());
   vector<pair<int, particleInfo>> end_emit(current_emit_last.size());
@@ -33,24 +34,24 @@ void particleController::process() {
                  current_emit_last.begin(), current_emit_last.end(),
                  begin_emit.begin(), set_comp());
   set_difference(current_emit_last.begin(), current_emit_last.end(),
-                 current_emit.begin(), current_emit.end(),
-                 end_emit.begin(), set_comp());
+                 current_emit.begin(), current_emit.end(), end_emit.begin(),
+                 set_comp());
 
-  auto zero_comp = [&](const auto& a) {
-    return a.first == 0;
-  };
+  auto zero_comp = [&](const auto& a) { return a.first == 0; };
 
-  begin_emit.erase(remove_if(begin_emit.begin(), begin_emit.end(), zero_comp), begin_emit.end());
-  end_emit.erase(remove_if(end_emit.begin(), end_emit.end(), zero_comp), end_emit.end());
+  begin_emit.erase(remove_if(begin_emit.begin(), begin_emit.end(), zero_comp),
+                   begin_emit.end());
+  end_emit.erase(remove_if(end_emit.begin(), end_emit.end(), zero_comp),
+                 end_emit.end());
 
-  //if (begin_emit.size()) logQ("BEGIN EMIT:", begin_emit);
-  //if (end_emit.size())   logQ("END EMIT:", end_emit);
+  // if (begin_emit.size()) logQ("BEGIN EMIT:", begin_emit);
+  // if (end_emit.size())   logQ("END EMIT:", end_emit);
 
   // do not delete just mark as no longer producing
   for (const auto& e_idx : end_emit) {
     auto e_it = emitter_map.find(e_idx);
     if (e_it != emitter_map.end()) {
-      //emitter_map.erase(e_it);
+      // emitter_map.erase(e_it);
       e_it->second.active = false;
     }
   }
@@ -64,7 +65,6 @@ void particleController::process() {
   }
 
   // remove inactive emitters with no particles
-  
 
   for (const auto& b_idx : begin_emit) {
     auto b_it = emitter_map.find(b_idx);
@@ -75,11 +75,11 @@ void particleController::process() {
     }
   }
 }
-    
+
 void particleController::render() {
-  //ctr.beginBlendMode(BLEND_ADDITIVE);
+  // ctr.beginBlendMode(BLEND_ADDITIVE);
   for (auto& em : emitter_map) {
     em.second.render();
   }
-  //ctr.endBlendMode();
+  // ctr.endBlendMode();
 }

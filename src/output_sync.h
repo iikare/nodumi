@@ -1,47 +1,49 @@
 #pragma once
 
+#include <atomic>
 #include <chrono>
+#include <mutex>
 #include <set>
 #include <thread>
-#include <mutex>
-#include <atomic>
-#include "output.h"
-#include "log.h"
 
-using std::multiset;
-using std::thread;
-using std::mutex;
+#include "log.h"
+#include "output.h"
+
 using std::atomic;
+using std::multiset;
+using std::mutex;
+using std::thread;
 
 class outputInstance {
-  public:
-    void init(midiOutput* out);
-    void terminate();
+ public:
+  void init(midiOutput* out);
+  void terminate();
 
-    void updateOffset(double off);
-    void load(const multiset<pair<double, vector<unsigned char>>>& message);
+  void updateOffset(double off);
+  void load(const multiset<pair<double, vector<unsigned char>>>& message);
 
-    void allow();
-    void disallow();
-  private:
-    void process();
+  void allow();
+  void disallow();
 
-    multiset<pair<double, vector<unsigned char>>> message;
-    midiOutput* output;
-    
-    bool end = false;
-    atomic<bool> send = false;
+ private:
+  void process();
 
-    unsigned int index = 0;
-    unsigned int index_last = 0;
+  multiset<pair<double, vector<unsigned char>>> message;
+  midiOutput* output;
 
-    double offset = 0;
-    double offset_last = 0;
+  bool end = false;
+  atomic<bool> send = false;
 
-    std::chrono::time_point<std::chrono::high_resolution_clock> update_last;
-    std::chrono::time_point<std::chrono::high_resolution_clock> update_last_overflow;
+  unsigned int index = 0;
+  unsigned int index_last = 0;
 
-    mutex crit;
-    thread oThread;
+  double offset = 0;
+  double offset_last = 0;
+
+  std::chrono::time_point<std::chrono::high_resolution_clock> update_last;
+  std::chrono::time_point<std::chrono::high_resolution_clock>
+      update_last_overflow;
+
+  mutex crit;
+  thread oThread;
 };
-

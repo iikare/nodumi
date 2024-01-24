@@ -1,8 +1,9 @@
-#include "build_target.h"
+#include "measure.h"
 
 #include <algorithm>
 #include <iterator>
-#include "measure.h"
+
+#include "build_target.h"
 #include "data.h"
 #include "define.h"
 #include "log.h"
@@ -12,11 +13,11 @@ using std::make_move_iterator;
 
 void measureController::clear() {
   // NOTE: not used
-  //notes.clear();
-  //timeSignatures.clear();
-  //keySignatures.clear();
-  //currentTime = timeSig();
-  //currentKey = keySig();
+  // notes.clear();
+  // timeSignatures.clear();
+  // keySignatures.clear();
+  // currentTime = timeSig();
+  // currentKey = keySig();
 }
 
 void measureController::buildTickMap() {
@@ -24,16 +25,18 @@ void measureController::buildTickMap() {
   int minTick = ctr.getMinTickLen();
   int numPos = tickLength / minTick;
 
-  //logQ(number, ":", currentTime.getTop(), currentTime.getBottom(), "#pos", numPos); 
+  // logQ(number, ":", currentTime.getTop(), currentTime.getBottom(), "#pos",
+  // numPos);
 
   vector<int> tmpPos(numPos, tick);
   for (unsigned int i = 0; i < tmpPos.size(); ++i) {
     tmpPos[i] += i * minTick;
   }
 
-  //logQ(formatVector(tmpPos));
+  // logQ(formatVector(tmpPos));
 
-  tickMap = set<int>(make_move_iterator(tmpPos.begin()), make_move_iterator(tmpPos.end()));
+  tickMap = set<int>(make_move_iterator(tmpPos.begin()),
+                     make_move_iterator(tmpPos.end()));
 }
 
 void measureController::addNote(note& note) {
@@ -41,17 +44,17 @@ void measureController::addNote(note& note) {
 
   // below this point: not required for non-sheetmusic usage
 
-
   // find available sheet parameters (quantize)
   if (!tickMap.contains(note.tick)) {
     // not a standard position, needs quantization
     int quantTick = *tickMap.lower_bound(note.tick);
-    //logQ("nonstandard tickpos with size", note.size, "on measure", note.measure, "rectified to", quantTick);
+    // logQ("nonstandard tickpos with size", note.size, "on measure",
+    // note.measure, "rectified to", quantTick);
 
     // parameter displayAcc is not calculated at this step
-    displayNotes.push_back({quantTick, -1, STAVE_NONE, true, true, &note}); 
+    displayNotes.push_back({quantTick, -1, STAVE_NONE, true, true, &note});
   }
   else {
-    displayNotes.push_back({note.tick, -1, STAVE_NONE, true, true, &note}); 
+    displayNotes.push_back({note.tick, -1, STAVE_NONE, true, true, &note});
   }
 }

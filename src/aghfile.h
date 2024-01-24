@@ -3,7 +3,8 @@
 #define AGHFILE_H
 
 #include <vector>
+
 #include "asset.h"
 
 vector<asset> assetSet = {};
-#endif //AGHFILE_H
+#endif  // AGHFILE_H

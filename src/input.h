@@ -1,47 +1,47 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <memory>
-#include "../dpd/rtmidi/RtMidi.h"
-#include "track_split.h"
-#include "note.h"
-#include "midi.h"
-#include "log.h"
+#include <string>
+#include <vector>
 
-using std::vector;
+#include "../dpd/rtmidi/RtMidi.h"
+#include "log.h"
+#include "midi.h"
+#include "note.h"
+#include "track_split.h"
+
 using std::string;
 using std::unique_ptr;
+using std::vector;
 
 class midiInput {
-  public:
-    midiInput();
+ public:
+  midiInput();
 
-    void openPort(int port, bool pauseEvent = false);
-    void resetInput();
-    void update();
-    void pauseInput();
-    void resumeInput();
-    
-    int getNoteCount() { return noteCount; }
-    vector<string> getPorts();
+  void openPort(int port, bool pauseEvent = false);
+  void resetInput();
+  void update();
+  void pauseInput();
+  void resumeInput();
 
-    midi noteStream;
+  int getNoteCount() { return noteCount; }
+  vector<string> getPorts();
 
-  private:
-    void convertEvents();
-    void updatePosition();
-    bool updateQueue();
-    bool isUntimedQueue();
-    int findNoteIndex(int key);
-    int findPartition(const note& n);
-    
-    unique_ptr<RtMidiIn> midiIn;
-    vector<unsigned char> msgQueue;
-    int numPort;
-    int curPort;
-    int noteCount;
-    int numOn;
-    double timestamp;
+  midi noteStream;
 
+ private:
+  void convertEvents();
+  void updatePosition();
+  bool updateQueue();
+  bool isUntimedQueue();
+  int findNoteIndex(int key);
+  int findPartition(const note& n);
+
+  unique_ptr<RtMidiIn> midiIn;
+  vector<unsigned char> msgQueue;
+  int numPort;
+  int curPort;
+  int noteCount;
+  int numOn;
+  double timestamp;
 };

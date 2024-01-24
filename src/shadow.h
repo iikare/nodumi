@@ -2,14 +2,13 @@
 
 #include "build_target.h"
 
-
 class shadowController {
-  public:
+ public:
+  void init();
+  void update();
+  void unload();
 
-    void init();
-    void update();
-    void unload();
+  RenderTexture buffer;
 
-    RenderTexture buffer;
-  private:
+ private:
 };

@@ -9,7 +9,7 @@ struct uniform {
     this->type = type;
     this->name = name;
   }
-    
+
   int type;
   string name;
 };

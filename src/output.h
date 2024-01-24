@@ -1,33 +1,33 @@
 #pragma once
 
 #include <algorithm>
-#include <vector>
-#include <string>
 #include <memory>
-#include "../dpd/rtmidi/RtMidi.h"
-#include "note.h"
-#include "midi.h"
-#include "log.h"
+#include <string>
+#include <vector>
 
-using std::vector;
+#include "../dpd/rtmidi/RtMidi.h"
+#include "log.h"
+#include "midi.h"
+#include "note.h"
+
 using std::string;
 using std::unique_ptr;
+using std::vector;
 
 class midiOutput {
-  public:
-    midiOutput();
+ public:
+  midiOutput();
 
-    bool isPortOpen() { return midiOut->isPortOpen(); }
-    void openPort(int port);
-    void update();
-    void sendMessage(vector<unsigned char>* msgQueue);
-    
-    vector<string> getPorts();
+  bool isPortOpen() { return midiOut->isPortOpen(); }
+  void openPort(int port);
+  void update();
+  void sendMessage(vector<unsigned char>* msgQueue);
 
-  private:
-    
-    unique_ptr<RtMidiOut> midiOut;
-    vector<unsigned char> msgQueue;
-    int numPort;
-    int curPort;
+  vector<string> getPorts();
+
+ private:
+  unique_ptr<RtMidiOut> midiOut;
+  vector<unsigned char> msgQueue;
+  int numPort;
+  int curPort;
 };

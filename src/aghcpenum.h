@@ -50,4 +50,4 @@ enum codepoints {
   SYM_NONE = 0x0000,
 };
 
-#endif //AGHCPENUM_H
+#endif  // AGHCPENUM_H

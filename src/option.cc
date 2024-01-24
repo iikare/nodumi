@@ -1,8 +1,9 @@
 #include "option.h"
+
 #include "cie2k.h"
 #include "data.h"
-#include "enum.h"
 #include "define.h"
+#include "enum.h"
 
 optionController::optionController() {
   opts.resize(static_cast<int>(OPTION::NONE), 0);
@@ -11,7 +12,8 @@ optionController::optionController() {
   opts[static_cast<int>(OPTION::SET_HAND_RANGE)] = false;
   opts[static_cast<int>(OPTION::HAND_RANGE)] = MAX_HAND_RANGE;
   opts[static_cast<int>(OPTION::SET_DARKEN_IMAGE)] = false;
-  opts[static_cast<int>(OPTION::CIE_FUNCTION)] = static_cast<int>(cie2k::TYPE::CIE_00);
+  opts[static_cast<int>(OPTION::CIE_FUNCTION)] =
+      static_cast<int>(cie2k::TYPE::CIE_00);
   opts[static_cast<int>(OPTION::SET_CIE_FUNCTION)] = false;
   opts[static_cast<int>(OPTION::DARKEN_IMAGE)] = 0;
   opts[static_cast<int>(OPTION::DYNAMIC_LABEL)] = true;
@@ -22,7 +24,9 @@ optionController::optionController() {
 }
 
 void optionController::invert(OPTION opt) {
-  if (invalid(opt)) { return; }
+  if (invalid(opt)) {
+    return;
+  }
 
   switch (opt) {
     case OPTION::TRACK_DIVISION_LIVE:
@@ -56,11 +60,12 @@ void optionController::invert(OPTION opt) {
 }
 
 bool optionController::invalid(OPTION opt) {
-  switch(opt) {
+  switch (opt) {
     case OPTION::SET_HAND_RANGE:
       [[fallthrough]];
     case OPTION::HAND_RANGE:
-      return !get(OPTION::TRACK_DIVISION_LIVE) && !get(OPTION::TRACK_DIVISION_MIDI);
+      return !get(OPTION::TRACK_DIVISION_LIVE) &&
+             !get(OPTION::TRACK_DIVISION_MIDI);
     case OPTION::SET_DARKEN_IMAGE:
       [[fallthrough]];
     case OPTION::DARKEN_IMAGE:
@@ -73,9 +78,10 @@ bool optionController::invalid(OPTION opt) {
 }
 
 void optionController::set(OPTION opt, int value) {
+  if (invalid(opt)) {
+    return;
+  }
 
-  if (invalid(opt)) { return; }
-  
   switch (opt) {
     case OPTION::HAND_RANGE:
       [[fallthrough]];
@@ -93,6 +99,4 @@ void optionController::set(OPTION opt, int value) {
   opts[static_cast<int>(opt)] = value;
 }
 
-int optionController::get(OPTION opt) {
-  return opts[static_cast<int>(opt)];
-}
+int optionController::get(OPTION opt) { return opts[static_cast<int>(opt)]; }

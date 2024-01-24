@@ -1,66 +1,57 @@
 #pragma once
 
-#include <vector>
 #include <algorithm>
+#include <vector>
+
 #include "aghcpenum.h"
 
 using std::find;
-using std::vector;
 using std::is_enum;
+using std::vector;
 
 template <class T>
 class enumChecker {
-  public:
+ public:
+  enumChecker() : items(0), itemsLastFrame(0) {
+    static_assert(is_enum<T>::value, "class requires an enum type");
+  }
 
-    enumChecker() : items(0), itemsLastFrame(0) {
-      static_assert(is_enum<T>::value, "class requires an enum type");
+  void add(T item) {
+    if (!contains(item)) {
+      items.push_back(item);
     }
+  }
 
-    void add(T item) {
-      if (!contains(item)) {
-        items.push_back(item);
-      }
-    }
+  void remove(T item) { items.remove(item); }
 
-    void remove(T item) {
-      items.remove(item);
-    }
+  void clear() {
+    itemsLastFrame = items;
+    items.clear();
+  }
 
-    void clear() {
-      itemsLastFrame = items;
-      items.clear();
-    }
+  bool contains(T item) {
+    return find(items.begin(), items.end(), item) != items.end();
+  }
 
-    bool contains(T item) {
-      return find(items.begin(), items.end(), item) != items.end(); 
-    }
+  bool contains(T item1, T item2...) {
+    return contains(item1) || contains(item2);
+  }
 
-    bool contains(T item1, T item2...) {
-      return contains(item1) || contains(item2);
-    }
-    
-    bool containsLastFrame(T item) {
-      return find(itemsLastFrame.begin(), itemsLastFrame.end(), item) != itemsLastFrame.end(); 
-    }
+  bool containsLastFrame(T item) {
+    return find(itemsLastFrame.begin(), itemsLastFrame.end(), item) !=
+           itemsLastFrame.end();
+  }
 
-    bool containsLastFrame(T item1, T item2...) {
-      return containsLastFrame(item1) || containsLastFrame(item2);
-    }
+  bool containsLastFrame(T item1, T item2...) {
+    return containsLastFrame(item1) || containsLastFrame(item2);
+  }
 
-
-  private:
-    vector<T> items;
-    vector<T> itemsLastFrame;
+ private:
+  vector<T> items;
+  vector<T> itemsLastFrame;
 };
 
-enum class ASSET {
-  FONT,
-  RENDER_TEXTURE,
-  TEXTURE,
-  SHADER,
-  IMAGE,
-  NONE
-};
+enum class ASSET { FONT, RENDER_TEXTURE, TEXTURE, SHADER, IMAGE, NONE };
 
 enum lerpType {
   INT_LINEAR,
@@ -74,25 +65,11 @@ enum lerpType {
   INT_ISINE
 };
 
-enum fileType {
-  FILE_MIDI,
-  FILE_MKI,
-  FILE_NONE
-};
+enum fileType { FILE_MIDI, FILE_MKI, FILE_NONE };
 
-enum pathType {
-  PATH_DATA,
-  PATH_IMAGE,
-  PATH_MKI,
-  PATH_NONE
-};
+enum pathType { PATH_DATA, PATH_IMAGE, PATH_MKI, PATH_NONE };
 
-enum schemeType {
-  SCHEME_TRACK,
-  SCHEME_TONIC,
-  SCHEME_KEY,
-  SCHEME_NONE
-};
+enum schemeType { SCHEME_TRACK, SCHEME_TONIC, SCHEME_KEY, SCHEME_NONE };
 
 enum selectType {
   SELECT_BG,
@@ -114,13 +91,7 @@ enum displayType {
   DISPLAY_NONE
 };
 
-enum menuType {
-  TYPE_MAIN,
-  TYPE_SUB,
-  TYPE_RIGHT,
-  TYPE_RIGHTSUB,
-  TYPE_COLOR
-};
+enum menuType { TYPE_MAIN, TYPE_SUB, TYPE_RIGHT, TYPE_RIGHTSUB, TYPE_COLOR };
 
 enum menuContentType {
   CONTENT_FILE,
@@ -140,11 +111,7 @@ enum menuContentType {
   CONTENT_NONE,
 };
 
-enum songTimeType {
-  SONGTIME_RELATIVE,
-  SONGTIME_ABSOLUTE,
-  SONGTIME_NONE
-};
+enum songTimeType { SONGTIME_RELATIVE, SONGTIME_ABSOLUTE, SONGTIME_NONE };
 
 enum hoverType {
   HOVER_NOW,
@@ -155,21 +122,13 @@ enum hoverType {
   HOVER_SHEET,
   HOVER_MENU,
   HOVER_DIALOG,
-  HOVER_BG, //default, should not be added
+  HOVER_BG,  // default, should not be added
   HOVER_NONE
 };
 
-enum colorType {
-  COLOR_PART,
-  COLOR_VELOCITY,
-  COLOR_TONIC
-};
+enum colorType { COLOR_PART, COLOR_VELOCITY, COLOR_TONIC };
 
-enum imageType {
-  IMAGE_PNG,
-  IMAGE_JPG,
-  IMAGE_NONE
-};
+enum imageType { IMAGE_PNG, IMAGE_JPG, IMAGE_NONE };
 
 enum sheetEventType {
   EVENT_TIME,
@@ -181,28 +140,23 @@ enum sheetEventType {
 
 // in ratios of TPQ
 enum noteType {
-  NOTE_LARGE,            // 0  |  8 (fake)
-  NOTE_WHOLE_DOT,        // 1  |  6
-  NOTE_WHOLE,            // 2  |  4
-  NOTE_HALF_DOT,         // 3  |  3
-  NOTE_HALF,             // 4  |  2
-  NOTE_QUARTER_DOT,      // 5  |  1.5
-  NOTE_QUARTER,          // 6  |  1 
-  NOTE_8_DOT,            // 7  |  0.75
-  NOTE_8,                // 8  |  0.5
-  NOTE_16_DOT,           // 9  |  0.375
-  NOTE_16,               // 10 |  0.25
-  NOTE_32,               // 11 |  0.125
-  NOTE_64,               // 12 |  0.0625
-  NOTE_NONE              // no numerical mapping
+  NOTE_LARGE,        // 0  |  8 (fake)
+  NOTE_WHOLE_DOT,    // 1  |  6
+  NOTE_WHOLE,        // 2  |  4
+  NOTE_HALF_DOT,     // 3  |  3
+  NOTE_HALF,         // 4  |  2
+  NOTE_QUARTER_DOT,  // 5  |  1.5
+  NOTE_QUARTER,      // 6  |  1
+  NOTE_8_DOT,        // 7  |  0.75
+  NOTE_8,            // 8  |  0.5
+  NOTE_16_DOT,       // 9  |  0.375
+  NOTE_16,           // 10 |  0.25
+  NOTE_32,           // 11 |  0.125
+  NOTE_64,           // 12 |  0.0625
+  NOTE_NONE          // no numerical mapping
 };
 
-enum accidentalType{
-  ACC_NATURAL,
-  ACC_SHARP,
-  ACC_FLAT,
-  ACC_NONE
-};
+enum accidentalType { ACC_NATURAL, ACC_SHARP, ACC_FLAT, ACC_NONE };
 
 enum keySignatureType {
   KEYSIG_C,
@@ -223,17 +177,9 @@ enum keySignatureType {
   KEYSIG_NONE
 };
 
-enum staveType {
-  STAVE_TREBLE,
-  STAVE_BASS,
-  STAVE_NONE
-};
+enum staveType { STAVE_TREBLE, STAVE_BASS, STAVE_NONE };
 
-enum displayDirectionType {
-  DISP_UP,
-  DISP_DOWN,
-  DISP_NONE
-};
+enum displayDirectionType { DISP_UP, DISP_DOWN, DISP_NONE };
 
 enum displayAccStateType {
   DA_STATE_CLEAR,
@@ -254,11 +200,7 @@ enum flagType {
   FLAGTYPE_NONE
 };
 
-enum flagDirType {
-  FLAG_UP,
-  FLAG_DOWN,
-  FLAG_NONE
-};
+enum flagDirType { FLAG_UP, FLAG_DOWN, FLAG_NONE };
 
 enum class ACTION {
   OPEN,
@@ -307,90 +249,76 @@ enum class OPTION {
   NONE
 };
 
-enum class DIA_OPT {
-  CHECK_ONLY,
-  SLIDER,
-  SUBBOX,
-  NONE
-};
+enum class DIA_OPT { CHECK_ONLY, SLIDER, SUBBOX, NONE };
 
 enum class langType {
   LANG_EN,
   LANG_NONE,
 };
 
-enum class PREF {
-  P1,
-  P2,
-  NONE
-};
+enum class PREF { P1, P2, NONE };
 
-enum class DIALOG {
-  PREFERENCES = 0,
-  FILE = 1,
-  INFO = 2,
-  NONE = -1
-};
+enum class DIALOG { PREFERENCES = 0, FILE = 1, INFO = 2, NONE = -1 };
 
 enum panelType {
 
   MENU_INACTIVE = -1,
 
-	FILE_MENU_FILE = 0,
-	FILE_MENU_OPEN_FILE = 1,
-	FILE_MENU_OPEN_IMAGE = 2,
-	FILE_MENU_SAVE = 3,
-	FILE_MENU_SAVE_AS = 4,
-	FILE_MENU_CLOSE_FILE = 5,
-	FILE_MENU_CLOSE_IMAGE = 6,
-	FILE_MENU_EXIT = 7,
+  FILE_MENU_FILE = 0,
+  FILE_MENU_OPEN_FILE = 1,
+  FILE_MENU_OPEN_IMAGE = 2,
+  FILE_MENU_SAVE = 3,
+  FILE_MENU_SAVE_AS = 4,
+  FILE_MENU_CLOSE_FILE = 5,
+  FILE_MENU_CLOSE_IMAGE = 6,
+  FILE_MENU_EXIT = 7,
 
-	EDIT_MENU_EDIT = 0,
-	EDIT_MENU_SHEET_MUSIC = 1,
-	EDIT_MENU_PREFERENCES = 2,
+  EDIT_MENU_EDIT = 0,
+  EDIT_MENU_SHEET_MUSIC = 1,
+  EDIT_MENU_PREFERENCES = 2,
 
-	VIEW_MENU_VIEW = 0,
-	VIEW_MENU_DISPLAY_MODE = 1,
-	VIEW_MENU_SONG_TIME = 2,
-	VIEW_MENU_KEY_SIGNATURE = 3,
-	VIEW_MENU_TEMPO = 4,
-	VIEW_MENU_NOW_LINE = 5,
-	VIEW_MENU_MEASURE_LINE = 6,
-	VIEW_MENU_MEASURE_NUMBER = 7,
-	VIEW_MENU_BACKGROUND = 8,
-	VIEW_MENU_FPS = 9,
+  VIEW_MENU_VIEW = 0,
+  VIEW_MENU_DISPLAY_MODE = 1,
+  VIEW_MENU_SONG_TIME = 2,
+  VIEW_MENU_KEY_SIGNATURE = 3,
+  VIEW_MENU_TEMPO = 4,
+  VIEW_MENU_NOW_LINE = 5,
+  VIEW_MENU_MEASURE_LINE = 6,
+  VIEW_MENU_MEASURE_NUMBER = 7,
+  VIEW_MENU_BACKGROUND = 8,
+  VIEW_MENU_FPS = 9,
 
-	DISPLAY_MENU_DEFAULT = 0,
-	DISPLAY_MENU_LINE = 1,
-	DISPLAY_MENU_PULSE = 2,
-	DISPLAY_MENU_BALL = 3,
-	DISPLAY_MENU_FFT = 4,
-	DISPLAY_MENU_VORONOI = 5,
-	DISPLAY_MENU_LOOP = 6,
+  DISPLAY_MENU_DEFAULT = 0,
+  DISPLAY_MENU_LINE = 1,
+  DISPLAY_MENU_PULSE = 2,
+  DISPLAY_MENU_BALL = 3,
+  DISPLAY_MENU_FFT = 4,
+  DISPLAY_MENU_VORONOI = 5,
+  DISPLAY_MENU_LOOP = 6,
 
   SONG_MENU_RELATIVE = 0,
-	SONG_MENU_ABSOLUTE = 1,
+  SONG_MENU_ABSOLUTE = 1,
 
-	MIDI_MENU_MIDI = 0,
-	MIDI_MENU_INPUT = 1,
-	MIDI_MENU_OUTPUT = 2,
-	MIDI_MENU_LIVE_PLAY = 3,
+  MIDI_MENU_MIDI = 0,
+  MIDI_MENU_INPUT = 1,
+  MIDI_MENU_OUTPUT = 2,
+  MIDI_MENU_LIVE_PLAY = 3,
 
-	COLOR_MENU_COLOR = 0,
-	COLOR_MENU_COLOR_BY = 1,
-	COLOR_MENU_COLOR_SCHEME = 2,
-	COLOR_MENU_SWAP_COLORS = 3,
-	COLOR_MENU_INVERT_COLOR_SCHEME = 4,
+  COLOR_MENU_COLOR = 0,
+  COLOR_MENU_COLOR_BY = 1,
+  COLOR_MENU_COLOR_SCHEME = 2,
+  COLOR_MENU_SWAP_COLORS = 3,
+  COLOR_MENU_INVERT_COLOR_SCHEME = 4,
 
-	SCHEME_MENU_PART = 0,
-	SCHEME_MENU_VELOCITY = 1,
-	SCHEME_MENU_TONIC = 2,
+  SCHEME_MENU_PART = 0,
+  SCHEME_MENU_VELOCITY = 1,
+  SCHEME_MENU_TONIC = 2,
 
-	INFO_MENU_INFO = 0,
-	INFO_MENU_PROGRAM_INFO = 1,
-	INFO_MENU_FILE_INFO = 2,
-	INFO_MENU_HELP = 3,
+  INFO_MENU_INFO = 0,
+  INFO_MENU_PROGRAM_INFO = 1,
+  INFO_MENU_FILE_INFO = 2,
+  INFO_MENU_HELP = 3,
 
-	PALETTE_MENU_DEFAULT = 0,
-	PALETTE_MENU_FROM_BACKGROUND = 1,
+  PALETTE_MENU_DEFAULT = 0,
+  PALETTE_MENU_FROM_BACKGROUND = 1,
 };

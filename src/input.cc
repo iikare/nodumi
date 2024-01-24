@@ -1,17 +1,26 @@
-#include<algorithm>
-#include<bitset>
 #include "input.h"
-#include "data.h"
+
+#include <algorithm>
+#include <bitset>
+
 #include "controller.h"
+#include "data.h"
 #include "define.h"
 #include "log.h"
 
-midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
+midiInput::midiInput()
+    : midiIn(nullptr),
+      msgQueue(0),
+      numPort(0),
+      curPort(-1),
+      noteCount(0),
+      numOn(0),
+      timestamp(0) {
   midiIn = unique_ptr<RtMidiIn>(new RtMidiIn());
   if (midiIn == nullptr) {
     logW(LL_WARN, "unable to initialize midi input");
   }
-  for (auto& t : noteStream.getTracks()){
+  for (auto& t : noteStream.getTracks()) {
     t.setNoteVector(&noteStream.notes);
   }
 }
@@ -46,7 +55,7 @@ void midiInput::resetInput() {
   noteCount = 0;
   numOn = 0;
   curPort = 0;
-  
+
   // TODO: implement midi reset handler
   noteStream.notes.clear();
   noteStream.measureMap.clear();
@@ -56,13 +65,9 @@ void midiInput::resetInput() {
   }
 }
 
-void midiInput::pauseInput() {
-  midiIn->closePort();
-}
+void midiInput::pauseInput() { midiIn->closePort(); }
 
-void midiInput::resumeInput() {
-  openPort(curPort, true);
-}
+void midiInput::resumeInput() { openPort(curPort, true); }
 
 vector<string> midiInput::getPorts() {
   vector<string> ports;
@@ -70,7 +75,7 @@ vector<string> midiInput::getPorts() {
   for (int i = 0; i < numPort; i++) {
     ports.push_back(midiIn->getPortName(i));
   }
-  
+
   return formatPortName(ports);
 }
 
@@ -83,10 +88,10 @@ bool midiInput::updateQueue() {
   else {
     timestamp = tempTS;
   }
-    
+
   if (msgQueue.size() > 0) {
     ctr.output.sendMessage(&msgQueue);
-    if (!any_of(static_cast<int>(msgQueue[0]), 248, 254)){ 
+    if (!any_of(static_cast<int>(msgQueue[0]), 248, 254)) {
       logQ("timestamp:", timestamp);
     }
     return true;
@@ -96,7 +101,7 @@ bool midiInput::updateQueue() {
 
 bool midiInput::isUntimedQueue() {
   bool noShift = true;
-  for (long unsigned int i = 0; i < msgQueue.size(); i++) { 
+  for (long unsigned int i = 0; i < msgQueue.size(); i++) {
     if (msgQueue[i] == 0b11111000) {
       noShift = false;
       break;
@@ -107,82 +112,81 @@ bool midiInput::isUntimedQueue() {
 
 void midiInput::convertEvents() {
   //-timestamp * 100 * noteStream->getTimeScale()
-  //logQ(" ");
+  // logQ(" ");
 
-  //logQ(ctr.livePlayOffset, timestamp);
-  for (long unsigned int i = 0; i < msgQueue.size(); i++) { 
-    //logQ(bitset<8>(msgQueue[i]));
-   
-    //logQ(ctr.livePlayOffset);
+  // logQ(ctr.livePlayOffset, timestamp);
+  for (long unsigned int i = 0; i < msgQueue.size(); i++) {
+    // logQ(bitset<8>(msgQueue[i]));
 
-    if (msgQueue[i] == 0b11111000) { // 248: clock signal
-      //cerr << "shift by " << timestamp*100 << endl;
+    // logQ(ctr.livePlayOffset);
+
+    if (msgQueue[i] == 0b11111000) {  // 248: clock signal
+      // cerr << "shift by " << timestamp*100 << endl;
       ctr.livePlayOffset += fmax(0, timestamp) * UNK_CST;
     }
-    else if (msgQueue[i] == 0b10010000) { // 144: note on/off
-      if (msgQueue[i + 2] != 0) { // if note on
+    else if (msgQueue[i] == 0b10010000) {  // 144: note on/off
+      if (msgQueue[i + 2] != 0) {          // if note on
         note tmpNote;
 
         tmpNote.x = ctr.livePlayOffset;
         tmpNote.y = static_cast<int>(msgQueue[i + 1]);
         tmpNote.velocity = static_cast<int>(msgQueue[i + 2]);
         tmpNote.isOn = true;
-        
+
         // if this is the note on event, duration is undefined
         tmpNote.duration = -1;
 
-        //tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ? findPartition(tmpNote) : 1; // by default
-       
-        //logQ("count, x, track, trackct:", noteCount, tmpNote.x, tmpNote.track, 
-             //noteStream.getTracks()[tmpNote.track].getNoteCount());
+        // tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ?
+        // findPartition(tmpNote) : 1; // by default
+
+        // logQ("count, x, track, trackct:", noteCount, tmpNote.x,
+        // tmpNote.track, noteStream.getTracks()[tmpNote.track].getNoteCount());
 
         // partition finder requires the current note to be present
         noteStream.notes.push_back(tmpNote);
-        
+
         numOn++;
-        tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ? findPartition(tmpNote) : 1; // by default
-                                                                                                        
+        tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION_LIVE)
+                            ? findPartition(tmpNote)
+                            : 1;  // by default
+
         // update track after determination
         noteStream.notes[noteCount].track = tmpNote.track;
 
         noteStream.getTracks()[tmpNote.track].insert(noteCount);
-        
+
         // update last index only AFTER track splitter
         noteCount++;
-        
-
-
-       
-
 
         i += 2;
-        
-        //cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
-        
-        noteStream.setNoteCount(noteCount);
 
+        // cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " <<
+        // tmpNote.y << ", " << tmpNote.velocity << endl;
+
+        noteStream.setNoteCount(noteCount);
       }
       else {
         int idx = findNoteIndex(static_cast<int>(msgQueue[i + 1]));
         noteStream.notes[idx].isOn = false;
-        //note tmpNote = noteStream.notes[idx];
+        // note tmpNote = noteStream.notes[idx];
 
         numOn--;
 
-        //cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " << tmpNote.y << ", " << tmpNote.velocity << endl;
+        // cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " <<
+        // tmpNote.y << ", " << tmpNote.velocity << endl;
       }
 
-        for (auto& t : noteStream.getTracks()){
-          t.buildChordMap();
-        }
-        noteStream.buildLineMap();
-        //logQ("line size:", noteStream.lines.size());
+      for (auto& t : noteStream.getTracks()) {
+        t.buildChordMap();
+      }
+      noteStream.buildLineMap();
+      // logQ("line size:", noteStream.lines.size());
     }
   }
 }
 
 int midiInput::findPartition(const note& n) {
-  //logW(LL_WARN, "new note @", n.y);
+  // logW(LL_WARN, "new note @", n.y);
   return findTrack(n, noteStream, true, numOn);
 }
 
@@ -217,7 +221,7 @@ void midiInput::update() {
         updatePosition();
       }
       // TODO: consider optimization
-      //ctr.input.noteStream.buildLineMap();
+      // ctr.input.noteStream.buildLineMap();
     }
     else {
       // shift even when midi input is disconnected

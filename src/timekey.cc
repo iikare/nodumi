@@ -1,6 +1,8 @@
+#include "timekey.h"
+
 #include <algorithm>
 #include <string>
-#include "timekey.h"
+
 #include "define.h"
 #include "log.h"
 
@@ -56,9 +58,7 @@ void keySig::findAccidentalsFromKey() {
   }
 }
 
-int keySig::getSize() const {
-  return abs(accidentals);
-}
+int keySig::getSize() const { return abs(accidentals); }
 
 void keySig::findStartingIndex() {
   switch (key) {
@@ -159,51 +159,51 @@ string keySig::getLabel() const {
   switch (key) {
     case KEYSIG_C:
       label = "C ";
-			break;
+      break;
     case KEYSIG_G:
       label = "G ";
-			break;
+      break;
     case KEYSIG_D:
       label = "D ";
-			break;
+      break;
     case KEYSIG_A:
       label = "A ";
-			break;
+      break;
     case KEYSIG_E:
       label = "E ";
-			break;
+      break;
     case KEYSIG_B:
       label = "B ";
-			break;
+      break;
     case KEYSIG_FSHARP:
       label = "F# ";
-			break;
+      break;
     case KEYSIG_CSHARP:
       label = "C# ";
-			break;
+      break;
     case KEYSIG_F:
       label = "F ";
-			break;
+      break;
     case KEYSIG_BFLAT:
       label = "Bb ";
-			break;
+      break;
     case KEYSIG_EFLAT:
       label = "Eb ";
-			break;
+      break;
     case KEYSIG_AFLAT:
       label = "Ab ";
-			break;
+      break;
     case KEYSIG_DFLAT:
       label = "Db ";
-			break;
+      break;
     case KEYSIG_GFLAT:
       label = "Gb ";
-			break;
+      break;
     case KEYSIG_CFLAT:
       label = "Cb ";
-			break;
+      break;
     default:
-       return "undefined";
+      return "undefined";
   }
   return label += ctr.text.getString("GET_LABEL_MAJOR");
 }

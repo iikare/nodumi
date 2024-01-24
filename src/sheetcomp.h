@@ -1,25 +1,27 @@
 #pragma once
 
-#include <vector>
 #include <set>
-#include "sheetnote.h"
-#include "measure.h"
-#include "enum.h"
-#include "note.h"
+#include <vector>
 
-using std::vector;
+#include "enum.h"
+#include "measure.h"
+#include "note.h"
+#include "sheetnote.h"
+
 using std::pair;
+using std::vector;
 
 struct noteCmp {
-    bool operator() (const sheetNote* a, const sheetNote* b) const {
-        return a->oriNote->y < b->oriNote->y;
-    }
+  bool operator()(const sheetNote* a, const sheetNote* b) const {
+    return a->oriNote->y < b->oriNote->y;
+  }
 };
 
 struct chordCmp {
-    bool operator() (const pair<int, vector<sheetNote*>>& a, const pair<int, vector<sheetNote*>>& b) const {
-        return a.first < b.first;
-    }
+  bool operator()(const pair<int, vector<sheetNote*>>& a,
+                  const pair<int, vector<sheetNote*>>& b) const {
+    return a.first < b.first;
+  }
 };
 
 struct flagData {
@@ -41,22 +43,21 @@ struct sheetChordData {
 };
 
 class sheetMeasure {
-  public:
+ public:
+  bool hasStem(int chordNum) const;
+  int hasFlag(int chordNum) const;
+  int getFlagType(const int noteType) const;
 
-    bool hasStem(int chordNum) const;
-    int hasFlag(int chordNum) const;
-    int getFlagType(const int noteType) const;
+  void buildChordMap(vector<sheetNote>& vecNote);
+  void buildFlagMap();
 
-    void buildChordMap(vector<sheetNote>& vecNote);
-    void buildFlagMap();
+  void setParent(measureController& m) { measure = &m; }
 
-    void setParent(measureController& m) { measure = &m; }
+  int getSpacingCount() const;
 
-    int getSpacingCount() const;
- 
-    vector<sheetChordData> s_chordData;
-    vector<pair<int, vector<sheetNote*>>> chords;
-    measureController* measure;
+  vector<sheetChordData> s_chordData;
+  vector<pair<int, vector<sheetNote*>>> chords;
+  measureController* measure;
 
-  private:
+ private:
 };

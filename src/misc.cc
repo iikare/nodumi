@@ -1,17 +1,20 @@
-#include <sys/stat.h>
-#include <algorithm>
-#include <iomanip>
-#include <cmath>
 #include "misc.h"
+
+#include <sys/stat.h>
+
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+
 #include "data.h"
-#include "wrap.h"
 #include "define.h"
 #include "log.h"
+#include "wrap.h"
 
-using std::min;
-using std::to_string;
-using std::stringstream;
 using std::hex;
+using std::min;
+using std::stringstream;
+using std::to_string;
 
 double getDistance(int x1, int y1, int x2, int y2) {
   double deltaX = abs(x1 - x2);
@@ -23,7 +26,7 @@ string getNoteInfo(int noteTrack, int notePos, bool isFlat) {
   string result = "";
   int key = notePos % 12;
   int octave = (notePos + 9) / 12;
-  switch(key) {
+  switch (key) {
     case 0:
       result += "A";
       break;
@@ -58,18 +61,19 @@ string getNoteInfo(int noteTrack, int notePos, bool isFlat) {
       result += "G";
       break;
     case 11:
-      result += isFlat ? "Ab" :"G#";
+      result += isFlat ? "Ab" : "G#";
       break;
     default:
       return "";
       break;
   }
   result += to_string(octave);
-  result += " | " + ctr.text.getString("GET_SONG_INFO_TRACK") + " " + to_string(noteTrack + 1);
+  result += " | " + ctr.text.getString("GET_SONG_INFO_TRACK") + " " +
+            to_string(noteTrack + 1);
   return result;
 }
 
-string getSongPercent (double pos) {
+string getSongPercent(double pos) {
   if (ctr.getLiveState()) {
     return "";
   }
@@ -78,22 +82,22 @@ string getSongPercent (double pos) {
   string untruncText = to_string(100 * pos / total);
   double position = 100 * pos / total;
   string result = "100.00%";
-  
+
   if (pos == 0) {
     return "0.00%";
   }
 
   if (untruncText[0] == 1) {
-    result = untruncText.substr(0,6);
+    result = untruncText.substr(0, 6);
   }
   else if (pos == 0) {
-    result = untruncText.substr(0,4);
+    result = untruncText.substr(0, 4);
   }
   else if (position > 0 && position < 10) {
-    result = untruncText.substr(0,4);
+    result = untruncText.substr(0, 4);
   }
   else {
-    result = untruncText.substr(0,5);
+    result = untruncText.substr(0, 5);
   }
   result += "%";
   return result;
@@ -102,11 +106,11 @@ string getSongPercent (double pos) {
 string getSongTime(double pos) {
   string result;
   double total = ctr.getLastTime();
-  
-  result += toMinutes(floor(pos/UNK_CST));
+
+  result += toMinutes(floor(pos / UNK_CST));
   if (!ctr.getLiveState()) {
     result += " / ";
-    result += toMinutes(floor(total/UNK_CST));
+    result += toMinutes(floor(total / UNK_CST));
   }
 
   return result;
@@ -127,14 +131,14 @@ string toMinutes(double seconds) {
     result += hrStr;
     result += ":";
   }
-  
+
   string minStr = to_string(min);
   if (min < 10 && hours != 0) {
     minStr = "0" + minStr;
   }
   result += minStr;
   result += ":";
-  
+
   string secStr = to_string(sec);
   if (sec < 10) {
     secStr = "0" + secStr;
@@ -146,16 +150,17 @@ string toMinutes(double seconds) {
 
 string colorToHex(const colorRGB& col) {
   stringstream result;
-  result << "#"; 
-  result << std::hex << std::setw(6) << std::setfill('0') << ((int)col.r << 16 | (int)col.g << 8 |(int) col.b << 0);
-  string s = result.str(); 
+  result << "#";
+  result << std::hex << std::setw(6) << std::setfill('0')
+         << ((int)col.r << 16 | (int)col.g << 8 | (int)col.b << 0);
+  string s = result.str();
   std::transform(s.begin(), s.end(), s.begin(), ::toupper);
   return s;
 }
 
 rect pointToRect(const point& a, const point& b) {
   rect result = {0, 0, 0, 0};
-  
+
   result.x = a.x - 2;
   result.y = min(a.y, b.y) - 4;
   result.width = b.x - a.x + 4;
@@ -164,16 +169,14 @@ rect pointToRect(const point& a, const point& b) {
   return result;
 }
 
-point getMousePosition() { 
+point getMousePosition() {
   if (IsWindowFocused()) {
-    return point(GetMouseX(), GetMouseY()); 
+    return point(GetMouseX(), GetMouseY());
   }
-  return {-1,-1};
+  return {-1, -1};
 }
 
-
 vector<string>& formatPortName(vector<string>& ports) {
-
   for (unsigned int i = 0; i < ports.size(); i++) {
     int sp = 0;
     for (unsigned int j = 0; j < ports[i].length(); j++) {
@@ -202,7 +205,7 @@ string getExtension(const string& path, bool len4) {
 string getDirectory(const string& path) {
   string dir = path;
   int pos = dir.find_last_of("/\\");
-  return dir.substr(0,pos);
+  return dir.substr(0, pos);
 }
 
 bool isValidPath(const string& path, int pathTypes...) {
@@ -211,11 +214,10 @@ bool isValidPath(const string& path, int pathTypes...) {
   if (stat(path.c_str(), &info) == -1) {
     return false;
   }
-  
+
   string ext = getExtension(path);
 
   return isValidExtension(ext, pathTypes);
-
 }
 
 bool isValidExtension(const string& ext, int pathType) {
@@ -248,16 +250,15 @@ colorRGB maximizeDeltaE(const colorRGB& ref) {
   unsigned int maxDE = 0;
   unsigned char optV = 0;
   for (unsigned int v = 0; v <= 255; ++v) {
-    colorLAB r2(colorRGB(v,v,v));
+    colorLAB r2(colorRGB(v, v, v));
     double dE = deltaE(r1, r2);
     if (dE > maxDE) {
       maxDE = dE;
       optV = v;
-      //logQ(v,":", dE);
+      // logQ(v,":", dE);
     }
   }
-  //logQ(optV,":", maxDE);
+  // logQ(optV,":", maxDE);
   return colorRGB(optV, optV, optV);
-  //return ctr.bgLight;
+  // return ctr.bgLight;
 }
-

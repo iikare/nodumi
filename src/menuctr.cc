@@ -1,4 +1,5 @@
 #include "menuctr.h"
+
 #include "enum.h"
 #include "misc.h"
 
@@ -25,7 +26,9 @@ void menuController::hide() {
 void menuController::updateMouse() {
   for (unsigned int i = 0; i < menuSet.size(); i++) {
     if (menuSet[i]->render) {
-      if (pointInBox(getMousePosition(), (rect){menuSet[i]->x, menuSet[i]->y, menuSet[i]->width, menuSet[i]->height})) {
+      if (pointInBox(getMousePosition(),
+                     (rect){menuSet[i]->x, menuSet[i]->y, menuSet[i]->width,
+                            menuSet[i]->height})) {
         mouseMenu = true;
         return;
       }
@@ -34,9 +37,7 @@ void menuController::updateMouse() {
   mouseMenu = false;
 }
 
-bool menuController::mouseOnMenu() {
-  return mouseMenu;
-}
+bool menuController::mouseOnMenu() { return mouseMenu; }
 
 void menuController::updateRenderStatus() {
   for (const auto& i : menuSet) {

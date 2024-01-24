@@ -1,41 +1,38 @@
 #pragma once
 
-#include "build_target.h"
-
 #include <algorithm>
 #include <vector>
-#include "log.h"
-#include "data.h"
+
+#include "build_target.h"
 #include "color.h"
+#include "data.h"
+#include "log.h"
 
 using std::vector;
 
 class voronoiController {
-  public:
+ public:
+  void init();
 
-    void init();
+  void unloadData() { unload(); }
+  void update();
 
-    void unloadData() { unload(); } 
-    void update();
+  void render();
 
-    void render();
+  void resample(int voro_y);
 
-    void resample(int voro_y);
+  vector<Vector2> vertex;
+  vector<colorRGB> color;
 
+  RenderTexture voro_buffer;
+  Texture2D tex;
 
-    vector<Vector2> vertex;
-    vector<colorRGB> color;
+ private:
+  void unload();
 
-    RenderTexture voro_buffer;
-    Texture2D tex;
-  private:
-    void unload();
+  void updateBuffer();
+  void updateTexture();
 
-    void updateBuffer(); 
-    void updateTexture();
-
-
-    vector<Vector2> vertex_last;
-    vector<colorRGB> color_last;
-
+  vector<Vector2> vertex_last;
+  vector<colorRGB> color_last;
 };
