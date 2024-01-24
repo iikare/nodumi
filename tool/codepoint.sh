@@ -118,16 +118,28 @@ echo "" >> ./src/aghcp.h
 
 echo "vector<int> codepointSet = {" >> ./src/aghcp.h
 
+echo -n "   " >> ./src/aghcp.h
+fmt_break=0
+fmt_limit=8
+
 for i in $points; 
 do
+  ((fmt_break++))
   for j in $(echo $i | tr "," "\n"):
   do
-    line=$(echo $j | sed 's/://')
+    line=$(echo $j | sed 's/://' | tr -d ' ')
     if [ ${line:0:3} != "SYM" ]
     then
-      echo -n "  " >> ./src/aghcp.h
+      echo -n " " >> ./src/aghcp.h
       echo -n $line >> ./src/aghcp.h
-      echo "," >> ./src/aghcp.h
+      echo -n "," >> ./src/aghcp.h
+
+      if [[ $fmt_break -gt $fmt_limit ]]
+      then
+        echo "" >> ./src/aghcp.h
+        echo -n "   " >> ./src/aghcp.h
+        fmt_break=0
+      fi
     fi
   done
 done
@@ -138,12 +150,13 @@ done
 #do
   #echo "  0xE000," >> ./src/aghcp.h
 #done
+sed -i '$ d' ./src/aghcp.h
 
 echo "};" >> ./src/aghcp.h
 
 echo "" >> ./src/aghcp.h
 
-echo "#endif //AGHCP_H" >> ./src/aghcp.h
+echo "#endif  // AGHCP_H" >> ./src/aghcp.h
 
 # raw enums
 
@@ -176,7 +189,7 @@ echo "};" >> ./src/aghcpenum.h
 
 echo "" >> ./src/aghcpenum.h
 
-echo "#endif //AGHCPENUM_H" >> ./src/aghcpenum.h
+echo "#endif  // AGHCPENUM_H" >> ./src/aghcpenum.h
 
 cecho $C_S "successfully generated $pointnum codepoints"
 echo

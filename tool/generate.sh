@@ -524,7 +524,7 @@ then
      #xxd -i $f
   #done#
 
-  echo "#endif //AGHFILE_H" >> ./src/aghfile.h
+  echo "#endif // AGHFILE_H" >> ./src/aghfile.h
   
   echo
   cecho $C_S "successfully performed asset-to-header conversion"
@@ -534,8 +534,9 @@ else
   # for cleanup
   echo "" >> ./src/aghfile.h
   echo "#include <vector>" >> ./src/aghfile.h
+  echo "" >> ./src/aghfile.h
   echo "#include \"asset.h\"" >> ./src/aghfile.h
   echo "" >> ./src/aghfile.h
   echo "vector<asset> assetSet = {};" >> ./src/aghfile.h
-  echo "#endif //AGHFILE_H" >> ./src/aghfile.h
+  echo "#endif  // AGHFILE_H" >> ./src/aghfile.h
 fi
