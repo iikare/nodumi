@@ -1,5 +1,6 @@
 #include "controller.h"
 
+#include <raylib.h>
 #include <stdlib.h>
 
 #include <bitset>
@@ -259,6 +260,10 @@ controller::process(ACTION action) {
       }
       return ACTION::SAVE;
     }
+    // reload
+    if (isKeyPressed(KEY_R)) {
+      return ACTION::RELOAD;
+    }
     if (isKeyPressed(KEY_COMMA)) {
       return ACTION::PREFERENCES;
     }
@@ -514,10 +519,10 @@ vector<string> controller::generateMenuLabels(
     const menuContentType& contentType) {
   switch (contentType) {
     case CONTENT_FILE:
-      return text.getStringSet("FILE_MENU_FILE", "FILE_MENU_OPEN_FILE",
-                               "FILE_MENU_OPEN_IMAGE", "FILE_MENU_SAVE",
-                               "FILE_MENU_SAVE_AS", "FILE_MENU_CLOSE_FILE",
-                               "FILE_MENU_CLOSE_IMAGE", "FILE_MENU_EXIT");
+      return text.getStringSet(
+          "FILE_MENU_FILE", "FILE_MENU_OPEN_FILE", "FILE_MENU_OPEN_IMAGE",
+          "FILE_MENU_SAVE", "FILE_MENU_SAVE_AS", "FILE_MENU_CLOSE_FILE",
+          "FILE_MENU_CLOSE_IMAGE", "FILE_MENU_RELOAD", "FILE_MENU_EXIT");
     case CONTENT_EDIT:
       return text.getStringSet("EDIT_MENU_EDIT", "EDIT_MENU_ENABLE_SHEET_MUSIC",
                                "EDIT_MENU_PREFERENCES");
@@ -579,6 +584,12 @@ string controller::getFilePath() const {
     return "";
   }
   return fPath.substr(fPath.find_last_of("/\\") + 1);
+}
+string controller::getFileFullPath() const {
+  if (getLiveState()) {
+    return "";
+  }
+  return fPath;
 }
 
 midi& controller::getStream() {

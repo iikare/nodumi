@@ -1299,6 +1299,9 @@ int main(int argc, char* argv[]) {
           }
         }
         break;
+      case ACTION::RELOAD:
+        ctr.open_file.setPending(ctr.getFileFullPath());
+        break;
       case ACTION::EXIT:
         ctr.setCloseFlag();
         break;
@@ -1489,6 +1492,9 @@ int main(int argc, char* argv[]) {
               break;
             case FILE_MENU_CLOSE_IMAGE:
               action = ACTION::CLOSE_IMAGE;
+              break;
+            case FILE_MENU_RELOAD:
+              action = ACTION::RELOAD;
               break;
             case FILE_MENU_EXIT:
               action = ACTION::EXIT;

@@ -102,6 +102,7 @@ class controller {
   bool getLiveState() const { return livePlayState; }
   fileType getFileType() const;
   string getFilePath() const;
+  string getFileFullPath() const;
   double getRunTime() const { return runTime; }
   double getPauseTime() const { return pauseTime; }
   int getPSR() const { return psrValue; }

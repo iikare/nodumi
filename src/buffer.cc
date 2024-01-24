@@ -81,6 +81,9 @@ bufferController::pending_action(bool apply_enter) {
     if (sbuf == ":oi") {
       return ACTION::OPEN_IMAGE;
     }
+    if (sbuf == ":r") {
+      return ACTION::RELOAD;
+    }
     if (sbuf == ":p") {
       return ACTION::PREFERENCES;
     }
