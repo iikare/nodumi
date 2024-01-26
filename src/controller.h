@@ -46,7 +46,7 @@ class controller {
   void unloadData();
   void setCloseFlag();
 
-  Font* getFont(const string& id, int size);
+  const Font& getFont(const string& id, int size);
   Texture2D& getImage(const string& imageIdentifier);
   Shader& getShader(const string& shaderIdentifier);
 

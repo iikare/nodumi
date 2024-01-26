@@ -89,7 +89,7 @@ void midi::buildMessageMap(const MidiFile& mf) {
   message_vec.reserve(mf.getEventCount(0));
   for (int i = 0; i < mf.getEventCount(0); i++) {
     if (i && mf[0][i].seconds < mf[0][i - 1].seconds) {
-      logW(LL_WARN, "midi has nonlinear events");
+      logW(LL_WARN, "MIDI has nonlinear events");
     }
     // if (mf[0][i].seconds < 0.0001) { num_zero++; }
     // if (mf[0][i].seconds > 0.01){// || mf[0][i].isNote()) {

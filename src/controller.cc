@@ -114,12 +114,13 @@ void controller::initData(const vector<asset>& assetSet) {
   }
 }
 
-Font* controller::getFont(const string& id, int size) {
+const Font& controller::getFont(const string& id, int size) {
   // find if a font with this id exists
   auto fit = fontMap.find(id);
   if (fit == fontMap.end()) {
     logW(LL_CRIT, "invalid font id -", id);
-    return nullptr;
+    // return nullptr;
+    fit = fontMap.begin();
   }
 
   // if this font exists, find map of font size to font pointer
@@ -148,8 +149,6 @@ Font* controller::getFont(const string& id, int size) {
     Font tmp = LoadFontFromMemory(".otf", tmpFontAsset.data,
                                   tmpFontAsset.dataLen, size, loc, lim);
 
-    ////logQ(sceneController->getFontData("LMP_R").assetName);
-
     SetTextureFilter(tmp.texture, TEXTURE_FILTER_BILINEAR);
 
     fit->second.second.insert(make_pair(size, tmp));
@@ -157,7 +156,7 @@ Font* controller::getFont(const string& id, int size) {
     // it = fontMap.find(size);
   }
 
-  return &fit->second.second.find(size)->second;
+  return fit->second.second.find(size)->second;
 }
 
 Texture2D& controller::getImage(const string& imageIdentifier) {
@@ -743,6 +742,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS,
   auto start = std::chrono::high_resolution_clock::now();
 
   if (isValidPath(path, PATH_MKI)) {
+    logW(LL_INFO, "load MKI:", path);
     // open input file
     ifstream input(path, std::ifstream::in | std::ios::binary);
     input.imbue(std::locale::classic());
@@ -985,7 +985,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS,
     }
 
     int midiSize = *reinterpret_cast<int*>(midiSizeBuf);
-    logQ("midi size is:", midiSize);
+    // logQ("MIDI size is:", midiSize);
 
     for (auto i = 0; i < midiSize; ++i) {
       readByte();
@@ -1047,7 +1047,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS,
     fType = FILE_MKI;
   }
   else {
-    logW(LL_INFO, "load midi:", path);
+    logW(LL_INFO, "load MIDI:", path);
 
     file.load(path, midiData);
 
@@ -1259,9 +1259,9 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage,
   // midiData.seekg(0, std::ios::beg);
   uint32_t midiSize = midiData.str().size();
 
-  logQ("midisize marker is", sizeof(midiSize), "bytes");
+  // logQ("midisize marker is", sizeof(midiSize), "bytes");
   output.write(reinterpret_cast<const char*>(&midiSize), sizeof(midiSize));
-  logQ("saved midi stream length is", midiSize, "bytes");
+  // logQ("saved MIDI length is", midiSize, "bytes");
   output.write(midiData.str().c_str(), midiData.str().size());
 
   // in variable length regime, only write if the marker is set at 0x00[1:1]

@@ -18,7 +18,7 @@ midiInput::midiInput()
       timestamp(0) {
   midiIn = unique_ptr<RtMidiIn>(new RtMidiIn());
   if (midiIn == nullptr) {
-    logW(LL_WARN, "unable to initialize midi input");
+    logW(LL_WARN, "unable to initialize MIDI input");
   }
   for (auto& t : noteStream.getTracks()) {
     t.setNoteVector(&noteStream.notes);

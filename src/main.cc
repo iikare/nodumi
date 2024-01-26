@@ -97,8 +97,8 @@ int main(int argc, char* argv[]) {
   // color variables
   int selectType = SELECT_NONE;
   int colorMode = COLOR_PART;
-  vector<colorRGB>* colorSetOn = &ctr.setTrackOn;
-  vector<colorRGB>* colorSetOff = &ctr.setTrackOff;
+  vector<colorRGB>& colorSetOn = ctr.setTrackOn;
+  vector<colorRGB>& colorSetOff = ctr.setTrackOff;
 
   bool clearFile = false;
 
@@ -512,8 +512,8 @@ int main(int argc, char* argv[]) {
 
           auto cSet = noteOn ? colorSetOn : colorSetOff;
           auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
-          const auto& col = (*cSet)[colorID];
-          const auto& col_inv = (*cSetInv)[colorID];
+          const auto& col = cSet[colorID];
+          const auto& col_inv = cSetInv[colorID];
 
           if (timeOffset >= notes[i].x &&
               timeOffset < notes[i].x + notes[i].duration) {
@@ -543,8 +543,8 @@ int main(int argc, char* argv[]) {
 
             auto cSet = noteOn ? colorSetOn : colorSetOff;
             auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
-            const auto& col = (*cSet)[colorID];
-            const auto& col_inv = (*cSetInv)[colorID];
+            const auto& col = cSet[colorID];
+            const auto& col_inv = cSetInv[colorID];
 
             ctr.voronoi.vertex.push_back(
                 {cX / ctr.getWidth(), 1 - cY / ctr.getHeight()});
@@ -564,8 +564,8 @@ int main(int argc, char* argv[]) {
           int colorID = getColorSet(i);
           auto cSet = noteOn ? colorSetOn : colorSetOff;
           auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
-          const auto& col = (*cSet)[colorID];
-          const auto& col_inv = (*cSetInv)[colorID];
+          const auto& col = cSet[colorID];
+          const auto& col_inv = cSetInv[colorID];
           float radius =
               -1 + 2 * (32 - countl_zero(static_cast<unsigned int>(cW)));
           float maxRad = radius;
@@ -685,8 +685,8 @@ int main(int argc, char* argv[]) {
 
             auto cSet = noteOn ? colorSetOn : colorSetOff;
             auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
-            const auto& col = (*cSet)[colorID];
-            const auto& col_inv = (*cSetInv)[colorID];
+            const auto& col = cSet[colorID];
+            const auto& col_inv = cSetInv[colorID];
 
             if (timeOffset >= notes[lp[j].idx].x &&
                 timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
@@ -735,8 +735,8 @@ int main(int argc, char* argv[]) {
 
             auto cSet = noteOn ? colorSetOn : colorSetOff;
             auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
-            const auto& col = (*cSet)[colorID];
-            const auto& col_inv = (*cSetInv)[colorID];
+            const auto& col = cSet[colorID];
+            const auto& col_inv = cSetInv[colorID];
 
             double nowRatio = (nowLineX - convSS[0]) / (convSS[2] - convSS[0]);
             if (noteOn || clickTmp == static_cast<int>(lp[j].idx)) {
@@ -871,8 +871,8 @@ int main(int argc, char* argv[]) {
 
             auto cSet = noteOn ? colorSetOn : colorSetOff;
             auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
-            const auto& col = (*cSet)[colorID];
-            const auto& col_inv = (*cSetInv)[colorID];
+            const auto& col = cSet[colorID];
+            const auto& col_inv = cSetInv[colorID];
 
             double nowRatio = (nowLineX - convSS[0]) / (convSS[2] - convSS[0]);
             double newY = (convSS[3] - convSS[1]) * nowRatio + convSS[1];
@@ -947,8 +947,8 @@ int main(int argc, char* argv[]) {
 
             auto cSet = noteOn ? colorSetOn : colorSetOff;
             auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
-            const auto& col = (*cSet)[colorID];
-            const auto& col_inv = (*cSetInv)[colorID];
+            const auto& col = cSet[colorID];
+            const auto& col_inv = cSetInv[colorID];
 
             if (timeOffset >= notes[i].x &&
                 timeOffset < notes[i].x + notes[i].duration) {
@@ -1003,7 +1003,7 @@ int main(int argc, char* argv[]) {
             drawLineEx(startX, ctr.getHeight() - ctr.fft.bins[bin].second,
                        startX,
                        ctr.getHeight() - ctr.fft.bins[bin].second - bin_len, 1,
-                       (*cSet)[colorID]);
+                       cSet[colorID]);
             ctr.fft.bins[bin].second += bin_len;
           }
         }
@@ -1734,18 +1734,18 @@ int main(int argc, char* argv[]) {
           switch (schemeMenu.getActiveElement()) {
             case SCHEME_MENU_PART:
               colorMode = COLOR_PART;
-              colorSetOn = &ctr.setTrackOn;
-              colorSetOff = &ctr.setTrackOff;
+              colorSetOn = ctr.setTrackOn;
+              colorSetOff = ctr.setTrackOff;
               break;
             case SCHEME_MENU_VELOCITY:
               colorMode = COLOR_VELOCITY;
-              colorSetOn = &ctr.setVelocityOn;
-              colorSetOff = &ctr.setVelocityOff;
+              colorSetOn = ctr.setVelocityOn;
+              colorSetOff = ctr.setVelocityOff;
               break;
             case SCHEME_MENU_TONIC:
               colorMode = COLOR_TONIC;
-              colorSetOn = &ctr.setTonicOn;
-              colorSetOff = &ctr.setTonicOff;
+              colorSetOn = ctr.setTonicOn;
+              colorSetOff = ctr.setTonicOff;
               break;
           }
           break;

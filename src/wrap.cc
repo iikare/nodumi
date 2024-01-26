@@ -52,10 +52,10 @@ void drawTextEx(const string& msg, int x, int y, const colorRGB& col,
                 unsigned char alpha, int size, const string& font) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g,
                         (unsigned char)col.b, alpha};
-  Font* ft = ctr.getFont(font, size);
-  DrawTextEx(*ft, msg.c_str(),
+  const Font& ft = ctr.getFont(font, size);
+  DrawTextEx(ft, msg.c_str(),
              (const Vector2){static_cast<float>(x), static_cast<float>(y)},
-             ft->baseSize, TEXT_SPACING, color);
+             ft.baseSize, TEXT_SPACING, color);
 }
 
 void drawSymbol(int sym, int size, int x, int y, const colorRGB& col,
@@ -64,7 +64,7 @@ void drawSymbol(int sym, int size, int x, int y, const colorRGB& col,
       (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b,
               static_cast<unsigned char>(alpha)};
   DrawTextCodepoint(
-      *ctr.getFont(font, size), sym,
+      ctr.getFont(font, size), sym,
       (const Vector2){static_cast<float>(x), static_cast<float>(y)}, size,
       color);
 }
@@ -100,10 +100,8 @@ void drawTextureEx(const Texture2D& tex, const Vector2& pos, float rot,
 }
 
 const Vector2 measureTextEx(const string& msg, int size, const string& font) {
-  Font* ft = ctr.getFont(font, size);
-  if (ft != nullptr) {
-    return MeasureTextEx(*ft, msg.c_str(), ft->baseSize, TEXT_SPACING);
-  }
+  const Font& ft = ctr.getFont(font, size);
+  return MeasureTextEx(ft, msg.c_str(), ft.baseSize, TEXT_SPACING);
 
   return {0.0f, 0.0f};
 }

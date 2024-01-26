@@ -25,13 +25,13 @@ using std::swap;
 using std::uniform_int_distribution;
 using std::vector;
 
-void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>* on,
-                       vector<colorRGB>* off) {
+void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>& on,
+                       vector<colorRGB>& off) {
   bg.invert();
   line.invert();
-  for (unsigned int i = 0; i < on->size(); i++) {
-    ((*on)[i]).invert();
-    ((*off)[i]).invert();
+  for (unsigned int i = 0; i < on.size(); i++) {
+    on[i].invert();
+    off[i].invert();
   }
 }
 

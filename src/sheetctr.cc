@@ -7,7 +7,7 @@
 #include "wrap.h"
 
 int sheetController::getGlyphWidth(int codepoint, int size) {
-  return GetGlyphInfo(*ctr.getFont("LELAND", size), codepoint).image.width;
+  return GetGlyphInfo(ctr.getFont("LELAND", size), codepoint).image.width;
 }
 
 void sheetController::drawTimeSignature(const timeSig& time, int x) {
