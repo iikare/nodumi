@@ -1,5 +1,3 @@
-#include <raylib.h>
-
 #include <algorithm>
 #include <bit>
 #include <ctime>
@@ -1197,7 +1195,8 @@ int main(int argc, char* argv[]) {
     // key actions
     action = ctr.process(action);
 
-    if (ctr.run) {
+    if (ctr.run &&
+        !any_of(action, ACTION::NAV_PREV_MEASURE, ACTION::NAV_NEXT_MEASURE)) {
       if (timeOffset + GetFrameTime() * UNK_CST < ctr.getLastTime()) {
         timeOffset += GetFrameTime() * UNK_CST;
       }
