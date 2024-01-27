@@ -120,7 +120,7 @@ echo "vector<int> codepointSet = {" >> ./src/aghcp.h
 
 echo -n "   " >> ./src/aghcp.h
 fmt_break=0
-fmt_limit=8
+fmt_limit=13
 
 for i in $points; 
 do
