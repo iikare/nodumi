@@ -39,8 +39,8 @@ class menuItem {
 
 class menu {
  public:
-  menu(point XY, menuContentType contentType, int menuType, int menuX = 0,
-       int menuY = 0, menu* parentMenu = nullptr, int parentPos = -1);
+  menu(point XY, menuContentType contentType, int menuType, int menuX = 0, int menuY = 0, menu* parentMenu = nullptr,
+       int parentPos = -1);
 
   int getX() const { return x; }
   int getY() const { return y; }
@@ -118,6 +118,5 @@ class menu {
 
   static constexpr float circleRatio = 0.425;
   static constexpr float circleWidth = 0.075;
-  static constexpr float squareDim =
-      (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * 1.414;
+  static constexpr float squareDim = (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * 1.414;
 };

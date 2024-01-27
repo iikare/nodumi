@@ -36,10 +36,8 @@ T clampValue(T val, T lo, T hi) {
 template <class T>
 bool pointInBox(const T& pt, const rect& box) {
   if constexpr (is_same<T, Vector2>::value || is_same<T, point>::value) {
-    return static_cast<int>(pt.x) >= box.x &&
-           static_cast<int>(pt.x) < box.x + box.width &&
-           static_cast<int>(pt.y) >= box.y &&
-           static_cast<int>(pt.y) < box.y + box.height;
+    return static_cast<int>(pt.x) >= box.x && static_cast<int>(pt.x) < box.x + box.width &&
+           static_cast<int>(pt.y) >= box.y && static_cast<int>(pt.y) < box.y + box.height;
   }
 
   // logW(LL_WARN, "call to", __func__, "using invalid type", typeid(T).name());
@@ -70,8 +68,7 @@ colorRGB maximizeDeltaE(const colorRGB& ref);
 
 template <class T>
 vector<int> convertEnum(const vector<T>& ev) {
-  static_assert(is_enum<T>::value,
-                "cannot convert non-enum type to int vector");
+  static_assert(is_enum<T>::value, "cannot convert non-enum type to int vector");
 
   vector<int> result;
   result.resize(ev.size());

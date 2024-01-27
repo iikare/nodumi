@@ -12,14 +12,11 @@ using std::pair;
 using std::vector;
 
 struct noteCmp {
-  bool operator()(const sheetNote* a, const sheetNote* b) const {
-    return a->oriNote->y < b->oriNote->y;
-  }
+  bool operator()(const sheetNote* a, const sheetNote* b) const { return a->oriNote->y < b->oriNote->y; }
 };
 
 struct chordCmp {
-  bool operator()(const pair<int, vector<sheetNote*>>& a,
-                  const pair<int, vector<sheetNote*>>& b) const {
+  bool operator()(const pair<int, vector<sheetNote*>>& a, const pair<int, vector<sheetNote*>>& b) const {
     return a.first < b.first;
   }
 };

@@ -27,8 +27,7 @@ class measureController {
 
     buildTickMap();
   }
-  measureController(int num, double loc, int tk, int tkl, const timeSig& cTime,
-                    const keySig& cKey) {
+  measureController(int num, double loc, int tk, int tkl, const timeSig& cTime, const keySig& cKey) {
     location = loc;
     number = num;
     tick = tk;

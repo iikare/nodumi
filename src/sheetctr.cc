@@ -19,10 +19,8 @@ void sheetController::drawTimeSignature(const timeSig& time, int x) {
   // for centering
   drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2, {255, 0, 0});
 
-  if (time.getTop() < 0 || time.getTop() > 99 || time.getBottom() < 0 ||
-      time.getBottom() > 99) {
-    logW(LL_WARN, "complex time signature detected with meter", time.getTop(),
-         "/", time.getBottom());
+  if (time.getTop() < 0 || time.getTop() > 99 || time.getBottom() < 0 || time.getBottom() > 99) {
+    logW(LL_WARN, "complex time signature detected with meter", time.getTop(), "/", time.getBottom());
     return;
   }
 
@@ -61,29 +59,21 @@ void sheetController::drawTimeSignature(const timeSig& time, int x) {
   };
 
   if (time.getTop() > 9) {  // two-digit top
-    drawDoubleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin -
-                                     ctr.barWidth * 2 + 1);
-    drawDoubleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin +
-                                     ctr.barSpacing - ctr.barWidth * 2 + 1);
+    drawDoubleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin - ctr.barWidth * 2 + 1);
+    drawDoubleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin + ctr.barSpacing - ctr.barWidth * 2 + 1);
   }
   else {
-    drawSingleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin -
-                                     ctr.barWidth * 2 + 1);
-    drawSingleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin +
-                                     ctr.barSpacing - ctr.barWidth * 2 + 1);
+    drawSingleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin - ctr.barWidth * 2 + 1);
+    drawSingleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin + ctr.barSpacing - ctr.barWidth * 2 + 1);
   }
 
   if (time.getBottom() > 9) {  // two-digit bottom
-    drawDoubleSig(time.getBottom(),
-                  (ctr.sheetHeight - 200) / 2 - ctr.barMargin + 1);
-    drawDoubleSig(time.getBottom(), (ctr.sheetHeight - 200) / 2 -
-                                        ctr.barMargin + ctr.barSpacing + 1);
+    drawDoubleSig(time.getBottom(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin + 1);
+    drawDoubleSig(time.getBottom(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin + ctr.barSpacing + 1);
   }
   else {
-    drawSingleSig(time.getBottom(),
-                  (ctr.sheetHeight - 200) / 2 - ctr.barMargin + 1);
-    drawSingleSig(time.getBottom(), (ctr.sheetHeight - 200) / 2 -
-                                        ctr.barMargin + ctr.barSpacing + 1);
+    drawSingleSig(time.getBottom(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin + 1);
+    drawSingleSig(time.getBottom(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin + ctr.barSpacing + 1);
   }
 }
 
@@ -99,8 +89,7 @@ void sheetController::drawKeySignature(const keySig& key, int x) {
   int prevType = SYM_ACC_NATURAL;
   findKeyData(key, symbol, prevAcc, prevType);
 
-  auto drawKeySigPart = [&](const int symbol, const int index,
-                            const int prevType) {
+  auto drawKeySigPart = [&](const int symbol, const int index, const int prevType) {
     if (index > accMax || index < 0) {
       return;
     }
@@ -143,14 +132,10 @@ void sheetController::drawKeySignature(const keySig& key, int x) {
     }
     // logQ(getGlyphWidth(symbol) + index*accConstSpacing+accSpacing[index]);
 
-    drawSymbol(
-        symbol, fSize, x + index * accConstSpacing + accSpacing[index],
-        y - ctr.barSpacing + posMod * (ctr.barWidth / 2.0f + 0.4) - accY[index],
-        col);
     drawSymbol(symbol, fSize, x + index * accConstSpacing + accSpacing[index],
-               y + posMod * (ctr.barWidth / 2.0f + 0.4) - accY[index] + 1 +
-                   ctr.barWidth,
-               col);
+               y - ctr.barSpacing + posMod * (ctr.barWidth / 2.0f + 0.4) - accY[index], col);
+    drawSymbol(symbol, fSize, x + index * accConstSpacing + accSpacing[index],
+               y + posMod * (ctr.barWidth / 2.0f + 0.4) - accY[index] + 1 + ctr.barWidth, col);
   };
 
   int drawLimit = symbol == SYM_ACC_NATURAL ? prevAcc : key.getSize();
@@ -171,10 +156,8 @@ void sheetController::drawNote(const sheetNote& noteData, int x, colorRGB col) {
 
   drawLineEx(x, y - 1, x, y + 30, stemWidth, ctr.bgSheetNote);
   int sym = SYM_HEAD_STD;
-  drawSymbol(sym, fSize, x + 0 * getSymbolWidth(sym) - stemWidth / 2,
-             y + 2 - ctr.barSpacing, col);
-  drawSymbol(SYM_FLAG_8D, fSize, x - +stemWidth / 2,
-             y + 30 + 5 - ctr.barSpacing, col);
+  drawSymbol(sym, fSize, x + 0 * getSymbolWidth(sym) - stemWidth / 2, y + 2 - ctr.barSpacing, col);
+  drawSymbol(SYM_FLAG_8D, fSize, x - +stemWidth / 2, y + 30 + 5 - ctr.barSpacing, col);
 }
 
 int sheetController::findStaveY(int sheetY, int stave) {
@@ -182,8 +165,7 @@ int sheetController::findStaveY(int sheetY, int stave) {
     return ctr.barMargin + ctr.barWidth * 7 - ctr.barWidth / 2 * sheetY;
   }
   else {
-    return ctr.barMargin + ctr.barSpacing + ctr.barWidth -
-           ctr.barWidth / 2 * sheetY;
+    return ctr.barMargin + ctr.barSpacing + ctr.barWidth - ctr.barWidth / 2 * sheetY;
   }
 }
 
@@ -223,8 +205,7 @@ int sheetController::getKeyWidth(const keySig& key) {
 }
 
 int sheetController::getTimeWidth(const timeSig& key) {
-  return max(findTimePartWidth(key.getTop()),
-             findTimePartWidth(key.getBottom()));
+  return max(findTimePartWidth(key.getTop()), findTimePartWidth(key.getBottom()));
 }
 
 int sheetController::findTimePartWidth(const int part) {
@@ -241,8 +222,7 @@ int sheetController::findTimePartWidth(const int part) {
   return timeWidths[part / 10] + timeWidths[part % 10];
 }
 
-void sheetController::findKeyData(const keySig& key, int& symbol, int& prevAcc,
-                                  int& prevType) {
+void sheetController::findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType) {
   symbol = SYM_NONE;
   prevAcc = 0;
   prevType = SYM_NONE;
@@ -283,13 +263,11 @@ void sheetController::disectMeasure(measureController& measure) {
   // find true accidental type for each note
   for (/*unsigned int ch = 0;*/ const auto& c : dm.chords) {
     for (unsigned int ct = 0; const auto& n : c.second) {
-      if (n->oriNote->sheetY > getStaveRenderLimit().first ||
-          n->oriNote->sheetY < getStaveRenderLimit().second) {
+      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
         continue;
       }
       // int& keyPos = presentDFAState[n->oriNote->sheetY];
-      n->displayAcc = getDisplayAccType(
-          presentDFAState[mapSheetY(n->oriNote->sheetY)], n->oriNote->accType);
+      n->displayAcc = getDisplayAccType(presentDFAState[mapSheetY(n->oriNote->sheetY)], n->oriNote->accType);
       // logQ("pos:",
       // n->oriNote->sheetY,presentDFAState[mapSheetY(n->oriNote->sheetY)],
       // n->displayAcc, n->oriNote->accType);
@@ -302,9 +280,8 @@ void sheetController::disectMeasure(measureController& measure) {
       }
       else {
         // n->stave = STAVE_TREBLE;
-        ct >= c.second.size() / 2
-            ? n->stave = STAVE_TREBLE
-            : (ct != 0 ? n->stave = STAVE_BASS : n->stave = STAVE_TREBLE);
+        ct >= c.second.size() / 2 ? n->stave = STAVE_TREBLE
+                                  : (ct != 0 ? n->stave = STAVE_BASS : n->stave = STAVE_TREBLE);
       }
       ct++;
     }
@@ -314,16 +291,13 @@ void sheetController::disectMeasure(measureController& measure) {
   // remove duplicate notes (rendering on same position)
   for (unsigned int ch = 0; const auto& c : dm.chords) {
     for (unsigned int ct = 0; const auto& n : c.second) {
-      if (ct > 0 &&
-          n->oriNote->sheetY - dm.chords[ch].second[ct - 1]->oriNote->sheetY ==
-              0) {
+      if (ct > 0 && n->oriNote->sheetY - dm.chords[ch].second[ct - 1]->oriNote->sheetY == 0) {
         // n->displayAcc == dm.chords[ch].second[ct-1]->displayAcc) {
         n->visible = false;
       }
 
       // hide out-of-bounds notes
-      if ((n->oriNote->sheetY > getStaveRenderLimit().first ||
-           n->oriNote->sheetY < getStaveRenderLimit().second)) {
+      if ((n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second)) {
         n->visible = false;
       }
       ct++;
@@ -338,8 +312,7 @@ void sheetController::disectMeasure(measureController& measure) {
   for (unsigned int ch = 0; const auto& c : dm.chords) {
     int stavect = 0;
     for (unsigned int ct = 0; const auto& n : c.second) {
-      if (n->oriNote->sheetY > getStaveRenderLimit().first ||
-          n->oriNote->sheetY < getStaveRenderLimit().second) {
+      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
         continue;
       }
       if (!n->visible) {
@@ -352,8 +325,7 @@ void sheetController::disectMeasure(measureController& measure) {
         }
       }
       if (stavect != 0) {
-        if (n->oriNote->sheetY - dm.chords[ch].second[ct - 1]->oriNote->sheetY <
-            2) {
+        if (n->oriNote->sheetY - dm.chords[ch].second[ct - 1]->oriNote->sheetY < 2) {
           n->left = !dm.chords[ch].second[ct - 1]->left;
         }
       }
@@ -380,19 +352,16 @@ void sheetController::disectMeasure(measureController& measure) {
       if (!n->visible) {
         continue;
       }
-      if (n->oriNote->sheetY > getStaveRenderLimit().first ||
-          n->oriNote->sheetY < getStaveRenderLimit().second) {
+      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
         noteLW = placeholderWidth / 2;
         noteRW = placeholderWidth / 2;
       }
       else {
         if (n->left) {
-          noteLW += getSymbolWidth(getSymbolType(n->oriNote->type)) +
-                    chordStemWidth / 2;
+          noteLW += getSymbolWidth(getSymbolType(n->oriNote->type)) + chordStemWidth / 2;
         }
         else {
-          noteRW += getSymbolWidth(getSymbolType(n->oriNote->type)) +
-                    chordStemWidth / 2;
+          noteRW += getSymbolWidth(getSymbolType(n->oriNote->type)) + chordStemWidth / 2;
         }
 
         if (n->oriNote->hasDot()) {
@@ -499,9 +468,8 @@ pair<int, int> sheetController::findSheetPageLimit(int measureNum) const {
   }
 
   if (measureNum > sheetPageSeparator[sheetPageSeparator.size() - 1]) {
-    result.first =
-        sheetPageSeparator[sheetPageSeparator.size() - 1] + 1;  // is 0-indexed
-    result.second = ctr.getMeasureCount();                      // is 1-indexed
+    result.first = sheetPageSeparator[sheetPageSeparator.size() - 1] + 1;  // is 0-indexed
+    result.second = ctr.getMeasureCount();                                 // is 1-indexed
   }
   else {
     for (unsigned int i = 0; i < sheetPageSeparator.size() - 1; ++i) {
@@ -515,8 +483,7 @@ pair<int, int> sheetController::findSheetPageLimit(int measureNum) const {
   return result;
 }
 
-void sheetController::findDFAStartVector(vector<int>& DFAState,
-                                         const keySig& ks) {
+void sheetController::findDFAStartVector(vector<int>& DFAState, const keySig& ks) {
   DFAState.resize(MAX_STAVE_IDX - MIN_STAVE_IDX + 1);
 
   const int* keyStateTemplate = staveKeySigMap[ks.getKey()];
@@ -552,18 +519,14 @@ void sheetController::drawSheetPage() {
   // empty page
   if (!spacingPositions) {
     drawTextEx(to_string(measureRange.first),
-               {(float)offset + sigSpacing / 2.0f,
-                ctr.menuHeight + ctr.barMargin - ctr.barWidth * 1.75},
+               {(float)offset + sigSpacing / 2.0f, ctr.menuHeight + ctr.barMargin - ctr.barWidth * 1.75},
                ctr.bgSheetNote);
     return;
   }
 
-  vector<int> spacingMargin(abs(margin) % spacingPositions,
-                            margin / spacingPositions + (margin > 0 ? 1 : -1));
-  vector<int> spacingExtra(spacingPositions - (abs(margin) % spacingPositions),
-                           margin / spacingPositions);
-  spacingMargin.insert(spacingMargin.end(), spacingExtra.begin(),
-                       spacingExtra.end());
+  vector<int> spacingMargin(abs(margin) % spacingPositions, margin / spacingPositions + (margin > 0 ? 1 : -1));
+  vector<int> spacingExtra(spacingPositions - (abs(margin) % spacingPositions), margin / spacingPositions);
+  spacingMargin.insert(spacingMargin.end(), spacingExtra.begin(), spacingExtra.end());
 
   int spacingIndex = 0;
   for (int m = measureRange.first; m <= measureRange.second; ++m) {
@@ -576,8 +539,7 @@ void sheetController::drawSheetPage() {
       offset += sigSpacing;
     }
 
-    if (m == measureRange.first &&
-        displayMeasure[m - 1].measure->keySignatures.empty()) {
+    if (m == measureRange.first && displayMeasure[m - 1].measure->keySignatures.empty()) {
       drawKeySignature(displayMeasure[m - 1].measure->currentKey, offset);
       offset += getKeyWidth(displayMeasure[m - 1].measure->currentKey);
     }
@@ -592,9 +554,7 @@ void sheetController::drawSheetPage() {
       }
     }
 
-    drawTextEx(to_string(m),
-               {(float)offset + sigSpacing / 20.f,
-                ctr.menuHeight + ctr.barMargin - ctr.barWidth * 1.75},
+    drawTextEx(to_string(m), {(float)offset + sigSpacing / 20.f, ctr.menuHeight + ctr.barMargin - ctr.barWidth * 1.75},
                ctr.bgSheetNote);
 
     for (unsigned int ch = 0; ch < displayMeasure[m - 1].chords.size(); ++ch) {
@@ -607,11 +567,9 @@ void sheetController::drawSheetPage() {
 
       // TODO: draw chords WITH spacing
 
-      int stemPos =
-          offset + displayMeasure[m - 1].s_chordData[ch].getStemPosition();
+      int stemPos = offset + displayMeasure[m - 1].s_chordData[ch].getStemPosition();
 
-      for (unsigned int n = 0;
-           n < displayMeasure[m - 1].chords[ch].second.size(); ++n) {
+      for (unsigned int n = 0; n < displayMeasure[m - 1].chords[ch].second.size(); ++n) {
         sheetNote* note = displayMeasure[m - 1].chords[ch].second[n];
 
         if (!note->visible) {
@@ -631,27 +589,22 @@ void sheetController::drawSheetPage() {
         }
 
         // drawLineEx(noteX, y-1, noteX, y+30, stemWidth, ctr.bgSheetNote);
-        drawSymbol(noteSym, fSize,
-                   noteX + 0 * getSymbolWidth(noteSym) - stemWidth / 2,
-                   y + 2 - ctr.barSpacing, ctr.bgSheetNote);
+        drawSymbol(noteSym, fSize, noteX + 0 * getSymbolWidth(noteSym) - stemWidth / 2, y + 2 - ctr.barSpacing,
+                   ctr.bgSheetNote);
         // drawSymbol(SYM_FLAG_8D, fSize, noteX-+stemWidth/2,
         // y+30+5-ctr.barSpacing, ctr.bgSheetNote);
       }
 
       // logQ(displayMeasure[m-1].s_chordData[ch].flags.size());
-      for (/*int stc = 0; */ const auto& stem :
-           displayMeasure[m - 1].s_chordData[ch].flags) {
+      for (/*int stc = 0; */ const auto& stem : displayMeasure[m - 1].s_chordData[ch].flags) {
         // int stave = STAVE_TREBLE;//stc++ % 2 ? STAVE_BASS : STAVE_TREBLE; //
         // hack for two flag chords
         int lOffset = displayMeasure[m - 1].s_chordData[ch].getStemPosition();
-        drawLineEx(offset + lOffset, findStaveY(stem.startY, stem.stave),
-                   offset + lOffset, findStaveY(stem.endY, stem.stave), 2,
-                   ctr.bgSheetNote);
+        drawLineEx(offset + lOffset, findStaveY(stem.startY, stem.stave), offset + lOffset,
+                   findStaveY(stem.endY, stem.stave), 2, ctr.bgSheetNote);
       }
-      drawLineEx(
-          offset, ctr.menuHeight + ctr.barMargin, offset,
-          ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2,
-          ctr.bgNow);
+      drawLineEx(offset, ctr.menuHeight + ctr.barMargin, offset,
+                 ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgNow);
 
       offset += chordSize;
     }
@@ -661,10 +614,8 @@ void sheetController::drawSheetPage() {
 
     // end of measure bars (except the end)
     if (m != measureRange.second) {
-      drawLineEx(
-          offset, ctr.menuHeight + ctr.barMargin, offset,
-          ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2,
-          ctr.bgSheetNote);
+      drawLineEx(offset, ctr.menuHeight + ctr.barMargin, offset,
+                 ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgSheetNote);
     }
   }
   // logQ(formatVector(spacingMargin));
@@ -752,8 +703,7 @@ int sheetController::getDisplayAccType(int& DFAState, int noteAccType) {
       break;
     default:
       logW(LL_WARN, "invalid DFA state or accidental type for",
-           "display accidental calculation (state, type):", DFAState,
-           noteAccType);
+           "display accidental calculation (state, type):", DFAState, noteAccType);
       break;
   }
 

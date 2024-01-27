@@ -68,8 +68,7 @@ string getNoteInfo(int noteTrack, int notePos, bool isFlat) {
       break;
   }
   result += to_string(octave);
-  result += " | " + ctr.text.getString("GET_SONG_INFO_TRACK") + " " +
-            to_string(noteTrack + 1);
+  result += " | " + ctr.text.getString("GET_SONG_INFO_TRACK") + " " + to_string(noteTrack + 1);
   return result;
 }
 
@@ -151,8 +150,7 @@ string toMinutes(double seconds) {
 string colorToHex(const colorRGB& col) {
   stringstream result;
   result << "#";
-  result << std::hex << std::setw(6) << std::setfill('0')
-         << ((int)col.r << 16 | (int)col.g << 8 | (int)col.b << 0);
+  result << std::hex << std::setw(6) << std::setfill('0') << ((int)col.r << 16 | (int)col.g << 8 | (int)col.b << 0);
   string s = result.str();
   std::transform(s.begin(), s.end(), s.begin(), ::toupper);
   return s;

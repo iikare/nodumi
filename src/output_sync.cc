@@ -24,8 +24,7 @@ void outputInstance::updateOffset(double off) {
   offset_last = offset;
   offset = off;
 
-  double elapsed =
-      std::chrono::duration<double>(update - update_last_overflow).count();
+  double elapsed = std::chrono::duration<double>(update - update_last_overflow).count();
   if (fabs(offset - offset_last) > elapsed * UNK_CST + 1) {
     // logQ("real offset exceeds maximum possible offset:",
     // (offset-offset_last), elapsed*UNK_CST);
@@ -41,8 +40,7 @@ void outputInstance::updateOffset(double off) {
   // send = offset > offset_last;
   // offset_last = offset;
 
-  auto it = message.upper_bound(
-      make_pair(off + (off <= 0 ? 0 : 1), vector<unsigned char>{}));
+  auto it = message.upper_bound(make_pair(off + (off <= 0 ? 0 : 1), vector<unsigned char>{}));
   // if (it != message.begin()) { it--; }
 
   int new_index = distance(message.begin(), it);
@@ -105,8 +103,7 @@ void outputInstance::process() {
 
     if (send && !(offset == 0)) {
       crit.lock();
-      std::chrono::duration<double> elapsedTime =
-          std::chrono::high_resolution_clock::now() - update_last;
+      std::chrono::duration<double> elapsedTime = std::chrono::high_resolution_clock::now() - update_last;
 
       // auto it_end =
       // message.upper_bound(make_pair(offset+elapsedTime.count()+1,
@@ -121,12 +118,10 @@ void outputInstance::process() {
 
       int up = 0;
 
-      if (index_last < index ||
-          (it != message.end() && it->first < max_offset)) {
+      if (index_last < index || (it != message.end() && it->first < max_offset)) {
         // while (it != it_end) {
 
-        vector<unsigned char>& msg =
-            const_cast<vector<unsigned char>&>(it->second);
+        vector<unsigned char>& msg = const_cast<vector<unsigned char>&>(it->second);
         // logQ("it. offset_last, limit offset_last:", it->first,
         // offset_last+elapsedTime.count()*UNK_CST);
 
@@ -157,8 +152,7 @@ void outputInstance::process() {
   }
 }
 
-void outputInstance::load(
-    const multiset<pair<double, vector<unsigned char>>>& message) {
+void outputInstance::load(const multiset<pair<double, vector<unsigned char>>>& message) {
   crit.lock();
   this->message = message;
   crit.unlock();

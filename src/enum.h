@@ -12,9 +12,7 @@ using std::vector;
 template <class T>
 class enumChecker {
  public:
-  enumChecker() : items(0), itemsLastFrame(0) {
-    static_assert(is_enum<T>::value, "class requires an enum type");
-  }
+  enumChecker() : items(0), itemsLastFrame(0) { static_assert(is_enum<T>::value, "class requires an enum type"); }
 
   void add(T item) {
     if (!contains(item)) {
@@ -29,22 +27,15 @@ class enumChecker {
     items.clear();
   }
 
-  bool contains(T item) {
-    return find(items.begin(), items.end(), item) != items.end();
-  }
+  bool contains(T item) { return find(items.begin(), items.end(), item) != items.end(); }
 
-  bool contains(T item1, T item2...) {
-    return contains(item1) || contains(item2);
-  }
+  bool contains(T item1, T item2...) { return contains(item1) || contains(item2); }
 
   bool containsLastFrame(T item) {
-    return find(itemsLastFrame.begin(), itemsLastFrame.end(), item) !=
-           itemsLastFrame.end();
+    return find(itemsLastFrame.begin(), itemsLastFrame.end(), item) != itemsLastFrame.end();
   }
 
-  bool containsLastFrame(T item1, T item2...) {
-    return containsLastFrame(item1) || containsLastFrame(item2);
-  }
+  bool containsLastFrame(T item1, T item2...) { return containsLastFrame(item1) || containsLastFrame(item2); }
 
  private:
   vector<T> items;
@@ -71,14 +62,7 @@ enum pathType { PATH_DATA, PATH_IMAGE, PATH_MKI, PATH_NONE };
 
 enum schemeType { SCHEME_TRACK, SCHEME_TONIC, SCHEME_KEY, SCHEME_NONE };
 
-enum selectType {
-  SELECT_BG,
-  SELECT_LINE,
-  SELECT_NOTE,
-  SELECT_SHEET,
-  SELECT_MEASURE,
-  SELECT_NONE
-};
+enum selectType { SELECT_BG, SELECT_LINE, SELECT_NOTE, SELECT_SHEET, SELECT_MEASURE, SELECT_NONE };
 
 enum displayType {
   DISPLAY_BAR,
@@ -130,13 +114,7 @@ enum colorType { COLOR_PART, COLOR_VELOCITY, COLOR_TONIC };
 
 enum imageType { IMAGE_PNG, IMAGE_JPG, IMAGE_NONE };
 
-enum sheetEventType {
-  EVENT_TIME,
-  EVENT_KEY,
-  EVENT_NOTE,
-  EVENT_REST,
-  EVENT_NONE
-};
+enum sheetEventType { EVENT_TIME, EVENT_KEY, EVENT_NOTE, EVENT_REST, EVENT_NONE };
 
 // in ratios of TPQ
 enum noteType {
@@ -191,14 +169,7 @@ enum displayAccStateType {
   DA_STATE_NONE
 };
 
-enum flagType {
-  FLAGTYPE_STEM,
-  FLAGTYPE_8,
-  FLAGTYPE_16,
-  FLAGTYPE_32,
-  FLAGTYPE_64,
-  FLAGTYPE_NONE
-};
+enum flagType { FLAGTYPE_STEM, FLAGTYPE_8, FLAGTYPE_16, FLAGTYPE_32, FLAGTYPE_64, FLAGTYPE_NONE };
 
 enum flagDirType { FLAG_UP, FLAG_DOWN, FLAG_NONE };
 

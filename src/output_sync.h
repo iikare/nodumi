@@ -41,8 +41,7 @@ class outputInstance {
   double offset_last = 0;
 
   std::chrono::time_point<std::chrono::high_resolution_clock> update_last;
-  std::chrono::time_point<std::chrono::high_resolution_clock>
-      update_last_overflow;
+  std::chrono::time_point<std::chrono::high_resolution_clock> update_last_overflow;
 
   mutex crit;
   thread oThread;

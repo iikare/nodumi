@@ -25,8 +25,7 @@ using std::swap;
 using std::uniform_int_distribution;
 using std::vector;
 
-void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>& on,
-                       vector<colorRGB>& off) {
+void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>& on, vector<colorRGB>& off) {
   bg.invert();
   line.invert();
   for (unsigned int i = 0; i < on.size(); i++) {
@@ -35,8 +34,7 @@ void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>& on,
   }
 }
 
-void getColorScheme(int n, vector<colorRGB>& colorVecA,
-                    vector<colorRGB>& colorVecB,
+void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB,
                     const vector<pair<int, double>>& weight) {
   // check zero n
   if (!n) {
@@ -78,8 +76,7 @@ void getColorScheme(int n, vector<colorRGB>& colorVecA,
   swap(colorVecA, colorVecB);
 }
 
-void getColorSchemeImage(schemeType type, vector<colorRGB>& colorVecA,
-                         vector<colorRGB>& colorVecB,
+void getColorSchemeImage(schemeType type, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB,
                          const vector<pair<int, double>>& weight) {
   switch (type) {
     case SCHEME_KEY:
@@ -108,8 +105,7 @@ void getColorSchemeImage(schemeType type, vector<colorRGB>& colorVecA,
   }
 }
 
-void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA,
-                         vector<colorRGB>& colorVecB,
+void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA, vector<colorRGB>& colorVecB,
                          const vector<pair<int, double>>& weight) {
   // check zero k
   if (!n) {
@@ -125,16 +121,14 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA,
   int nCol = n;
   if (ctr.image.getNumColors() < n) {
     // too many colors from too few unique datapoints
-    logW(LL_WARN, "attempt to get", n, "colors from",
-         to_string(ctr.image.getNumColors()) + "-colored image");
+    logW(LL_WARN, "attempt to get", n, "colors from", to_string(ctr.image.getNumColors()) + "-colored image");
     nCol = ctr.image.getNumColors();
   }
 
   vector<kMeansPoint> colorData = ctr.image.getRawData();
 
   // init rng
-  mt19937::result_type gen =
-      high_resolution_clock::now().time_since_epoch().count();
+  mt19937::result_type gen = high_resolution_clock::now().time_since_epoch().count();
   uniform_int_distribution<int> range(0, colorData.size() - 1);
   auto getPoint = bind(range, mt19937(gen));
 
@@ -162,9 +156,7 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA,
 
     // sample a small amount of colors
     constexpr int sampleLimit = 4;
-    for (int i = 0;
-         i < min(MAX_UNIQUE_COLORS, min(ctr.image.getNumColors(), sampleLimit));
-         ++i) {
+    for (int i = 0; i < min(MAX_UNIQUE_COLORS, min(ctr.image.getNumColors(), sampleLimit)); ++i) {
       int intermediate_idx = getPoint();
       colorLAB cenCol = colorData[intermediate_idx].data;
 
@@ -173,8 +165,7 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA,
         cenCol = colorData[intermediate_idx].data;
       }
 
-      intermediateSet.push_back(
-          make_pair(intermediate_idx, colorData[intermediate_idx]));
+      intermediateSet.push_back(make_pair(intermediate_idx, colorData[intermediate_idx]));
     }
 
     double maxDeltaE = 0;
@@ -183,8 +174,7 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA,
 
     for (unsigned int i = 0; i < intermediateSet.size(); ++i) {
       for (unsigned int j = i; j < intermediateSet.size(); ++j) {
-        double deltaE = intermediateSet[i].second.distance(
-            std::ref(intermediateSet[j].second));
+        double deltaE = intermediateSet[i].second.distance(std::ref(intermediateSet[j].second));
         if (maxDeltaE < deltaE) {
           maxDeltaE = deltaE;
           colAIdx = i;
@@ -234,8 +224,7 @@ void getColorSchemeImage(int n, int k, vector<colorRGB>& colorVecA,
     setHSV[i] = make_pair(i, colorVecA[i].getHSV());
   }
 
-  sort(setHSV.begin(), setHSV.end(),
-       [&](const auto a, const auto b) { return a.second.h < b.second.h; });
+  sort(setHSV.begin(), setHSV.end(), [&](const auto a, const auto b) { return a.second.h < b.second.h; });
 
   for (unsigned int i = 0; i < colorVecA.size(); i++) {
     swap(colorVecA[i], colorVecA[setHSV[i].first]);
@@ -264,8 +253,7 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
   // logE();
 
   // init rng
-  mt19937::result_type gen =
-      high_resolution_clock::now().time_since_epoch().count();
+  mt19937::result_type gen = high_resolution_clock::now().time_since_epoch().count();
   uniform_int_distribution<int> range(0, colorData.size() - 1);
   auto getCentroid = bind(range, mt19937(gen));
 

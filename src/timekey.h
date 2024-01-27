@@ -43,9 +43,7 @@ class timeSig {
     return *this;
   }
 
-  bool operator==(const timeSig& other) const {
-    return top == other.getTop() && bottom == other.getBottom();
-  }
+  bool operator==(const timeSig& other) const { return top == other.getTop() && bottom == other.getBottom(); }
 
   void setMeasure(int m) { measure = m; }
   void setTick(int tk) { tick = tk; }

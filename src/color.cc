@@ -12,8 +12,7 @@ using std::ostream;
 
 colorRGB::colorRGB() : r(0), g(0), b(0) {}
 
-colorRGB::colorRGB(double red, double green, double blue)
-    : r(red), g(green), b(blue) {}
+colorRGB::colorRGB(double red, double green, double blue) : r(red), g(green), b(blue) {}
 
 colorRGB::colorRGB(const Color& col) : r(col.r), g(col.g), b(col.b) {}
 
@@ -30,9 +29,7 @@ void colorRGB::setRGB(double red, double green, double blue) {
 
 void colorRGB::setRGB(const colorHSV& hsv) { *this = hsv.getRGB(); }
 
-bool colorRGB::operator==(const colorRGB& col) {
-  return r == col.r && g == col.g && b == col.b;
-}
+bool colorRGB::operator==(const colorRGB& col) { return r == col.r && g == col.g && b == col.b; }
 
 void colorRGB::invert() {
   r = 255 - r;
@@ -72,8 +69,7 @@ colorHSV colorRGB::getHSV() const {
 
 colorHSV::colorHSV() : h(0), s(0), v(0) {}
 
-colorHSV::colorHSV(double hue, double sat, double val)
-    : h(hue), s(sat), v(val) {}
+colorHSV::colorHSV(double hue, double sat, double val) : h(hue), s(sat), v(val) {}
 
 void colorHSV::operator=(const colorHSV& col) {
   h = col.h;
@@ -174,9 +170,7 @@ colorLAB colorRGB::getLAB() const {
   // 0.0193 0.1192 0.9505  | B
 
   // sRGB D65
-  constexpr float tMat[3][3] = {{0.4124, 0.3576, 0.1805},
-                                {0.2126, 0.7152, 0.0722},
-                                {0.0193, 0.1192, 0.9505}};
+  constexpr float tMat[3][3] = {{0.4124, 0.3576, 0.1805}, {0.2126, 0.7152, 0.0722}, {0.0193, 0.1192, 0.9505}};
 
   // sRGB D50
   // constexpr float tMat[3][3] = {{0.4361,0.3851,0.1431},
@@ -253,9 +247,7 @@ colorRGB::colorRGB(const colorLAB& col) {
   };
 
   // sRGB D65
-  constexpr float tMat[3][3] = {{3.2406, -1.5372, -0.4986},
-                                {-0.9689, 1.8758, 0.0415},
-                                {0.0557, -0.2040, 1.0570}};
+  constexpr float tMat[3][3] = {{3.2406, -1.5372, -0.4986}, {-0.9689, 1.8758, 0.0415}, {0.0557, -0.2040, 1.0570}};
 
   // sRGB D65
   constexpr float cieX_n = 95.0489f / 100.0f;
@@ -307,12 +299,8 @@ void colorLAB::operator=(const colorLAB& col) {
   b = col.b;
 }
 
-bool colorLAB::operator==(const colorLAB& col) {
-  return l == col.l && a == col.a && b == col.b;
-}
-bool colorLAB::operator!=(const colorLAB& col) {
-  return !(l == col.l && a == col.a && b == col.b);
-}
+bool colorLAB::operator==(const colorLAB& col) { return l == col.l && a == col.a && b == col.b; }
+bool colorLAB::operator!=(const colorLAB& col) { return !(l == col.l && a == col.a && b == col.b); }
 
 ostream& operator<<(ostream& out, const colorLAB& color) {
   out << "{" << color.l << ", " << color.a << ", " << color.b << "} (LAB)";

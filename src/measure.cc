@@ -35,8 +35,7 @@ void measureController::buildTickMap() {
 
   // logQ(formatVector(tmpPos));
 
-  tickMap = set<int>(make_move_iterator(tmpPos.begin()),
-                     make_move_iterator(tmpPos.end()));
+  tickMap = set<int>(make_move_iterator(tmpPos.begin()), make_move_iterator(tmpPos.end()));
 }
 
 void measureController::addNote(note& note) {

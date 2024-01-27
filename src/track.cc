@@ -104,8 +104,7 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
   if (l == r || l_start + 2 * l_duration < r_start) {
     for (unsigned int n_l = 0; n_l < chord_l.size(); ++n_l) {
       const auto& l_note = n_vec->at(chord_l[n_l]);
-      lines.push_back({chord_l[n_l], l_note.x, l_note.y,
-                       l_note.x + l_note.duration, l_note.y, in_progress});
+      lines.push_back({chord_l[n_l], l_note.x, l_note.y, l_note.x + l_note.duration, l_note.y, in_progress});
     }
     return;
   }
@@ -152,8 +151,7 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
       if (dup > 0) {
         // can choose between left endpoints
         if (n_l + 1 < chord_l.size()) {
-          bool use_current = abs(get_y_l(n_l) - get_y_r(n_r)) <
-                             abs(get_y_l(n_l + 1) - get_y_r(n_r));
+          bool use_current = abs(get_y_l(n_l) - get_y_r(n_r)) < abs(get_y_l(n_l + 1) - get_y_r(n_r));
 
           if (use_current) {
             dup--;
@@ -191,8 +189,7 @@ void trackController::buildLine(unsigned int l, unsigned int r) {
       if (dup > 0) {
         // can choose between right endpoints
         if (n_r + 1 < chord_r.size()) {
-          bool use_current = abs(get_y_l(n_l) - get_y_r(n_r)) <
-                             abs(get_y_l(n_l) - get_y_r(n_r + 1));
+          bool use_current = abs(get_y_l(n_l) - get_y_r(n_r)) < abs(get_y_l(n_l) - get_y_r(n_r + 1));
 
           if (use_current) {
             dup--;

@@ -13,8 +13,7 @@ enum class TYPE { CIE_00, CIE_94, CIE_76 };
 
 template <class T, TYPE f = TYPE::CIE_00>
 T deltaE(T l1, T a1, T b1, T l2, T a2, T b2) {
-  static_assert(std::is_floating_point<T>::value,
-                "cie2k deltaE must be of floating-point type");
+  static_assert(std::is_floating_point<T>::value, "cie2k deltaE must be of floating-point type");
 
   if constexpr (f == TYPE::CIE_00) {
     // CIEDE2000 implementation
@@ -82,8 +81,7 @@ T deltaE(T l1, T a1, T b1, T l2, T a2, T b2) {
     }
 
     // eq.11
-    const T delta_H_prime =
-        2.0 * sqrt(C1_prime * C2_prime) * sin(delta_h_prime / 2.0);
+    const T delta_H_prime = 2.0 * sqrt(C1_prime * C2_prime) * sin(delta_h_prime / 2.0);
 
     // eq.12
     const T L_bar_prime = (l1 + l2) / 2.0;
@@ -108,15 +106,11 @@ T deltaE(T l1, T a1, T b1, T l2, T a2, T b2) {
     }
 
     // eq.15
-    const T t = 1.0 - 0.17 * cos(h_bar_prime - to_rad(30.0)) +
-                0.24 * cos(h_bar_prime * 2.0) +
-                0.32 * cos(h_bar_prime * 3.0 + to_rad(6.0)) -
-                0.20 * cos(h_bar_prime * 4.0 - to_rad(63.0));
+    const T t = 1.0 - 0.17 * cos(h_bar_prime - to_rad(30.0)) + 0.24 * cos(h_bar_prime * 2.0) +
+                0.32 * cos(h_bar_prime * 3.0 + to_rad(6.0)) - 0.20 * cos(h_bar_prime * 4.0 - to_rad(63.0));
 
     // eq.16
-    const T delta_theta =
-        to_rad(30.0) *
-        exp(-pow((h_bar_prime - to_rad(275.0)) / to_rad(25.0), 2.0));
+    const T delta_theta = to_rad(30.0) * exp(-pow((h_bar_prime - to_rad(275.0)) / to_rad(25.0), 2.0));
 
     // eq.17
     const T C_bar_prime_7 = pow(C_bar_prime, 7.0);
@@ -142,10 +136,8 @@ T deltaE(T l1, T a1, T b1, T l2, T a2, T b2) {
     constexpr T k_H = 1.0;
 
     T deltaE =
-        sqrt(pow(delta_L_prime / (k_L * S_L), 2.0) +
-             pow(delta_C_prime / (k_C * S_C), 2.0) +
-             pow(delta_H_prime / (k_H * S_H), 2.0) +
-             R_T * delta_C_prime * delta_H_prime / (k_C * S_C * k_H * S_H));
+        sqrt(pow(delta_L_prime / (k_L * S_L), 2.0) + pow(delta_C_prime / (k_C * S_C), 2.0) +
+             pow(delta_H_prime / (k_H * S_H), 2.0) + R_T * delta_C_prime * delta_H_prime / (k_C * S_C * k_H * S_H));
 
     return deltaE;
   }
@@ -158,10 +150,8 @@ T deltaE(T l1, T a1, T b1, T l2, T a2, T b2) {
 
     // CIE1994 implementation
     // first find LCH
-    const lchIntermediary pA = {l1, sqrt(pow(a1, 2) + pow(b1, 2)),
-                                0 * (T)atan2(b1, a1)};
-    const lchIntermediary pB = {l2, sqrt(pow(a2, 2) + pow(b2, 2)),
-                                0 * (T)atan2(b2, a2)};
+    const lchIntermediary pA = {l1, sqrt(pow(a1, 2) + pow(b1, 2)), 0 * (T)atan2(b1, a1)};
+    const lchIntermediary pB = {l2, sqrt(pow(a2, 2) + pow(b2, 2)), 0 * (T)atan2(b2, a2)};
 
     const T deltaL = pA.l - pB.l;
     const T deltaC = pA.c - pB.c;
@@ -179,8 +169,7 @@ T deltaE(T l1, T a1, T b1, T l2, T a2, T b2) {
     const T S_C = 1 + K_1 * pA.c;
     const T S_H = 1 + K_2 * pA.c;
 
-    return sqrt(pow(deltaL / (k_L * S_L), 2) + pow(deltaC / (k_C * S_C), 2) +
-                deltaH * pow(1 / (k_H * S_H), 2));
+    return sqrt(pow(deltaL / (k_L * S_L), 2) + pow(deltaC / (k_C * S_C), 2) + deltaH * pow(1 / (k_H * S_H), 2));
     // return pow(deltaL/(k_L*S_L),2) + pow(deltaC/(k_C*S_C),2) +
     // deltaH*pow(1/(k_H*S_H),2);
   }
@@ -213,16 +202,13 @@ inst_m_check(b);
 // these fields must satisfy std::is_floating_point<T>
 template <class V, TYPE f = TYPE::CIE_00>
 auto deltaE(const V& lab1, const V& lab2) {
-  static_assert(
-      m_check(V, l) && m_check(V, a) && m_check(V, b),
-      "type passed to cie2k::deltaE() does not satisfy function constraints");
+  static_assert(m_check(V, l) && m_check(V, a) && m_check(V, b),
+                "type passed to cie2k::deltaE() does not satisfy function constraints");
 
-  static_assert(std::is_floating_point<decltype(lab1.l)>::value &&
-                    std::is_floating_point<decltype(lab1.a)>::value &&
+  static_assert(std::is_floating_point<decltype(lab1.l)>::value && std::is_floating_point<decltype(lab1.a)>::value &&
                     std::is_floating_point<decltype(lab1.b)>::value &&
                     std::is_floating_point<decltype(lab2.l)>::value &&
-                    std::is_floating_point<decltype(lab2.a)>::value &&
-                    std::is_floating_point<decltype(lab1.b)>::value,
+                    std::is_floating_point<decltype(lab2.a)>::value && std::is_floating_point<decltype(lab1.b)>::value,
                 "type of members passed to cie2k::deltaE() does not satisfy "
                 "function constraints");
 
@@ -233,8 +219,7 @@ auto deltaE(const V& lab1, const V& lab2) {
                     std::is_same<decltype(lab2.a), decltype(lab2.b)>::value,
                 "type of members passed to cie2k::deltaE() is not consistent");
 
-  return deltaE<decltype(lab1.l), f>(lab1.l, lab1.a, lab1.b, lab2.l, lab2.a,
-                                     lab2.b);
+  return deltaE<decltype(lab1.l), f>(lab1.l, lab1.a, lab1.b, lab2.l, lab2.a, lab2.b);
 }
 
 }  // namespace cie2k

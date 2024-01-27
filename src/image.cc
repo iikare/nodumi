@@ -69,9 +69,7 @@ void imageController::load(stringstream& byteData, int byteSize, int fmt) {
       return;
   }
 
-  image = LoadImageFromMemory(
-      ext.c_str(),
-      reinterpret_cast<const unsigned char*>(byteData.str().c_str()), byteSize);
+  image = LoadImageFromMemory(ext.c_str(), reinterpret_cast<const unsigned char*>(byteData.str().c_str()), byteSize);
 
   process();
 }
@@ -79,8 +77,7 @@ void imageController::load(stringstream& byteData, int byteSize, int fmt) {
 void imageController::process() {
   // find default scale
   if (image.width > ctr.getWidth() || image.height > ctr.getHeight()) {
-    scale = 1.0 / max((double)image.width / ctr.getWidth(),
-                      (double)image.height / ctr.getHeight());
+    scale = 1.0 / max((double)image.width / ctr.getWidth(), (double)image.height / ctr.getHeight());
     defaultScale = scale;
   }
 
@@ -122,10 +119,8 @@ void imageController::unloadData() {
 
 void imageController::render() {
   if (isLoaded) {
-    drawTextureEx(imageTex,
-                  Vector2{(float)position.x + (float)offset.x,
-                          (float)position.y + (float)offset.y},
-                  0, scale);
+    drawTextureEx(imageTex, Vector2{(float)position.x + (float)offset.x, (float)position.y + (float)offset.y}, 0,
+                  scale);
 
     if (ctr.option.get(OPTION::SET_DARKEN_IMAGE)) {
       int v = ctr.option.get(OPTION::DARKEN_IMAGE);
@@ -133,8 +128,7 @@ void imageController::render() {
       constexpr double reduce_ratio = 8.0;
       colorRGB c(v / reduce_ratio, v / reduce_ratio, v / reduce_ratio);
 
-      drawRectangle(static_cast<float>(position.x + offset.x),
-                    static_cast<float>(position.y + offset.y),
+      drawRectangle(static_cast<float>(position.x + offset.x), static_cast<float>(position.y + offset.y),
                     image.width * scale, image.height * scale, c, min(200, v));
     }
   }
@@ -143,8 +137,7 @@ void imageController::render() {
 void imageController::updatePosition() {
   if (canMove) {
     double xBounds = min(max(0, getMousePosition().x), ctr.getWidth());
-    double yBounds =
-        min(max(ctr.topHeight, getMousePosition().y), ctr.getHeight());
+    double yBounds = min(max(ctr.topHeight, getMousePosition().y), ctr.getHeight());
 
     offset.x = xBounds - base.x;
     offset.y = yBounds - base.y;
@@ -176,9 +169,7 @@ void imageController::changeScale(double scaleOffset) {
   double oldWidth = getWidth();
   double oldHeight = getHeight();
 
-  scale =
-      min(max(0.1 * defaultScale, scale + scaleOffset * scale / defaultScale),
-          10.0 * defaultScale);
+  scale = min(max(0.1 * defaultScale, scale + scaleOffset * scale / defaultScale), 10.0 * defaultScale);
 
   double diffScale = scale - oldScale;
 
@@ -203,8 +194,7 @@ void imageController::createRawData() {
 
   Image copy = ImageCopy(image);
   constexpr int baseWidth = 100;
-  ImageResizeNN(&copy, baseWidth,
-                baseWidth * (double)image.width / image.height);
+  ImageResizeNN(&copy, baseWidth, baseWidth * (double)image.width / image.height);
 
   vector<colorRGB> uniqueColors;
 
@@ -226,14 +216,12 @@ void imageController::createRawData() {
         }
         // logQ(colorRGB(GetImageColor(copy, x, y)));
         Color tmpColorR = GetImageColor(copy, x, y);
-        colorRGB tmpColor = {(double)tmpColorR.r, (double)tmpColorR.g,
-                             (double)tmpColorR.b};
+        colorRGB tmpColor = {(double)tmpColorR.r, (double)tmpColorR.g, (double)tmpColorR.b};
         meanV += tmpColor.getHSV().v;
         rawPixelData.push_back(kMeansPoint(tmpColor));
 
         if (uniqueColors.size() < MAX_UNIQUE_COLORS &&
-            find(uniqueColors.begin(), uniqueColors.end(), tmpColor) ==
-                uniqueColors.end()) {
+            find(uniqueColors.begin(), uniqueColors.end(), tmpColor) == uniqueColors.end()) {
           uniqueColors.push_back(tmpColor);
         }
       }

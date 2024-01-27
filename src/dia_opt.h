@@ -18,8 +18,7 @@ class dialogOption {
   dialogOption(DIA_OPT t, OPTION opt_t, const vector<string>& label);
 
   // check box with subboxes OR slider
-  dialogOption(DIA_OPT t, OPTION opt_t, OPTION sub_opt_t,
-               const vector<string>& label, const vector<string>& val,
+  dialogOption(DIA_OPT t, OPTION opt_t, OPTION sub_opt_t, const vector<string>& label, const vector<string>& val,
                const vector<int>& res);
 
   void render(int in_x, int in_y);

@@ -12,8 +12,7 @@ optionController::optionController() {
   opts[static_cast<int>(OPTION::SET_HAND_RANGE)] = false;
   opts[static_cast<int>(OPTION::HAND_RANGE)] = MAX_HAND_RANGE;
   opts[static_cast<int>(OPTION::SET_DARKEN_IMAGE)] = false;
-  opts[static_cast<int>(OPTION::CIE_FUNCTION)] =
-      static_cast<int>(cie2k::TYPE::CIE_00);
+  opts[static_cast<int>(OPTION::CIE_FUNCTION)] = static_cast<int>(cie2k::TYPE::CIE_00);
   opts[static_cast<int>(OPTION::SET_CIE_FUNCTION)] = false;
   opts[static_cast<int>(OPTION::DARKEN_IMAGE)] = 0;
   opts[static_cast<int>(OPTION::DYNAMIC_LABEL)] = true;
@@ -64,8 +63,7 @@ bool optionController::invalid(OPTION opt) {
     case OPTION::SET_HAND_RANGE:
       [[fallthrough]];
     case OPTION::HAND_RANGE:
-      return !get(OPTION::TRACK_DIVISION_LIVE) &&
-             !get(OPTION::TRACK_DIVISION_MIDI);
+      return !get(OPTION::TRACK_DIVISION_LIVE) && !get(OPTION::TRACK_DIVISION_MIDI);
     case OPTION::SET_DARKEN_IMAGE:
       [[fallthrough]];
     case OPTION::DARKEN_IMAGE:

@@ -19,8 +19,7 @@ class asset {
     this->data = data;
     this->dataLen = dataLen;
   }
-  asset(ASSET a, string b, unsigned char* data1, unsigned char* data2,
-        vector<uniform> uniforms) {
+  asset(ASSET a, string b, unsigned char* data1, unsigned char* data2, vector<uniform> uniforms) {
     assetType = a;
     assetName = b;
     dataVS = data1;

@@ -30,19 +30,15 @@ void particleController::process() {
   vector<pair<int, particleInfo>> begin_emit(current_emit.size());
   vector<pair<int, particleInfo>> end_emit(current_emit_last.size());
 
-  set_difference(current_emit.begin(), current_emit.end(),
-                 current_emit_last.begin(), current_emit_last.end(),
+  set_difference(current_emit.begin(), current_emit.end(), current_emit_last.begin(), current_emit_last.end(),
                  begin_emit.begin(), set_comp());
-  set_difference(current_emit_last.begin(), current_emit_last.end(),
-                 current_emit.begin(), current_emit.end(), end_emit.begin(),
-                 set_comp());
+  set_difference(current_emit_last.begin(), current_emit_last.end(), current_emit.begin(), current_emit.end(),
+                 end_emit.begin(), set_comp());
 
   auto zero_comp = [&](const auto& a) { return a.first == 0; };
 
-  begin_emit.erase(remove_if(begin_emit.begin(), begin_emit.end(), zero_comp),
-                   begin_emit.end());
-  end_emit.erase(remove_if(end_emit.begin(), end_emit.end(), zero_comp),
-                 end_emit.end());
+  begin_emit.erase(remove_if(begin_emit.begin(), begin_emit.end(), zero_comp), begin_emit.end());
+  end_emit.erase(remove_if(end_emit.begin(), end_emit.end(), zero_comp), end_emit.end());
 
   // if (begin_emit.size()) logQ("BEGIN EMIT:", begin_emit);
   // if (end_emit.size())   logQ("END EMIT:", end_emit);

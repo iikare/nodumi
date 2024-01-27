@@ -14,14 +14,12 @@ T colorLERP(const T& a, const T& b, double ratio, int type = INT_LINEAR) {
   ratio = scaleInterpolationRatio(ratio, type);
 
   if constexpr (is_same<T, Color>::value) {
-    return (Color){(unsigned char)(a.r * (1 - ratio) + b.r * (ratio)),
-                   (unsigned char)(a.g * (1 - ratio) + b.g * (ratio)),
-                   (unsigned char)(a.b * (1 - ratio) + b.b * (ratio)),
-                   (unsigned char)(a.a * (1 - ratio) + b.a * (ratio))};
+    return (Color){
+        (unsigned char)(a.r * (1 - ratio) + b.r * (ratio)), (unsigned char)(a.g * (1 - ratio) + b.g * (ratio)),
+        (unsigned char)(a.b * (1 - ratio) + b.b * (ratio)), (unsigned char)(a.a * (1 - ratio) + b.a * (ratio))};
   }
   if constexpr (is_same<T, colorRGB>::value) {
-    return (colorRGB){(a.r * (1 - ratio) + b.r * (ratio)),
-                      (a.g * (1 - ratio) + b.g * (ratio)),
+    return (colorRGB){(a.r * (1 - ratio) + b.r * (ratio)), (a.g * (1 - ratio) + b.g * (ratio)),
                       (a.b * (1 - ratio) + b.b * (ratio))};
   }
 

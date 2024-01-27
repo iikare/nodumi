@@ -20,8 +20,7 @@ void voronoiController::resample(int voro_y) {
     voronoi_color_resampled.resize(VORONOI_MAX_POINTS);
 
     // sample points
-    double sampleRatio =
-        vertex.size() / static_cast<double>(VORONOI_MAX_POINTS);
+    double sampleRatio = vertex.size() / static_cast<double>(VORONOI_MAX_POINTS);
     for (auto i = 0; i < VORONOI_MAX_POINTS; ++i) {
       voronoi_vertex_resampled[i] = vertex[int(i * sampleRatio)];
       voronoi_color_resampled[i] = color[int(i * sampleRatio)];
@@ -35,10 +34,8 @@ void voronoiController::resample(int voro_y) {
   float render_bound = static_cast<float>(voro_y) / ctr.getHeight();
 
   ctr.setShaderValue("SH_VORONOI", "vertex_count", voroSize);
-  ctr.setShaderValue("SH_VORONOI", "vertex_data", voronoi_vertex_data,
-                     voroSize);
-  ctr.setShaderValue("SH_VORONOI", "vertex_color", voronoi_color_data,
-                     voroSize);
+  ctr.setShaderValue("SH_VORONOI", "vertex_data", voronoi_vertex_data, voroSize);
+  ctr.setShaderValue("SH_VORONOI", "vertex_color", voronoi_color_data, voroSize);
   ctr.setShaderValue("SH_VORONOI", "render_bound", render_bound);
 
   vertex.clear();
@@ -52,12 +49,10 @@ void voronoiController::update() {
 }
 
 void voronoiController::updateBuffer() {
-  voro_buffer =
-      LoadRenderTexture(ctr.getWidth(), ctr.getHeight() - ctr.menuHeight);
+  voro_buffer = LoadRenderTexture(ctr.getWidth(), ctr.getHeight() - ctr.menuHeight);
 }
 void voronoiController::updateTexture() {
-  Image i =
-      GenImageColor(ctr.getWidth(), ctr.getHeight() - ctr.menuHeight, WHITE);
+  Image i = GenImageColor(ctr.getWidth(), ctr.getHeight() - ctr.menuHeight, WHITE);
   tex = LoadTextureFromImage(i);
   UnloadImage(i);
 }
@@ -80,9 +75,7 @@ void voronoiController::render() {
   ctr.beginShaderMode("SH_FXAA");
   // DrawTextureEx(voro_buffer.texture, { 0, ctr.menuHeight }, 360.0f, 1.0f,
   // WHITE);
-  DrawTextureRec(voro_buffer.texture,
-                 {0, 0, float(voro_buffer.texture.width),
-                  float(-voro_buffer.texture.height)},
+  DrawTextureRec(voro_buffer.texture, {0, 0, float(voro_buffer.texture.width), float(-voro_buffer.texture.height)},
                  {0, ctr.menuHeight}, WHITE);
   ctr.endShaderMode();
 }

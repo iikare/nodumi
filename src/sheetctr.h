@@ -61,9 +61,7 @@ class sheetController {
     return make_pair(staveFlagLimitMap[0][0], staveFlagLimitMap[1][0]);
   }
   static constexpr int getFlagLimit(int flagType, int stave) {
-    return staveFlagLimitMap[stave][flagType == FLAGTYPE_NONE
-                                        ? 0
-                                        : (flagType + 1) % 6];
+    return staveFlagLimitMap[stave][flagType == FLAGTYPE_NONE ? 0 : (flagType + 1) % 6];
   }
   int getDisplayAccType(int& DFAState, int noteAccType);
   int mapSheetY(int sheetY);
@@ -78,8 +76,7 @@ class sheetController {
 
   // padding for thin "1" doesnt' work on second "1" (i.e. 11, 21, etc)
   // or singular "1"
-  static constexpr int timeWidths[10] = {16, 14, 15, 15, 18,
-                                         15, 16, 15, 16, 16};
+  static constexpr int timeWidths[10] = {16, 14, 15, 15, 18, 15, 16, 15, 16, 16};
 
   static constexpr int sharpWidths[8] = {0, 10, 21, 30, 42, 54, 64, 75};
   static constexpr int flatWidths[8] = {0, 8, 18, 28, 39, 49, 60, 70};

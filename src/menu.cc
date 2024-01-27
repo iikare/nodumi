@@ -40,8 +40,7 @@ void menuItem::setWidth(int nWidth) { width = nWidth; }
 
 void menuItem::setHeight(int nHeight) { height = nHeight; }
 
-menu::menu(point XY, menuContentType contentType, int menuType, int menuX,
-           int menuY, menu* parentMenu, int parentPos)
+menu::menu(point XY, menuContentType contentType, int menuType, int menuX, int menuY, menu* parentMenu, int parentPos)
     : render(false),
       mainSize(ITEM_WIDTH),
       x(menuX),
@@ -63,8 +62,7 @@ menu::menu(point XY, menuContentType contentType, int menuType, int menuX,
   }
 
   menuType != TYPE_COLOR ? width = ITEM_WIDTH : width = COLOR_WIDTH;
-  menuType != TYPE_COLOR ? height = ITEM_HEIGHT* itemCount
-                         : height = COLOR_HEIGHT;
+  menuType != TYPE_COLOR ? height = ITEM_HEIGHT* itemCount : height = COLOR_HEIGHT;
   items = {};
   childMenu = {};
   items.resize(itemCount);
@@ -103,8 +101,7 @@ menu::menu(point XY, menuContentType contentType, int menuType, int menuX,
 
 int menu::getItemX(int idx) const {
   if (idx >= itemCount || idx < 0) {
-    logW(LL_WARN, "attempted to get menu itemX at nonexistent menu index ",
-         idx);
+    logW(LL_WARN, "attempted to get menu itemX at nonexistent menu index ", idx);
     return -1;
   }
   return items[idx].getX();
@@ -128,14 +125,11 @@ string menu::getContent(int idx) const {
 
 int menu::getActiveElement() const { return activeElement; }
 
-bool menu::isContentLabel(const string& label, int idx) const {
-  return getContent(idx) == ctr.text.getString(label);
-}
+bool menu::isContentLabel(const string& label, int idx) const { return getContent(idx) == ctr.text.getString(label); }
 
 void menu::setContent(const string& nContent, int idx) {
   if (idx >= itemCount || idx < 0) {
-    logW(LL_WARN, "attempted to set menu item at nonexistent menu index", idx,
-         "(" + nContent + ")");
+    logW(LL_WARN, "attempted to set menu item at nonexistent menu index", idx, "(" + nContent + ")");
     return;
   }
   items[idx].setContent(nContent);
@@ -143,8 +137,7 @@ void menu::setContent(const string& nContent, int idx) {
 
 void menu::setContentLabel(const string& label, int idx) {
   if (idx >= itemCount || idx < 0) {
-    logW(LL_WARN, "attempted to set menu item at nonexistent menu index", idx,
-         "(" + ctr.text.getString(label) + ")");
+    logW(LL_WARN, "attempted to set menu item at nonexistent menu index", idx, "(" + ctr.text.getString(label) + ")");
     return;
   }
   items[idx].setContent(ctr.text.getString(label));
@@ -182,21 +175,18 @@ void menu::findActiveElement(point XY) {
   int curX = XY.x;
   int curY = XY.y;
   if (type == TYPE_MAIN) {
-    if (!pointInBox(
-            (Vector2){static_cast<float>(curX), static_cast<float>(curY)},
-            (rect){getItemX(0), getItemY(0), mainSize, ITEM_HEIGHT})) {
-      if (!pointInBox(
-              (Vector2){static_cast<float>(curX), static_cast<float>(curY)},
-              (rect){getItemX(1), getItemY(1), width, height - ITEM_HEIGHT})) {
+    if (!pointInBox((Vector2){static_cast<float>(curX), static_cast<float>(curY)},
+                    (rect){getItemX(0), getItemY(0), mainSize, ITEM_HEIGHT})) {
+      if (!pointInBox((Vector2){static_cast<float>(curX), static_cast<float>(curY)},
+                      (rect){getItemX(1), getItemY(1), width, height - ITEM_HEIGHT})) {
         activeElement = -1;
         return;
       }
     }
   }
   else if (type == TYPE_COLOR) {
-    if (!pointInBox(
-            (Vector2){static_cast<float>(curX), static_cast<float>(curY)},
-            (rect){x, y, COLOR_WIDTH, COLOR_HEIGHT})) {
+    if (!pointInBox((Vector2){static_cast<float>(curX), static_cast<float>(curY)},
+                    (rect){x, y, COLOR_WIDTH, COLOR_HEIGHT})) {
       activeElement = -1;
     }
     else {
@@ -205,26 +195,22 @@ void menu::findActiveElement(point XY) {
     return;
   }
   else {
-    if (!pointInBox(
-            (Vector2){static_cast<float>(curX), static_cast<float>(curY)},
-            (rect){x, y, width, height})) {
+    if (!pointInBox((Vector2){static_cast<float>(curX), static_cast<float>(curY)}, (rect){x, y, width, height})) {
       activeElement = -1;
       return;
     }
   }
   for (int i = 0; i < itemCount; i++) {
     if (i == 0 && type == TYPE_MAIN) {
-      if (pointInBox(
-              (Vector2){static_cast<float>(curX), static_cast<float>(curY)},
-              (rect){getItemX(i), getItemY(i), mainSize, ITEM_HEIGHT})) {
+      if (pointInBox((Vector2){static_cast<float>(curX), static_cast<float>(curY)},
+                     (rect){getItemX(i), getItemY(i), mainSize, ITEM_HEIGHT})) {
         activeElement = i;
         break;
       }
     }
     else {
-      if (pointInBox(
-              (Vector2){static_cast<float>(curX), static_cast<float>(curY)},
-              (rect){getItemX(i), getItemY(i), width, ITEM_HEIGHT})) {
+      if (pointInBox((Vector2){static_cast<float>(curX), static_cast<float>(curY)},
+                     (rect){getItemX(i), getItemY(i), width, ITEM_HEIGHT})) {
         activeElement = i;
         break;
       }
@@ -314,12 +300,8 @@ void menu::setSquare() {
   const float circleY = y + COLOR_HEIGHT / 2.0f;
 
   if (type == TYPE_COLOR) {
-    pX = round(max(min(getMousePosition().x - circleX + squareDim / 2.0,
-                       double(squareDim)),
-                   0.0));
-    pY = round(max(min(getMousePosition().y - circleY + squareDim / 2.0,
-                       double(squareDim)),
-                   0.0));
+    pX = round(max(min(getMousePosition().x - circleX + squareDim / 2.0, double(squareDim)), 0.0));
+    pY = round(max(min(getMousePosition().y - circleY + squareDim / 2.0, double(squareDim)), 0.0));
   }
 }
 
@@ -353,21 +335,18 @@ void menu::setAngle() {
 bool menu::clickCircle(int circleType) const {
   const float circleRatio = 0.425;
   const float circleWidth = 0.075;
-  const float squareDim =
-      (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * sqrt(2);
+  const float squareDim = (circleRatio - circleWidth - 0.05) * COLOR_WIDTH * sqrt(2);
   const float circleX = x + COLOR_WIDTH / 2.0f;
   const float circleY = y + COLOR_HEIGHT / 2.0f;
 
   if (circleType == 0) {
-    if (getDistance(ctr.getMouseX(), ctr.getMouseY(), circleX, circleY) >
-        (circleRatio - circleWidth) * COLOR_WIDTH) {
+    if (getDistance(ctr.getMouseX(), ctr.getMouseY(), circleX, circleY) > (circleRatio - circleWidth) * COLOR_WIDTH) {
       return true;
     }
   }
   if (circleType == 1) {
-    if (getDistance(ctr.getMouseX(), ctr.getMouseY(),
-                    circleX - squareDim / 2.0 + pX,
-                    circleY - squareDim / 2.0 + pY) < 5.0f) {
+    if (getDistance(ctr.getMouseX(), ctr.getMouseY(), circleX - squareDim / 2.0 + pX, circleY - squareDim / 2.0 + pY) <
+        5.0f) {
       return true;
     }
   }
@@ -404,10 +383,8 @@ colorRGB menu::getColor() const {
 
 void menu::setRingColor() {
   if (type == TYPE_COLOR) {
-    Color a =
-        ColorFromHSV(angle, 1, 1);  //{244.0f/255.0f,0.0f/255.0f,244.0f/255.0f};
-    Vector3 colV = {static_cast<float>(a.r / 255.0f),
-                    static_cast<float>(a.g / 255.0f),
+    Color a = ColorFromHSV(angle, 1, 1);  //{244.0f/255.0f,0.0f/255.0f,244.0f/255.0f};
+    Vector3 colV = {static_cast<float>(a.r / 255.0f), static_cast<float>(a.g / 255.0f),
                     static_cast<float>(a.b / 255.0f)};
     ctr.setShaderValue("SH_SQUARE", "blend_color", colV);
   }
@@ -421,13 +398,11 @@ void menu::draw() {
       drawRectangle(x, getItemY(1), width, height - ITEM_HEIGHT, ctr.bgMenu);
       if (getActiveElement() != -1) {
         if (getActiveElement() == 0) {
-          drawRectangle(getItemX(getActiveElement()),
-                        getItemY(getActiveElement()), mainSize, ITEM_HEIGHT,
+          drawRectangle(getItemX(getActiveElement()), getItemY(getActiveElement()), mainSize, ITEM_HEIGHT,
                         ctr.bgMenuShade);
         }
         else {
-          drawRectangle(getItemX(getActiveElement()),
-                        getItemY(getActiveElement()), ITEM_WIDTH, ITEM_HEIGHT,
+          drawRectangle(getItemX(getActiveElement()), getItemY(getActiveElement()), ITEM_WIDTH, ITEM_HEIGHT,
                         ctr.bgMenuShade);
         }
       }
@@ -435,29 +410,24 @@ void menu::draw() {
       vector<int> openChildren = findOpenChildMenu();
 
       for (unsigned int i = 0; i < openChildren.size(); i++) {
-        drawRectangle(getItemX(openChildren[i]), getItemY(openChildren[i]),
-                      ITEM_WIDTH, ITEM_HEIGHT, ctr.bgMenuShade);
+        drawRectangle(getItemX(openChildren[i]), getItemY(openChildren[i]), ITEM_WIDTH, ITEM_HEIGHT, ctr.bgMenuShade);
       }
 
       for (int i = 1; i < itemCount; i++) {
-        drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 1, 0.5,
-                   ctr.bgMenuLine);
+        drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 1, 0.5, ctr.bgMenuLine);
       }
       for (int i = 0; i < itemCount; i++) {
         if (i == 0) {
-          drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 4,
-                     ctr.bgDark);
+          drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 4, ctr.bgDark);
         }
         else {
-          drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 5,
-                     ctr.bgDark);
+          drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 5, ctr.bgDark);
         }
       }
     }
     else {
       if (getActiveElement() == 0) {
-        drawRectangle(getItemX(getActiveElement()),
-                      getItemY(getActiveElement()), mainSize, ITEM_HEIGHT,
+        drawRectangle(getItemX(getActiveElement()), getItemY(getActiveElement()), mainSize, ITEM_HEIGHT,
                       ctr.bgMenuShade);
       }
       else {
@@ -478,22 +448,17 @@ void menu::draw() {
       ctr.endShaderMode();
 
       ctr.beginShaderMode("SH_SQUARE");
-      drawTextureEx(squareTex,
-                    {circleX - squareDim / 2.0f, circleY - squareDim / 2.0f});
+      drawTextureEx(squareTex, {circleX - squareDim / 2.0f, circleY - squareDim / 2.0f});
       ctr.endShaderMode();
 
-      drawRing({float(circleX - squareDim / 2.0 + pX),
-                float(circleY - squareDim / 2.0 + pY)},
+      drawRing({float(circleX - squareDim / 2.0 + pX), float(circleY - squareDim / 2.0 + pY)}, 0.0f, 5.0f,
+               ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f));
+
+      drawRing({float(circleX + (circleRatio - circleWidth / 2.0) * COLOR_WIDTH * cos(angle * M_PI / 180.0)),
+                float(circleY - (circleRatio - circleWidth / 2.0) * COLOR_HEIGHT * sin(angle * M_PI / 180.0))},
                0.0f, 5.0f, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f));
 
-      drawRing({float(circleX + (circleRatio - circleWidth / 2.0) *
-                                    COLOR_WIDTH * cos(angle * M_PI / 180.0)),
-                float(circleY - (circleRatio - circleWidth / 2.0) *
-                                    COLOR_HEIGHT * sin(angle * M_PI / 180.0))},
-               0.0f, 5.0f, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f));
-
-      drawRectangle(x + COLOR_WIDTH - 36, y + COLOR_HEIGHT - 36, 36, 36,
-                    getColor());
+      drawRectangle(x + COLOR_WIDTH - 36, y + COLOR_HEIGHT - 36, 36, 36, getColor());
 
       string hexColor = colorToHex(getColor());
       int yOffset = 1 + measureTextEx(hexColor).y;
@@ -504,8 +469,7 @@ void menu::draw() {
     if (render) {
       drawRectangle(x, y, width, height, ctr.bgMenu);
       if (getActiveElement() != -1) {
-        drawRectangle(getItemX(getActiveElement()),
-                      getItemY(getActiveElement()), ITEM_WIDTH, ITEM_HEIGHT,
+        drawRectangle(getItemX(getActiveElement()), getItemY(getActiveElement()), ITEM_WIDTH, ITEM_HEIGHT,
                       ctr.bgMenuShade);
       }
 
@@ -525,24 +489,20 @@ void menu::draw() {
 
       for (int i = 0; i < itemCount; i++) {
         if (i == 0 && lineFlag) {
-          drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 1, 1,
-                     {0, 0, 0});
+          drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 1, 1, {0, 0, 0});
         }
         else if (!rightFlag) {
-          drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 1, 0.5,
-                     ctr.bgMenuLine);
+          drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 1, 0.5, ctr.bgMenuLine);
         }
         rightFlag = false;
       }
 
       for (int i = 0; i < itemCount; i++) {
         if (type == TYPE_RIGHT && i == 0) {
-          drawNoteLabel(getContent(i), getItemX(i) + 4, getItemY(i) + 5, 14, 74,
-                        ctr.bgDark);
+          drawNoteLabel(getContent(i), getItemX(i) + 4, getItemY(i) + 5, 14, 74, ctr.bgDark);
         }
         else {
-          drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 5,
-                     ctr.bgDark);
+          drawTextEx(getContent(i), getItemX(i) + 4, getItemY(i) + 5, ctr.bgDark);
         }
       }
     }

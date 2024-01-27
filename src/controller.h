@@ -50,9 +50,7 @@ class controller {
   Texture2D& getImage(const string& imageIdentifier);
   Shader& getShader(const string& shaderIdentifier);
 
-  void beginShaderMode(const string& shaderIdentifier) {
-    BeginShaderMode(getShader(shaderIdentifier));
-  }
+  void beginShaderMode(const string& shaderIdentifier) { BeginShaderMode(getShader(shaderIdentifier)); }
   void endShaderMode() { EndShaderMode(); }
 
   void beginBlendMode(int a) { BeginBlendMode(a); }
@@ -63,8 +61,7 @@ class controller {
   void endTextureMode() { EndTextureMode(); }
 
   template <class T>
-  void setShaderValue(const string& shader, const string& uf, const T& val,
-                      const int num = -1) {
+  void setShaderValue(const string& shader, const string& uf, const T& val, const int num = -1) {
     getShaderData(shader).setShaderValue(uf, val, num);
   }
 
@@ -80,16 +77,16 @@ class controller {
   vector<string> generateMenuLabels(const menuContentType& contentType);
 
   void clear();
-  void load(string path, bool& nowLine, bool& showFPS, bool& showImage,
-            bool& sheetMusicDisplay, bool& measureLine, bool& measureNumber,
+  void load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay, bool& measureLine,
+            bool& measureNumber,
 
             int& colorMode, int& displayMode,
 
             int& songTimeType, int& tonicOffset,
 
             double& zoomLevel);
-  void save(string path, bool nowLine, bool showFPS, bool showImage,
-            bool sheetMusicDisplay, bool measureLine, bool measureNumber,
+  void save(string path, bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay, bool measureLine,
+            bool measureNumber,
 
             int colorMode, int displayMode,
 
@@ -129,9 +126,7 @@ class controller {
   int getMouseX() const { return getMousePosition().x; };
   int getMouseY() const { return getMousePosition().y; };
 
-  int getSheetSize() const {
-    return getWidth() - SHEET_LMARGIN - SHEET_RMARGIN;
-  }
+  int getSheetSize() const { return getWidth() - SHEET_LMARGIN - SHEET_RMARGIN; }
 
   int findCurrentMeasure(int pos) const;
 

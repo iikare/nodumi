@@ -20,13 +20,12 @@ void sheetMeasure::buildChordMap(vector<sheetNote>& vecNote) {
       vec->push_back(&n);
     }
     else {
-      pair<int, vector<sheetNote*>> newPos =
-          make_pair(n.displayBegin, vector<sheetNote*>{&n});
+      pair<int, vector<sheetNote*>> newPos = make_pair(n.displayBegin, vector<sheetNote*>{&n});
       chordSet.insert(newPos);
     }
   }
-  chords = vector<pair<int, vector<sheetNote*>>>(
-      make_move_iterator(chordSet.begin()), make_move_iterator(chordSet.end()));
+  chords =
+      vector<pair<int, vector<sheetNote*>>>(make_move_iterator(chordSet.begin()), make_move_iterator(chordSet.end()));
   // chords = vector<pair<int,vector<sheetNote*>>>(chordSet.begin(),
   // chordSet.end());
 
@@ -39,10 +38,8 @@ void sheetMeasure::buildFlagMap() {
     flagData cFlag;
     int chn = 0;
     for (unsigned int n = 0; n < c.second.size(); ++n) {
-      if (c.second[n]->oriNote->sheetY >
-              sheetController::getStaveRenderLimit().first ||
-          c.second[n]->oriNote->sheetY <
-              sheetController::getStaveRenderLimit().second) {
+      if (c.second[n]->oriNote->sheetY > sheetController::getStaveRenderLimit().first ||
+          c.second[n]->oriNote->sheetY < sheetController::getStaveRenderLimit().second) {
         continue;
       }
       if (!c.second[n]->visible) {
@@ -57,8 +54,7 @@ void sheetMeasure::buildFlagMap() {
         // from bottom, check if flag needs to face up
 
         if (c.second[n]->oriNote->sheetY <
-            sheetController::getFlagLimit(
-                getFlagType(c.second[n]->oriNote->type), STAVE_BASS)) {
+            sheetController::getFlagLimit(getFlagType(c.second[n]->oriNote->type), STAVE_BASS)) {
           cFlag.flagDir = FLAG_UP;  // default due to space constraint
         }
         else {
@@ -76,8 +72,7 @@ void sheetMeasure::buildFlagMap() {
         // all other notes
         cFlag.startY = c.second[n]->oriNote->sheetY;
         // take larger of the stem types
-        cFlag.flagType =
-            min(cFlag.flagType, getFlagType(c.second[n]->oriNote->type));
+        cFlag.flagType = min(cFlag.flagType, getFlagType(c.second[n]->oriNote->type));
         if (cFlag.flagDir == FLAG_DOWN) {
           c.second[n]->left = false;
         }
@@ -93,10 +88,8 @@ void sheetMeasure::buildFlagMap() {
 
     chn = 0;
     for (auto nIt = c.second.rbegin(); nIt != c.second.rend(); ++nIt) {
-      if ((*nIt)->oriNote->sheetY >
-              sheetController::getStaveRenderLimit().first ||
-          (*nIt)->oriNote->sheetY <
-              sheetController::getStaveRenderLimit().second) {
+      if ((*nIt)->oriNote->sheetY > sheetController::getStaveRenderLimit().first ||
+          (*nIt)->oriNote->sheetY < sheetController::getStaveRenderLimit().second) {
         continue;
       }
       if (!(*nIt)->visible) {
@@ -110,9 +103,7 @@ void sheetMeasure::buildFlagMap() {
       if (chn == 0) {
         // from top, check if flag needs to face down
 
-        if ((*nIt)->oriNote->sheetY >
-            sheetController::getFlagLimit(getFlagType((*nIt)->oriNote->type),
-                                          STAVE_TREBLE)) {
+        if ((*nIt)->oriNote->sheetY > sheetController::getFlagLimit(getFlagType((*nIt)->oriNote->type), STAVE_TREBLE)) {
           cFlag.flagDir = FLAG_DOWN;  // default due to space constraint
           // invert notehead due to down-flag
           (*nIt)->left = false;
@@ -130,8 +121,7 @@ void sheetMeasure::buildFlagMap() {
         // all other notes
         cFlag.endY = (*nIt)->oriNote->sheetY;
         // take larger of the stem types
-        cFlag.flagType =
-            min(cFlag.flagType, getFlagType((*nIt)->oriNote->type));
+        cFlag.flagType = min(cFlag.flagType, getFlagType((*nIt)->oriNote->type));
         if (cFlag.flagDir == FLAG_DOWN) {
           (*nIt)->left = false;
         }

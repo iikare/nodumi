@@ -27,15 +27,11 @@ using std::vector;
 
 // using std::function was disastrous
 struct tickCmp {
-  bool operator()(const pair<int, int>& a, const pair<int, int>& b) const {
-    return a.first < b.first;
-  }
+  bool operator()(const pair<int, int>& a, const pair<int, int>& b) const { return a.first < b.first; }
 };
 
 struct itemStartCmp {
-  bool operator()(const pair<int, int>& a, const pair<int, int>& b) const {
-    return a.first <= b.first;
-  }
+  bool operator()(const pair<int, int>& a, const pair<int, int>& b) const { return a.first <= b.first; }
 };
 
 class midi {
@@ -72,9 +68,7 @@ class midi {
   const vector<lineData>& getLines() { return lines; }
   int findMeasure(int offset) const;
 
-  int getMinTickLen() const {
-    return tickNoteTransform[tickNoteTransformLen - 1] * tpq;
-  }
+  int getMinTickLen() const { return tickNoteTransform[tickNoteTransformLen - 1] * tpq; }
   int getTrackCount() const { return trackCount; }
   int getNoteCount() const { return noteCount; }
   int getLastTick() const { return lastTick; }

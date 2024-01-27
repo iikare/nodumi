@@ -10,8 +10,7 @@
 class particle {
  public:
   particle() = delete;
-  particle(double n_x, double n_y, double n_t_life, double n_angle,
-           double n_vel) {
+  particle(double n_x, double n_y, double n_t_life, double n_angle, double n_vel) {
     x = n_x;
     y = n_y;
     t_life = n_t_life;

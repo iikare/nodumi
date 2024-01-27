@@ -55,9 +55,7 @@ void controller::init(vector<asset>& assetSet) {
 
   setShaderValue("SH_VORONOI", "bg_color", bgColor2);
 
-  setShaderValue("SH_FXAA", "u_resolution",
-                 (Vector2){static_cast<float>(getWidth()),
-                           static_cast<float>(getHeight())});
+  setShaderValue("SH_FXAA", "u_resolution", (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
 
   shadow.init();
   voronoi.init();
@@ -71,8 +69,7 @@ void controller::initData(const vector<asset>& assetSet) {
     switch (item.assetType) {
       using enum ASSET;
       case FONT:
-        fontMap.insert(
-            make_pair(item.assetName, make_pair(item, map<int, Font>())));
+        fontMap.insert(make_pair(item.assetName, make_pair(item, map<int, Font>())));
         break;
       case IMAGE: {
         auto it = imageMap.find(item.assetName);
@@ -146,8 +143,7 @@ const Font& controller::getFont(const string& id, int size) {
     // logQ("font lim is", lim);
     // logQ("codepoints are", formatVector(codepointSet));
 
-    Font tmp = LoadFontFromMemory(".otf", tmpFontAsset.data,
-                                  tmpFontAsset.dataLen, size, loc, lim);
+    Font tmp = LoadFontFromMemory(".otf", tmpFontAsset.data, tmpFontAsset.dataLen, size, loc, lim);
 
     SetTextureFilter(tmp.texture, TEXTURE_FILTER_BILINEAR);
 
@@ -162,8 +158,7 @@ const Font& controller::getFont(const string& id, int size) {
 Texture2D& controller::getImage(const string& imageIdentifier) {
   auto it = imageMap.find(imageIdentifier);
   if (it == imageMap.end()) {
-    logW(LL_CRIT,
-         "attempt to load unloaded image w/ identifier: " + imageIdentifier);
+    logW(LL_CRIT, "attempt to load unloaded image w/ identifier: " + imageIdentifier);
     // exit(1);
   }
   return it->second;
@@ -172,16 +167,13 @@ Texture2D& controller::getImage(const string& imageIdentifier) {
 shaderData& controller::getShaderData(const string& shaderIdentifier) {
   auto it = shaderMap.find(shaderIdentifier);
   if (it == shaderMap.end()) {
-    logW(LL_CRIT,
-         "attempt to load unloaded shader w/ identifier: " + shaderIdentifier);
+    logW(LL_CRIT, "attempt to load unloaded shader w/ identifier: " + shaderIdentifier);
     // exit(1);
   }
   return it->second;
 }
 
-Shader& controller::getShader(const string& shaderIdentifier) {
-  return getShaderData(shaderIdentifier).getShader();
-}
+Shader& controller::getShader(const string& shaderIdentifier) { return getShaderData(shaderIdentifier).getShader(); }
 
 void controller::unloadData() {
   for (const auto& item : fontMap) {
@@ -226,10 +218,8 @@ controller::process(ACTION action) {
   // process key buffer
   auto buf_action = buffer.process();
   if (buf_action != ACTION::NONE) {
-    if (buf_action == ACTION::NAV_SET_MEASURE ||
-        buf_action == ACTION::NAV_PREV_MEASURE ||
-        buf_action == ACTION::NAV_NEXT_MEASURE ||
-        buf_action == ACTION::CHANGE_MODE) {
+    if (buf_action == ACTION::NAV_SET_MEASURE || buf_action == ACTION::NAV_PREV_MEASURE ||
+        buf_action == ACTION::NAV_NEXT_MEASURE || buf_action == ACTION::CHANGE_MODE) {
       pendingActionValue = buffer.get_pending();
     }
     return buf_action;
@@ -278,19 +268,15 @@ controller::process(ACTION action) {
       return ACTION::FILE_INFO;
     }
 
-    if (isKeyPressed(KEY_ONE, KEY_TWO, KEY_THREE, KEY_FOUR, KEY_FIVE, KEY_SIX,
-                     KEY_SEVEN, KEY_EIGHT, KEY_NINE)) {
+    if (isKeyPressed(KEY_ONE, KEY_TWO, KEY_THREE, KEY_FOUR, KEY_FIVE, KEY_SIX, KEY_SEVEN, KEY_EIGHT, KEY_NINE)) {
       return ACTION::CHANGE_MODE;
     }
   }
 
-  if ((isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT,
-                 KEY_RIGHT_SHIFT)) &&
-      GetMouseWheelMove() != 0) {
+  if ((isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) && GetMouseWheelMove() != 0) {
     return ACTION::NAV_ZOOM_IMAGE;
   }
-  if ((!isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT,
-                  KEY_RIGHT_SHIFT)) &&
+  if ((!isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) &&
       (isKeyPressed(KEY_DOWN, KEY_UP) || GetMouseWheelMove() != 0)) {
     pendingActionValue = isKeyDown(KEY_LEFT_ALT, KEY_RIGHT_ALT);
     if (isKeyPressed(KEY_DOWN) || (GetMouseWheelMove() < 0)) {
@@ -407,8 +393,7 @@ void controller::updateKeyState() {
 void controller::updateDimension(double& nowLineX) {
   if (IsWindowResized()) {
     setShaderValue("SH_FXAA", "u_resolution",
-                   (Vector2){static_cast<float>(getWidth()),
-                             static_cast<float>(getHeight())});
+                   (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
 
     shadow.update();
     voronoi.update();
@@ -477,8 +462,7 @@ void controller::toggleLivePlay() {
   }
   // ensure sufficient track colors
   if (file.getTrackCount() > 0) {
-    getColorScheme(getTrackCount(), setTrackOn, setTrackOff,
-                   file.trackHeightMap);
+    getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
   }
 }
 
@@ -509,61 +493,44 @@ void controller::criticalSection(bool enter) {
 
 void controller::optimizeBGColor(bool invert) {
   // invert exists only for when a option switch is pending, but not yet done
-  bgColor2 = (invert ^ static_cast<bool>(option.get(OPTION::DYNAMIC_LABEL)))
-                 ? maximizeDeltaE(bgColor)
-                 : bgLight;
+  bgColor2 = (invert ^ static_cast<bool>(option.get(OPTION::DYNAMIC_LABEL))) ? maximizeDeltaE(bgColor) : bgLight;
 }
 
-vector<string> controller::generateMenuLabels(
-    const menuContentType& contentType) {
+vector<string> controller::generateMenuLabels(const menuContentType& contentType) {
   switch (contentType) {
     case CONTENT_FILE:
-      return text.getStringSet(
-          "FILE_MENU_FILE", "FILE_MENU_OPEN_FILE", "FILE_MENU_OPEN_IMAGE",
-          "FILE_MENU_SAVE", "FILE_MENU_SAVE_AS", "FILE_MENU_CLOSE_FILE",
-          "FILE_MENU_CLOSE_IMAGE", "FILE_MENU_RELOAD", "FILE_MENU_EXIT");
+      return text.getStringSet("FILE_MENU_FILE", "FILE_MENU_OPEN_FILE", "FILE_MENU_OPEN_IMAGE", "FILE_MENU_SAVE",
+                               "FILE_MENU_SAVE_AS", "FILE_MENU_CLOSE_FILE", "FILE_MENU_CLOSE_IMAGE", "FILE_MENU_RELOAD",
+                               "FILE_MENU_EXIT");
     case CONTENT_EDIT:
-      return text.getStringSet("EDIT_MENU_EDIT", "EDIT_MENU_ENABLE_SHEET_MUSIC",
-                               "EDIT_MENU_PREFERENCES");
+      return text.getStringSet("EDIT_MENU_EDIT", "EDIT_MENU_ENABLE_SHEET_MUSIC", "EDIT_MENU_PREFERENCES");
     case CONTENT_VIEW:
-      return text.getStringSet(
-          "VIEW_MENU_VIEW", "VIEW_MENU_DISPLAY_MODE",
-          "VIEW_MENU_DISPLAY_SONG_TIME", "VIEW_MENU_SHOW_KEY_SIGNATURE",
-          "VIEW_MENU_SHOW_TEMPO", "VIEW_MENU_HIDE_NOW_LINE",
-          "VIEW_MENU_HIDE_MEASURE_LINE", "VIEW_MENU_HIDE_MEASURE_NUMBER",
-          "VIEW_MENU_HIDE_BACKGROUND", "VIEW_MENU_SHOW_FPS");
+      return text.getStringSet("VIEW_MENU_VIEW", "VIEW_MENU_DISPLAY_MODE", "VIEW_MENU_DISPLAY_SONG_TIME",
+                               "VIEW_MENU_SHOW_KEY_SIGNATURE", "VIEW_MENU_SHOW_TEMPO", "VIEW_MENU_HIDE_NOW_LINE",
+                               "VIEW_MENU_HIDE_MEASURE_LINE", "VIEW_MENU_HIDE_MEASURE_NUMBER",
+                               "VIEW_MENU_HIDE_BACKGROUND", "VIEW_MENU_SHOW_FPS");
     case CONTENT_DISPLAY:
-      return text.getStringSet("DISPLAY_MENU_DEFAULT", "DISPLAY_MENU_LINE",
-                               "DISPLAY_MENU_PULSE", "DISPLAY_MENU_BALL",
-                               "DISPLAY_MENU_FFT", "DISPLAY_MENU_VORONOI",
-                               "DISPLAY_MENU_LOOP");
+      return text.getStringSet("DISPLAY_MENU_DEFAULT", "DISPLAY_MENU_LINE", "DISPLAY_MENU_PULSE", "DISPLAY_MENU_BALL",
+                               "DISPLAY_MENU_FFT", "DISPLAY_MENU_VORONOI", "DISPLAY_MENU_LOOP");
     case CONTENT_SONG:
       return text.getStringSet("SONG_MENU_RELATIVE", "SONG_MENU_ABSOLUTE");
     case CONTENT_MIDI:
-      return text.getStringSet("MIDI_MENU_MIDI", "MIDI_MENU_INPUT",
-                               "MIDI_MENU_OUTPUT",
-                               "MIDI_MENU_ENABLE_LIVE_PLAY");
+      return text.getStringSet("MIDI_MENU_MIDI", "MIDI_MENU_INPUT", "MIDI_MENU_OUTPUT", "MIDI_MENU_ENABLE_LIVE_PLAY");
     case CONTENT_INPUT:
       return {""};
     case CONTENT_OUTPUT:
       return {""};
     case CONTENT_COLOR:
-      return text.getStringSet(
-          "COLOR_MENU_COLOR", "COLOR_MENU_COLOR_BY", "COLOR_MENU_COLOR_SCHEME",
-          "COLOR_MENU_SWAP_COLORS", "COLOR_MENU_INVERT_COLOR_SCHEME");
+      return text.getStringSet("COLOR_MENU_COLOR", "COLOR_MENU_COLOR_BY", "COLOR_MENU_COLOR_SCHEME",
+                               "COLOR_MENU_SWAP_COLORS", "COLOR_MENU_INVERT_COLOR_SCHEME");
     case CONTENT_SCHEME:
-      return text.getStringSet("SCHEME_MENU_PART", "SCHEME_MENU_VELOCITY",
-                               "SCHEME_MENU_TONIC");
+      return text.getStringSet("SCHEME_MENU_PART", "SCHEME_MENU_VELOCITY", "SCHEME_MENU_TONIC");
     case CONTENT_INFO:
-      return text.getStringSet("INFO_MENU_INFO", "INFO_MENU_PROGRAM_INFO",
-                               "INFO_MENU_FILE_INFO", "INFO_MENU_HELP");
+      return text.getStringSet("INFO_MENU_INFO", "INFO_MENU_PROGRAM_INFO", "INFO_MENU_FILE_INFO", "INFO_MENU_HELP");
     case CONTENT_PALETTE:
-      return text.getStringSet("PALETTE_MENU_DEFAULT",
-                               "PALETTE_MENU_FROM_BACKGROUND");
+      return text.getStringSet("PALETTE_MENU_DEFAULT", "PALETTE_MENU_FROM_BACKGROUND");
     case CONTENT_RIGHT:
-      return text.getStringSet("RIGHT_MENU_INFO",
-                               "RIGHT_MENU_CHANGE_PART_COLOR",
-                               "RIGHT_MENU_SET_TONIC");
+      return text.getStringSet("RIGHT_MENU_INFO", "RIGHT_MENU_CHANGE_PART_COLOR", "RIGHT_MENU_SET_TONIC");
     case CONTENT_COLORSELECT:
       return text.getStringSet("COLORSELECT_COLOR_SELECT");
     default:
@@ -673,8 +640,7 @@ string controller::getNoteLabel(int index) {
   // terrible but it works
   bool is_flat = key_label[0] == 'b';
 
-  return getNoteInfo(getNotes()[index].track,
-                     getNotes()[index].y - MIN_NOTE_IDX, is_flat);
+  return getNoteInfo(getNotes()[index].track, getNotes()[index].y - MIN_NOTE_IDX, is_flat);
 }
 
 string controller::getTempoLabel(int offset) const {
@@ -725,8 +691,7 @@ void controller::clear() {
   fPath = "";
 }
 
-void controller::load(string path, bool& nowLine, bool& showFPS,
-                      bool& showImage, bool& sheetMusicDisplay,
+void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
                       bool& measureLine, bool& measureNumber,
 
                       int& colorMode, int& displayMode,
@@ -1053,8 +1018,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS,
 
     getColorScheme(KEY_COUNT, setVelocityOn, setVelocityOff);
     getColorScheme(TONIC_COUNT, setTonicOn, setTonicOff);
-    getColorScheme(getTrackCount(), setTrackOn, setTrackOff,
-                   file.trackHeightMap);
+    getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
 
     // last, set non-MKI loaded flag
     fType = FILE_MIDI;
@@ -1067,8 +1031,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS,
   debug_time(start, "load");
 }
 
-void controller::save(string path, bool nowLine, bool showFPS, bool showImage,
-                      bool sheetMusicDisplay, bool measureLine,
+void controller::save(string path, bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay, bool measureLine,
                       bool measureNumber,
 
                       int colorMode, int displayMode,
@@ -1077,8 +1040,7 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage,
 
                       double zoomLevel) {
   // open output file
-  ofstream output(path,
-                  std::ofstream::out | std::ofstream::trunc | std::ios::binary);
+  ofstream output(path, std::ofstream::out | std::ofstream::trunc | std::ios::binary);
   output.imbue(std::locale::classic());
 
   if (!output) {
@@ -1182,18 +1144,15 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage,
     float i_meanV = image.meanV;
 
     output.write(reinterpret_cast<const char*>(&i_scale), sizeof(i_scale));
-    output.write(reinterpret_cast<const char*>(&i_defaultScale),
-                 sizeof(i_defaultScale));
+    output.write(reinterpret_cast<const char*>(&i_defaultScale), sizeof(i_defaultScale));
     output.write(reinterpret_cast<const char*>(&i_meanV), sizeof(i_meanV));
-    output.write(reinterpret_cast<const char*>(&image.numColors),
-                 sizeof(image.numColors));
+    output.write(reinterpret_cast<const char*>(&image.numColors), sizeof(image.numColors));
   }
   else {
     // needed to maintain file block formatting
 
     for (auto i = 0; i < imageBlockSize; ++i) {
-      output.write(reinterpret_cast<const char*>(&emptyByte),
-                   sizeof(emptyByte));
+      output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
     }
   }
 
@@ -1241,8 +1200,7 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage,
   // 0x36F+(n*3)-0x36F+(n*6) track (off) colors
   uint32_t trackSetSize = setTrackOn.size();
   // logQ("OUTN", trackSetSize);
-  output.write(reinterpret_cast<const char*>(&trackSetSize),
-               sizeof(trackSetSize));
+  output.write(reinterpret_cast<const char*>(&trackSetSize), sizeof(trackSetSize));
 
   for (auto col : setTrackOn) {
     writeRGB(col);
@@ -1268,8 +1226,7 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage,
   // here, no need to check marker, just check for existence of a loaded image
   if (image.exists()) {
     // first write image type (4bytes)
-    output.write(reinterpret_cast<const char*>(&image.format),
-                 sizeof(image.format));
+    output.write(reinterpret_cast<const char*>(&image.format), sizeof(image.format));
 
     // logQ("WRITE IMGFORMAT", image.format);
 

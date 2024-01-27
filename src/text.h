@@ -24,9 +24,8 @@ class textController {
 
   template <typename V, typename... W>
   vector<string> getStringSet(const V& str_id, const W&... str_ids) const {
-    static_assert(
-        is_same<decay_t<V>, string>::value || is_same<decay_t<V>, char*>::value,
-        "bad type passed in getStringSet()");
+    static_assert(is_same<decay_t<V>, string>::value || is_same<decay_t<V>, char*>::value,
+                  "bad type passed in getStringSet()");
     vector<string> str_set;
 
     getStringSet(str_set, str_id, str_ids...);
@@ -35,20 +34,17 @@ class textController {
   }
 
   template <typename V, typename... W>
-  void getStringSet(vector<string>& str_set, const V& str_id,
-                    const W&... str_ids) const {
-    static_assert(
-        is_same<decay_t<V>, string>::value || is_same<decay_t<V>, char*>::value,
-        "bad type passed in getStringSet()");
+  void getStringSet(vector<string>& str_set, const V& str_id, const W&... str_ids) const {
+    static_assert(is_same<decay_t<V>, string>::value || is_same<decay_t<V>, char*>::value,
+                  "bad type passed in getStringSet()");
     str_set.push_back(getString(str_id));
     getStringSet(str_set, str_ids...);
   }
 
   template <typename V>
   void getStringSet(vector<string>& str_set, const V& str_id) const {
-    static_assert(
-        is_same<decay_t<V>, string>::value || is_same<decay_t<V>, char*>::value,
-        "bad type passed in getStringSet()");
+    static_assert(is_same<decay_t<V>, string>::value || is_same<decay_t<V>, char*>::value,
+                  "bad type passed in getStringSet()");
     str_set.push_back(getString(str_id));
   }
 

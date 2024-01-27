@@ -95,14 +95,11 @@ void midi::buildMessageMap(const MidiFile& mf) {
     // if (mf[0][i].seconds > 0.01){// || mf[0][i].isNote()) {
     if (mf[0][i].isNote() || mf[0][i].isController()) {
       // if (1) {
-      message_vec.push_back(
-          make_pair(mf[0][i].seconds * UNK_CST,
-                    static_cast<vector<unsigned char>>(mf[0][i])));
+      message_vec.push_back(make_pair(mf[0][i].seconds * UNK_CST, static_cast<vector<unsigned char>>(mf[0][i])));
     }
   }
   message_vec.shrink_to_fit();
-  message = multiset<pair<double, vector<unsigned char>>>(message_vec.begin(),
-                                                          message_vec.end());
+  message = multiset<pair<double, vector<unsigned char>>>(message_vec.begin(), message_vec.end());
   message_vec.clear();
 
   // logQ(num_zero, "events at position < 0.0001s");
@@ -118,8 +115,7 @@ int midi::findMeasure(int offset) const {
   }
   // requires a built measure map
   for (unsigned int i = 0; i < measureMap.size(); i++) {
-    if (measureMap[i].getLocation() <= offset &&
-        measureMap[i + 1].getLocation() > offset) {
+    if (measureMap[i].getLocation() <= offset && measureMap[i + 1].getLocation() > offset) {
       return i + 1;
     }
   }
@@ -128,16 +124,14 @@ int midi::findMeasure(int offset) const {
 }
 
 void midi::addTimeSignature(double position, const timeSig& timeSignature) {
-  if (timeSignatureMap.size() != 0 &&
-      timeSignatureMap[timeSignatureMap.size() - 1].second == timeSignature) {
+  if (timeSignatureMap.size() != 0 && timeSignatureMap[timeSignatureMap.size() - 1].second == timeSignature) {
     return;
   }
   timeSignatureMap.push_back(make_pair(position, timeSignature));
 }
 
 void midi::addKeySignature(double position, const keySig& keySignature) {
-  if (keySignatureMap.size() != 0 &&
-      keySignatureMap[keySignatureMap.size() - 1].second == keySignature) {
+  if (keySignatureMap.size() != 0 && keySignatureMap[keySignatureMap.size() - 1].second == keySignature) {
     return;
   }
   keySignatureMap.push_back(make_pair(position, keySignature));
@@ -223,9 +217,8 @@ int midi::findKeySig() {
   }
 
   // for (const auto& m : match) { logQ(m.first, "-", m.second.getLabel()); }
-  auto max_it = std::max_element(
-      match.begin(), match.end(),
-      [&](const auto& a, const auto& b) { return a.first < b.first; });
+  auto max_it =
+      std::max_element(match.begin(), match.end(), [&](const auto& a, const auto& b) { return a.first < b.first; });
   return max_it->second.getKey();
   // return KEYSIG_C;
 }
@@ -233,8 +226,7 @@ int midi::findKeySig() {
 timeSig midi::getTimeSignature(double offset) {
   timeSig timeSignature = {0, -1, 1};
   for (unsigned int i = 0; i < timeSignatureMap.size(); i++) {
-    if (offset > timeSignatureMap[i].first &&
-        offset < timeSignatureMap[i + 1].first) {
+    if (offset > timeSignatureMap[i].first && offset < timeSignatureMap[i + 1].first) {
       return timeSignatureMap[i].second;
     }
   }
@@ -244,8 +236,7 @@ timeSig midi::getTimeSignature(double offset) {
 keySig midi::getKeySignature(double offset) {
   keySig keySignature = {0, 1, -1};
   for (unsigned int i = 0; i < keySignatureMap.size(); i++) {
-    if (offset > keySignatureMap[i].first &&
-        offset < keySignatureMap[i + 1].first) {
+    if (offset > keySignatureMap[i].first && offset < keySignatureMap[i + 1].first) {
       return keySignatureMap[i].second;
     }
   }
@@ -371,9 +362,7 @@ void midi::load(stringstream& buf) {
     }
   }
 
-  tracks.erase(remove_if(tracks.begin(), tracks.end(),
-                         [&](auto& tr) { return !tr.getNoteCount(); }),
-               tracks.end());
+  tracks.erase(remove_if(tracks.begin(), tracks.end(), [&](auto& tr) { return !tr.getNoteCount(); }), tracks.end());
 
   if (ctr.option.get(OPTION::TRACK_DIVISION_MIDI) && trackCount == 1) {
     logW(LL_INFO, "MIDI track division enabled - performing division");
@@ -398,26 +387,21 @@ void midi::load(stringstream& buf) {
   midifile.joinTracks();
   midifile.sortTracks();
 
-  thread message_thread =
-      thread(&midi::buildMessageMap, this, std::ref(midifile));
+  thread message_thread = thread(&midi::buildMessageMap, this, std::ref(midifile));
   // buildMessageMap(midifile);
 
   for (int i = 0; i < midifile.getEventCount(0); i++) {
     if (midifile[0][i].isTempo()) {
-      tempoMap.push_back(make_pair(midifile[0][i].seconds * UNK_CST,
-                                   midifile[0][i].getTempoBPM()));
+      tempoMap.push_back(make_pair(midifile[0][i].seconds * UNK_CST, midifile[0][i].getTempoBPM()));
     }
     if (midifile[0][i].isTimeSignature()) {
       // logQ(LL_INFO, "time sig at event", j);
-      addTimeSignature(
-          midifile[0][i].seconds * UNK_CST,
-          {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4]),
-           midifile[0][i].tick});
+      addTimeSignature(midifile[0][i].seconds * UNK_CST,
+                       {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4]), midifile[0][i].tick});
     }
     if (midifile[0][i].isKeySignature()) {
       // logQ(LL_INFO, "key sig at event", i);
-      keySig tmpKS = eventToKeySignature(
-          (int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick);
+      keySig tmpKS = eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick);
       addKeySignature(midifile[0][i].seconds * UNK_CST, tmpKS);
     }
   }
@@ -436,8 +420,7 @@ void midi::load(stringstream& buf) {
   for (unsigned int i = 0; i < tracks.size(); i++) {
     // build track chord map (and implicitly, line map as well)
     if (tracks[i].getNoteCount() > 1000) {
-      track_thread.emplace_back([&](trackController& f) { f.buildChordMap(); },
-                                std::ref(tracks[i]));
+      track_thread.emplace_back([&](trackController& f) { f.buildChordMap(); }, std::ref(tracks[i]));
       // logQ("#, S: {", i, tracks[i].getNoteCount(), "}");
     }
     else {
@@ -457,9 +440,7 @@ void midi::load(stringstream& buf) {
   }
 
   sort(trackHeightMap.begin(), trackHeightMap.end(),
-       [](const pair<int, double>& left, const pair<int, double>& right) {
-         return left.second < right.second;
-       });
+       [](const pair<int, double>& left, const pair<int, double>& right) { return left.second < right.second; });
 
   // build measure map
   if (timeSignatureMap.size() == 0) {
@@ -470,8 +451,7 @@ void midi::load(stringstream& buf) {
     int detect_ks_t = findKeySig();
     keySig detect_ks = keySig(detect_ks_t, 0, 0);
 
-    logW(LL_INFO, "no key signatures detected, adding closest match -",
-         detect_ks.getLabel());
+    logW(LL_INFO, "no key signatures detected, adding closest match -", detect_ks.getLabel());
 
     // keySignatureMap.push_back(make_pair(0,keySig(KEYSIG_C,0,0)));
     keySignatureMap.push_back(make_pair(0, detect_ks));
@@ -486,8 +466,7 @@ void midi::load(stringstream& buf) {
   int measureNum = 1;
 
   measureMap.reserve(4 * lastTick / (cTimeSig.getQPM() * tpq));
-  measureMap.push_back(measureController(
-      measureNum++, 0, 0, cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
+  measureMap.push_back(measureController(measureNum++, 0, 0, cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   while (cTick < lastTick) {
     cTick += cTimeSig.getQPM() * tpq;
 
@@ -503,9 +482,8 @@ void midi::load(stringstream& buf) {
       }
     }
     // logQ(measureNum, "to",cKeySig.getAcc());
-    measureMap.push_back(measureController(
-        measureNum++, midifile.getTimeInSeconds(cTick) * UNK_CST, cTick,
-        cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
+    measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * UNK_CST, cTick,
+                                           cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   }
   measureMap.pop_back();
   measureMap.shrink_to_fit();

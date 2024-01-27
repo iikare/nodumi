@@ -8,9 +8,7 @@ using std::remove_if;
 
 void emitter::init(const pair<int, particleInfo>& p_info) {
   // logQ(ctr.getNotes()[p_info.first].duration/spp_const);
-  max_parts =
-      (init_ratio + 1) * static_cast<unsigned int>(
-                             ctr.getNotes()[p_info.first].duration / spp_const);
+  max_parts = (init_ratio + 1) * static_cast<unsigned int>(ctr.getNotes()[p_info.first].duration / spp_const);
   part_vec.reserve(max_parts);
 
   update_data(p_info.second);
@@ -24,17 +22,13 @@ void emitter::update_part(double t_step, double zoom) {
   double update_ratio = 1.0;
   if (ctr.getPauseTime() > 0) {
     constexpr double p_int = 0.5;
-    clampValue(clampValue((p_int - ctr.getPauseTime()) / p_int, 0.0, 1.0) - 0.4,
-               0.0, 1.0);
+    clampValue(clampValue((p_int - ctr.getPauseTime()) / p_int, 0.0, 1.0) - 0.4, 0.0, 1.0);
   }
   for (auto& p : part_vec) {
     p.update(t_step, zoom, update_ratio);
   }
   part_vec.erase(remove_if(part_vec.begin(), part_vec.end(),
-                           [&](const particle& p) {
-                             return p.is_end() ||
-                                    0 /*(1-p.ratio()) > update_ratio*/;
-                           }),
+                           [&](const particle& p) { return p.is_end() || 0 /*(1-p.ratio()) > update_ratio*/; }),
                  part_vec.end());
 }
 
@@ -73,6 +67,5 @@ void emitter::create_particle() {
   const double x = data.x + (data.w) * ctr.getRandClamp();
   const double y = data.y + (data.h) * ctr.getRandClamp();
 
-  part_vec.emplace_back(x, y, t_life,
-                        ctr.getRandClamp() * angle_range + angle_start, 4);
+  part_vec.emplace_back(x, y, t_life, ctr.getRandClamp() * angle_range + angle_start, 4);
 }

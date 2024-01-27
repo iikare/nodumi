@@ -5,6 +5,4 @@
 #include "log.h"
 #include "wrap.h"
 
-double kMeansPoint::distance(const kMeansPoint& point) {
-  return deltaE(data, point.data);
-}
+double kMeansPoint::distance(const kMeansPoint& point) { return deltaE(data, point.data); }

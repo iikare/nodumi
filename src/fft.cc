@@ -4,9 +4,7 @@
 
 using std::swap;
 
-double fftController::getFundamental(int y) {
-  return pow(2, (y - 69) / 12.0) * 440;
-}
+double fftController::getFundamental(int y) { return pow(2, (y - 69) / 12.0) * 440; }
 
 // f_1 is the original frequency, f_2 is the correlation frequency
 double fftController::fftAC(double f_1, double f_2) {
@@ -27,8 +25,7 @@ double fftController::fftAC(double f_1, double f_2) {
 void fftController::updateFFTBins() {
   crit.lock();
   int nBins = ctr.getWidth() / FFT_BIN_WIDTH - 2;
-  double binFreq =
-      log10(static_cast<float>(FFT_MAX_FREQ) / FFT_MIN_FREQ) / (nBins - 1);
+  double binFreq = log10(static_cast<float>(FFT_MAX_FREQ) / FFT_MIN_FREQ) / (nBins - 1);
 
   // frequency, height
   bins.clear();
@@ -76,30 +73,25 @@ void fftController::generate(const vector<int> c_note, double offset) {
         pitchRatio = 1.0 * pow(nowRatio - 1.78,
                                2);  // TODO: make function duration-invariant
       }
-      int binScale = 2 + 5 * (1 + log(1 + notes[idx].duration)) +
-                     (15.0 / 128) * ((notes[idx].velocity) + 1);
+      int binScale = 2 + 5 * (1 + log(1 + notes[idx].duration)) + (15.0 / 128) * ((notes[idx].velocity) + 1);
 
       // logQ(notes[idx].y, freq, bins.size());
       //  simulate harmonics
       double fftBinLenAll = 0;
-      for (unsigned int harmonicScale = 0; harmonicScale < harmonicsSize;
-           ++harmonicScale) {
+      for (unsigned int harmonicScale = 0; harmonicScale < harmonicsSize; ++harmonicScale) {
         double fftBinLen = 0;
-        if (freq * harmonics[harmonicScale] < FFT_MIN_FREQ ||
-            freq * harmonics[harmonicScale] > FFT_MAX_FREQ) {
+        if (freq * harmonics[harmonicScale] < FFT_MIN_FREQ || freq * harmonics[harmonicScale] > FFT_MAX_FREQ) {
           continue;
         }
 
-        fftBinLen += harmonicsCoefficient[harmonicScale] * binScale *
-                     pitchRatio *
+        fftBinLen += harmonicsCoefficient[harmonicScale] * binScale * pitchRatio *
                      fftAC(freq * harmonics[harmonicScale], bins[bin].first);
 
         // pseudo-random numerically stable offset
         // TODO: implement spectral rolloff in decay (based on BIN FREQ v.
         // spectral rolloff curve)
         fftBinLen *=
-            1 + 0.7 * pow(((ctr.getPSR() ^ static_cast<int>(bins[bin].first)) %
-                           static_cast<int>(bins[bin].first)) /
+            1 + 0.7 * pow(((ctr.getPSR() ^ static_cast<int>(bins[bin].first)) % static_cast<int>(bins[bin].first)) /
                                   bins[bin].first -
                               0.5,
                           2);

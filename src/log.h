@@ -65,8 +65,7 @@ inline void logProcess(const logLevel& level, string& lvmsg, string& file) {
 // colored output not supported
 inline void writeColor(string& lvmsg, ostringstream& out) {
 #else
-inline void writeColor(const logLevel& level, string& lvmsg,
-                       ostringstream& out) {
+inline void writeColor(const logLevel& level, string& lvmsg, ostringstream& out) {
 #endif
 
 #ifdef __WIN32
@@ -143,8 +142,7 @@ string formatVector(const vector<T>& vec) {
 
   string s;
 
-  for (typename vector<T>::const_iterator it = vec.begin(); it != vec.end();
-       ++it) {
+  for (typename vector<T>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
     ostringstream ss;
     ss << fixed << setprecision(2);
     ss << *it;
@@ -214,8 +212,7 @@ U& logRecursive(U& stream, const V& arg1, const W&... args) {
 }
 
 template <typename V, typename... W>
-void logOutput(logLevel level, string file, int line, const V& arg1,
-               const W&... args) {
+void logOutput(logLevel level, string file, int line, const V& arg1, const W&... args) {
 #ifdef NO_DEBUG
   if (level == LL_DEBUG) {
     return;

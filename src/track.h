@@ -24,9 +24,7 @@ class trackController {
   void insert(unsigned int n);
   void reset();
   int getNoteCount() const { return noteCount; }
-  double getAverageY() const {
-    return static_cast<double>(noteSum) / noteCount;
-  }
+  double getAverageY() const { return static_cast<double>(noteSum) / noteCount; }
 
   void buildChordMap();
   void buildLineMap();

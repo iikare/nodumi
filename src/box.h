@@ -17,8 +17,7 @@ struct rect {
   int height;
 
   friend ostream& operator<<(ostream& out, const rect& r) {
-    out << "{ " << r.x << ", " << r.y << ", " << r.width << ", " << r.height
-        << "} (xywh)";
+    out << "{ " << r.x << ", " << r.y << ", " << r.width << ", " << r.height << "} (xywh)";
     return out;
   }
 };
