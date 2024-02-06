@@ -74,3 +74,6 @@ auto deltaE(const T& a, const T& b) {
       return 0.0;
   }
 }
+
+ostream& operator<<(ostream& out, const Vector2& vec);
+ostream& operator<<(ostream& out, const Vector3& vec);

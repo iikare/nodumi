@@ -80,3 +80,13 @@ const Vector2 measureTextEx(const string& msg, int size, const string& font) {
 
   return {0.0f, 0.0f};
 }
+
+ostream& operator<<(ostream& out, const Vector2& vec) {
+  out << "{" << vec.x << ", " << vec.y << "} (vec2)";
+  return out;
+}
+
+ostream& operator<<(ostream& out, const Vector3& vec) {
+  out << "{" << vec.x << ", " << vec.y << ", " << vec.z << "} (vec3)";
+  return out;
+}

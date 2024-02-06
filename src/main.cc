@@ -476,7 +476,7 @@ int main(int argc, char* argv[]) {
 
             // float radius = -1 + 2 * (32 - countl_zero(int(cW)));
             float radius = 1 + log2(cW + 1);
-            if (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, cY + cH) < radius + 2) {
+            if (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, cY + cH / 2) < radius + 2) {
               updateClickIndex();
             }
 
@@ -485,15 +485,15 @@ int main(int argc, char* argv[]) {
             const auto& col = cSet[colorID];
             const auto& col_inv = cSetInv[colorID];
 
-            ctr.voronoi.vertex.push_back({cX / ctr.getWidth(), 1 - cY / ctr.getHeight()});
+            ctr.voronoi.vertex.push_back({cX / ctr.getWidth(), 1 - (cY + cH / 2) / ctr.getHeight()});
             ctr.voronoi.color.push_back(col);
 
             if (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration) {
-              ctr.particle.add_emitter(i, {cX, cY - radius / 2.0, 0, radius, col, col_inv});
+              ctr.particle.add_emitter(i, {cX, (cY + cH / 2) - radius / 2.0, 0, radius, col, col_inv});
             }
 
-            drawRing({cX, cY}, radius - 1, radius + 2, ctr.bgDark);
-            drawRing({cX, cY}, 0, radius, col);
+            drawRing({cX, (cY + cH / 2)}, radius - 1, radius + 2, ctr.bgDark);
+            drawRing({cX, (cY + cH / 2)}, 0, radius, col);
           }
           break;
         case DISPLAY_BALL: {
