@@ -30,6 +30,8 @@ void voronoiController::resample(int voro_y) {
     voronoi_color_data = voronoi_color_resampled;
   }
 
+  // logQ(voronoi_vertex_data[0], voronoi_vertex_data[1], voronoi_vertex_data[2], voronoi_vertex_data[3]);
+
   int voroSize = min(static_cast<int>(vertex.size()), VORONOI_MAX_POINTS);
   float render_bound = static_cast<float>(voro_y) / ctr.getHeight();
 
@@ -48,11 +50,9 @@ void voronoiController::update() {
   updateTexture();
 }
 
-void voronoiController::updateBuffer() {
-  voro_buffer = LoadRenderTexture(ctr.getWidth(), ctr.getHeight() - ctr.menuHeight);
-}
+void voronoiController::updateBuffer() { voro_buffer = LoadRenderTexture(ctr.getWidth(), ctr.getHeight()); }
 void voronoiController::updateTexture() {
-  Image i = GenImageColor(ctr.getWidth(), ctr.getHeight() - ctr.menuHeight, WHITE);
+  Image i = GenImageColor(ctr.getWidth(), ctr.getHeight(), WHITE);
   tex = LoadTextureFromImage(i);
   UnloadImage(i);
 }
@@ -76,6 +76,6 @@ void voronoiController::render() {
   // DrawTextureEx(voro_buffer.texture, { 0, ctr.menuHeight }, 360.0f, 1.0f,
   // WHITE);
   DrawTextureRec(voro_buffer.texture, {0, 0, float(voro_buffer.texture.width), float(-voro_buffer.texture.height)},
-                 {0, ctr.menuHeight}, WHITE);
+                 {0, 0}, WHITE);
   ctr.endShaderMode();
 }

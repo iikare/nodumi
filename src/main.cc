@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
   bool showTempo = false;
   int songTimeType = SONGTIME_NONE;
   int tonicOffset = 0;
-  int displayMode = DISPLAY_LOOP;
+  int displayMode = DISPLAY_VORONOI;
 
   double nowLineX = ctr.getWidth() / 2.0f;
 
@@ -258,7 +258,7 @@ int main(int argc, char* argv[]) {
     switch (displayMode) {
       case DISPLAY_VORONOI:
         if (ctr.voronoi.vertex.size() != 0) {
-          int voro_y = (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
+          int voro_y = ctr.menuHeight + (sheetMusicDisplay ? ctr.sheetHeight : 0);
           ctr.voronoi.resample(voro_y);
           ctr.voronoi.render();
         }
