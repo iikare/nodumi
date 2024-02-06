@@ -18,9 +18,9 @@ void main() {
     }
 
 
-    float min_dist = 2.0f;
+    float min_dist = 10.0f;
     int min_index = 0;
-    float min_dist_next = 2.0f;
+    float min_dist_next = 10.0f;
     int min_index_next = 0;
 
     // flip normals
@@ -30,24 +30,34 @@ void main() {
     for (int i = 0; i < vertex_count; i++) {
         float dist = distance(st, vertex_data[i]);
         if (dist < min_dist) {
-            min_dist_next = min_dist;
-            min_index_next = min_index;
-            min_dist = dist;
-            min_index = i;
+          min_dist_next = min_dist;
+          min_index_next = min_index;
+          min_dist = dist;
+          min_index = i;
+        }
+        else if (dist < min_dist_next) {
+          min_dist_next = dist;
+          min_index_next = i;
         }
     }
 
     // color by track of nearest note
     vec3 color = vertex_color[min_index];
 
-    const float sepRatio = 1.1;
+    float sepRatio = 1.03;
+
+    const float addSep = 0.07f;
+    float addRatio = 1.0-clamp(min_dist*100, 0.0f, 1.0f);
+    sepRatio += addSep*addRatio;
 
     // bounded by [1.0, sepRatio]
-    const float sepFilterRatio = sepRatio-0.001;
-    const float sepScale = 1/(sepRatio-sepFilterRatio);
+    float sepFilterRatio = sepRatio-0.001;
+    float sepScale = 1/(sepRatio-sepFilterRatio);
 
     float alpha = 1.0f;
     float darkScale = 1.0f;
+
+
 
     // cell separator
     if (min_dist_next / min_dist > sepRatio) {
@@ -57,7 +67,7 @@ void main() {
     else if (min_dist_next / min_dist > sepFilterRatio) {
       // min_dist_next/min_dist in range 1<[sepFilterRatio, sepRatio]
       //color = mix(color, vec3(1.0f), sepScale*((min_dist_next/min_dist)-sepFilterRatio));
-      color = mix(color, bg_color, sepScale*((min_dist_next/min_dist)-sepFilterRatio));
+      //color = mix(color, bg_color, sepScale*((min_dist_next/min_dist)-sepFilterRatio));
       //darkScale += sepScale*((min_dist_next/min_dist)-sepFilterRatio)/2;
     }
     else if (min_dist_next / min_dist < 1.0001){// && min_dist_next / min_dist > 1.00005){
