@@ -51,7 +51,7 @@ void main() {
     sepRatio += addSep*addRatio;
 
     // bounded by [1.0, sepRatio]
-    float sepFilterRatio = sepRatio-0.001;
+    float sepFilterRatio = sepRatio-0.0001;
     float sepScale = 1/(sepRatio-sepFilterRatio);
 
     float alpha = 1.0f;
@@ -67,7 +67,7 @@ void main() {
     else if (min_dist_next / min_dist > sepFilterRatio) {
       // min_dist_next/min_dist in range 1<[sepFilterRatio, sepRatio]
       //color = mix(color, vec3(1.0f), sepScale*((min_dist_next/min_dist)-sepFilterRatio));
-      //color = mix(color, bg_color, sepScale*((min_dist_next/min_dist)-sepFilterRatio));
+      color = mix(color, bg_color, sepScale*((min_dist_next/min_dist)-sepFilterRatio));
       //darkScale += sepScale*((min_dist_next/min_dist)-sepFilterRatio)/2;
     }
     else if (min_dist_next / min_dist < 1.0001){// && min_dist_next / min_dist > 1.00005){
