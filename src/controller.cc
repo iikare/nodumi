@@ -689,6 +689,7 @@ void controller::clear() {
   bgColor = colorRGB(0, 0, 0);
   fType = FILE_NONE;
   fPath = "";
+  fileOutput.disallow(true);
 }
 
 void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,

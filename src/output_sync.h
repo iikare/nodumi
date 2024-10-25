@@ -23,7 +23,7 @@ class outputInstance {
   void load(const multiset<pair<double, vector<unsigned char>>>& message);
 
   void allow();
-  void disallow();
+  void disallow(bool force = false);
 
  private:
   void process();

@@ -165,8 +165,8 @@ void outputInstance::allow() {
     crit.unlock();
   }
 }
-void outputInstance::disallow() {
-  if (send) {
+void outputInstance::disallow(bool force) {
+  if (send || force) {
     send = false;
     crit.lock();
     // all sound off, all note off
