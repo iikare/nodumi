@@ -9,6 +9,7 @@ gmon.out
 *.perf
 *perf.data
 *.data.old
+*.csv
 output.png
 
 # latex output

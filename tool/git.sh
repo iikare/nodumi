@@ -1,6 +1,8 @@
 #!/bin/zsh
 
-echo "date,loc" > stats.csv
+cd ..
+
+echo "date,loc" > tool/stats.csv
 
 for c in $(git log --children | grep commit\   | sed "s;commit ;;" | tac | xargs echo); do
    git checkout $c -- 2> /dev/null 1>&2
@@ -31,5 +33,5 @@ for c in $(git log --children | grep commit\   | sed "s;commit ;;" | tac | xargs
 
    tl=$(echo $lct_a + $lct_b + $lct_c + $lct_d | bc)
    
-   echo "$td,$tl" | tee -a stats.csv
+   echo "$td,$tl" | tee -a tool/stats.csv
 done
