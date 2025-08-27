@@ -218,6 +218,7 @@ enum class OPTION {
   SCALE_VELOCITY,
   SHADOW,
   SHADOW_DISTANCE,
+  LIMIT_FPS,
   NONE
 };
 

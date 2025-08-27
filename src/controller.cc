@@ -379,10 +379,17 @@ void controller::update(int offset, double zoom, double& nowLineX) {
   updateDroppedFiles();
 }
 
+void controller::updateFPSCap(bool state) {
+  uncapped_fps = state;
+  uncapped_fps ? SetTargetFPS(0) : updateFPS(true);
+}
+
 void controller::updateFPS(bool bypass) {
-  if (curMon != GetCurrentMonitor() || bypass) {
-    curMon = GetCurrentMonitor();
-    SetTargetFPS(GetMonitorRefreshRate(curMon));
+  if (!uncapped_fps) {
+    if (curMon != GetCurrentMonitor() || bypass) {
+      curMon = GetCurrentMonitor();
+      SetTargetFPS(GetMonitorRefreshRate(curMon));
+    }
   }
 }
 

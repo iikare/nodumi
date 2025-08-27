@@ -72,6 +72,8 @@ class controller {
   void updateFiles(char** paths, int numFile = 1);
   ACTION process(ACTION action);
 
+  void updateFPSCap(bool state);
+
   void optimizeBGColor(bool invert = false);
 
   vector<string> generateMenuLabels(const menuContentType& contentType);
@@ -226,6 +228,7 @@ class controller {
 
   unsigned int frameCounter = 0;
   int curMon;
+  bool uncapped_fps = false;
   double runTime;
   double pauseTime;
 

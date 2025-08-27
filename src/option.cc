@@ -20,6 +20,7 @@ optionController::optionController() {
   opts[static_cast<int>(OPTION::SCALE_VELOCITY)] = false;
   opts[static_cast<int>(OPTION::SHADOW)] = false;
   opts[static_cast<int>(OPTION::SHADOW_DISTANCE)] = 8;
+  opts[static_cast<int>(OPTION::LIMIT_FPS)] = 1;
 }
 
 void optionController::invert(OPTION opt) {
@@ -49,6 +50,9 @@ void optionController::invert(OPTION opt) {
     case OPTION::SCALE_VELOCITY:
       break;
     case OPTION::SHADOW:
+      break;
+    case OPTION::LIMIT_FPS:
+      ctr.updateFPSCap(get(opt));
       break;
     default:
       logW(LL_WARN, "cannot invert option of type", static_cast<int>(opt));
