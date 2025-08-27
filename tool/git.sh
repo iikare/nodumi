@@ -35,3 +35,5 @@ for c in $(git log --children | grep commit\   | sed "s;commit ;;" | tac | xargs
    
    echo "$td,$tl" | tee -a tool/stats.csv
 done
+
+git switch master
