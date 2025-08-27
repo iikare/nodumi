@@ -1,12 +1,15 @@
 [submodule "dpd/osdialog"]
 	path = dpd/osdialog
 	url = https://github.com/AndrewBelt/osdialog
+  ignore = dirty
 [submodule "dpd/midifile"]
 	path = dpd/midifile
 	url = https://github.com/iikare/midifile
+  ignore = dirty
 [submodule "dpd/rtmidi"]
 	path = dpd/rtmidi
 	url = https://github.com/thestk/rtmidi
+  ignore = dirty
 [submodule "dpd/raylib"]
 	path = dpd/raylib
   url = https://github.com/iikare/raylib.git
