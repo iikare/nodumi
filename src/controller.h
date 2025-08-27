@@ -211,7 +211,7 @@ class controller {
 
   void updateKeyState();
   void updateDimension(double& nowLineX);
-  void updateFPS();
+  void updateFPS(bool bypass = false);
   void updateDroppedFiles();
 
   shaderData& getShaderData(const string& shaderIdentifier);

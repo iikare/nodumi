@@ -1,5 +1,6 @@
 #include "controller.h"
 
+#include <raylib.h>
 #include <stdlib.h>
 
 #include <bitset>
@@ -61,6 +62,8 @@ void controller::init(vector<asset>& assetSet) {
   fft.updateFFTBins();
 
   warning.init();
+
+  updateFPS(true);
 }
 
 void controller::initData(const vector<asset>& assetSet) {
@@ -376,8 +379,8 @@ void controller::update(int offset, double zoom, double& nowLineX) {
   updateDroppedFiles();
 }
 
-void controller::updateFPS() {
-  if (curMon != GetCurrentMonitor()) {
+void controller::updateFPS(bool bypass) {
+  if (curMon != GetCurrentMonitor() || bypass) {
     curMon = GetCurrentMonitor();
     SetTargetFPS(GetMonitorRefreshRate(curMon));
   }

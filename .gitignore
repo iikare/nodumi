@@ -1,6 +1,7 @@
 build/
 tests/
 util/
+bin/
 .clangd/
 .ccls-cache/
 .cache/
