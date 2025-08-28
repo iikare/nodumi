@@ -1818,11 +1818,17 @@ int main(int argc, char* argv[]) {
             rightMenu.setContent(ctr.getNoteLabel(clickNote), 0);
 
             // set note color for color wheel
-            if (clickOn) {
-              colorSelect.setColor(ctr.setTrackOn[notes[clickNote].track]);
-            }
-            else {
-              colorSelect.setColor(ctr.setTrackOff[notes[clickNote].track]);
+            auto set_idx = getColorSet(clickNote);
+            switch (colorMode) {
+              case COLOR_PART:
+                colorSelect.setColor((clickOn ? ctr.setTrackOn : ctr.setTrackOff)[set_idx]);
+                break;
+              case COLOR_VELOCITY:
+                colorSelect.setColor((clickOn ? ctr.setVelocityOn : ctr.setVelocityOff)[set_idx]);
+                break;
+              case COLOR_TONIC:
+                colorSelect.setColor((clickOn ? ctr.setTonicOn : ctr.setTonicOff)[set_idx]);
+                break;
             }
           }
           else {
