@@ -22,7 +22,7 @@ int findTrack(const note& n, const midi& m_stream, bool live, int numOn) {
 
   // logQ("test", n.x, n.isOn);
 
-  while (m_stream.notes[j].x >= 0 && j >= 0) {
+  while (j >= 0 && m_stream.notes[j].x >= 0) {
     // logW(LL_CRIT, "break param:",  m_stream.notes[j].x+seqLimit, n.x);
     if (m_stream.notes[j].x + seqLimit <= n.x) {
       if (adjNotes == 0) {

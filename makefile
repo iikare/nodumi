@@ -1,7 +1,7 @@
 ifeq ($(strip $(asan)),)
 NONSTD=
 else # use address sanitizer
-NONSTD=-fsanitize=address -fno-omit-frame-pointer
+NONSTD=-fsanitize=address -fno-omit-frame-pointer 
 endif
 
 ifeq ($(strip $(prof)),)
