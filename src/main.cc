@@ -1255,7 +1255,6 @@ int main(int argc, char* argv[]) {
         }
         break;
       case ACTION::NAV_NEXT_FAST:
-
         if (timeOffset + shiftC * 60 < ctr.getLastTime()) {
           timeOffset += shiftC * 60;
         }

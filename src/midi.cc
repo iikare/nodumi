@@ -114,13 +114,13 @@ int midi::findMeasure(int offset) const {
     return measureMap.size();
   }
   // requires a built measure map
-  for (unsigned int i = 0; i < measureMap.size(); i++) {
+  for (unsigned int i = 0; i < measureMap.size()-1; i++) {
     if (measureMap[i].getLocation() <= offset && measureMap[i + 1].getLocation() > offset) {
       return i + 1;
     }
   }
-  logW(LL_WARN, "invalid current measure at offset", offset);
-  return -1;
+  //logW(LL_WARN, "invalid current measure at offset", offset);
+  return measureMap.size();
 }
 
 void midi::addTimeSignature(double position, const timeSig& timeSignature) {
