@@ -1581,6 +1581,7 @@ int main(int argc, char* argv[]) {
           }
           switch (paletteMenu.getActiveElement()) {
             case PALETTE_MENU_DEFAULT:
+              colorFlag = true;
               getColorScheme(KEY_COUNT, ctr.setVelocityOn, ctr.setVelocityOff);
               getColorScheme(TONIC_COUNT, ctr.setTonicOn, ctr.setTonicOff);
               getColorScheme(ctr.getTrackCount(), ctr.setTrackOn, ctr.setTrackOff, ctr.file.trackHeightMap);
@@ -1589,6 +1590,7 @@ int main(int argc, char* argv[]) {
               if (ctr.image.exists()) {
                 // prevent overflow on RT audio thread
                 ctr.criticalSection(true);
+                colorFlag = true;
                 getColorSchemeImage(SCHEME_KEY, ctr.setVelocityOn, ctr.setVelocityOff);
                 getColorSchemeImage(SCHEME_TONIC, ctr.setTonicOn, ctr.setTonicOff);
                 getColorSchemeImage(SCHEME_TRACK, ctr.setTrackOn, ctr.setTrackOff, ctr.file.trackHeightMap);
@@ -1634,10 +1636,17 @@ int main(int argc, char* argv[]) {
               }
               break;
             case COLOR_MENU_SWAP_COLORS:
-              swap(colorSetOn, colorSetOff);
+              colorFlag = true;
+              swap(ctr.findColorSet(colorMode, true), ctr.findColorSet(colorMode, false));
+              break;
+            case COLOR_MENU_CYCLE_COLORS:
+              colorFlag = true;
+              cycleColorScheme(ctr.findColorSet(colorMode, true), ctr.findColorSet(colorMode, false));
               break;
             case COLOR_MENU_INVERT_COLOR_SCHEME:
-              invertColorScheme(ctr.bgColor, ctr.bgNow, colorSetOn, colorSetOff);
+              colorFlag = true;
+              invertColorScheme(ctr.bgColor, ctr.bgNow,
+                                ctr.findColorSet(colorMode, true), ctr.findColorSet(colorMode, false));
               break;
           }
           break;

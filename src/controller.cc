@@ -505,6 +505,22 @@ void controller::optimizeBGColor(bool invert) {
   bgColor2 = (invert ^ static_cast<bool>(option.get(OPTION::DYNAMIC_LABEL))) ? maximizeDeltaE(bgColor) : bgLight;
 }
 
+vector<colorRGB>& controller::findColorSet(int colorMode, bool on) {
+  switch(colorMode) {
+    case COLOR_PART:
+      return (on ? setTrackOn : setTrackOff);
+      break;
+    case COLOR_VELOCITY:
+      return (on ? setVelocityOn : setVelocityOff);
+      break;
+    case COLOR_TONIC:
+      return (on ? setTonicOn : setTonicOff);
+      break;
+    default:
+      return setTrackOn;
+  }
+}
+
 vector<string> controller::generateMenuLabels(const menuContentType& contentType) {
   switch (contentType) {
     case CONTENT_FILE:
@@ -531,7 +547,8 @@ vector<string> controller::generateMenuLabels(const menuContentType& contentType
       return {""};
     case CONTENT_COLOR:
       return text.getStringSet("COLOR_MENU_COLOR", "COLOR_MENU_COLOR_BY", "COLOR_MENU_COLOR_SCHEME",
-                               "COLOR_MENU_SWAP_COLORS", "COLOR_MENU_INVERT_COLOR_SCHEME");
+                               "COLOR_MENU_SWAP_COLORS", "COLOR_MENU_CYCLE_COLORS", 
+                               "COLOR_MENU_INVERT_COLOR_SCHEME");
     case CONTENT_SCHEME:
       return text.getStringSet("SCHEME_MENU_PART", "SCHEME_MENU_VELOCITY", "SCHEME_MENU_TONIC");
     case CONTENT_INFO:

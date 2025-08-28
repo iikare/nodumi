@@ -75,6 +75,7 @@ class controller {
   void updateFPSCap(bool state);
 
   void optimizeBGColor(bool invert = false);
+  vector<colorRGB>& findColorSet(int colorMode, bool on);
 
   vector<string> generateMenuLabels(const menuContentType& contentType);
 

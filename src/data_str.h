@@ -50,6 +50,7 @@
                         {"COLOR_MENU_COLOR_BY",                 "Color By:"}, \
                         {"COLOR_MENU_COLOR_SCHEME",             "Color Scheme:"}, \
                         {"COLOR_MENU_SWAP_COLORS",              "Swap Colors"}, \
+                        {"COLOR_MENU_CYCLE_COLORS",             "Cycle Colors"}, \
                         {"COLOR_MENU_INVERT_COLOR_SCHEME",      "Invert Color Scheme"}, \
                         {"SCHEME_MENU_PART",                    "Part"}, \
                         {"SCHEME_MENU_VELOCITY",                "Velocity"}, \
