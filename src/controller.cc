@@ -754,21 +754,21 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       return false;
     };
 
-     //auto debugByte = [&]() {
-       //#ifndef NODEBUG
-       //std::bitset<8> binRep(byteBuf);
-       //logQ(binRep);
-       //#endif
+    // auto debugByte = [&]() {
+    // #ifndef NODEBUG
+    // std::bitset<8> binRep(byteBuf);
+    // logQ(binRep);
+    // #endif
     //};
 
     // #define readByte(); if(!readByte()) { return; }
 
     // 0x00
     readByte();
-    int mki_major = static_cast<int>((byteBuf >> 4) & 0b00001111); 
-    char mki_minor = 96+static_cast<char>(byteBuf & 0b00001111);
-    string mki_ver_string = to_string(mki_major)+mki_minor;
-    logW(LL_INFO, "MKI v.", mki_ver_string); 
+    int mki_major = static_cast<int>((byteBuf >> 4) & 0b00001111);
+    char mki_minor = 96 + static_cast<char>(byteBuf & 0b00001111);
+    string mki_ver_string = to_string(mki_major) + mki_minor;
+    logW(LL_INFO, "MKI v.", mki_ver_string);
 
     // 0x01
     readByte();
@@ -1083,11 +1083,11 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
 
   // 0x00:[7:4] - MKI_VER_MAJOR
   // 0x00:[3:0] - MKI_VER_MINOR
-  
+
   uint8_t byte0 = 0;
   byte0 |= ((static_cast<uint8_t>(MKI_VER_MAJOR) & 000001111) << 4);
   byte0 |= (static_cast<uint8_t>(MKI_VER_MINOR) & 0b00001111);
-  
+
   output.write(reinterpret_cast<const char*>(&byte0), sizeof(byte0));
 
   // 0x01:[7:7] - now line
