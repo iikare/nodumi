@@ -97,8 +97,10 @@ int main(int argc, char* argv[]) {
   // color variables
   int selectType = SELECT_NONE;
   int colorMode = COLOR_PART;
-  vector<colorRGB>& colorSetOn = ctr.setTrackOn;
-  vector<colorRGB>& colorSetOff = ctr.setTrackOff;
+  bool colorFlag = false;
+  vector<colorRGB> cs_on, cs_off;
+  vector<colorRGB>& colorSetOn = cs_on;
+  vector<colorRGB>& colorSetOff = cs_off;
 
   bool clearFile = false;
 
@@ -183,6 +185,7 @@ int main(int argc, char* argv[]) {
   while (ctr.getProgramState()) {
     if (ctr.open_file.pending() || clearFile) {
       ctr.run = false;
+      colorFlag = true;
       timeOffset = 0;
       pauseOffset = 0;
 
@@ -223,6 +226,25 @@ int main(int argc, char* argv[]) {
     const vector<note>& notes = ctr.getNotes();
     midi& stream = ctr.getStream();
     unsigned int tl_offset = 4;
+
+    // update color sets
+    if (colorFlag) {
+      colorFlag = false;
+      switch (colorMode) {
+        case COLOR_PART:
+          colorSetOn = ctr.setTrackOn;
+          colorSetOff = ctr.setTrackOff;
+          break;
+        case COLOR_VELOCITY:
+          colorSetOn = ctr.setVelocityOn;
+          colorSetOff = ctr.setVelocityOff;
+          break;
+        case COLOR_TONIC:
+          colorSetOn = ctr.setTonicOn;
+          colorSetOff = ctr.setTonicOff;
+          break;
+      }
+    }
 
     // update menu variables
     if (sheetMusicDisplay) {
@@ -1027,6 +1049,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (colorMove) {
+      colorFlag = true;
       if (colorSquare) {
         colorSelect.setSquare();
       }
@@ -1527,18 +1550,15 @@ int main(int argc, char* argv[]) {
           switch (schemeMenu.getActiveElement()) {
             case SCHEME_MENU_PART:
               colorMode = COLOR_PART;
-              colorSetOn = ctr.setTrackOn;
-              colorSetOff = ctr.setTrackOff;
+              colorFlag = true;
               break;
             case SCHEME_MENU_VELOCITY:
               colorMode = COLOR_VELOCITY;
-              colorSetOn = ctr.setVelocityOn;
-              colorSetOff = ctr.setVelocityOff;
+              colorFlag = true;
               break;
             case SCHEME_MENU_TONIC:
               colorMode = COLOR_TONIC;
-              colorSetOn = ctr.setTonicOn;
-              colorSetOff = ctr.setTonicOff;
+              colorFlag = true;
               break;
           }
           break;

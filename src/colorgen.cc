@@ -50,8 +50,6 @@ void getColorScheme(int n, vector<colorRGB>& colorVecA, vector<colorRGB>& colorV
 
   int increment = 360.0 / n;
 
-  colorVecA.resize(n);
-  colorVecB.resize(n);
   colorVecA.clear();
   colorVecB.clear();
 
