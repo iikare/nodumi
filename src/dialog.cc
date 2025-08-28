@@ -228,19 +228,16 @@ void dialogController::renderInfo() {
   double copyHeight = measureTextEx(copy).y;
   double licenseWidth = measureTextEx(ctr.text.getString("INFO_BOX_LICENSE_GPL3")).x;
 
-  drawTextEx(ctr.text.getString("INFO_BOX_BUILD_DATE") + " " + string(BUILD_DATE),
-             infoSideMargin / 2.0f + borderMargin, infoTopMargin / 2.0f + ctr.infoHeight - borderMargin - 20, 
-             ctr.bgDark);
+  drawTextEx(ctr.text.getString("INFO_BOX_BUILD_DATE") + " " + string(BUILD_DATE), infoSideMargin / 2.0f + borderMargin,
+             infoTopMargin / 2.0f + ctr.infoHeight - borderMargin - 20, ctr.bgDark);
 
   auto versionString = ctr.text.getString("INFO_BOX_VER") + " " + string(W_VER);
 #if !defined(TARGET_REL)
   versionString += " - " + string(COMMIT_HASH);
 #endif
 
-  drawTextEx(versionString,
-            infoSideMargin / 2.0f + borderMargin,
-            infoTopMargin / 2.0f + ctr.infoHeight + copyHeight - borderMargin - 20, 
-            ctr.bgDark);
+  drawTextEx(versionString, infoSideMargin / 2.0f + borderMargin,
+             infoTopMargin / 2.0f + ctr.infoHeight + copyHeight - borderMargin - 20, ctr.bgDark);
 
   drawTextEx(copySym, infoSideMargin / 2.0f + ctr.infoWidth - borderMargin - copySymWidth - copyWidth,
              infoTopMargin / 2.0f + ctr.infoHeight - borderMargin - 20, ctr.bgDark, 255, copySymSize);

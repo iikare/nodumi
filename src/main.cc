@@ -1266,7 +1266,7 @@ int main(int argc, char* argv[]) {
       case ACTION::NAV_NEXT_MEASURE:
         if (!ctr.getLiveState()) {
           int foundMeasure = ctr.findCurrentMeasure(timeOffset);
-          foundMeasure += ctr.pendingActionValue <= 0 ? 1 : ctr.pendingActionValue;
+          foundMeasure += timeOffset < stream.measureMap[foundMeasure].getLocation() ? 0 : 1;
           if (foundMeasure < ctr.getMeasureCount()) {
             timeOffset = stream.measureMap[foundMeasure].getLocation();
           }
