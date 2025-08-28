@@ -1056,13 +1056,19 @@ int main(int argc, char* argv[]) {
       if (colorCircle) {
         colorSelect.setAngle();
       }
+      auto set_idx = getColorSet(clickNote);
       switch (selectType) {
         case SELECT_NOTE:
-          if (clickOn) {
-            ctr.setTrackOn[notes[clickNote].track] = colorSelect.getColor();
-          }
-          else {
-            ctr.setTrackOff[notes[clickNote].track] = colorSelect.getColor();
+          switch (colorMode) {
+            case COLOR_PART:
+              (clickOn ? ctr.setTrackOn : ctr.setTrackOff)[set_idx] = colorSelect.getColor();
+              break;
+            case COLOR_VELOCITY:
+              (clickOn ? ctr.setVelocityOn : ctr.setVelocityOff)[set_idx] = colorSelect.getColor();
+              break;
+            case COLOR_TONIC:
+              (clickOn ? ctr.setTonicOn : ctr.setTonicOff)[set_idx] = colorSelect.getColor();
+              break;
           }
           break;
         case SELECT_BG:
