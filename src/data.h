@@ -7,6 +7,9 @@
 #define W_NAME "nodumi"
 #define W_VER "0.01a"
 
+#define MKI_VER_MAJOR '1'
+#define MKI_VER_MINOR 'b'
+
 #define UNK_CST 500
 
 #define MIN_NOTE_IDX 21
@@ -38,7 +41,6 @@
 #define TONIC_COUNT 12
 #define KEY_COUNT 128
 
-#define COLDIST_CIE00
 #define KMEANS_ITERATIONS 2
 #define MAX_UNIQUE_COLORS 10000
 

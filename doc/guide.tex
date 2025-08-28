@@ -700,14 +700,15 @@ The MKI format is defined as follows:
   \hline
   \textbf{Offset[start:end]}    & \textbf{Value} \\
   \hline
-  \mi{0x00[7:7]}                  & \textit{Now}-Line \\
-  \mi{0x00[6:6]}                  & Display FPS \\
-  \mi{0x00[5:5]}                  & Display Background \\
-  \mi{0x00[4:4]}                  & Display Sheet Music \\
-  \mi{0x00[3:3]}                  & Display Measure Line \\
-  \mi{0x00[2:2]}                  & Display Measure Number \\
-  \mi{0x00[1:1]}                  & Image Exists? \\
-  \mi{0x00[0:0]-0x02}             & \mi{[reserved]} \\
+  \mi{0x00}                       & MKI Format Specifier\\
+  \mi{0x01[7:7]}                  & \textit{Now}-Line \\
+  \mi{0x01[6:6]}                  & Display FPS \\
+  \mi{0x01[5:5]}                  & Display Background \\
+  \mi{0x01[4:4]}                  & Display Sheet Music \\
+  \mi{0x01[3:3]}                  & Display Measure Line \\
+  \mi{0x01[2:2]}                  & Display Measure Number \\
+  \mi{0x01[1:1]}                  & Image Exists? \\
+  \mi{0x01[0:0]-0x02}             & \mi{[reserved]} \\
   \mi{0x03[7:4]}                  & Color Scheme \\
   \mi{0x03[3:0]}                  & Display Mode \\
   \mi{0x04[7:4]}                  & Song Time Mode \\

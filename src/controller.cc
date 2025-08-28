@@ -754,19 +754,23 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       return false;
     };
 
-    // auto debugByte = [&]() {
-    // #ifndef NODEBUG
-
-    // std::bitset<8> binRep(byteBuf);
-    // logQ(binRep);
-
-    // #endif
+     //auto debugByte = [&]() {
+       //#ifndef NODEBUG
+       //std::bitset<8> binRep(byteBuf);
+       //logQ(binRep);
+       //#endif
     //};
 
     // #define readByte(); if(!readByte()) { return; }
 
     // 0x00
+    readByte();
+    int mki_major = static_cast<int>((byteBuf >> 4) & 0b00001111); 
+    char mki_minor = 96+static_cast<char>(byteBuf & 0b00001111);
+    string mki_ver_string = to_string(mki_major)+mki_minor;
+    logW(LL_INFO, "MKI v.", mki_ver_string); 
 
+    // 0x01
     readByte();
 
     nowLine = byteBuf & (1 << 7);
@@ -788,8 +792,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
 
     // debugByte();
 
-    // 0x01-0x02 (reserved)
-    readByte();
+    // 0x02 (reserved)
     readByte();
 
     // 0x03
@@ -1078,32 +1081,39 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
 
   const uint8_t emptyByte = 0;
 
-  // 0x00:[7:7] - now line
-  // 0x00:[6:6] - fps display
-  // 0x00:[5:5] - image display
-  // 0x00:[4:4] - sheet music display
-  // 0x00:[3:3] - measure line display
-  // 0x00:[2:2] - measure number display
-  // 0x00:[1:1] - image existence
-  // 0x00:[0:0] - reserved
-
+  // 0x00:[7:4] - MKI_VER_MAJOR
+  // 0x00:[3:0] - MKI_VER_MINOR
+  
   uint8_t byte0 = 0;
-  byte0 |= (nowLine << 7);
-  byte0 |= (showFPS << 6);
-  byte0 |= (showImage << 5);
-  byte0 |= (sheetMusicDisplay << 4);
-  byte0 |= (measureLine << 3);
-  byte0 |= (measureNumber << 2);
-  byte0 |= (image.exists() << 1);
+  byte0 |= ((static_cast<uint8_t>(MKI_VER_MAJOR) & 000001111) << 4);
+  byte0 |= (static_cast<uint8_t>(MKI_VER_MINOR) & 0b00001111);
+  
+  output.write(reinterpret_cast<const char*>(&byte0), sizeof(byte0));
+
+  // 0x01:[7:7] - now line
+  // 0x01:[6:6] - fps display
+  // 0x01:[5:5] - image display
+  // 0x01:[4:4] - sheet music display
+  // 0x01:[3:3] - measure line display
+  // 0x01:[2:2] - measure number display
+  // 0x01:[1:1] - image existence
+  // 0x01:[0:0] - reserved
+
+  uint8_t byte1 = 0;
+  byte1 |= (nowLine << 7);
+  byte1 |= (showFPS << 6);
+  byte1 |= (showImage << 5);
+  byte1 |= (sheetMusicDisplay << 4);
+  byte1 |= (measureLine << 3);
+  byte1 |= (measureNumber << 2);
+  byte1 |= (image.exists() << 1);
 
   // logQ(byte0);
 
-  output.write(reinterpret_cast<const char*>(&byte0), sizeof(byte0));
+  output.write(reinterpret_cast<const char*>(&byte1), sizeof(byte1));
 
-  // 0x01:[7:0] - reserved
   // 0x02:[7:0] - reserved
 
-  output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
   output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
 
   // 0x03:[7:4] - scheme color type
