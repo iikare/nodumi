@@ -37,8 +37,8 @@ void invertColorScheme(colorRGB& bg, colorRGB& line, vector<colorRGB>& on, vecto
 void cycleColorScheme(vector<colorRGB>& on, vector<colorRGB>& off) {
   if (on.size() > 2) {
     for (unsigned int i = 1; i < on.size(); i++) {
-      swap(on[i-1],on[i]);
-      swap(off[i-1],off[i]);
+      swap(on[i - 1], on[i]);
+      swap(off[i - 1], off[i]);
     }
   }
   swap(on.front(), on.back());

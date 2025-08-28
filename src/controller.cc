@@ -506,7 +506,7 @@ void controller::optimizeBGColor(bool invert) {
 }
 
 vector<colorRGB>& controller::findColorSet(int colorMode, bool on) {
-  switch(colorMode) {
+  switch (colorMode) {
     case COLOR_PART:
       return (on ? setTrackOn : setTrackOff);
       break;
@@ -547,8 +547,7 @@ vector<string> controller::generateMenuLabels(const menuContentType& contentType
       return {""};
     case CONTENT_COLOR:
       return text.getStringSet("COLOR_MENU_COLOR", "COLOR_MENU_COLOR_BY", "COLOR_MENU_COLOR_SCHEME",
-                               "COLOR_MENU_SWAP_COLORS", "COLOR_MENU_CYCLE_COLORS", 
-                               "COLOR_MENU_INVERT_COLOR_SCHEME");
+                               "COLOR_MENU_SWAP_COLORS", "COLOR_MENU_CYCLE_COLORS", "COLOR_MENU_INVERT_COLOR_SCHEME");
     case CONTENT_SCHEME:
       return text.getStringSet("SCHEME_MENU_PART", "SCHEME_MENU_VELOCITY", "SCHEME_MENU_TONIC");
     case CONTENT_INFO:

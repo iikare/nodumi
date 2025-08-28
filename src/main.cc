@@ -1645,8 +1645,8 @@ int main(int argc, char* argv[]) {
               break;
             case COLOR_MENU_INVERT_COLOR_SCHEME:
               colorFlag = true;
-              invertColorScheme(ctr.bgColor, ctr.bgNow,
-                                ctr.findColorSet(colorMode, true), ctr.findColorSet(colorMode, false));
+              invertColorScheme(ctr.bgColor, ctr.bgNow, ctr.findColorSet(colorMode, true),
+                                ctr.findColorSet(colorMode, false));
               break;
           }
           break;
