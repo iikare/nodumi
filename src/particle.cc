@@ -9,6 +9,10 @@ using std::remove_if;
 using std::set_difference;
 
 void particleController::update(double zoom) {
+  if (!ctr.option.get(OPTION::PARTICLE)) {
+    return;
+  }
+
   current_emit_last = current_emit;
   current_emit.clear();
 
@@ -18,15 +22,24 @@ void particleController::update(double zoom) {
 }
 
 void particleController::add_emitter(int index, const particleInfo& p_info) {
+  if (!ctr.option.get(OPTION::PARTICLE)) {
+    return;
+  }
   current_emit.push_back(make_pair(index, p_info));
 }
 
 void particleController::end_emission() {
+  if (!ctr.option.get(OPTION::PARTICLE)) {
+    return;
+  }
   current_emit.clear();
   process();
 }
 
 void particleController::process() {
+  if (!ctr.option.get(OPTION::PARTICLE)) {
+    return;
+  }
   vector<pair<int, particleInfo>> begin_emit(current_emit.size());
   vector<pair<int, particleInfo>> end_emit(current_emit_last.size());
 
