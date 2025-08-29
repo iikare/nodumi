@@ -230,20 +230,8 @@ int main(int argc, char* argv[]) {
     // update color sets
     if (colorFlag) {
       colorFlag = false;
-      switch (colorMode) {
-        case COLOR_PART:
-          colorSetOn = ctr.setTrackOn;
-          colorSetOff = ctr.setTrackOff;
-          break;
-        case COLOR_VELOCITY:
-          colorSetOn = ctr.setVelocityOn;
-          colorSetOff = ctr.setVelocityOff;
-          break;
-        case COLOR_TONIC:
-          colorSetOn = ctr.setTonicOn;
-          colorSetOff = ctr.setTonicOff;
-          break;
-      }
+      colorSetOn = ctr.findColorSet(colorMode, true);
+      colorSetOff = ctr.findColorSet(colorMode, false);
     }
 
     // update menu variables
@@ -404,7 +392,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    auto getColorSet = [&](int idx) {
+    auto getColorSetIndex = [&](int idx) {
       switch (colorMode) {
         case COLOR_PART:
           return notes[idx].track;
@@ -466,7 +454,7 @@ int main(int argc, char* argv[]) {
 
       switch (displayMode) {
         case DISPLAY_BAR: {
-          int colorID = getColorSet(i);
+          int colorID = getColorSetIndex(i);
           if (notes[i].isOn || (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration)) {
             noteOn = true;
           }
@@ -491,7 +479,7 @@ int main(int argc, char* argv[]) {
         } break;
         case DISPLAY_VORONOI:
           if (cX > -0.2 * ctr.getWidth() && cX + cW < 1.2 * ctr.getWidth()) {
-            int colorID = getColorSet(i);
+            int colorID = getColorSetIndex(i);
             if (notes[i].isOn || (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration)) {
               noteOn = true;
             }
@@ -519,7 +507,7 @@ int main(int argc, char* argv[]) {
           }
           break;
         case DISPLAY_BALL: {
-          int colorID = getColorSet(i);
+          int colorID = getColorSetIndex(i);
           auto cSet = noteOn ? colorSetOn : colorSetOff;
           auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
           const auto& col = cSet[colorID];
@@ -605,7 +593,7 @@ int main(int argc, char* argv[]) {
                 break;
               }
             }
-            int colorID = getColorSet(lp[j].idx);
+            int colorID = getColorSetIndex(lp[j].idx);
 
             float convSS[4] = {static_cast<float>(convertSSX(lp[j].x_l)), static_cast<float>(convertSSY(lp[j].y_l)),
                                static_cast<float>(convertSSX(lp[j].x_r)), static_cast<float>(convertSSY(lp[j].y_r))};
@@ -648,7 +636,7 @@ int main(int argc, char* argv[]) {
                 break;
               }
             }
-            int colorID = getColorSet(lp[j].idx);
+            int colorID = getColorSetIndex(lp[j].idx);
 
             float convSS[4] = {static_cast<float>(convertSSX(lp[j].x_l)), static_cast<float>(convertSSY(lp[j].y_l)),
                                static_cast<float>(convertSSX(lp[j].x_r)), static_cast<float>(convertSSY(lp[j].y_r))};
@@ -746,7 +734,7 @@ int main(int argc, char* argv[]) {
                 break;
               }
             }
-            int colorID = getColorSet(lp[j].idx);
+            int colorID = getColorSetIndex(lp[j].idx);
 
             float convSS[4] = {static_cast<float>(convertSSX(lp[j].x_l)), static_cast<float>(convertSSY(lp[j].y_l)),
                                static_cast<float>(convertSSX(lp[j].x_r)), static_cast<float>(convertSSY(lp[j].y_r))};
@@ -802,7 +790,7 @@ int main(int argc, char* argv[]) {
           if (cX + cW > 0 && cX < ctr.getWidth()) {
             bool drawFFT = false;
             double fftStretchRatio = 1.78;  // TODO: make fft-selection semi-duration-invariant
-            int colorID = getColorSet(i);
+            int colorID = getColorSetIndex(i);
             if (notes[i].isOn || (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration)) {
               noteOn = true;
               drawFFT = true;
@@ -847,7 +835,7 @@ int main(int argc, char* argv[]) {
         for (const auto& note_pair : bins[bin]) {
           const int idx = note_pair.first;
           const int bin_len = note_pair.second;
-          int colorID = getColorSet(idx);
+          int colorID = getColorSetIndex(idx);
 
           if (bin_len >= 1) {
             int startX = FFT_BIN_WIDTH * (bin + 1);
@@ -1056,20 +1044,10 @@ int main(int argc, char* argv[]) {
       if (colorCircle) {
         colorSelect.setAngle();
       }
-      auto set_idx = getColorSet(clickNote);
+      auto set_idx = getColorSetIndex(clickNote);
       switch (selectType) {
         case SELECT_NOTE:
-          switch (colorMode) {
-            case COLOR_PART:
-              (clickOn ? ctr.setTrackOn : ctr.setTrackOff)[set_idx] = colorSelect.getColor();
-              break;
-            case COLOR_VELOCITY:
-              (clickOn ? ctr.setVelocityOn : ctr.setVelocityOff)[set_idx] = colorSelect.getColor();
-              break;
-            case COLOR_TONIC:
-              (clickOn ? ctr.setTonicOn : ctr.setTonicOff)[set_idx] = colorSelect.getColor();
-              break;
-          }
+          ctr.findColorSet(colorMode, clickOn)[set_idx] = colorSelect.getColor();
           break;
         case SELECT_BG:
           ctr.bgColor = colorSelect.getColor();
@@ -1826,18 +1804,8 @@ int main(int argc, char* argv[]) {
             rightMenu.setContent(ctr.getNoteLabel(clickNote), 0);
 
             // set note color for color wheel
-            auto set_idx = getColorSet(clickNote);
-            switch (colorMode) {
-              case COLOR_PART:
-                colorSelect.setColor((clickOn ? ctr.setTrackOn : ctr.setTrackOff)[set_idx]);
-                break;
-              case COLOR_VELOCITY:
-                colorSelect.setColor((clickOn ? ctr.setVelocityOn : ctr.setVelocityOff)[set_idx]);
-                break;
-              case COLOR_TONIC:
-                colorSelect.setColor((clickOn ? ctr.setTonicOn : ctr.setTonicOff)[set_idx]);
-                break;
-            }
+            auto set_idx = getColorSetIndex(clickNote);
+            colorSelect.setColor(ctr.findColorSet(colorMode, clickOn)[set_idx]);
           }
           else {
             if (sheetMusicDisplay &&
