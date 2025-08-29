@@ -1160,6 +1160,14 @@ int main(int argc, char* argv[]) {
           }
         }
         break;
+      case ACTION::SET_COLOR: {
+          if (colorSelect.render) {
+            colorMove = true;
+            colorRGB hex_col(ctr.pendingColorValue.substr(1)); 
+            colorSelect.setColor(hex_col);
+          }
+        }
+        break;
       case ACTION::NAV_ZOOM_IMAGE:
         if (ctr.image.exists() && showImage) {
           // defaults to ±1, adjusted depending on default image scale value

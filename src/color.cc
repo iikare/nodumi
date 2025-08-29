@@ -16,6 +16,14 @@ colorRGB::colorRGB(double red, double green, double blue) : r(red), g(green), b(
 
 colorRGB::colorRGB(const Color& col) : r(col.r), g(col.g), b(col.b) {}
 
+colorRGB::colorRGB(const string& hex_str) {
+  // 6 digit hex string ONLY, no leading characters, must be a valid hex number
+  r = std::stoul(hex_str.substr(0,2), nullptr, 16);
+  g = std::stoul(hex_str.substr(2,2), nullptr, 16);
+  b = std::stoul(hex_str.substr(4,2), nullptr, 16);
+  logQ(hex_str,r,g,b);
+}
+
 ostream& operator<<(ostream& out, const colorRGB& color) {
   out << "{" << color.r << ", " << color.g << ", " << color.b << "} (RGB)";
   return out;

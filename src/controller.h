@@ -206,6 +206,7 @@ class controller {
   double livePlayOffset;
   int curMeasure;
   int pendingActionValue;
+  string pendingColorValue;
 
   friend class ioController;
 

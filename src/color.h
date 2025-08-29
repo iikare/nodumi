@@ -2,10 +2,12 @@
 
 #include <cmath>
 #include <iostream>
+#include <string>
 
 #include "build_target.h"
 
 using std::ostream;
+using std::string;
 
 class colorLAB;
 class colorRGB;
@@ -37,6 +39,7 @@ class colorRGB {
   colorRGB(double red, double green, double blue);
   colorRGB(const Color& col);
   colorRGB(const colorLAB& col);
+  colorRGB(const string& hex_str);
 
   colorHSV getHSV() const;
   colorLAB getLAB() const;

@@ -28,6 +28,7 @@ class bufferController {
   void set_pending(int val) { p_val = val; }
 
   bool all_num(const string& ref_str) const;
+  bool all_hex(const string& ref_str) const;
 
   int p_val;
   vector<char> buf;

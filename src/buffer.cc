@@ -111,6 +111,12 @@ bufferController::pending_action(bool apply_enter) {
         }
       }
     }
+    if (sbuf.size() == 7 && sbuf[0] == '#') {
+      if (all_hex(sbuf.substr(1))) {
+        ctr.pendingColorValue = sbuf;
+        return ACTION::SET_COLOR;
+      }
+    }
   }
 
   if (sbuf.length() > 1 && any_of(sbuf.back(), 'G', 'w', 'b')) {
@@ -138,4 +144,8 @@ bufferController::pending_action(bool apply_enter) {
 
 bool bufferController::all_num(const string& ref_str) const {
   return ref_str.find_first_not_of("0123456789") == ref_str.npos;
+}
+
+bool bufferController::all_hex(const string& ref_str) const {
+  return ref_str.find_first_not_of("0123456789abcdefABCDEF") == ref_str.npos;
 }
