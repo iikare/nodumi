@@ -44,7 +44,8 @@ void dialogController::init() {
   dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_DISTANCE,
                                                          ctr.text.getStringSet("PREF_SHADOW"), {"0", "20"}, {0, 20}));
   dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_ANGLE,
-                                                         ctr.text.getStringSet("PREF_ANGLE"), {"0", "360"}, {0, 360}, true));
+                                                         ctr.text.getStringSet("PREF_ANGLE"), {"0", "360"}, {0, 360},
+                                                         true));
 }
 
 void dialogController::render() {
