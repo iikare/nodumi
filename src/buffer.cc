@@ -8,8 +8,7 @@
 #include "misc.h"
 #include "wrap.h"
 
-ACTION
-bufferController::process() {
+ACTION bufferController::process() {
   ACTION result = ACTION::NONE;
   if (isKeyPressed(KEY_ENTER)) {
     result = pending_action(true);
@@ -43,8 +42,7 @@ bufferController::process() {
   return result;
 }
 
-ACTION
-bufferController::pending_action(bool apply_enter) {
+ACTION bufferController::pending_action(bool apply_enter) {
   string sbuf = read();
 
   if (any_of(sbuf, "gg", "0")) {
@@ -119,7 +117,7 @@ bufferController::pending_action(bool apply_enter) {
     }
   }
 
-  if (sbuf.length() > 1 && any_of(sbuf.back(), 'G', 'w', 'b')) {
+  if (sbuf.length() > 1 && sbuf[0] != '#' && any_of(sbuf.back(), 'G', 'w', 'b')) {
     clear();
     if (all_num(sbuf.substr(0, sbuf.size() - 1))) {
       if (sbuf.size() < 11) {

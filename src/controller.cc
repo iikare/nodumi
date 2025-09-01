@@ -1,7 +1,6 @@
 #include "controller.h"
 
 // #include <raylib.h>
-#include <raylib.h>
 #include <stdlib.h>
 
 #include <bitset>
