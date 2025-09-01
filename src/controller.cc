@@ -1,6 +1,7 @@
 #include "controller.h"
 
 // #include <raylib.h>
+#include <raylib.h>
 #include <stdlib.h>
 
 #include <bitset>
@@ -49,6 +50,8 @@ void controller::init(vector<asset>& assetSet) {
   dialog.init();
 
   fileOutput.init(&output);
+
+  updateFrameBuffer();
 
   Vector3 startCol = {1.0f, 0.0f, 0.0f};
   setShaderValue("SH_SQUARE", "blend_color", startCol);
@@ -332,6 +335,25 @@ controller::process(ACTION action) {
   return ACTION::NONE;
 }
 
+void controller::beginFrame() {
+  BeginDrawing();
+  beginTextureMode(framebuffer);
+}
+
+void controller::endFrame() {
+  endTextureMode();
+  drawTexturePro(framebuffer.texture, {0, 0, ctr.getWidth(), -ctr.getHeight()}, {0, 0, ctr.getWidth(), ctr.getHeight()},
+                 {0.0f, 0.0f}, 0.0f);
+
+  EndDrawing();
+}
+
+void controller::updateFrameBuffer() {
+  UnloadRenderTexture(framebuffer);
+  framebuffer = LoadRenderTexture(ctr.getWidth(), ctr.getHeight());
+  SetTextureFilter(framebuffer.texture, TEXTURE_FILTER_POINT);
+}
+
 void controller::update(int offset, double zoom, double& nowLineX) {
   if (!programState) {
     return;
@@ -404,6 +426,7 @@ void controller::updateDimension(double& nowLineX) {
     setShaderValue("SH_FXAA", "u_resolution",
                    (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
 
+    updateFrameBuffer();
     shadow.update();
     voronoi.update();
     fft.updateFFTBins();
@@ -533,7 +556,7 @@ vector<string> controller::generateMenuLabels(const menuContentType& contentType
       return text.getStringSet("VIEW_MENU_VIEW", "VIEW_MENU_DISPLAY_MODE", "VIEW_MENU_DISPLAY_SONG_TIME",
                                "VIEW_MENU_SHOW_KEY_SIGNATURE", "VIEW_MENU_SHOW_TEMPO", "VIEW_MENU_HIDE_NOW_LINE",
                                "VIEW_MENU_HIDE_MEASURE_LINE", "VIEW_MENU_HIDE_MEASURE_NUMBER",
-                               "VIEW_MENU_HIDE_BACKGROUND", "VIEW_MENU_SHOW_FPS");
+                               "VIEW_MENU_HIDE_BACKGROUND", "VIEW_MENU_HIDE_FPS");
     case CONTENT_DISPLAY:
       return text.getStringSet("DISPLAY_MENU_DEFAULT", "DISPLAY_MENU_LINE", "DISPLAY_MENU_PULSE", "DISPLAY_MENU_BALL",
                                "DISPLAY_MENU_FFT", "DISPLAY_MENU_VORONOI", "DISPLAY_MENU_LOOP");

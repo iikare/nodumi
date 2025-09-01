@@ -414,7 +414,7 @@ void menu::draw() {
       }
 
       for (int i = 1; i < itemCount; i++) {
-        drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 1, 0.5, ctr.bgMenuLine);
+        drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 0.5, 1, ctr.bgMenuLine, 255 * 0.5);
       }
       for (int i = 0; i < itemCount; i++) {
         if (i == 0) {
@@ -484,15 +484,15 @@ void menu::draw() {
       }
 
       if (!rightFlag) {
-        drawLineEx(x, y, x, y + height, 0.5, ctr.bgMenuLine);
+        drawLineEx(x, y, x, y + height, 1, ctr.bgMenuLine, 255 * 0.5);
       }
 
       for (int i = 0; i < itemCount; i++) {
         if (i == 0 && lineFlag) {
-          drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 1, 1, {0, 0, 0});
+          drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 0.5, 1, {0, 0, 0});
         }
         else if (!rightFlag) {
-          drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 1, 0.5, ctr.bgMenuLine);
+          drawLineEx(x, getItemY(i) + 1, x + ITEM_WIDTH, getItemY(i) + 0.5, 1, ctr.bgMenuLine, 255 * 0.5);
         }
         rightFlag = false;
       }

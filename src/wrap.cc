@@ -74,6 +74,14 @@ void drawTextureEx(const Texture2D& tex, const Vector2& pos, float rot, float sc
   DrawTextureEx(tex, pos, rot, scale, WHITE);
 }
 
+void drawTexturePro(const Texture2D& tex, const rect& source, const rect& dest, const Vector2& origin, float rot) {
+  Rectangle source_r = {static_cast<float>(source.x), static_cast<float>(source.y), static_cast<float>(source.width),
+                        static_cast<float>(source.height)};
+  Rectangle dest_r = {static_cast<float>(dest.x), static_cast<float>(dest.y), static_cast<float>(dest.width),
+                      static_cast<float>(dest.height)};
+  DrawTexturePro(tex, source_r, dest_r, origin, rot, WHITE);
+}
+
 const Vector2 measureTextEx(const string& msg, int size, const string& font) {
   const Font& ft = ctr.getFont(font, size);
   return MeasureTextEx(ft, msg.c_str(), ft.baseSize, TEXT_SPACING);

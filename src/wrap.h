@@ -38,6 +38,7 @@ void drawGradientLineH(const Vector2& a, const Vector2& b, float thick, const co
                        float alphaB);
 
 void drawTextureEx(const Texture2D& tex, const Vector2& pos, float rot = 0.0f, float scale = 1.0f);
+void drawTexturePro(const Texture2D& tex, const rect& source, const rect& dest, const Vector2& origin, float rot);
 
 const Vector2 measureTextEx(const string& msg, int size = 14, const string& font = DEFAULT_FONT);
 

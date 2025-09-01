@@ -1,3 +1,5 @@
+#include <raylib.h>
+
 #include <algorithm>
 #include <bit>
 #include <string>
@@ -247,7 +249,7 @@ int main(int argc, char* argv[]) {
     }
 
     // main render loop
-    BeginDrawing();
+    ctr.beginFrame();
     clearBackground(ctr.bgColor);
 
     if (showImage) {
@@ -285,7 +287,8 @@ int main(int argc, char* argv[]) {
     if (measureLine || measureNumber) {
       constexpr int maxMeasureSpacing = 5;
       for (unsigned int i = 0; i < stream.measureMap.size(); i++) {
-        float measureLineWidth = 0.5;
+        float measureLineWidth = 1;
+        float measureLineOpacityRatio = 0.5;
         int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
         double measureLineX = convertSSX(stream.measureMap[i].getLocation());
         double line_ratio = 1.0;
@@ -300,12 +303,12 @@ int main(int argc, char* argv[]) {
           if (pointInBox(getMousePosition(),
                          {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
               !hoverType.containsLastFrame(HOVER_MENU) && !hoverType.contains(HOVER_DIALOG, HOVER_MEASURE)) {
-            measureLineWidth = 1;
+            measureLineOpacityRatio = 1;
             hoverType.add(HOVER_MEASURE);
           }
           if (!nowLine || fabs(nowLineX - measureLineX) > 3) {
             drawLineEx(static_cast<int>(measureLineX), measureLineY, static_cast<int>(measureLineX), ctr.getHeight(),
-                       measureLineWidth, ctr.bgMeasure, 255 * line_ratio);
+                       measureLineWidth, ctr.bgMeasure, 255 * measureLineOpacityRatio * line_ratio);
           }
         }
 
@@ -369,14 +372,15 @@ int main(int argc, char* argv[]) {
     }
 
     if (nowLine) {
-      float nowLineWidth = 0.5;
+      float nowLineWidth = 1;
+      float nowLineOpacityRatio = 0.5;
       int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
       if (pointInBox(getMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) &&
           !ctr.menu.mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {
-        nowLineWidth = 1;
+        nowLineOpacityRatio = 1;
         hoverType.add(HOVER_NOW);
       }
-      drawLineEx(nowLineX, nowLineY, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow);
+      drawLineEx(nowLineX, nowLineY, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow, 255 * nowLineOpacityRatio);
     }
 
     switch (displayMode) {
@@ -1017,7 +1021,7 @@ int main(int argc, char* argv[]) {
     ctr.dialog.render();
     ctr.warning.render();  // warning about windows stability
 
-    EndDrawing();
+    ctr.endFrame();
 
     // key actions
     action = ctr.process(action);

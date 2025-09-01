@@ -50,6 +50,9 @@ class controller {
   Texture2D& getImage(const string& imageIdentifier);
   Shader& getShader(const string& shaderIdentifier);
 
+  void beginFrame();
+  void endFrame();
+
   void beginShaderMode(const string& shaderIdentifier) { BeginShaderMode(getShader(shaderIdentifier)); }
   void endShaderMode() { EndShaderMode(); }
 
@@ -64,6 +67,8 @@ class controller {
   void setShaderValue(const string& shader, const string& uf, const T& val, const int num = -1) {
     getShaderData(shader).setShaderValue(uf, val, num);
   }
+
+  void updateFrameBuffer();
 
   void toggleLivePlay();
   void criticalSection(bool enter);
@@ -218,6 +223,7 @@ class controller {
   void updateFPS(bool bypass = false);
   void updateDroppedFiles();
 
+  RenderTexture framebuffer;
   shaderData& getShaderData(const string& shaderIdentifier);
 
   int lastWidth = 0;
