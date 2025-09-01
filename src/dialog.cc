@@ -43,6 +43,8 @@ void dialogController::init() {
                    ctr.text.getStringSet("PREF_CIE_FUNCTION"), {"00", "94", "76"}, convertEnum(cie_opt_vec)));
   dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_DISTANCE,
                                                          ctr.text.getStringSet("PREF_SHADOW"), {"0", "20"}, {0, 20}));
+  dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_ANGLE,
+                                                         ctr.text.getStringSet("PREF_ANGLE"), {"0", "360"}, {0, 360}, true));
 }
 
 void dialogController::render() {

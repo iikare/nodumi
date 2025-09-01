@@ -19,7 +19,7 @@ class dialogOption {
 
   // check box with subboxes OR slider
   dialogOption(DIA_OPT t, OPTION opt_t, OPTION sub_opt_t, const vector<string>& label, const vector<string>& val,
-               const vector<int>& res);
+               const vector<int>& res, bool skip_main_box = false);
 
   void render(int in_x, int in_y);
 
@@ -39,6 +39,7 @@ class dialogOption {
   OPTION link_sub_opt;
 
   bool sliderActive = false;
+  bool skip_main_box = false;
 
   int x = 0;
   int y = 0;

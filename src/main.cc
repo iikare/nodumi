@@ -1,9 +1,6 @@
 #include <algorithm>
 #include <bit>
-#include <ctime>
 #include <string>
-#include <thread>
-#include <unordered_map>
 #include <vector>
 
 #include "aghfile.h"
@@ -884,7 +881,7 @@ int main(int argc, char* argv[]) {
           ctr.endTextureMode();
 
           ctr.beginShaderMode("SH_SHADOW");
-          constexpr double shadow_angle = M_PI / 4.0;
+          const double shadow_angle = -(ctr.option.get(OPTION::SHADOW_ANGLE)+90) * M_PI / 180;
           float shadow_off_x = -ctr.option.get(OPTION::SHADOW_DISTANCE) * cos(shadow_angle);
           float shadow_off_y = ctr.option.get(OPTION::SHADOW_DISTANCE) * sin(shadow_angle);
           DrawTextureRec(ctr.shadow.buffer.texture,

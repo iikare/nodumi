@@ -20,6 +20,7 @@ optionController::optionController() {
   opts[static_cast<int>(OPTION::SCALE_VELOCITY)] = false;
   opts[static_cast<int>(OPTION::SHADOW)] = false;
   opts[static_cast<int>(OPTION::SHADOW_DISTANCE)] = 8;
+  opts[static_cast<int>(OPTION::SHADOW_ANGLE)] = 135;
   opts[static_cast<int>(OPTION::LIMIT_FPS)] = 1;
 }
 
@@ -74,6 +75,8 @@ bool optionController::invalid(OPTION opt) {
       return !ctr.image.exists();
     case OPTION::SHADOW_DISTANCE:
       return !get(OPTION::SHADOW);
+    case OPTION::SHADOW_ANGLE:
+      return !get(OPTION::SHADOW);
     default:
       return false;
   }
@@ -92,6 +95,8 @@ void optionController::set(OPTION opt, int value) {
     case OPTION::CIE_FUNCTION:
       [[fallthrough]];
     case OPTION::SHADOW_DISTANCE:
+      [[fallthrough]];
+    case OPTION::SHADOW_ANGLE:
       break;
     default:
       logW(LL_WARN, "cannot modify option of type", static_cast<int>(opt));

@@ -22,7 +22,7 @@ dialogOption::dialogOption(DIA_OPT t, OPTION opt_t, const vector<string>& label)
 }
 
 dialogOption::dialogOption(DIA_OPT t, OPTION opt_t, OPTION sub_opt_t, const vector<string>& label,
-                           const vector<string>& val, const vector<int>& res) {
+                           const vector<string>& val, const vector<int>& res, bool skip_main_box) {
   if (!any_of(t, DIA_OPT::SUBBOX, DIA_OPT::SLIDER)) {
     logW(LL_CRIT, "invalid constructor for dialog option of type", t, "- expecting types", DIA_OPT::SUBBOX, "or",
          DIA_OPT::SLIDER);
@@ -45,6 +45,7 @@ dialogOption::dialogOption(DIA_OPT t, OPTION opt_t, OPTION sub_opt_t, const vect
   value = val;
   result = res;
   x = y = 0;
+  this->skip_main_box = skip_main_box;
 }
 
 void dialogOption::process() {
@@ -56,7 +57,7 @@ void dialogOption::process() {
   }
 
   int x_start = x + boxOffset;
-  int y_start = y + boxOffset;
+  int y_start = y + (skip_main_box ? -10 : boxOffset);
 
   if (type == DIA_OPT::SUBBOX && ctr.option.get(link_opt)) {
     for (unsigned int v = 0; v < value.size(); ++v) {
@@ -107,9 +108,11 @@ void dialogOption::render(int in_x, int in_y) {
 
   auto col = inv_status ? ctr.bgMenuShade : (opt_status ? ctr.bgOpt : ctr.bgDark);
 
-  drawRectangleLines(in_x, in_y, itemRectSize, itemRectSize, 3, col);
+  if (!skip_main_box) {
+    drawRectangleLines(in_x, in_y, itemRectSize, itemRectSize, 3, col);
+  }
 
-  if (opt_status) {
+  if (opt_status && !skip_main_box) {
     drawRectangle(in_x + (itemRectSize - itemRectInnerSize) / 2.0f, in_y + (itemRectSize - itemRectInnerSize) / 2.0f,
                   itemRectInnerSize, itemRectInnerSize, col);
   }
@@ -125,8 +128,10 @@ void dialogOption::render(int in_x, int in_y) {
       break;
   }
 
-  // first element must exist
-  drawTextEx(text[0], in_x + itemRectSize + 4, in_y + 6, ctr.bgDark, 255, itemFontSize);
+  if (!skip_main_box) {
+    // first element must exist
+    drawTextEx(text[0], in_x + itemRectSize + 4, in_y + 6, ctr.bgDark, 255, itemFontSize);
+  }
 }
 
 void dialogOption::renderBox() {
@@ -175,7 +180,7 @@ void dialogOption::renderSlider() {
   int sub_opt_value = ctr.option.get(link_sub_opt);
 
   int x_start = x + boxOffset;
-  int y_start = y + boxOffset + 10;
+  int y_start = y + (skip_main_box ? 0 : boxOffset + 10);
 
   constexpr int w = sliderLineSize;
 

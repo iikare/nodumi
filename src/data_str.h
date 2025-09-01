@@ -87,6 +87,7 @@
                         {"PREF_PARTICLE",                       "Enable Particle Effects"}, \
                         {"PREF_SCALE_VELOCITY",                 "Use Scaled Velocities"}, \
                         {"PREF_SHADOW",                         "Enable Drop Shadow"}, \
+                        {"PREF_ANGLE",                          "Shadow Angle"}, \
                         {"PREF_LIMIT_FPS",                      "Limit FPS"}, \
                         {"FILE_INFO_LABEL",                     "Information"}, \
                         {"FILE_TYPE",                           "Format"}, \
