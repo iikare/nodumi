@@ -1,8 +1,11 @@
 #pragma once
 
+#include <raylib.h>
+
 #include <functional>
 #include <random>
 #include <sstream>
+#include <stack>
 #include <unordered_map>
 #include <vector>
 
@@ -31,6 +34,7 @@
 #include "voronoi.h"
 #include "warning.h"
 
+using std::stack;
 using std::stringstream;
 using std::unordered_map;
 using std::vector;
@@ -62,6 +66,9 @@ class controller {
 
   void beginTextureMode(const RenderTexture& rtex) { BeginTextureMode(rtex); }
   void endTextureMode() { EndTextureMode(); }
+
+  void pushTextureMode(string rtex_id, RenderTexture* rtex_ptr);
+  void popTextureMode();
 
   template <class T>
   void setShaderValue(const string& shader, const string& uf, const T& val, const int num = -1) {
@@ -223,8 +230,10 @@ class controller {
   void updateFPS(bool bypass = false);
   void updateDroppedFiles();
 
-  RenderTexture framebuffer;
   shaderData& getShaderData(const string& shaderIdentifier);
+
+  RenderTexture framebuffer;
+  stack<pair<string, pair<RenderTexture*, int>>> renderStack;
 
   int lastWidth = 0;
 

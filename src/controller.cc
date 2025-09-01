@@ -336,11 +336,11 @@ controller::process(ACTION action) {
 
 void controller::beginFrame() {
   BeginDrawing();
-  beginTextureMode(framebuffer);
+  pushTextureMode("FB_BASE", &framebuffer);
 }
 
 void controller::endFrame() {
-  endTextureMode();
+  popTextureMode();
   drawTexturePro(framebuffer.texture, {0, 0, ctr.getWidth(), -ctr.getHeight()}, {0, 0, ctr.getWidth(), ctr.getHeight()},
                  {0.0f, 0.0f}, 0.0f);
 
@@ -351,6 +351,53 @@ void controller::updateFrameBuffer() {
   UnloadRenderTexture(framebuffer);
   framebuffer = LoadRenderTexture(ctr.getWidth(), ctr.getHeight());
   SetTextureFilter(framebuffer.texture, TEXTURE_FILTER_POINT);
+}
+
+void controller::pushTextureMode(string rtex_id, RenderTexture* rtex_ptr) {
+  // stores the current render texture, ends the current mode, and then begins the next render texture mode
+  // only ends the current mode if the stack size is NOT zero
+
+  // logQ("call to pushTextureMode() at frame: " + to_string(getFrame()));
+
+  if (!renderStack.empty()) {
+    if (rtex_id == renderStack.top().first) {
+      (renderStack.top().second.second)++;
+      return;
+    }
+    endTextureMode();
+  }
+
+  renderStack.emplace(make_pair(rtex_id, make_pair(rtex_ptr, 1)));
+
+  beginTextureMode(*renderStack.top().second.first);
+}
+
+void controller::popTextureMode() {
+  // restores the previous render texture, only if stack size is non-zero
+
+  // logQ("call to popTextureMode() at frame: " + to_string(getFrame()));
+
+  if (renderStack.empty()) {
+    // TODO: should popping a render texture off an empty stack be a warning??
+    // logW(LL_WARN, "attempt to pop render texture with empty render stack");
+    return;
+  }
+
+  if (renderStack.top().second.second > 1) {
+    renderStack.top().second.second--;
+    return;
+  }
+
+  renderStack.pop();
+
+  // if this was the last item popped off the stack, do nothing
+
+  if (!renderStack.empty()) {
+    beginTextureMode(*renderStack.top().second.first);
+  }
+  else {
+    endTextureMode();
+  }
 }
 
 void controller::update(int offset, double zoom, double& nowLineX) {

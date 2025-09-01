@@ -388,7 +388,7 @@ int main(int argc, char* argv[]) {
         break;
       default:
         if (ctr.option.get(OPTION::SHADOW)) {
-          ctr.beginTextureMode(ctr.shadow.buffer);
+          ctr.pushTextureMode("FB_SHADOW", &ctr.shadow.buffer);
           clearBackground();
         }
     }
@@ -882,7 +882,7 @@ int main(int argc, char* argv[]) {
         break;
       default:
         if (ctr.option.get(OPTION::SHADOW)) {
-          ctr.endTextureMode();
+          ctr.popTextureMode();
 
           ctr.beginShaderMode("SH_SHADOW");
           const double shadow_angle = -(ctr.option.get(OPTION::SHADOW_ANGLE) + 90) * M_PI / 180;

@@ -63,14 +63,14 @@ void voronoiController::unload() {
 }
 
 void voronoiController::render() {
-  ctr.beginTextureMode(voro_buffer);
+  ctr.pushTextureMode("FB_VORONOI", &voro_buffer);
 
   ctr.beginShaderMode("SH_VORONOI");
   drawTextureEx(tex, {0, 0});  // static_cast<float>(ctr.menuHeight)});
   // drawTextureEx(tex, {0, static_cast<float>(ctr.menuHeight)});
   ctr.endShaderMode();
 
-  ctr.endTextureMode();
+  ctr.popTextureMode();
 
   ctr.beginShaderMode("SH_FXAA");
   // DrawTextureEx(voro_buffer.texture, { 0, ctr.menuHeight }, 360.0f, 1.0f,
