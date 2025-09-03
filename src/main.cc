@@ -1202,8 +1202,7 @@ int main(int argc, char* argv[]) {
       case ACTION::SET_COLOR: {
         if (colorSelect.render) {
           colorMove = true;
-          colorRGB hex_col(ctr.pendingColorValue.substr(1));
-          colorSelect.setColor(hex_col);
+          colorSelect.setColor(ctr.pendingColorValue);
         }
       } break;
       case ACTION::NAV_ZOOM_IMAGE:
@@ -1898,7 +1897,7 @@ int main(int argc, char* argv[]) {
                 rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_REMOVE_IMAGE");
                 // logQ("rightclicked on image");
               }
-              else if (!hoverType.contains(HOVER_DIALOG)) {
+              else if (!hoverType.contains(HOVER_DIALOG) && !ctr.option.get(OPTION::NOW_LINE_USE_OVERLAY)) {
                 selectType = SELECT_BG;
                 rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_COLOR");
                 colorSelect.setColor(ctr.bgColor);

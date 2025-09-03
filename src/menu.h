@@ -39,8 +39,8 @@ class menuItem {
 
 class menu {
  public:
-  menu(point XY, menuContentType contentType, int menuType, int menuX = 0, int menuY = 0, menu* parentMenu = nullptr,
-       int parentPos = -1);
+  menu(point XY, menuContentType contentType, int menuType, int menuX = 0, int menuY = 0,
+       menu* parentMenu = nullptr, int parentPos = -1);
 
   int getX() const { return x; }
   int getY() const { return y; }
@@ -65,6 +65,7 @@ class menu {
   void setSquare();
   void setAngle();
   void setColor(const colorRGB& col);
+  void setColor(const string& col_hex);
 
   void swapLabel(const string& str_id1, const string& str_id2, int idx);
 
@@ -110,6 +111,9 @@ class menu {
   double angle = 0;
   vector<menuItem> items;
   vector<menu*> childMenu;
+
+  bool changed = false;
+  colorRGB record_col;
 
   Texture2D squareTex;
   Texture2D ringTex;

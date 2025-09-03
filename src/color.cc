@@ -21,7 +21,6 @@ colorRGB::colorRGB(const string& hex_str) {
   r = std::stoul(hex_str.substr(0, 2), nullptr, 16);
   g = std::stoul(hex_str.substr(2, 2), nullptr, 16);
   b = std::stoul(hex_str.substr(4, 2), nullptr, 16);
-  logQ(hex_str, r, g, b);
 }
 
 ostream& operator<<(ostream& out, const colorRGB& color) {
@@ -255,7 +254,8 @@ colorRGB::colorRGB(const colorLAB& col) {
   };
 
   // sRGB D65
-  constexpr float tMat[3][3] = {{3.2406, -1.5372, -0.4986}, {-0.9689, 1.8758, 0.0415}, {0.0557, -0.2040, 1.0570}};
+  constexpr float tMat[3][3] = {
+      {3.2406, -1.5372, -0.4986}, {-0.9689, 1.8758, 0.0415}, {0.0557, -0.2040, 1.0570}};
 
   // sRGB D65
   constexpr float cieX_n = 95.0489f / 100.0f;

@@ -40,7 +40,8 @@ void menuItem::setWidth(int nWidth) { width = nWidth; }
 
 void menuItem::setHeight(int nHeight) { height = nHeight; }
 
-menu::menu(point XY, menuContentType contentType, int menuType, int menuX, int menuY, menu* parentMenu, int parentPos)
+menu::menu(point XY, menuContentType contentType, int menuType, int menuX, int menuY, menu* parentMenu,
+           int parentPos)
     : render(false),
       mainSize(ITEM_WIDTH),
       x(menuX),
@@ -125,7 +126,9 @@ string menu::getContent(int idx) const {
 
 int menu::getActiveElement() const { return activeElement; }
 
-bool menu::isContentLabel(const string& label, int idx) const { return getContent(idx) == ctr.text.getString(label); }
+bool menu::isContentLabel(const string& label, int idx) const {
+  return getContent(idx) == ctr.text.getString(label);
+}
 
 void menu::setContent(const string& nContent, int idx) {
   if (idx >= itemCount || idx < 0) {
@@ -137,7 +140,8 @@ void menu::setContent(const string& nContent, int idx) {
 
 void menu::setContentLabel(const string& label, int idx) {
   if (idx >= itemCount || idx < 0) {
-    logW(LL_WARN, "attempted to set menu item at nonexistent menu index", idx, "(" + ctr.text.getString(label) + ")");
+    logW(LL_WARN, "attempted to set menu item at nonexistent menu index", idx,
+         "(" + ctr.text.getString(label) + ")");
     return;
   }
   items[idx].setContent(ctr.text.getString(label));
@@ -195,7 +199,8 @@ void menu::findActiveElement(point XY) {
     return;
   }
   else {
-    if (!pointInBox((Vector2){static_cast<float>(curX), static_cast<float>(curY)}, (rect){x, y, width, height})) {
+    if (!pointInBox((Vector2){static_cast<float>(curX), static_cast<float>(curY)},
+                    (rect){x, y, width, height})) {
       activeElement = -1;
       return;
     }
@@ -340,20 +345,30 @@ bool menu::clickCircle(int circleType) const {
   const float circleY = y + COLOR_HEIGHT / 2.0f;
 
   if (circleType == 0) {
-    if (getDistance(ctr.getMouseX(), ctr.getMouseY(), circleX, circleY) > (circleRatio - circleWidth) * COLOR_WIDTH) {
+    if (getDistance(ctr.getMouseX(), ctr.getMouseY(), circleX, circleY) >
+        (circleRatio - circleWidth) * COLOR_WIDTH) {
       return true;
     }
   }
   if (circleType == 1) {
-    if (getDistance(ctr.getMouseX(), ctr.getMouseY(), circleX - squareDim / 2.0 + pX, circleY - squareDim / 2.0 + pY) <
-        5.0f) {
+    if (getDistance(ctr.getMouseX(), ctr.getMouseY(), circleX - squareDim / 2.0 + pX,
+                    circleY - squareDim / 2.0 + pY) < 5.0f) {
       return true;
     }
   }
   return false;
 }
 
+void menu::setColor(const string& col_hex) {
+  // expects full string w/'#' prefix
+  record_col = colorRGB(col_hex.substr(1));
+  setColor(record_col);
+  changed = false;
+}
+
 void menu::setColor(const colorRGB& col) {
+  changed = true;
+
   if (all_of(0, col.r, col.g, col.b)) {
     angle = 0;
     pX = 0;
@@ -372,6 +387,9 @@ void menu::setColor(const colorRGB& col) {
 }
 
 colorRGB menu::getColor() const {
+  if (!changed) {
+    return record_col;
+  }
   colorHSV col;
 
   col.h = angle;
@@ -410,7 +428,8 @@ void menu::draw() {
       vector<int> openChildren = findOpenChildMenu();
 
       for (unsigned int i = 0; i < openChildren.size(); i++) {
-        drawRectangle(getItemX(openChildren[i]), getItemY(openChildren[i]), ITEM_WIDTH, ITEM_HEIGHT, ctr.bgMenuShade);
+        drawRectangle(getItemX(openChildren[i]), getItemY(openChildren[i]), ITEM_WIDTH, ITEM_HEIGHT,
+                      ctr.bgMenuShade);
       }
 
       for (int i = 1; i < itemCount; i++) {
@@ -454,9 +473,10 @@ void menu::draw() {
       drawRing({float(circleX - squareDim / 2.0 + pX), float(circleY - squareDim / 2.0 + pY)}, 0.0f, 5.0f,
                ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f));
 
-      drawRing({float(circleX + (circleRatio - circleWidth / 2.0) * COLOR_WIDTH * cos(angle * M_PI / 180.0)),
-                float(circleY - (circleRatio - circleWidth / 2.0) * COLOR_HEIGHT * sin(angle * M_PI / 180.0))},
-               0.0f, 5.0f, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f));
+      drawRing(
+          {float(circleX + (circleRatio - circleWidth / 2.0) * COLOR_WIDTH * cos(angle * M_PI / 180.0)),
+           float(circleY - (circleRatio - circleWidth / 2.0) * COLOR_HEIGHT * sin(angle * M_PI / 180.0))},
+          0.0f, 5.0f, ColorFromHSV(float(fmod(angle, 360.0)), 0.3f, 1.0f));
 
       drawRectangle(x + COLOR_WIDTH - 36, y + COLOR_HEIGHT - 36, 36, 36, getColor());
 
