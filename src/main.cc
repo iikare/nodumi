@@ -113,8 +113,8 @@ int main(int argc, char* argv[]) {
   const auto convertSSX = [&](int value) { return nowLineX + (value - timeOffset) * zoomLevel; };
 
   const auto convertSSY = [&](int value) {
-    return (ctr.getHeight() -
-            (ctr.getHeight() - (ctr.topHeight)) * static_cast<double>(value - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 4));
+    return (ctr.getHeight() - (ctr.getHeight() - (ctr.topHeight)) *
+                                  static_cast<double>(value - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 4));
   };
 
   // inverse screen space conversion functions
@@ -125,7 +125,8 @@ int main(int argc, char* argv[]) {
     double minVal = max(0.0, timeOffset - nowLineX / zoomLevel);
 
     // extra "1" prevents roundoff error
-    double maxVal = min(ctr.getLastTime(), static_cast<int>(timeOffset + (ctr.getWidth() + 1 - nowLineX) / zoomLevel));
+    double maxVal =
+        min(ctr.getLastTime(), static_cast<int>(timeOffset + (ctr.getWidth() + 1 - nowLineX) / zoomLevel));
 
     return make_pair(minVal, maxVal);
   };
@@ -189,8 +190,8 @@ int main(int argc, char* argv[]) {
       pauseOffset = 0;
 
       if (ctr.open_file.pending()) {
-        ctr.load(ctr.open_file.getPath(), nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
-                 colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+        ctr.load(ctr.open_file.getPath(), nowLine, showFPS, showImage, sheetMusicDisplay, measureLine,
+                 measureNumber, colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
 
         if (ctr.getFileType() == FILE_MKI) {
           ctr.save_file.setPending(ctr.open_file.getPath());
@@ -256,7 +257,8 @@ int main(int argc, char* argv[]) {
     if (showImage) {
       ctr.image.render();
       if (!hoverType.contains(HOVER_DIALOG)) {
-        if (getMousePosition().x > ctr.image.getX() && getMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
+        if (getMousePosition().x > ctr.image.getX() &&
+            getMousePosition().x < ctr.image.getX() + ctr.image.getWidth()) {
           if (getMousePosition().y > ctr.image.getY() &&
               getMousePosition().y < ctr.image.getY() + ctr.image.getHeight()) {
             hoverType.add(HOVER_IMAGE);
@@ -308,8 +310,9 @@ int main(int argc, char* argv[]) {
             hoverType.add(HOVER_MEASURE);
           }
           if (!nowLine || fabs(nowLineX - measureLineX) > 3) {
-            drawLineEx(static_cast<int>(measureLineX), measureLineY, static_cast<int>(measureLineX), ctr.getHeight(),
-                       measureLineWidth, ctr.bgMeasure, 255 * measureLineOpacityRatio * line_ratio);
+            drawLineEx(static_cast<int>(measureLineX), measureLineY, static_cast<int>(measureLineX),
+                       ctr.getHeight(), measureLineWidth, ctr.bgMeasure,
+                       255 * measureLineOpacityRatio * line_ratio);
           }
         }
 
@@ -350,14 +353,16 @@ int main(int argc, char* argv[]) {
 
             if (((showTempo && !ctr.getLiveState()) || showKey || songTimeType != SONGTIME_NONE) &&
                 measureLineX + 4 < songInfoSize.x + fadeWidth / 2.0) {
-              measureLineTextAlpha =
-                  max(0.0, min(255.0, 255.0 * (1 - (songInfoSize.x + fadeWidth / 2.0 - measureLineX - 4) / 10)));
+              measureLineTextAlpha = max(
+                  0.0, min(255.0, 255.0 * (1 - (songInfoSize.x + fadeWidth / 2.0 - measureLineX - 4) / 10)));
             }
             else if (measureLineX < fadeWidth) {
-              measureLineTextAlpha = 255 * max(0.0, (min(fadeWidth, measureLineX + measureSpacing)) / fadeWidth);
+              measureLineTextAlpha =
+                  255 * max(0.0, (min(fadeWidth, measureLineX + measureSpacing)) / fadeWidth);
             }
 
-            int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
+            int measureTextY =
+                ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
             drawTextEx(to_string(i + 1), measureLineX + 4, measureTextY, ctr.bgColor2, measureLineTextAlpha);
             lastMeasureNum = i;
           }
@@ -466,7 +471,8 @@ int main(int argc, char* argv[]) {
             noteOn = true;
           }
 
-          if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu.mouseOnMenu()) {
+          if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) &&
+              !ctr.menu.mouseOnMenu()) {
             updateClickIndex();
           }
 
@@ -544,9 +550,10 @@ int main(int argc, char* argv[]) {
               if (getDistance(ctr.getMouseX(), ctr.getMouseY(), realX, ballY) < radius) {
                 updateClickIndex();
               }
-              else if (realX == nowLineX && (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, ballY) < radius ||
-                                             pointInBox(getMousePosition(), (rect){int(cX), int(ballY) - 2,
-                                                                                   max(int(nowLineX - cX), 0), 4}))) {
+              else if (realX == nowLineX &&
+                       (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, ballY) < radius ||
+                        pointInBox(getMousePosition(),
+                                   (rect){int(cX), int(ballY) - 2, max(int(nowLineX - cX), 0), 4}))) {
                 updateClickIndex();
               }
             }
@@ -566,8 +573,9 @@ int main(int argc, char* argv[]) {
                 drawRing({cX, ballY}, radius - 2, radius, col, 255 * radius / maxRad);
                 drawRing({static_cast<float>(nowLineX), ballY}, radius - 2, radius, col);
                 if (nowLineX - cX > 2 * radius) {
-                  drawGradientLineH({cX + radius, ballY + 1}, {static_cast<float>(nowLineX) - radius + 1, ballY + 1}, 2,
-                                    col, 255, 255 * radius / maxRad);
+                  drawGradientLineH({cX + radius, ballY + 1},
+                                    {static_cast<float>(nowLineX) - radius + 1, ballY + 1}, 2, col, 255,
+                                    255 * radius / maxRad);
                 }
               }
             }
@@ -602,8 +610,9 @@ int main(int argc, char* argv[]) {
             }
             int colorID = getColorSetIndex(lp[j].idx);
 
-            float convSS[4] = {static_cast<float>(convertSSX(lp[j].x_l)), static_cast<float>(convertSSY(lp[j].y_l)),
-                               static_cast<float>(convertSSX(lp[j].x_r)), static_cast<float>(convertSSY(lp[j].y_r))};
+            float convSS[4] = {
+                static_cast<float>(convertSSX(lp[j].x_l)), static_cast<float>(convertSSY(lp[j].y_l)),
+                static_cast<float>(convertSSX(lp[j].x_r)), static_cast<float>(convertSSY(lp[j].y_r))};
             if (lp[j].in_progress) {
               convSS[2] = nowLineX;
             }
@@ -620,7 +629,8 @@ int main(int argc, char* argv[]) {
             const auto& col = cSet[colorID];
             const auto& col_inv = cSetInv[colorID];
 
-            if (timeOffset >= notes[lp[j].idx].x && timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
+            if (timeOffset >= notes[lp[j].idx].x &&
+                timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
               ctr.particle.add_emitter(lp[j].idx, {convSS[0], convSS[1], 0, 0, col, col_inv});
             }
 
@@ -645,8 +655,9 @@ int main(int argc, char* argv[]) {
             }
             int colorID = getColorSetIndex(lp[j].idx);
 
-            float convSS[4] = {static_cast<float>(convertSSX(lp[j].x_l)), static_cast<float>(convertSSY(lp[j].y_l)),
-                               static_cast<float>(convertSSX(lp[j].x_r)), static_cast<float>(convertSSY(lp[j].y_r))};
+            float convSS[4] = {
+                static_cast<float>(convertSSX(lp[j].x_l)), static_cast<float>(convertSSY(lp[j].y_l)),
+                static_cast<float>(convertSSX(lp[j].x_r)), static_cast<float>(convertSSY(lp[j].y_r))};
             if (lp[j].in_progress) {
               convSS[2] = nowLineX;
             }
@@ -668,26 +679,34 @@ int main(int argc, char* argv[]) {
               double newY = (convSS[3] - convSS[1]) * nowRatio + convSS[1];
               bool nowNote = clickTmp == static_cast<int>(lp[j].idx) ? false : noteOn;
               drawLineEx(
-                  nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[0]) / 2.0, nowRatio, INT_SINE) : convSS[0],
+                  nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[0]) / 2.0, nowRatio, INT_SINE)
+                          : convSS[0],
                   nowNote ? newY - floatLERP(0, (newY - convSS[1]) / 2.0, nowRatio, INT_SINE) : convSS[1],
-                  nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE) : convSS[2],
-                  nowNote ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE) : convSS[3], 3, col);
-              if (timeOffset >= notes[lp[j].idx].x && timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
+                  nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE)
+                          : convSS[2],
+                  nowNote ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE) : convSS[3], 3,
+                  col);
+              if (timeOffset >= notes[lp[j].idx].x &&
+                  timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
                 ctr.particle.add_emitter(
                     lp[j].idx,
-                    {nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE) : convSS[2],
-                     nowNote ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE) : convSS[3], 0, 0,
-                     col, col_inv});
+                    {nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE)
+                             : convSS[2],
+                     nowNote ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE) : convSS[3],
+                     0, 0, col, col_inv});
               }
 
-              drawRing({float(nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[0]) / 2.0, nowRatio, INT_SINE)
-                                      : convSS[0]),
-                        float(nowNote ? newY - floatLERP(0, (newY - convSS[1]) / 2.0, nowRatio, INT_SINE) : convSS[1])},
-                       0, 1.5, col);
+              drawRing(
+                  {float(nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[0]) / 2.0, nowRatio, INT_SINE)
+                                 : convSS[0]),
+                   float(nowNote ? newY - floatLERP(0, (newY - convSS[1]) / 2.0, nowRatio, INT_SINE)
+                                 : convSS[1])},
+                  0, 1.5, col);
               drawRing(
                   {float(nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE)
                                  : convSS[0]),
-                   float(nowNote ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE) : convSS[1])},
+                   float(nowNote ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE)
+                                 : convSS[1])},
                   0, 1.5, col);
             }
 
@@ -743,8 +762,9 @@ int main(int argc, char* argv[]) {
             }
             int colorID = getColorSetIndex(lp[j].idx);
 
-            float convSS[4] = {static_cast<float>(convertSSX(lp[j].x_l)), static_cast<float>(convertSSY(lp[j].y_l)),
-                               static_cast<float>(convertSSX(lp[j].x_r)), static_cast<float>(convertSSY(lp[j].y_r))};
+            float convSS[4] = {
+                static_cast<float>(convertSSX(lp[j].x_l)), static_cast<float>(convertSSY(lp[j].y_l)),
+                static_cast<float>(convertSSX(lp[j].x_r)), static_cast<float>(convertSSY(lp[j].y_r))};
             if (lp[j].in_progress) {
               convSS[2] = nowLineX;
             }
@@ -769,16 +789,20 @@ int main(int argc, char* argv[]) {
             else if (convSS[0] < nowLineX) {
               drawLineEx(
                   convSS[0], convSS[1],
-                  noteOn ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE) : convSS[2],
-                  noteOn ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE) : convSS[3], 3, col);
+                  noteOn ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE)
+                         : convSS[2],
+                  noteOn ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE) : convSS[3], 3,
+                  col);
             }
 
-            if (timeOffset >= notes[lp[j].idx].x && timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
+            if (timeOffset >= notes[lp[j].idx].x &&
+                timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
               ctr.particle.add_emitter(
                   lp[j].idx,
-                  {noteOn ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE) : convSS[2],
-                   noteOn ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE) : convSS[3], 0, 0, col,
-                   col_inv});
+                  {noteOn ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE)
+                          : convSS[2],
+                   noteOn ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE) : convSS[3], 0,
+                   0, col, col_inv});
             }
 
             double scale = (1.2 * (32 - countl_zero(static_cast<unsigned int>(cW)))) / 8.0;
@@ -789,7 +813,8 @@ int main(int argc, char* argv[]) {
             }
 
             if (nowRatio > 0 && nowRatio < 1) {
-              drawRing({convSS[2], convSS[3]}, 4 * scale, 8 * scale, col, 255, 180.0f, (-nowRatio + 0.5f) * 360.0f);
+              drawRing({convSS[2], convSS[3]}, 4 * scale, 8 * scale, col, 255, 180.0f,
+                       (-nowRatio + 0.5f) * 360.0f);
             }
           }
         } break;
@@ -807,7 +832,8 @@ int main(int argc, char* argv[]) {
                      (timeOffset < notes[i].x && timeOffset >= notes[i].x - ctr.getMinTickLen())) {
               drawFFT = true;
             }
-            if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) && !ctr.menu.mouseOnMenu()) {
+            if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) &&
+                !ctr.menu.mouseOnMenu()) {
               updateClickIndex();
             }
 
@@ -851,9 +877,10 @@ int main(int argc, char* argv[]) {
             // collision
             if (clickTmp == idx ||
                 (!foundNote && !hoverType.contains(HOVER_DIALOG) &&
-                 pointInBox(getMousePosition(),
-                            {startX - 3, static_cast<int>(ctr.getHeight() - ctr.fft.bins[bin].second - bin_len), 7,
-                             static_cast<int>(bin_len)}))) {
+                 pointInBox(
+                     getMousePosition(),
+                     {startX - 3, static_cast<int>(ctr.getHeight() - ctr.fft.bins[bin].second - bin_len), 7,
+                      static_cast<int>(bin_len)}))) {
               foundNote = true;
               cSet = colorSetOff;
               hoverType.add(HOVER_NOTE);
@@ -894,14 +921,16 @@ int main(int argc, char* argv[]) {
           const double shadow_angle = -(ctr.option.get(OPTION::SHADOW_ANGLE) + 90) * M_PI / 180;
           float shadow_off_x = -ctr.option.get(OPTION::SHADOW_DISTANCE) * cos(shadow_angle);
           float shadow_off_y = ctr.option.get(OPTION::SHADOW_DISTANCE) * sin(shadow_angle);
-          DrawTextureRec(ctr.shadow.buffer.texture,
-                         {0, 0, float(ctr.shadow.buffer.texture.width), float(-ctr.shadow.buffer.texture.height)},
-                         {shadow_off_x, shadow_off_y}, WHITE);
+          DrawTextureRec(
+              ctr.shadow.buffer.texture,
+              {0, 0, float(ctr.shadow.buffer.texture.width), float(-ctr.shadow.buffer.texture.height)},
+              {shadow_off_x, shadow_off_y}, WHITE);
           ctr.endShaderMode();
 
-          DrawTextureRec(ctr.shadow.buffer.texture,
-                         {0, 0, float(ctr.shadow.buffer.texture.width), float(-ctr.shadow.buffer.texture.height)},
-                         {0, 0}, WHITE);
+          DrawTextureRec(
+              ctr.shadow.buffer.texture,
+              {0, 0, float(ctr.shadow.buffer.texture.width), float(-ctr.shadow.buffer.texture.height)},
+              {0, 0}, WHITE);
         }
     }
 
@@ -920,9 +949,10 @@ int main(int argc, char* argv[]) {
       // stave lines
       for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 5; j++) {
-          drawLineEx(ctr.sheetSideMargin, ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth,
-                     ctr.getWidth() - ctr.sheetSideMargin,
-                     ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth, 1, ctr.bgSheetNote);
+          drawLineEx(
+              ctr.sheetSideMargin, ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth,
+              ctr.getWidth() - ctr.sheetSideMargin,
+              ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth, 1, ctr.bgSheetNote);
         }
       }
 
@@ -998,7 +1028,8 @@ int main(int argc, char* argv[]) {
       Vector2 bufText = measureTextEx(keyBuffer);
       float bufX = min(100.0f, bufText.x);
       BeginScissorMode(ctr.getWidth() - bufX - 4, ctr.getHeight() - bufText.y - 4, bufX + 4, bufText.y + 4);
-      drawRectangle(ctr.getWidth() - bufX - 4, ctr.getHeight() - bufText.y - 4, bufX + 4, bufText.y + 4, ctr.bgOpt);
+      drawRectangle(ctr.getWidth() - bufX - 4, ctr.getHeight() - bufText.y - 4, bufX + 4, bufText.y + 4,
+                    ctr.bgOpt);
       drawTextEx(keyBuffer, ctr.getWidth() - bufText.x - 2, ctr.getHeight() - bufText.y - 2, ctr.bgSheet);
       EndScissorMode();
     }
@@ -1102,8 +1133,8 @@ int main(int argc, char* argv[]) {
           break;
         }
         if (ctr.getFileType() == FILE_MKI) {
-          ctr.save(ctr.save_file.getPath(), nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
-                   colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+          ctr.save(ctr.save_file.getPath(), nowLine, showFPS, showImage, sheetMusicDisplay, measureLine,
+                   measureNumber, colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
           break;
         }
         [[fallthrough]];
@@ -1116,8 +1147,8 @@ int main(int argc, char* argv[]) {
               save_path += ".mki";
             }
 
-            ctr.save(save_path, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber, colorMode,
-                     displayMode, songTimeType, tonicOffset, zoomLevel);
+            ctr.save(save_path, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
+                     colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
             ctr.save_file.resetPending();
           }
         }
@@ -1131,7 +1162,8 @@ int main(int argc, char* argv[]) {
         ctr.setCloseFlag();
         break;
       case ACTION::SHEET:
-        editMenu.swapLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", "EDIT_MENU_ENABLE_SHEET_MUSIC", EDIT_MENU_SHEET_MUSIC);
+        editMenu.swapLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", "EDIT_MENU_ENABLE_SHEET_MUSIC",
+                           EDIT_MENU_SHEET_MUSIC);
         sheetMusicDisplay = !sheetMusicDisplay;
         ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
         break;
@@ -1448,7 +1480,8 @@ int main(int argc, char* argv[]) {
               nowLine = !nowLine;
               break;
             case VIEW_MENU_MEASURE_LINE:
-              viewMenu.swapLabel("VIEW_MENU_SHOW_MEASURE_LINE", "VIEW_MENU_HIDE_MEASURE_LINE", VIEW_MENU_MEASURE_LINE);
+              viewMenu.swapLabel("VIEW_MENU_SHOW_MEASURE_LINE", "VIEW_MENU_HIDE_MEASURE_LINE",
+                                 VIEW_MENU_MEASURE_LINE);
               measureLine = !measureLine;
               break;
             case VIEW_MENU_MEASURE_NUMBER:
@@ -1457,7 +1490,8 @@ int main(int argc, char* argv[]) {
               measureNumber = !measureNumber;
               break;
             case VIEW_MENU_BACKGROUND:
-              viewMenu.swapLabel("VIEW_MENU_SHOW_BACKGROUND", "VIEW_MENU_HIDE_BACKGROUND", VIEW_MENU_BACKGROUND);
+              viewMenu.swapLabel("VIEW_MENU_SHOW_BACKGROUND", "VIEW_MENU_HIDE_BACKGROUND",
+                                 VIEW_MENU_BACKGROUND);
               showImage = !showImage;
               break;
             case VIEW_MENU_FPS:
@@ -1738,7 +1772,8 @@ int main(int argc, char* argv[]) {
           }
           break;
       }
-      if (!hoverType.contains(HOVER_DIALOG) && !any_of(action, ACTION::PREFERENCES, ACTION::FILE_INFO, ACTION::INFO)) {
+      if (!hoverType.contains(HOVER_DIALOG) &&
+          !any_of(action, ACTION::PREFERENCES, ACTION::FILE_INFO, ACTION::INFO)) {
         ctr.dialog.clear_status();
       }
 
@@ -1774,7 +1809,8 @@ int main(int argc, char* argv[]) {
 
       if (pointInBox(getMousePosition(),
                      {static_cast<int>(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
-          !hoverType.contains(HOVER_DIALOG) && !colorSelect.render && !ctr.menu.mouseOnMenu() && !ctr.image.movable()) {
+          !hoverType.contains(HOVER_DIALOG) && !colorSelect.render && !ctr.menu.mouseOnMenu() &&
+          !ctr.image.movable()) {
         nowMove = true;
       }
       if (nowMove && nowLine) {
@@ -1829,9 +1865,9 @@ int main(int argc, char* argv[]) {
               selectType = SELECT_SHEET;
               colorSelect.setColor(ctr.bgSheet);
             }
-            else if (pointInBox(getMousePosition(),
-                                {static_cast<int>(nowLineX - 3), ctr.barHeight, 6, ctr.getHeight() - ctr.barHeight}) &&
-                     !hoverType.contains(HOVER_DIALOG)) {
+            else if (pointInBox(getMousePosition(), {static_cast<int>(nowLineX - 3), ctr.barHeight, 6,
+                                                     ctr.getHeight() - ctr.barHeight}) &&
+                     !hoverType.contains(HOVER_DIALOG) && !ctr.option.get(OPTION::NOW_LINE_USE_OVERLAY)) {
               hoverType.add(HOVER_LINE);
               selectType = SELECT_LINE;
               rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_LINE_COLOR");
