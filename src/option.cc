@@ -21,6 +21,7 @@ optionController::optionController() {
   opts[static_cast<int>(OPTION::SHADOW)] = false;
   opts[static_cast<int>(OPTION::SHADOW_DISTANCE)] = 8;
   opts[static_cast<int>(OPTION::SHADOW_ANGLE)] = 135;
+  opts[static_cast<int>(OPTION::NOW_LINE_USE_OVERLAY)] = false;
   opts[static_cast<int>(OPTION::LIMIT_FPS)] = 1;
 }
 
@@ -54,6 +55,9 @@ void optionController::invert(OPTION opt) {
       break;
     case OPTION::LIMIT_FPS:
       ctr.updateFPSCap(get(opt));
+      break;
+    case OPTION::NOW_LINE_USE_OVERLAY:
+      ctr.setShaderValue("SH_OVERLAY", "use_line_color", static_cast<int>(!opts[static_cast<int>(opt)]));
       break;
     default:
       logW(LL_WARN, "cannot invert option of type", static_cast<int>(opt));
@@ -97,6 +101,9 @@ void optionController::set(OPTION opt, int value) {
     case OPTION::SHADOW_DISTANCE:
       [[fallthrough]];
     case OPTION::SHADOW_ANGLE:
+      break;
+    case OPTION::NOW_LINE_USE_OVERLAY:
+      ctr.setShaderValue("SH_OVERLAY", "use_line_color", static_cast<int>(!opts[static_cast<int>(opt)]));
       break;
     default:
       logW(LL_WARN, "cannot modify option of type", static_cast<int>(opt));

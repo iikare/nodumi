@@ -46,3 +46,12 @@ shaderData::shaderData(const asset& item) {
 }
 
 void shaderData::unloadData() { UnloadShader(shader); }
+
+void shaderData::setShaderTexture(const string& uf, const RenderTexture& rtex) {
+  auto it = typeMap.find(uf);
+  if (it == typeMap.end()) {
+    logW(LL_WARN, name, "- attempt to modify non-existent uniform:", uf);
+    return;
+  }
+  SetShaderValueTexture(shader, GetShaderLocation(shader, uf.c_str()), rtex.texture);
+}

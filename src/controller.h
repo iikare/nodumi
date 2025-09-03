@@ -75,6 +75,11 @@ class controller {
     getShaderData(shader).setShaderValue(uf, val, num);
   }
 
+  void setShaderTexture(const string& shader, const string& uf, const RenderTexture& rtex) {
+    getShaderData(shader).setShaderTexture(uf, rtex);
+  }
+
+  const RenderTexture& getFrameBuffer() { return framebuffer; }
   void updateFrameBuffer();
 
   void toggleLivePlay();
@@ -166,6 +171,8 @@ class controller {
   voronoiController voronoi;
   fftController fft;
 
+  Texture2D nowLineTex;
+
   bool run = false;
 
   vector<colorRGB> setTrackOn;
@@ -231,6 +238,8 @@ class controller {
   void updateDroppedFiles();
 
   shaderData& getShaderData(const string& shaderIdentifier);
+
+  void updateResolution();
 
   RenderTexture framebuffer;
   stack<pair<string, pair<RenderTexture*, int>>> renderStack;

@@ -1,6 +1,7 @@
 #include "controller.h"
 
 // #include <raylib.h>
+#include <raylib.h>
 #include <stdlib.h>
 
 #include <bitset>
@@ -57,8 +58,7 @@ void controller::init(vector<asset>& assetSet) {
 
   setShaderValue("SH_VORONOI", "bg_color", bgColor2);
 
-  setShaderValue("SH_FXAA", "u_resolution", (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
-
+  updateResolution();
   shadow.init();
   voronoi.init();
   fft.updateFFTBins();
@@ -166,6 +166,18 @@ Texture2D& controller::getImage(const string& imageIdentifier) {
     // exit(1);
   }
   return it->second;
+}
+
+void controller::updateResolution() {
+  setShaderValue("SH_FXAA", "u_resolution", (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
+  setShaderValue("SH_OVERLAY", "u_resolution",
+                 (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
+  setShaderTexture("SH_OVERLAY", "texture1", framebuffer);
+
+  Image i = GenImageColor(1, getHeight(), WHITE);
+  UnloadTexture(nowLineTex);
+  nowLineTex = LoadTextureFromImage(i);
+  UnloadImage(i);
 }
 
 shaderData& controller::getShaderData(const string& shaderIdentifier) {
@@ -469,9 +481,7 @@ void controller::updateKeyState() {
 
 void controller::updateDimension(double& nowLineX) {
   if (IsWindowResized()) {
-    setShaderValue("SH_FXAA", "u_resolution",
-                   (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
-
+    updateResolution();
     updateFrameBuffer();
     shadow.update();
     voronoi.update();

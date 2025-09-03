@@ -41,6 +41,8 @@ void dialogController::init() {
   dia_opts.find(PREF::P2)->second.push_back(
       dialogOption(DIA_OPT::SUBBOX, OPTION::SET_CIE_FUNCTION, OPTION::CIE_FUNCTION,
                    ctr.text.getStringSet("PREF_CIE_FUNCTION"), {"00", "94", "76"}, convertEnum(cie_opt_vec)));
+  dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, OPTION::NOW_LINE_USE_OVERLAY,
+                                                         ctr.text.getStringSet("PREF_NOW_LINE_USE_OVERLAY")));
   dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_DISTANCE,
                                                          ctr.text.getStringSet("PREF_SHADOW"), {"0", "20"}, {0, 20}));
   dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_ANGLE,
@@ -131,7 +133,7 @@ void dialogController::renderPreference() {
   int y_sum = getItemY(0);
 
   for (auto& i : dia_opts.find(c_pref_t)->second) {
-    if (y_sum + i.get_height() > (ctr.getHeight() + ctr.prefHeight) / 2.0 + optBottomMargin) {
+    if (y_sum + i.get_height() > (ctr.getHeight() + ctr.prefHeight) / 2.0 - optBottomMargin) {
       x_sum = getItemX(1);
       y_sum = getItemY(0);
     }

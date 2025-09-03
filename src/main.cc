@@ -38,8 +38,8 @@ int main(int argc, char* argv[]) {
   SetTraceLogLevel(LOG_ERROR);
 #else
   // debug
-  SetTraceLogLevel(LOG_ERROR);
-  // SetTraceLogLevel(LOG_DEBUG);
+  // SetTraceLogLevel(LOG_ERROR);
+  SetTraceLogLevel(LOG_DEBUG);
 #endif
 
   // basic window setup
@@ -222,6 +222,7 @@ int main(int argc, char* argv[]) {
     // preprocess variables
     clickTmp = -1;
     hoverType.clear();
+    ctr.setShaderValue("SH_OVERLAY", "hover", 0);  // linked w/hoverType
     const vector<note>& notes = ctr.getNotes();
     midi& stream = ctr.getStream();
     unsigned int tl_offset = 4;
@@ -372,15 +373,20 @@ int main(int argc, char* argv[]) {
     }
 
     if (nowLine) {
-      float nowLineWidth = 1;
-      float nowLineOpacityRatio = 0.5;
       int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
       if (pointInBox(getMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) &&
           !ctr.menu.mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {
-        nowLineOpacityRatio = 1;
+        ctr.setShaderValue("SH_OVERLAY", "hover", 1);
         hoverType.add(HOVER_NOW);
       }
-      drawLineEx(nowLineX, nowLineY, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgNow, 255 * nowLineOpacityRatio);
+      ctr.beginShaderMode("SH_OVERLAY");
+      // per raylib docs, shader value texture must be re-set every time EndShaderMode() is called
+      ctr.setShaderTexture("SH_OVERLAY", "texture1", ctr.getFrameBuffer());
+      ctr.setShaderValue("SH_OVERLAY", "line_color", ctr.bgNow);
+      drawTextureEx(ctr.nowLineTex, {static_cast<float>(nowLineX), 0});
+      ctr.endShaderMode();
+      // drawLineEx(nowLineX, nowLineY, nowLineX, ctr.getHeight(), nowLineWidth, ctr.bgWhite, 255 *
+      // nowLineOpacityRatio);
     }
 
     switch (displayMode) {

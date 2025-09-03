@@ -1,5 +1,7 @@
 #pragma once
 
+#include <raylib.h>
+
 #include <algorithm>
 #include <map>
 #include <string>
@@ -22,6 +24,8 @@ class shaderData {
   shaderData(const asset& item);
 
   Shader& getShader() { return shader; }
+
+  void setShaderTexture(const string& uf, const RenderTexture& rtex);
 
   template <class T>
   void setShaderValue(const string& uf, const T& val, const int num = -1) {
