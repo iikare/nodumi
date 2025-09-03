@@ -150,7 +150,8 @@ string toMinutes(double seconds) {
 string colorToHex(const colorRGB& col) {
   stringstream result;
   result << "#";
-  result << std::hex << std::setw(6) << std::setfill('0') << ((int)col.r << 16 | (int)col.g << 8 | (int)col.b << 0);
+  result << std::hex << std::setw(6) << std::setfill('0')
+         << ((int)col.r << 16 | (int)col.g << 8 | (int)col.b << 0);
   string s = result.str();
   std::transform(s.begin(), s.end(), s.begin(), ::toupper);
   return s;
@@ -221,9 +222,9 @@ bool isValidPath(const string& path, int pathTypes...) {
 bool isValidExtension(const string& ext, int pathType) {
   switch (pathType) {
     case PATH_DATA:
-      return any_of(ext, "mid", "mki");
+      return any_of(ext, "mid", "midi", "mki");
     case PATH_IMAGE:
-      return any_of(ext, "png", "jpg");
+      return any_of(ext, "png", "jpg", "jpeg");
     case PATH_MKI:
       return ext == "mki";
     default:

@@ -43,6 +43,8 @@ void controller::init(vector<asset>& assetSet) {
 
   initData(assetSet);
 
+  SetWindowMinSize(W_WIDTH, W_HEIGHT);
+
   text.init();
 
   dialog.init();

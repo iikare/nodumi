@@ -97,8 +97,8 @@ class controller {
   vector<string> generateMenuLabels(const menuContentType& contentType);
 
   void clear();
-  void load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay, bool& measureLine,
-            bool& measureNumber,
+  void load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
+            bool& measureLine, bool& measureNumber,
 
             int& colorMode, int& displayMode,
 
@@ -147,6 +147,9 @@ class controller {
   int getMouseY() const { return getMousePosition().y; };
 
   int getSheetSize() const { return getWidth() - SHEET_LMARGIN - SHEET_RMARGIN; }
+
+  void setWidth(int w) { SetWindowSize(w, getHeight()); }
+  void setHeight(int h) { SetWindowSize(getWidth(), h); }
 
   int findCurrentMeasure(int pos) const;
 

@@ -1206,6 +1206,14 @@ int main(int argc, char* argv[]) {
           colorSelect.setColor(ctr.pendingColorValue);
         }
       } break;
+      case ACTION::RESIZE_WINDOW_WIDTH:
+        logQ(ctr.pendingActionValue);
+        ctr.setWidth(ctr.pendingActionValue);
+        break;
+      case ACTION::RESIZE_WINDOW_HEIGHT:
+        logQ(ctr.pendingActionValue);
+        ctr.setHeight(ctr.pendingActionValue);
+        break;
       case ACTION::NAV_ZOOM_IMAGE:
         if (ctr.image.exists() && showImage) {
           // defaults to ±1, adjusted depending on default image scale value

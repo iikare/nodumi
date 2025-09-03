@@ -109,6 +109,26 @@ ACTION bufferController::pending_action(bool apply_enter) {
         }
       }
     }
+    if (sbuf.substr(0, 2) == ":r") {
+      if (sbuf.size() > 3 && any_of(sbuf[2], 'w', 'h') && all_num(sbuf.substr(3))) {
+        int result = stoi(sbuf.substr(3));
+        if (sbuf[2] == 'w') {
+          if (result < W_WIDTH) {
+            logW(LL_WARN, "invalid window width -", result, "(min:", to_string(W_WIDTH) + ")");
+          }
+          ctr.pendingActionValue = max(result, W_WIDTH);
+          return ACTION::RESIZE_WINDOW_WIDTH;
+        }
+        if (sbuf[2] == 'h') {
+          if (result < W_HEIGHT - ctr.menuHeight) {
+            logW(LL_WARN, "invalid window height -", result,
+                 "(min:", to_string(W_HEIGHT - ctr.menuHeight) + ")");
+          }
+          ctr.pendingActionValue = max(result, W_HEIGHT);
+          return ACTION::RESIZE_WINDOW_HEIGHT;
+        }
+      }
+    }
     if (sbuf.size() == 7 && sbuf[0] == '#') {
       if (all_hex(sbuf.substr(1))) {
         ctr.pendingColorValue = sbuf;
@@ -117,7 +137,7 @@ ACTION bufferController::pending_action(bool apply_enter) {
     }
   }
 
-  if (sbuf.length() > 1 && sbuf[0] != '#' && any_of(sbuf.back(), 'G', 'w', 'b')) {
+  if (sbuf.length() > 1 && sbuf[0] != '#' && sbuf != ":rw" && any_of(sbuf.back(), 'G', 'w', 'b')) {
     clear();
     if (all_num(sbuf.substr(0, sbuf.size() - 1))) {
       if (sbuf.size() < 11) {

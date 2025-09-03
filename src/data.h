@@ -32,7 +32,7 @@
 #define GLYPH_FONT "LELAND"
 #define TEXT_SPACING 0
 
-#define FILTER_FILE "midi/mki:mid,mki"
+#define FILTER_FILE "midi/mki:mid,midi,mki"
 #define FILTER_IMAGE "image:png,jpeg,jpg"
 #define FILTER_SAVE "mki:mki"
 

@@ -191,7 +191,8 @@ enum class ACTION {
   LIVEPLAY,
   CHANGE_MODE,
   SET_COLOR,
-  RESIZE_WINDOW,
+  RESIZE_WINDOW_WIDTH,
+  RESIZE_WINDOW_HEIGHT,
   NAV_HOME,         // gg
   NAV_END,          // G
   NAV_SET_MEASURE,  // #G
