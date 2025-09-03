@@ -169,7 +169,8 @@ Texture2D& controller::getImage(const string& imageIdentifier) {
 }
 
 void controller::updateResolution() {
-  setShaderValue("SH_FXAA", "u_resolution", (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
+  setShaderValue("SH_FXAA", "u_resolution",
+                 (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
   setShaderValue("SH_OVERLAY", "u_resolution",
                  (Vector2){static_cast<float>(getWidth()), static_cast<float>(getHeight())});
   setShaderTexture("SH_OVERLAY", "texture1", framebuffer);
@@ -189,7 +190,9 @@ shaderData& controller::getShaderData(const string& shaderIdentifier) {
   return it->second;
 }
 
-Shader& controller::getShader(const string& shaderIdentifier) { return getShaderData(shaderIdentifier).getShader(); }
+Shader& controller::getShader(const string& shaderIdentifier) {
+  return getShaderData(shaderIdentifier).getShader();
+}
 
 void controller::unloadData() {
   for (const auto& item : fontMap) {
@@ -284,12 +287,14 @@ controller::process(ACTION action) {
       return ACTION::FILE_INFO;
     }
 
-    if (isKeyPressed(KEY_ONE, KEY_TWO, KEY_THREE, KEY_FOUR, KEY_FIVE, KEY_SIX, KEY_SEVEN, KEY_EIGHT, KEY_NINE)) {
+    if (isKeyPressed(KEY_ONE, KEY_TWO, KEY_THREE, KEY_FOUR, KEY_FIVE, KEY_SIX, KEY_SEVEN, KEY_EIGHT,
+                     KEY_NINE)) {
       return ACTION::CHANGE_MODE;
     }
   }
 
-  if ((isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) && GetMouseWheelMove() != 0) {
+  if ((isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) &&
+      GetMouseWheelMove() != 0) {
     return ACTION::NAV_ZOOM_IMAGE;
   }
   if ((!isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL, KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT)) &&
@@ -353,8 +358,8 @@ void controller::beginFrame() {
 
 void controller::endFrame() {
   popTextureMode();
-  drawTexturePro(framebuffer.texture, {0, 0, ctr.getWidth(), -ctr.getHeight()}, {0, 0, ctr.getWidth(), ctr.getHeight()},
-                 {0.0f, 0.0f}, 0.0f);
+  drawTexturePro(framebuffer.texture, {0, 0, ctr.getWidth(), -ctr.getHeight()},
+                 {0, 0, ctr.getWidth(), ctr.getHeight()}, {0.0f, 0.0f}, 0.0f);
 
   EndDrawing();
 }
@@ -581,7 +586,8 @@ void controller::criticalSection(bool enter) {
 
 void controller::optimizeBGColor(bool invert) {
   // invert exists only for when a option switch is pending, but not yet done
-  bgColor2 = (invert ^ static_cast<bool>(option.get(OPTION::DYNAMIC_LABEL))) ? maximizeDeltaE(bgColor) : bgLight;
+  bgColor2 =
+      (invert ^ static_cast<bool>(option.get(OPTION::DYNAMIC_LABEL))) ? maximizeDeltaE(bgColor) : bgLight;
 }
 
 vector<colorRGB>& controller::findColorSet(int colorMode, bool on) {
@@ -603,34 +609,39 @@ vector<colorRGB>& controller::findColorSet(int colorMode, bool on) {
 vector<string> controller::generateMenuLabels(const menuContentType& contentType) {
   switch (contentType) {
     case CONTENT_FILE:
-      return text.getStringSet("FILE_MENU_FILE", "FILE_MENU_OPEN_FILE", "FILE_MENU_OPEN_IMAGE", "FILE_MENU_SAVE",
-                               "FILE_MENU_SAVE_AS", "FILE_MENU_CLOSE_FILE", "FILE_MENU_CLOSE_IMAGE", "FILE_MENU_RELOAD",
-                               "FILE_MENU_EXIT");
+      return text.getStringSet("FILE_MENU_FILE", "FILE_MENU_OPEN_FILE", "FILE_MENU_OPEN_IMAGE",
+                               "FILE_MENU_SAVE", "FILE_MENU_SAVE_AS", "FILE_MENU_CLOSE_FILE",
+                               "FILE_MENU_CLOSE_IMAGE", "FILE_MENU_RELOAD", "FILE_MENU_EXIT");
     case CONTENT_EDIT:
       return text.getStringSet("EDIT_MENU_EDIT", "EDIT_MENU_ENABLE_SHEET_MUSIC", "EDIT_MENU_PREFERENCES");
     case CONTENT_VIEW:
       return text.getStringSet("VIEW_MENU_VIEW", "VIEW_MENU_DISPLAY_MODE", "VIEW_MENU_DISPLAY_SONG_TIME",
-                               "VIEW_MENU_SHOW_KEY_SIGNATURE", "VIEW_MENU_SHOW_TEMPO", "VIEW_MENU_HIDE_NOW_LINE",
-                               "VIEW_MENU_HIDE_MEASURE_LINE", "VIEW_MENU_HIDE_MEASURE_NUMBER",
-                               "VIEW_MENU_HIDE_BACKGROUND", "VIEW_MENU_HIDE_FPS");
+                               "VIEW_MENU_SHOW_KEY_SIGNATURE", "VIEW_MENU_SHOW_TEMPO",
+                               "VIEW_MENU_HIDE_NOW_LINE", "VIEW_MENU_HIDE_MEASURE_LINE",
+                               "VIEW_MENU_HIDE_MEASURE_NUMBER", "VIEW_MENU_HIDE_BACKGROUND",
+                               "VIEW_MENU_HIDE_FPS");
     case CONTENT_DISPLAY:
-      return text.getStringSet("DISPLAY_MENU_DEFAULT", "DISPLAY_MENU_LINE", "DISPLAY_MENU_PULSE", "DISPLAY_MENU_BALL",
-                               "DISPLAY_MENU_FFT", "DISPLAY_MENU_VORONOI", "DISPLAY_MENU_LOOP");
+      return text.getStringSet("DISPLAY_MENU_DEFAULT", "DISPLAY_MENU_LINE", "DISPLAY_MENU_PULSE",
+                               "DISPLAY_MENU_BALL", "DISPLAY_MENU_FFT", "DISPLAY_MENU_VORONOI",
+                               "DISPLAY_MENU_LOOP");
     case CONTENT_SONG:
       return text.getStringSet("SONG_MENU_RELATIVE", "SONG_MENU_ABSOLUTE");
     case CONTENT_MIDI:
-      return text.getStringSet("MIDI_MENU_MIDI", "MIDI_MENU_INPUT", "MIDI_MENU_OUTPUT", "MIDI_MENU_ENABLE_LIVE_PLAY");
+      return text.getStringSet("MIDI_MENU_MIDI", "MIDI_MENU_INPUT", "MIDI_MENU_OUTPUT",
+                               "MIDI_MENU_ENABLE_LIVE_PLAY");
     case CONTENT_INPUT:
       return {""};
     case CONTENT_OUTPUT:
       return {""};
     case CONTENT_COLOR:
       return text.getStringSet("COLOR_MENU_COLOR", "COLOR_MENU_COLOR_BY", "COLOR_MENU_COLOR_SCHEME",
-                               "COLOR_MENU_SWAP_COLORS", "COLOR_MENU_CYCLE_COLORS", "COLOR_MENU_INVERT_COLOR_SCHEME");
+                               "COLOR_MENU_SWAP_COLORS", "COLOR_MENU_CYCLE_COLORS",
+                               "COLOR_MENU_INVERT_COLOR_SCHEME");
     case CONTENT_SCHEME:
       return text.getStringSet("SCHEME_MENU_PART", "SCHEME_MENU_VELOCITY", "SCHEME_MENU_TONIC");
     case CONTENT_INFO:
-      return text.getStringSet("INFO_MENU_INFO", "INFO_MENU_PROGRAM_INFO", "INFO_MENU_FILE_INFO", "INFO_MENU_HELP");
+      return text.getStringSet("INFO_MENU_INFO", "INFO_MENU_PROGRAM_INFO", "INFO_MENU_FILE_INFO",
+                               "INFO_MENU_HELP");
     case CONTENT_PALETTE:
       return text.getStringSet("PALETTE_MENU_DEFAULT", "PALETTE_MENU_FROM_BACKGROUND");
     case CONTENT_RIGHT:
@@ -1139,8 +1150,8 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
   debug_time(start, "load");
 }
 
-void controller::save(string path, bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay, bool measureLine,
-                      bool measureNumber,
+void controller::save(string path, bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay,
+                      bool measureLine, bool measureNumber,
 
                       int colorMode, int displayMode,
 
@@ -1366,6 +1377,7 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
 void controller::setCloseFlag() {
   programState = false;
   fileOutput.terminate();
+  UnloadTexture(nowLineTex);
 }
 
 int controller::getRandRange(int a, int b) {
