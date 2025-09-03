@@ -38,8 +38,8 @@ int main(int argc, char* argv[]) {
   SetTraceLogLevel(LOG_ERROR);
 #else
   // debug
-  // SetTraceLogLevel(LOG_ERROR);
-  SetTraceLogLevel(LOG_DEBUG);
+  SetTraceLogLevel(LOG_ERROR);
+  // SetTraceLogLevel(LOG_DEBUG);
 #endif
 
   // basic window setup
@@ -49,7 +49,8 @@ int main(int argc, char* argv[]) {
 #if defined(TARGET_WIN)
   SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
 #else
-  SetConfigFlags(FLAG_MSAA_4X_HINT);
+  SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
+  // SetConfigFlags(FLAG_MSAA_4X_HINT);
 #endif
 
   InitWindow(W_WIDTH, W_HEIGHT, windowTitle.c_str());
@@ -1866,7 +1867,7 @@ int main(int argc, char* argv[]) {
             }
             else if (pointInBox(getMousePosition(), {static_cast<int>(nowLineX - 3), ctr.barHeight, 6,
                                                      ctr.getHeight() - ctr.barHeight}) &&
-                     !hoverType.contains(HOVER_DIALOG) && !ctr.option.get(OPTION::NOW_LINE_USE_OVERLAY)) {
+                     !hoverType.contains(HOVER_DIALOG)) {
               hoverType.add(HOVER_LINE);
               selectType = SELECT_LINE;
               rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_LINE_COLOR");
@@ -1897,7 +1898,7 @@ int main(int argc, char* argv[]) {
                 rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_REMOVE_IMAGE");
                 // logQ("rightclicked on image");
               }
-              else if (!hoverType.contains(HOVER_DIALOG) && !ctr.option.get(OPTION::NOW_LINE_USE_OVERLAY)) {
+              else if (!hoverType.contains(HOVER_DIALOG)) {
                 selectType = SELECT_BG;
                 rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_COLOR");
                 colorSelect.setColor(ctr.bgColor);

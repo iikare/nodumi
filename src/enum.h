@@ -12,7 +12,9 @@ using std::vector;
 template <class T>
 class enumChecker {
  public:
-  enumChecker() : items(0), itemsLastFrame(0) { static_assert(is_enum<T>::value, "class requires an enum type"); }
+  enumChecker() : items(0), itemsLastFrame(0) {
+    static_assert(is_enum<T>::value, "class requires an enum type");
+  }
 
   void add(T item) {
     if (!contains(item)) {
@@ -189,6 +191,7 @@ enum class ACTION {
   LIVEPLAY,
   CHANGE_MODE,
   SET_COLOR,
+  RESIZE_WINDOW,
   NAV_HOME,         // gg
   NAV_END,          // G
   NAV_SET_MEASURE,  // #G

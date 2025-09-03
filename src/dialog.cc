@@ -19,15 +19,15 @@ void dialogController::init() {
     dia_opts.insert(make_pair(static_cast<PREF>(n), vector<dialogOption>{}));
   }
 
+  dia_opts.find(PREF::P1)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, OPTION::SCALE_VELOCITY,
+                                                         ctr.text.getStringSet("PREF_SCALE_VELOCITY")));
+  dia_opts.find(PREF::P1)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, OPTION::TRACK_DIVISION_MIDI,
+                                                         ctr.text.getStringSet("PREF_TRACK_DIVIDE_MIDI")));
+  dia_opts.find(PREF::P1)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, OPTION::TRACK_DIVISION_LIVE,
+                                                         ctr.text.getStringSet("PREF_TRACK_DIVIDE_LIVE")));
   dia_opts.find(PREF::P1)->second.push_back(
-      dialogOption(DIA_OPT::CHECK_ONLY, OPTION::SCALE_VELOCITY, ctr.text.getStringSet("PREF_SCALE_VELOCITY")));
-  dia_opts.find(PREF::P1)->second.push_back(
-      dialogOption(DIA_OPT::CHECK_ONLY, OPTION::TRACK_DIVISION_MIDI, ctr.text.getStringSet("PREF_TRACK_DIVIDE_MIDI")));
-  dia_opts.find(PREF::P1)->second.push_back(
-      dialogOption(DIA_OPT::CHECK_ONLY, OPTION::TRACK_DIVISION_LIVE, ctr.text.getStringSet("PREF_TRACK_DIVIDE_LIVE")));
-  dia_opts.find(PREF::P1)->second.push_back(dialogOption(DIA_OPT::SUBBOX, OPTION::SET_HAND_RANGE, OPTION::HAND_RANGE,
-                                                         ctr.text.getStringSet("PREF_HAND_RANGE"),
-                                                         {"8", "9", "10", "11"}, {12, 14, 16, 17}));
+      dialogOption(DIA_OPT::SUBBOX, OPTION::SET_HAND_RANGE, OPTION::HAND_RANGE,
+                   ctr.text.getStringSet("PREF_HAND_RANGE"), {"8", "9", "10", "11"}, {12, 14, 16, 17}));
   dia_opts.find(PREF::P1)->second.push_back(
       dialogOption(DIA_OPT::CHECK_ONLY, OPTION::LIMIT_FPS, ctr.text.getStringSet("PREF_LIMIT_FPS")));
   dia_opts.find(PREF::P2)->second.push_back(
@@ -41,13 +41,14 @@ void dialogController::init() {
   dia_opts.find(PREF::P2)->second.push_back(
       dialogOption(DIA_OPT::SUBBOX, OPTION::SET_CIE_FUNCTION, OPTION::CIE_FUNCTION,
                    ctr.text.getStringSet("PREF_CIE_FUNCTION"), {"00", "94", "76"}, convertEnum(cie_opt_vec)));
+  dia_opts.find(PREF::P2)->second.push_back(
+      dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_DISTANCE,
+                   ctr.text.getStringSet("PREF_SHADOW"), {"0", "20"}, {0, 20}));
+  dia_opts.find(PREF::P2)->second.push_back(
+      dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_ANGLE, ctr.text.getStringSet("PREF_ANGLE"),
+                   {"0", "360"}, {0, 360}, true));
   dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, OPTION::NOW_LINE_USE_OVERLAY,
                                                          ctr.text.getStringSet("PREF_NOW_LINE_USE_OVERLAY")));
-  dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_DISTANCE,
-                                                         ctr.text.getStringSet("PREF_SHADOW"), {"0", "20"}, {0, 20}));
-  dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_ANGLE,
-                                                         ctr.text.getStringSet("PREF_ANGLE"), {"0", "360"}, {0, 360},
-                                                         true));
 }
 
 void dialogController::render() {
@@ -104,8 +105,8 @@ void dialogController::renderPreference() {
   drawRectangle(prefSideMargin / 2.0f, prefTopMargin / 2.0f, ctr.prefWidth, ctr.prefHeight, ctr.bgMenu);
 
   const int pref_fsize = 25;
-  drawTextEx(ctr.text.getString("PREF_LABEL"), prefSideMargin / 2.0f + 12, prefTopMargin / 2.0f + 12, ctr.bgDark, 255,
-             pref_fsize);
+  drawTextEx(ctr.text.getString("PREF_LABEL"), prefSideMargin / 2.0f + 12, prefTopMargin / 2.0f + 12,
+             ctr.bgDark, 255, pref_fsize);
 
   string menu_label = ctr.text.getString(dia_menu_label.find(c_pref_t)->second);
   // Vector2 menu_label_size = measureTextEx(menu_label);
@@ -122,8 +123,9 @@ void dialogController::renderPreference() {
 
     drawRectangleLines(in_x, in_y, itemRectSize, itemRectSize, 3, col);
     if (active) {
-      drawRectangle(in_x + (itemRectSize - itemRectInnerSize) / 2.0f, in_y + (itemRectSize - itemRectInnerSize) / 2.0f,
-                    itemRectInnerSize, itemRectInnerSize, col);
+      drawRectangle(in_x + (itemRectSize - itemRectInnerSize) / 2.0f,
+                    in_y + (itemRectSize - itemRectInnerSize) / 2.0f, itemRectInnerSize, itemRectInnerSize,
+                    col);
     }
     in_x += itemRectSize + 3;
   }
@@ -215,17 +217,19 @@ void dialogController::renderInfo() {
 
   Vector2 iconTextVec = measureTextEx(W_NAME, iconTextSize);
   double iconTextHeight = iconTextVec.y;
-  double iconBoxWidth = iconTextVec.x + ctr.getImage("ICON").width * iconScale + borderMargin * 2 - iconTextAdjust;
+  double iconBoxWidth =
+      iconTextVec.x + ctr.getImage("ICON").width * iconScale + borderMargin * 2 - iconTextAdjust;
   // double iconBoxHeight = ctr.getImage("ICON").height*iconScale +
   // borderMargin;
   double iconTextX = infoSideMargin / 2.0f + (ctr.infoWidth - iconBoxWidth) / 2.0f +
                      ctr.getImage("ICON").width * iconScale + borderMargin - iconTextAdjust;
-  double iconTextY =
-      infoTopMargin / 2.0f + ctr.getImage("ICON").height * iconScale / 2.0f + borderMargin - iconTextHeight / 2.0f;
+  double iconTextY = infoTopMargin / 2.0f + ctr.getImage("ICON").height * iconScale / 2.0f + borderMargin -
+                     iconTextHeight / 2.0f;
 
   drawTextEx(W_NAME, iconTextX, iconTextY, ctr.bgIcon, 255, iconTextSize);
-  Vector2 iconPos = {static_cast<float>(infoSideMargin / 2.0f + (ctr.infoWidth - iconBoxWidth) / 2.0f + borderMargin),
-                     static_cast<float>(infoTopMargin / 2.0f + borderMargin)};
+  Vector2 iconPos = {
+      static_cast<float>(infoSideMargin / 2.0f + (ctr.infoWidth - iconBoxWidth) / 2.0f + borderMargin),
+      static_cast<float>(infoTopMargin / 2.0f + borderMargin)};
   drawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3);
 
   double copySymWidth = measureTextEx(copySym, copySymSize).x;
@@ -233,8 +237,9 @@ void dialogController::renderInfo() {
   double copyHeight = measureTextEx(copy).y;
   double licenseWidth = measureTextEx(ctr.text.getString("INFO_BOX_LICENSE_GPL3")).x;
 
-  drawTextEx(ctr.text.getString("INFO_BOX_BUILD_DATE") + " " + string(BUILD_DATE), infoSideMargin / 2.0f + borderMargin,
-             infoTopMargin / 2.0f + ctr.infoHeight - borderMargin - 20, ctr.bgDark);
+  drawTextEx(ctr.text.getString("INFO_BOX_BUILD_DATE") + " " + string(BUILD_DATE),
+             infoSideMargin / 2.0f + borderMargin, infoTopMargin / 2.0f + ctr.infoHeight - borderMargin - 20,
+             ctr.bgDark);
 
   auto versionString = ctr.text.getString("INFO_BOX_VER") + " " + string(W_VER);
 #if !defined(TARGET_REL)

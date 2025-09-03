@@ -8,7 +8,8 @@
 
 dialogOption::dialogOption(DIA_OPT t, OPTION opt_t, const vector<string>& label) {
   if (t != DIA_OPT::CHECK_ONLY) {
-    logW(LL_CRIT, "invalid constructor for dialog option of type", t, "- expecting type", DIA_OPT::CHECK_ONLY);
+    logW(LL_CRIT, "invalid constructor for dialog option of type", t, "- expecting type",
+         DIA_OPT::CHECK_ONLY);
     return;
   }
   type = t;
@@ -24,8 +25,8 @@ dialogOption::dialogOption(DIA_OPT t, OPTION opt_t, const vector<string>& label)
 dialogOption::dialogOption(DIA_OPT t, OPTION opt_t, OPTION sub_opt_t, const vector<string>& label,
                            const vector<string>& val, const vector<int>& res, bool skip_main_box) {
   if (!any_of(t, DIA_OPT::SUBBOX, DIA_OPT::SLIDER)) {
-    logW(LL_CRIT, "invalid constructor for dialog option of type", t, "- expecting types", DIA_OPT::SUBBOX, "or",
-         DIA_OPT::SLIDER);
+    logW(LL_CRIT, "invalid constructor for dialog option of type", t, "- expecting types", DIA_OPT::SUBBOX,
+         "or", DIA_OPT::SLIDER);
     return;
   }
 
@@ -52,7 +53,7 @@ void dialogOption::process() {
   if (ctr.option.invalid(link_opt)) {
     return;
   }
-  if (pointInBox(getMousePosition(), {x, y, itemRectSize, itemRectSize})) {
+  if (!skip_main_box && pointInBox(getMousePosition(), {x, y, itemRectSize, itemRectSize})) {
     ctr.option.invert(link_opt);
   }
 
@@ -71,7 +72,8 @@ void dialogOption::process() {
     constexpr int w = sliderLineSize;
     constexpr int y_space = sliderBoxSize / 2;
 
-    if (pointInBox(getMousePosition(), {x_start - y_space, y_start - y_space + 10, w + 2 * y_space, 2 * y_space})) {
+    if (pointInBox(getMousePosition(),
+                   {x_start - y_space, y_start - y_space + 10, w + 2 * y_space, 2 * y_space})) {
       sliderActive = true;
 
       updateSliderValue();
@@ -87,9 +89,9 @@ int dialogOption::get_height() {
     case CHECK_ONLY:
       return itemRectSize + 4;
     case SUBBOX:
-      [[fallthrough]];
-    case SLIDER:
       return itemRectSize + 4 + boxW + 4;
+    case SLIDER:
+      return itemRectSize + 4 + boxW + 4 + (skip_main_box ? -8 - 40 : -8);
     default:
       return 0;
   }
@@ -113,8 +115,9 @@ void dialogOption::render(int in_x, int in_y) {
   }
 
   if (opt_status && !skip_main_box) {
-    drawRectangle(in_x + (itemRectSize - itemRectInnerSize) / 2.0f, in_y + (itemRectSize - itemRectInnerSize) / 2.0f,
-                  itemRectInnerSize, itemRectInnerSize, col);
+    drawRectangle(in_x + (itemRectSize - itemRectInnerSize) / 2.0f,
+                  in_y + (itemRectSize - itemRectInnerSize) / 2.0f, itemRectInnerSize, itemRectInnerSize,
+                  col);
   }
   switch (type) {
     using enum DIA_OPT;
@@ -130,7 +133,7 @@ void dialogOption::render(int in_x, int in_y) {
 
   if (!skip_main_box) {
     // first element must exist
-    drawTextEx(text[0], in_x + itemRectSize + 4, in_y + 6, ctr.bgDark, 255, itemFontSize);
+    drawTextEx(text[0], in_x + itemRectSize + 4, in_y + 5, ctr.bgDark, 255, itemFontSize);
   }
 }
 
@@ -192,7 +195,8 @@ void dialogOption::renderSlider() {
     const int x_space = i * w / n_div;
     constexpr int y_space = sliderLineDashSize;
 
-    drawLineEx(x_start + x_space, y_start - y_space, x_start + x_space, y_start + y_space, 2, ctr.bgMenuShade);
+    drawLineEx(x_start + x_space, y_start - y_space, x_start + x_space, y_start + y_space, 2,
+               ctr.bgMenuShade);
   }
   float p_ratio = static_cast<float>(sub_opt_value) / (result[1] - result[0]);
   constexpr int p_size = sliderBoxSize;
