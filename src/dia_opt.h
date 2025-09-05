@@ -18,8 +18,12 @@ class dialogOption {
   dialogOption(DIA_OPT t, OPTION opt_t, const vector<string>& label);
 
   // check box with subboxes OR slider
-  dialogOption(DIA_OPT t, OPTION opt_t, OPTION sub_opt_t, const vector<string>& label, const vector<string>& val,
-               const vector<int>& res, bool skip_main_box = false);
+  dialogOption(DIA_OPT t, OPTION opt_t, OPTION sub_opt_t, const vector<string>& label,
+               const vector<string>& val, const vector<int>& res);
+
+  // multiple sliders (implicitly slider w/one parent condition)
+  dialogOption(OPTION opt_t, vector<OPTION> sub_opts_t, const vector<string>& label,
+               const vector<pair<string, string>>& val, const vector<pair<int, int>>& res);
 
   void render(int in_x, int in_y);
 
@@ -32,14 +36,15 @@ class dialogOption {
   void renderBox();
   void renderSlider();
 
-  void updateSliderValue();
+  void updateSliderValue(int index = -1);
 
   DIA_OPT type;
   OPTION link_opt;
   OPTION link_sub_opt;
+  vector<OPTION> link_sub_opt_set;
 
   bool sliderActive = false;
-  bool skip_main_box = false;
+  int sliderIndex = -1;
 
   int x = 0;
   int y = 0;
@@ -47,6 +52,9 @@ class dialogOption {
   vector<string> text;
   vector<string> value;
   vector<int> result;
+
+  vector<pair<string, string>> value_set;
+  vector<pair<int, int>> result_set;
 
   static constexpr int itemRectSize = 24;
   static constexpr int itemRectInnerSize = 12;
@@ -60,4 +68,5 @@ class dialogOption {
   static constexpr int sliderLineSize = 180;
   static constexpr int sliderLineDashSize = 4;
   static constexpr int sliderBoxSize = 12;
+  static constexpr int sliderVerticalSpacing = 20;
 };

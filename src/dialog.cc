@@ -18,6 +18,7 @@ void dialogController::init() {
   for (unsigned int n = 0; n < static_cast<int>(PREF::NONE); ++n) {
     dia_opts.insert(make_pair(static_cast<PREF>(n), vector<dialogOption>{}));
   }
+  dialog_status.resize(static_cast<int>(PREF::NONE), false);
 
   dia_opts.find(PREF::P1)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, OPTION::SCALE_VELOCITY,
                                                          ctr.text.getStringSet("PREF_SCALE_VELOCITY")));
@@ -34,21 +35,19 @@ void dialogController::init() {
       dialogOption(DIA_OPT::CHECK_ONLY, OPTION::PARTICLE, ctr.text.getStringSet("PREF_PARTICLE")));
   dia_opts.find(PREF::P2)->second.push_back(
       dialogOption(DIA_OPT::CHECK_ONLY, OPTION::DYNAMIC_LABEL, ctr.text.getStringSet("PREF_DYNAMIC_LABEL")));
-  dia_opts.find(PREF::P2)->second.push_back(
-      dialogOption(DIA_OPT::SLIDER, OPTION::SET_DARKEN_IMAGE, OPTION::DARKEN_IMAGE,
-                   ctr.text.getStringSet("PREF_IMAGE_DARKEN"), {"0", "255"}, {0, 255}));
-  auto cie_opt_vec = vector<cie2k::TYPE>{cie2k::TYPE::CIE_00, cie2k::TYPE::CIE_94, cie2k::TYPE::CIE_76};
-  dia_opts.find(PREF::P2)->second.push_back(
-      dialogOption(DIA_OPT::SUBBOX, OPTION::SET_CIE_FUNCTION, OPTION::CIE_FUNCTION,
-                   ctr.text.getStringSet("PREF_CIE_FUNCTION"), {"00", "94", "76"}, convertEnum(cie_opt_vec)));
-  dia_opts.find(PREF::P2)->second.push_back(
-      dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_DISTANCE,
-                   ctr.text.getStringSet("PREF_SHADOW"), {"0", "20"}, {0, 20}));
-  dia_opts.find(PREF::P2)->second.push_back(
-      dialogOption(DIA_OPT::SLIDER, OPTION::SHADOW, OPTION::SHADOW_ANGLE, ctr.text.getStringSet("PREF_ANGLE"),
-                   {"0", "360"}, {0, 360}, true));
+  dia_opts.find(PREF::P2)->second.push_back(dialogOption(
+      OPTION::SHADOW, {OPTION::SHADOW_DISTANCE, OPTION::SHADOW_ANGLE},
+      ctr.text.getStringSet("PREF_SHADOW", "PREF_ANGLE"), {{"0", "20"}, {"0", "360"}}, {{0, 20}, {0, 360}}));
   dia_opts.find(PREF::P2)->second.push_back(dialogOption(DIA_OPT::CHECK_ONLY, OPTION::NOW_LINE_USE_OVERLAY,
                                                          ctr.text.getStringSet("PREF_NOW_LINE_USE_OVERLAY")));
+
+  dia_opts.find(PREF::P3)->second.push_back(dialogOption(OPTION::SET_DARKEN_IMAGE, {OPTION::DARKEN_IMAGE},
+                                                         ctr.text.getStringSet("PREF_IMAGE_DARKEN"),
+                                                         {{"0", "255"}}, {{0, 255}}));
+  auto cie_opt_vec = vector<cie2k::TYPE>{cie2k::TYPE::CIE_00, cie2k::TYPE::CIE_94, cie2k::TYPE::CIE_76};
+  dia_opts.find(PREF::P3)->second.push_back(
+      dialogOption(DIA_OPT::SUBBOX, OPTION::SET_CIE_FUNCTION, OPTION::CIE_FUNCTION,
+                   ctr.text.getStringSet("PREF_CIE_FUNCTION"), {"00", "94", "76"}, convertEnum(cie_opt_vec)));
 }
 
 void dialogController::render() {

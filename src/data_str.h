@@ -78,6 +78,7 @@
                         {"PREF_LABEL",                          "Preferences"}, \
                         {"PREF_P1",                             "Display"}, \
                         {"PREF_P2",                             "Effects"}, \
+                        {"PREF_P3",                             "Image"}, \
                         {"PREF_TRACK_DIVIDE_LIVE",              "Adaptive Track Division (live)"}, \
                         {"PREF_TRACK_DIVIDE_MIDI",              "Adaptive Track Division (file)"}, \
                         {"PREF_HAND_RANGE",                     "Custom Hand Range"}, \

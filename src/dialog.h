@@ -35,9 +35,10 @@ class dialogController {
   unordered_map<PREF, string> dia_menu_label = {
       {PREF::P1, "PREF_P1"},
       {PREF::P2, "PREF_P2"},
+      {PREF::P3, "PREF_P3"},
   };
 
-  vector<bool> dialog_status = {false, false, false};
+  vector<bool> dialog_status = {};
 
   void renderPreference();
   void renderFile();

@@ -236,7 +236,7 @@ enum class langType {
   LANG_NONE,
 };
 
-enum class PREF { P1, P2, NONE };
+enum class PREF { P1, P2, P3, NONE };
 
 enum class DIALOG { PREFERENCES = 0, FILE = 1, INFO = 2, NONE = -1 };
 
