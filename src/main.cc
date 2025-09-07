@@ -37,10 +37,9 @@ int main(int argc, char* argv[]) {
 #if defined(TARGET_REL)
   SetTraceLogLevel(LOG_ERROR);
 #else
-  // debug
-  // SetTraceLogLevel(LOG_ERROR);
-  SetTraceLogLevel(LOG_DEBUG);
-  // SetTraceLogLevel(LOG_TRACE);
+  SetTraceLogLevel(LOG_ERROR);
+  // SetTraceLogLevel(LOG_DEBUG);
+  //  SetTraceLogLevel(LOG_TRACE);
 #endif
 
   // basic window setup

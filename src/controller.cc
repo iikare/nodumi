@@ -870,7 +870,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     int mki_major = static_cast<int>((byteBuf >> 4) & 0b00001111);
     char mki_minor = 96 + static_cast<char>(byteBuf & 0b00001111);
     string mki_ver_string = to_string(mki_major) + mki_minor;
-    logW(LL_INFO, "MKI v.", mki_ver_string);
+    logW(LL_INFO, "MKI v" + mki_ver_string);
 
     // 0x01
     readByte();
@@ -1380,6 +1380,7 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
 
   fType = FILE_MKI;
   fPath = path;
+  logW(LL_INFO, "save MKI:", path);
 }
 
 void controller::setCloseFlag() {
