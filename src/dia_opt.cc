@@ -91,7 +91,7 @@ void dialogOption::process() {
     int y_space = sliderBoxSize / 2;
 
     for (unsigned int i = 0; i < result_set.size(); ++i) {
-      y_start += i * sliderVerticalSpacing;
+      y_start += (i > 0) * sliderVerticalSpacing;
       if (pointInBox(getMousePosition(),
                      {x_start - y_space, y_start - y_space + 10, w + 2 * y_space, 2 * y_space})) {
         sliderActive = true;
@@ -208,7 +208,7 @@ void dialogOption::renderSlider() {
   for (unsigned int i = 0; i < result_set.size(); ++i) {
     int sub_opt_value = ctr.option.get(link_sub_opt_set[i]);
 
-    y_start += i * sliderVerticalSpacing;
+    y_start += (i > 0) * sliderVerticalSpacing;
 
     constexpr int w = sliderLineSize;
 

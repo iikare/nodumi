@@ -90,6 +90,7 @@
                         {"PREF_SHADOW",                         "Enable Drop Shadow"}, \
                         {"PREF_ANGLE",                          "Shadow Angle"}, \
                         {"PREF_NOW_LINE_USE_OVERLAY",           "Enable Overlay Blend Mode"}, \
+                        {"PREF_LEVEL_CONTROL",                  "Enable Level Control (RGB)"}, \
                         {"PREF_LIMIT_FPS",                      "Limit FPS"}, \
                         {"FILE_INFO_LABEL",                     "Information"}, \
                         {"FILE_TYPE",                           "Format"}, \

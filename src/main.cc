@@ -38,8 +38,9 @@ int main(int argc, char* argv[]) {
   SetTraceLogLevel(LOG_ERROR);
 #else
   // debug
-  SetTraceLogLevel(LOG_ERROR);
-  // SetTraceLogLevel(LOG_DEBUG);
+  // SetTraceLogLevel(LOG_ERROR);
+  SetTraceLogLevel(LOG_DEBUG);
+  // SetTraceLogLevel(LOG_TRACE);
 #endif
 
   // basic window setup

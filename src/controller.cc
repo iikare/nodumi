@@ -58,6 +58,13 @@ void controller::init(vector<asset>& assetSet) {
 
   setShaderValue("SH_VORONOI", "bg_color", bgColor2);
 
+  setShaderValue("SH_LEVEL", "use_bw", 0);
+  setShaderValue("SH_LEVEL", "use_rgb", 0);
+  setShaderValue("SH_LEVEL", "thr_bw", 1.0f);
+  setShaderValue("SH_LEVEL", "thr_r", 1.0f);
+  setShaderValue("SH_LEVEL", "thr_g", 1.0f);
+  setShaderValue("SH_LEVEL", "thr_b", 1.0f);
+
   updateResolution();
   shadow.init();
   voronoi.init();

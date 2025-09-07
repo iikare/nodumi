@@ -31,6 +31,7 @@ void dialogController::init() {
                    ctr.text.getStringSet("PREF_HAND_RANGE"), {"8", "9", "10", "11"}, {12, 14, 16, 17}));
   dia_opts.find(PREF::P1)->second.push_back(
       dialogOption(DIA_OPT::CHECK_ONLY, OPTION::LIMIT_FPS, ctr.text.getStringSet("PREF_LIMIT_FPS")));
+
   dia_opts.find(PREF::P2)->second.push_back(
       dialogOption(DIA_OPT::CHECK_ONLY, OPTION::PARTICLE, ctr.text.getStringSet("PREF_PARTICLE")));
   dia_opts.find(PREF::P2)->second.push_back(
@@ -48,6 +49,10 @@ void dialogController::init() {
   dia_opts.find(PREF::P3)->second.push_back(
       dialogOption(DIA_OPT::SUBBOX, OPTION::SET_CIE_FUNCTION, OPTION::CIE_FUNCTION,
                    ctr.text.getStringSet("PREF_CIE_FUNCTION"), {"00", "94", "76"}, convertEnum(cie_opt_vec)));
+  dia_opts.find(PREF::P3)->second.push_back(dialogOption(
+      OPTION::USE_LEVEL_CONTROL, {OPTION::LEVEL_CONTROL_R, OPTION::LEVEL_CONTROL_G, OPTION::LEVEL_CONTROL_B},
+      ctr.text.getStringSet("PREF_LEVEL_CONTROL"), {{"0", "255"}, {"0", "255"}, {"0", "255"}},
+      {{0, 255}, {0, 255}, {0, 255}}));
 }
 
 void dialogController::render() {
