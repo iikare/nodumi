@@ -8,7 +8,7 @@
 #define W_VER "0.01a"
 
 #define MKI_VER_MAJOR '1'
-#define MKI_VER_MINOR 'b'
+#define MKI_VER_MINOR 'c'
 
 #define UNK_CST 500
 

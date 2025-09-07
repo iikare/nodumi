@@ -4,9 +4,9 @@
 
 #include <bitset>
 #include <chrono>
+#include <filesystem>
 #include <limits>
 #include <random>
-#include <system_error>
 
 #include "build_target.h"
 #include "define.h"
@@ -815,13 +815,8 @@ void controller::clear() {
 }
 
 void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
-                      bool& measureLine, bool& measureNumber,
-
-                      int& colorMode, int& displayMode,
-
-                      int& songTimeType, int& tonicOffset,
-
-                      double& zoomLevel) {
+                      bool& measureLine, bool& measureNumber, int& colorMode, int& displayMode,
+                      int& songTimeType, int& tonicOffset, double& zoomLevel) {
   if (!isValidPath(path, PATH_DATA)) {
     logW(LL_WARN, "invalid path:", path);
     return;
@@ -840,17 +835,27 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       return;
     }
 
+    std::filesystem::path p{path};
+    int file_size = std::filesystem::file_size(p);
+
     char byteBuf = 0;
+    int byteCtr = 0;
 
     auto readByte = [&]() {
+      byteCtr++;
       if (!input.eof()) {
         input.read(&byteBuf, 1);
         return true;
       }
-      logW(LL_WARN, "invalid MKI file");
+      logW(LL_WARN, "invalid MKI file @ byte", byteCtr);
       return false;
     };
 
+    auto readUntil = [&](int limit) {
+      while (byteCtr <= limit) {
+        readByte();
+      }
+    };
     // auto debugByte = [&]() {
     // #ifndef NODEBUG
     // std::bitset<8> binRep(byteBuf);
@@ -889,28 +894,26 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
 
     // debugByte();
 
-    // 0x02 (reserved)
-    readByte();
+    // 0x02-0x04
+    readUntil(0x09);
 
-    // 0x03
+    // 0x0A
     readByte();
 
     colorMode = (byteBuf >> 4) & 0xF;
     displayMode = byteBuf & 0xF;
 
-    // 0x04
+    // 0x0B
     readByte();
     // debugByte();
 
     songTimeType = (byteBuf >> 4) & 0xF;
     tonicOffset = byteBuf & 0x0F;
 
-    // 0x05-0x07 (reserved)
-    readByte();
-    readByte();
-    readByte();
+    // 0x0C-0x3F
+    readUntil(0x3F);
 
-    // 0x08-0x0B - zoom level
+    // 0x40-0x44 - zoom level
     char zoomBuf[4] = {0};
     for (int i = 0; i < 4; ++i) {
       readByte();
@@ -924,12 +927,12 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     // logQ(zoomLevel);
 
     // position need not exceed 16 bits
-    // 0x0C-0x0D - image position (x)
-    // 0x0E-0x0F - image position (y)
-    // 0x10-0x13 - scale
-    // 0x14-0x17 - default scale
-    // 0x18-0x1B - mean value
-    // 0x1C-0x1F - color count
+    // 0x45-0x46 - image position (x)
+    // 0x47-0x48 - image position (y)
+    // 0x49-0x4C - scale
+    // 0x4D-0x50 - default scale
+    // 0x51-0x54 - mean value
+    // 0x55-0x58 - color count
 
     // if no image exists, all values are left zero
 
@@ -941,7 +944,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     int i_num_col = 0;
 
     if (imageExists) {
-      // 0x0C-0x0D - image position (x)
+      // 0x45-0x46 - image position (x)
       char imageBuf[2] = {0};
       for (int i = 0; i < 2; ++i) {
         readByte();
@@ -950,7 +953,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
       i_posx = *(reinterpret_cast<uint16_t*>(imageBuf));
 
-      // 0x0E-0x0F - image position (y)
+      // 0x47-0x48 - image position (y)
       // char imageBuf[4] = {0};
       for (int i = 0; i < 2; ++i) {
         readByte();
@@ -959,7 +962,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
       i_posy = *(reinterpret_cast<uint16_t*>(imageBuf));
 
-      // 0x10-0x13 - scale
+      // 0x49-0x4C - scale
       char imageBuf2[4] = {0};
       for (int i = 0; i < 4; ++i) {
         readByte();
@@ -968,7 +971,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
       i_scale = *(reinterpret_cast<float*>(imageBuf2));
 
-      // 0x14-0x17 - default scale
+      // 0x4D-0x50 - default scale
       // char imageBuf2[4] = {0};
       for (int i = 0; i < 4; ++i) {
         readByte();
@@ -977,7 +980,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
       i_def_scale = *(reinterpret_cast<float*>(imageBuf2));
 
-      // 0x18-0x1B - mean value
+      // 0x51-0x54 - mean value
       // char imageBuf2[4] = {0};
       for (int i = 0; i < 4; ++i) {
         readByte();
@@ -986,7 +989,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
       i_mean_v = *(reinterpret_cast<float*>(imageBuf2));
 
-      // 0x1C-0x1F - color count
+      // 0x55-0x58 - color count
       // char imageBuf2[4] = {0};
       for (int i = 0; i < 4; ++i) {
         readByte();
@@ -1015,8 +1018,8 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       return col;
     };
 
-    // 0x20-0x43 - tonic (on) colors
-    // 0x44-0x67 - tonic (off) colors
+    // 0x59-0x7C - tonic (on) colors
+    // 0x7D-0xA0 - tonic (off) colors
     for (auto& col : setTonicOn) {
       col = readRGB();
     }
@@ -1024,8 +1027,8 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       col = readRGB();
     }
 
-    // 0x68-0x1E7  velocity (on) colors
-    // 0x1E8-0x367 velocity (off) colors
+    // 0xA1-0x221  velocity (on) colors
+    // 0x222-0x3A1 velocity (off) colors
     for (auto& col : setVelocityOn) {
       col = readRGB();
     }
@@ -1033,11 +1036,11 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       col = readRGB();
     }
 
-    // 0x368-0x36A - background color
+    // 0x3A2-0x3A5 - background color
     bgColor = readRGB();
     // logQ("READ COLOR", bgColor);
 
-    // 0x36B-0x36E - track size marker (n)
+    // 0x3A6-0x3A9 - track size marker (n)
     char trackSizeBuf[4] = {0};
     for (int i = 0; i < 4; ++i) {
       readByte();
@@ -1056,8 +1059,8 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     setTrackOn.resize(trackSetSize);
     setTrackOff.resize(trackSetSize);
 
-    // 0x36F-0x36F+(n*3)       track (on) colors
-    // 0x36F+(n*3)-0x36F+(n*6) track (off) colors
+    // 0x3AA-0x3AA+(n*3)       track (on) colors
+    // 0x3AA+(n*3)-0x3AA+(n*6) track (off) colors
     for (auto i = 0; i < trackSetSize; ++i) {
       setTrackOn[i] = readRGB();
     }
@@ -1077,6 +1080,12 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
 
     int midiSize = *reinterpret_cast<int*>(midiSizeBuf);
     // logQ("MIDI size is:", midiSize);
+    if (midiSize > file_size - byteCtr) {
+      logW(LL_WARN, "corrupted MKI file - embedded midi size (" + to_string(midiSize) + ")",
+           "is larger than remaining file size (" + to_string(file_size - byteCtr) + ")");
+      clear();
+      return;
+    }
 
     for (auto i = 0; i < midiSize; ++i) {
       readByte();
@@ -1109,6 +1118,12 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
 
       int imageSize = *reinterpret_cast<int*>(&imageSizeBuf);
+      if (imageSize > file_size - byteCtr) {
+        logW(LL_WARN, "corrupted MKI file - embedded image size (" + to_string(imageSize) + ")",
+             "is larger than remaining file size (" + to_string(file_size - byteCtr) + ")");
+        clear();
+        return;
+      }
 
       stringstream imageData;
 
@@ -1158,13 +1173,8 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
 }
 
 void controller::save(string path, bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay,
-                      bool measureLine, bool measureNumber,
-
-                      int colorMode, int displayMode,
-
-                      int songTimeType, int tonicOffset,
-
-                      double zoomLevel) {
+                      bool measureLine, bool measureNumber, int colorMode, int displayMode, int songTimeType,
+                      int tonicOffset, double zoomLevel) {
   // open output file
   ofstream output(path, std::ofstream::out | std::ofstream::trunc | std::ios::binary);
   output.imbue(std::locale::classic());
@@ -1174,9 +1184,21 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
     return;
   }
 
-  // output << midiData.str();
+  int byteCtr = 0;
 
   const uint8_t emptyByte = 0;
+
+  auto writeByte = [&](auto data) {
+    byteCtr += sizeof(data);
+
+    output.write(reinterpret_cast<const char*>(&data), sizeof(data));
+  };
+
+  auto writeUntil = [&](int limit) {
+    while (byteCtr <= limit) {
+      writeByte(emptyByte);
+    }
+  };
 
   // 0x00:[7:4] - MKI_VER_MAJOR
   // 0x00:[3:0] - MKI_VER_MINOR
@@ -1185,7 +1207,7 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   byte0 |= ((static_cast<uint8_t>(MKI_VER_MAJOR) & 000001111) << 4);
   byte0 |= (static_cast<uint8_t>(MKI_VER_MINOR) & 0b00001111);
 
-  output.write(reinterpret_cast<const char*>(&byte0), sizeof(byte0));
+  writeByte(byte0);
 
   // 0x01:[7:7] - now line
   // 0x01:[6:6] - fps display
@@ -1195,7 +1217,6 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   // 0x01:[2:2] - measure number display
   // 0x01:[1:1] - image existence
   // 0x01:[0:0] - reserved
-
   uint8_t byte1 = 0;
   byte1 |= (nowLine << 7);
   byte1 |= (showFPS << 6);
@@ -1206,86 +1227,66 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   byte1 |= (image.exists() << 1);
 
   // logQ(byte0);
+  writeByte(byte1);
 
-  output.write(reinterpret_cast<const char*>(&byte1), sizeof(byte1));
+  // 0x02-0x09 - reserved
+  writeUntil(0x09);
 
-  // 0x02:[7:0] - reserved
+  // 0x0A:[7:4] - scheme color type
+  // 0x0A:[3:0] - display type
+  uint8_t byte10 = 0;
 
-  output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
+  byte10 |= (static_cast<uint8_t>(colorMode) << 4);
+  byte10 |= (static_cast<uint8_t>(displayMode) & 0xF);
 
-  // 0x03:[7:4] - scheme color type
-  // 0x03:[3:0] - display type
+  writeByte(byte10);
 
-  uint8_t byte3 = 0;
+  // 0x0B:[7:4] - song time display type
+  // 0x0B:[3:0] - tonic offset
+  uint8_t byte11 = 0;
 
-  byte3 |= (static_cast<uint8_t>(colorMode) << 4);
-  byte3 |= (static_cast<uint8_t>(displayMode) & 0xF);
+  byte11 |= (static_cast<uint8_t>(songTimeType) << 4);
+  byte11 |= (static_cast<uint8_t>(tonicOffset) & 0xF);
 
-  // logQ((unsigned int)byte3);
+  writeByte(byte11);
 
-  output.write(reinterpret_cast<const char*>(&byte3), sizeof(byte3));
+  // 0x0C-0x3F - reserved
+  writeUntil(0x3F);
 
-  // 0x04:[7:4] - song time display type
-  // 0x04:[3:0] - tonic offset
-
-  uint8_t byte4 = 0;
-
-  byte4 |= (static_cast<uint8_t>(songTimeType) << 4);
-  // logQ(bitset<8>(songTimeType));
-  // logQ(bitset<8>(byte4));
-  byte4 |= (static_cast<uint8_t>(tonicOffset) & 0xF);
-
-  output.write(reinterpret_cast<const char*>(&byte4), sizeof(byte4));
-
-  // 0x05:[7:0] - reserved
-  // 0x06:[7:0] - reserved
-  // 0x07:[7:0] - reserved
-
-  output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
-  output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
-  output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
-
-  // 0x08-0x0B - zoom level (4bit float (cast from double))
-
+  // 0x40-0x44 - zoom level (4bit float (cast from double))
   float zlf = static_cast<float>(zoomLevel);
-
-  // logQ("WRITE ZOOMLEVEL", zoomLevel);
-
-  // logQ("zl", zlf);
-
-  output.write(reinterpret_cast<const char*>(&zlf), sizeof(zlf));
   // logQ(static_cast<float>(zoomLevel));
+  writeByte(zlf);
 
   // position need not exceed 16 bits
-  // 0x0C-0x0D - image position (x)
-  // 0x0E-0x0F - image position (y)
-  // 0x10-0x13 - scale
-  // 0x14-0x17 - default scale
-  // 0x18-0x1B - mean value
-  // 0x1C-0x1F - color count
+  // 0x45-0x46 - image position (x)
+  // 0x47-0x48 - image position (y)
+  // 0x49-0x4C - scale
+  // 0x4D-0x50 - default scale
+  // 0x51-0x54 - mean value
+  // 0x55-0x58 - color count
 
   // if no image exists, all values are left zero
 
   if (image.exists()) {
     int16_t x = static_cast<int16_t>(image.position.x);
     int16_t y = static_cast<int16_t>(image.position.y);
-    output.write(reinterpret_cast<const char*>(&x), sizeof(y));
-    output.write(reinterpret_cast<const char*>(&y), sizeof(y));
+    writeByte(x);
+    writeByte(y);
 
     float i_scale = image.scale;
     float i_defaultScale = image.defaultScale;
     float i_meanV = image.meanV;
 
-    output.write(reinterpret_cast<const char*>(&i_scale), sizeof(i_scale));
-    output.write(reinterpret_cast<const char*>(&i_defaultScale), sizeof(i_defaultScale));
-    output.write(reinterpret_cast<const char*>(&i_meanV), sizeof(i_meanV));
-    output.write(reinterpret_cast<const char*>(&image.numColors), sizeof(image.numColors));
+    writeByte(i_scale);
+    writeByte(i_defaultScale);
+    writeByte(i_meanV);
+    writeByte(image.numColors);
   }
   else {
     // needed to maintain file block formatting
-
-    for (auto i = 0; i < imageBlockSize; ++i) {
-      output.write(reinterpret_cast<const char*>(&emptyByte), sizeof(emptyByte));
+    for (int i = 0; i < imageBlockSize; ++i) {
+      writeByte(emptyByte);
     }
   }
 
@@ -1301,13 +1302,13 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
     uint8_t b = round(col.b);
 
     // all items are uint8_t
-    output.write(reinterpret_cast<const char*>(&r), sizeof(r));
-    output.write(reinterpret_cast<const char*>(&g), sizeof(g));
-    output.write(reinterpret_cast<const char*>(&b), sizeof(b));
+    writeByte(r);
+    writeByte(g);
+    writeByte(b);
   };
 
-  // 0x20-0x43 - tonic (on) colors
-  // 0x44-0x67 - tonic (off) colors
+  // 0x59-0x7C - tonic (on) colors
+  // 0x7D-0xA0 - tonic (off) colors
   for (auto col : setTonicOn) {
     writeRGB(col);
   }
@@ -1315,8 +1316,8 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
     writeRGB(col);
   }
 
-  // 0x68-0x1E7  velocity (on) colors
-  // 0x1E8-0x367 velocity (off) colors
+  // 0xA1-0x221  velocity (on) colors
+  // 0x222-0x3A1 velocity (off) colors
   for (auto col : setVelocityOn) {
     writeRGB(col);
   }
@@ -1324,16 +1325,16 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
     writeRGB(col);
   }
 
-  // 0x368-0x36A - background color
+  // 0x3A2-0x3A5 - background color
   writeRGB(bgColor);
   // logQ("WRITE COLOR", bgColor);
 
-  // 0x36B-0x36E - track size marker (n)
-  // 0x36F-0x36F+(n*3)       track (on) colors
-  // 0x36F+(n*3)-0x36F+(n*6) track (off) colors
+  // 0x3A6-0x3A9 - track size marker (n)
+  // 0x3AA-0x3AA+(n*3)       track (on) colors
+  // 0x3AA+(n*3)-0x3AA+(n*6) track (off) colors
   uint32_t trackSetSize = setTrackOn.size();
   // logQ("OUTN", trackSetSize);
-  output.write(reinterpret_cast<const char*>(&trackSetSize), sizeof(trackSetSize));
+  writeByte(trackSetSize);
 
   for (auto col : setTrackOn) {
     writeRGB(col);
