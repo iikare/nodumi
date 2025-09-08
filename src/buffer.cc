@@ -91,11 +91,17 @@ ACTION bufferController::pending_action(bool apply_enter) {
     if (sbuf == ":f") {
       return ACTION::FILE_INFO;
     }
-    if (sbuf == ":i") {
+    if (sbuf == ":n") {
       return ACTION::INFO;
     }
     if (sbuf == ":l") {
       return ACTION::LIVEPLAY;
+    }
+    if (sbuf == ":ifw") {
+      return ACTION::FIT_IMAGE_WIDTH;
+    }
+    if (sbuf == ":ifh") {
+      return ACTION::FIT_IMAGE_HEIGHT;
     }
     if (sbuf.substr(0, 2) == ":d") {
       if (sbuf.size() > 2 && all_num(sbuf.substr(2))) {
@@ -137,7 +143,8 @@ ACTION bufferController::pending_action(bool apply_enter) {
     }
   }
 
-  if (sbuf.length() > 1 && sbuf[0] != '#' && sbuf != ":rw" && any_of(sbuf.back(), 'G', 'w', 'b')) {
+  if (sbuf.length() > 1 && sbuf[0] != '#' && !any_of(sbuf, ":rw", ":ifw") &&
+      any_of(sbuf.back(), 'G', 'w', 'b')) {
     clear();
     if (all_num(sbuf.substr(0, sbuf.size() - 1))) {
       if (sbuf.size() < 11) {
