@@ -910,7 +910,77 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     songTimeType = (byteBuf >> 4) & 0xF;
     tonicOffset = byteBuf & 0x0F;
 
-    // 0x0C-0x3F
+    // 0x0C-0x0F - reserved
+    readUntil(0x0F);
+
+    // 0x10-0x2F - user preferences
+
+    // 0x10:[7:7] - track division (live)
+    // 0x10:[6:6] - track division (midi)
+    // 0x10:[5:5] - set hand range
+    // 0x10:[4:4] - set darken image
+    // 0x10:[3:3] - set CIE function
+    // 0x10:[2:2] - dynamic label
+    // 0x10:[1:1] - particle
+    // 0x10:[0:0] - scale velocity
+    readByte();
+    ctr.option.set(OPTION::TRACK_DIVISION_LIVE, (byteBuf >> 7) & 0x1);
+    ctr.option.set(OPTION::TRACK_DIVISION_MIDI, (byteBuf >> 6) & 0x1);
+    ctr.option.set(OPTION::SET_HAND_RANGE, (byteBuf >> 5) & 0x1);
+    ctr.option.set(OPTION::SET_DARKEN_IMAGE, (byteBuf >> 4) & 0x1);
+    ctr.option.set(OPTION::SET_CIE_FUNCTION, (byteBuf >> 3) & 0x1);
+    ctr.option.set(OPTION::DYNAMIC_LABEL, (byteBuf >> 2) & 0x1);
+    ctr.option.set(OPTION::PARTICLE, (byteBuf >> 1) & 0x1);
+    ctr.option.set(OPTION::SCALE_VELOCITY, (byteBuf >> 0) & 0x1);
+
+    // 0x11:[7:7] - shadow
+    // 0x11:[6:6] - now line overlay blend mode
+    // 0x11:[5:5] - use level control
+    // 0x11:[4:4] - limit fps
+    // 0x11:[3:0] - reserved
+    readByte();
+    ctr.option.set(OPTION::SHADOW, (byteBuf >> 7) & 0x1);
+    ctr.option.set(OPTION::NOW_LINE_USE_OVERLAY, (byteBuf >> 6) & 0x1);
+    ctr.option.set(OPTION::USE_LEVEL_CONTROL, (byteBuf >> 5) & 0x1);
+    ctr.option.set(OPTION::LIMIT_FPS, (byteBuf >> 4) & 0x1);
+
+    // 0x13:[7:2] - hand range (6 bits)
+    // 0x13:[1:0] - CIE function (2 bits)
+    readByte();
+    ctr.option.set(OPTION::HAND_RANGE, (byteBuf >> 2) & 0b00111111);
+    ctr.option.set(OPTION::CIE_FUNCTION, (byteBuf >> 0) & 0b00000011);
+
+    // 0x14:[7:0] - bw channel
+    readByte();
+    ctr.option.set(OPTION::DARKEN_IMAGE, static_cast<uint8_t>(byteBuf));
+    // 0x15:[7:0] - r channel
+    readByte();
+    ctr.option.set(OPTION::LEVEL_CONTROL_R, static_cast<uint8_t>(byteBuf));
+    // 0x16:[7:0] - g channel
+    readByte();
+    ctr.option.set(OPTION::LEVEL_CONTROL_G, static_cast<uint8_t>(byteBuf));
+    // 0x17:[7:0] - b channel
+    readByte();
+    ctr.option.set(OPTION::LEVEL_CONTROL_B, static_cast<uint8_t>(byteBuf));
+
+    // 0x18-0x19 - shadow angle
+    char shadowAngleBuf[2] = {0};
+    for (int i = 0; i < 2; ++i) {
+      readByte();
+      // debugByte();
+      shadowAngleBuf[i] = byteBuf;
+    }
+    ctr.option.set(OPTION::SHADOW_ANGLE, *(reinterpret_cast<uint16_t*>(shadowAngleBuf)));
+
+    // 0x1A:[7:2] - shadow distance (6 bits)
+    // 0x1A:[1:0] - reserved
+    readByte();
+    ctr.option.set(OPTION::SHADOW_DISTANCE, (byteBuf >> 2) & 0b00111111);
+
+    // 0x1B-0x2F - reserved
+    readUntil(0x2F);
+
+    // 0x30-0x3F - reserved
     readUntil(0x3F);
 
     // 0x40-0x44 - zoom level
@@ -1250,7 +1320,75 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
 
   writeByte(byte11);
 
-  // 0x0C-0x3F - reserved
+  // 0x0C-0x0F - reserved
+  writeUntil(0x0F);
+
+  // 0x10-0x2F - user preferences
+  //
+  // 0x10:[7:7] - track division (live)
+  // 0x10:[6:6] - track division (midi)
+  // 0x10:[5:5] - set hand range
+  // 0x10:[4:4] - set darken image
+  // 0x10:[3:3] - set CIE function
+  // 0x10:[2:2] - dynamic label
+  // 0x10:[1:1] - particle
+  // 0x10:[0:0] - scale velocity
+  uint8_t pref1 = 0;
+  pref1 |= (static_cast<uint8_t>(ctr.option.get(OPTION::TRACK_DIVISION_LIVE)) << 7);
+  pref1 |= (static_cast<uint8_t>(ctr.option.get(OPTION::TRACK_DIVISION_MIDI)) << 6);
+  pref1 |= (static_cast<uint8_t>(ctr.option.get(OPTION::SET_HAND_RANGE)) << 5);
+  pref1 |= (static_cast<uint8_t>(ctr.option.get(OPTION::SET_DARKEN_IMAGE)) << 4);
+  pref1 |= (static_cast<uint8_t>(ctr.option.get(OPTION::SET_CIE_FUNCTION)) << 3);
+  pref1 |= (static_cast<uint8_t>(ctr.option.get(OPTION::DYNAMIC_LABEL)) << 2);
+  pref1 |= (static_cast<uint8_t>(ctr.option.get(OPTION::PARTICLE)) << 1);
+  pref1 |= (static_cast<uint8_t>(ctr.option.get(OPTION::SCALE_VELOCITY)) << 0);
+
+  writeByte(pref1);
+
+  // 0x11:[7:7] - shadow
+  // 0x11:[6:6] - now line overlay blend mode
+  // 0x11:[5:5] - use level control
+  // 0x11:[4:4] - limit fps
+  // 0x11:[3:0] - reserved
+  uint8_t pref2 = 0;
+  pref2 |= (static_cast<uint8_t>(ctr.option.get(OPTION::SHADOW)) << 7);
+  pref2 |= (static_cast<uint8_t>(ctr.option.get(OPTION::NOW_LINE_USE_OVERLAY)) << 6);
+  pref2 |= (static_cast<uint8_t>(ctr.option.get(OPTION::USE_LEVEL_CONTROL)) << 5);
+  pref2 |= (static_cast<uint8_t>(ctr.option.get(OPTION::LIMIT_FPS)) << 4);
+
+  writeByte(pref2);
+
+  // 0x13:[7:2] - hand range (6 bits)
+  // 0x13:[1:0] - CIE function (2 bits)
+  uint8_t pref3 = 0;
+  pref3 |= (static_cast<uint8_t>(ctr.option.get(OPTION::HAND_RANGE)) << 2);
+  pref3 |= (static_cast<uint8_t>(ctr.option.get(OPTION::CIE_FUNCTION)) << 0);
+
+  writeByte(pref3);
+
+  // 0x14:[7:0] - bw channel
+  // 0x15:[7:0] - r channel
+  // 0x16:[7:0] - g channel
+  // 0x17:[7:0] - b channel
+  writeByte(static_cast<uint8_t>(ctr.option.get(OPTION::DARKEN_IMAGE)));
+  writeByte(static_cast<uint8_t>(ctr.option.get(OPTION::LEVEL_CONTROL_R)));
+  writeByte(static_cast<uint8_t>(ctr.option.get(OPTION::LEVEL_CONTROL_G)));
+  writeByte(static_cast<uint8_t>(ctr.option.get(OPTION::LEVEL_CONTROL_B)));
+
+  // 0x18-0x19 - shadow angle
+  writeByte(static_cast<uint16_t>(ctr.option.get(OPTION::SHADOW_ANGLE)));
+
+  // 0x1A:[7:2] - shadow distance (6 bits)
+  // 0x1A:[1:0] - reserved
+  uint8_t pref4 = 0;
+  pref4 |= (static_cast<uint8_t>(ctr.option.get(OPTION::SHADOW_DISTANCE)) << 2);
+
+  writeByte(pref4);
+
+  // 0x1B-0x2F - reserved
+  writeUntil(0x2F);
+
+  // 0x30-0x3F - reserved
   writeUntil(0x3F);
 
   // 0x40-0x44 - zoom level (4bit float (cast from double))
@@ -1370,6 +1508,7 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
     // image.buf.seekg(0, std::ios::beg);
     uint32_t imageSize = image.buf.str().size();
 
+    // logQ("saved image length is", imageSize, "bytes");
     output.write(reinterpret_cast<const char*>(&imageSize), sizeof(imageSize));
     // logQ(imageSize);
     // output.write(image.buf.str().c_str(), image.buf.str().size());

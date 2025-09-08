@@ -26,7 +26,7 @@ optionController::optionController() {
   opts[static_cast<int>(OPTION::LEVEL_CONTROL_R)] = 255;
   opts[static_cast<int>(OPTION::LEVEL_CONTROL_G)] = 255;
   opts[static_cast<int>(OPTION::LEVEL_CONTROL_B)] = 255;
-  opts[static_cast<int>(OPTION::LIMIT_FPS)] = 1;
+  opts[static_cast<int>(OPTION::LIMIT_FPS)] = true;
 }
 
 void optionController::invert(OPTION opt) {
@@ -84,7 +84,7 @@ bool optionController::invalid(OPTION opt) {
     case OPTION::SET_DARKEN_IMAGE:
       [[fallthrough]];
     case OPTION::DARKEN_IMAGE:
-      return !ctr.image.exists();
+      return !ctr.image.exists() && !ctr.open_file.pending();
     case OPTION::SHADOW_DISTANCE:
       return !get(OPTION::SHADOW);
     case OPTION::SHADOW_ANGLE:
@@ -106,12 +106,18 @@ void optionController::set(OPTION opt, int value) {
   }
 
   switch (opt) {
+    case OPTION::TRACK_DIVISION_LIVE:
+    case OPTION::TRACK_DIVISION_MIDI:
+    case OPTION::SET_HAND_RANGE:
+    case OPTION::SET_CIE_FUNCTION:
+    case OPTION::DYNAMIC_LABEL:
+    case OPTION::PARTICLE:
+    case OPTION::SCALE_VELOCITY:
+    case OPTION::SHADOW:
+    case OPTION::LIMIT_FPS:
     case OPTION::HAND_RANGE:
-      [[fallthrough]];
     case OPTION::CIE_FUNCTION:
-      [[fallthrough]];
     case OPTION::SHADOW_DISTANCE:
-      [[fallthrough]];
     case OPTION::SHADOW_ANGLE:
       break;
     case OPTION::SET_DARKEN_IMAGE:

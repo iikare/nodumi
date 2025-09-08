@@ -124,16 +124,6 @@ void imageController::render() {
     drawTextureEx(imageTex, Vector2{(float)position.x + (float)offset.x, (float)position.y + (float)offset.y},
                   0, scale);
     ctr.endShaderMode();
-
-    // if (ctr.option.get(OPTION::SET_DARKEN_IMAGE)) {
-    // int v = ctr.option.get(OPTION::DARKEN_IMAGE);
-
-    // constexpr double reduce_ratio = 8.0;
-    // colorRGB c(v / reduce_ratio, v / reduce_ratio, v / reduce_ratio);
-
-    // drawRectangle(static_cast<float>(position.x + offset.x), static_cast<float>(position.y + offset.y),
-    // image.width * scale, image.height * scale, c, min(200, v));
-    //}
   }
 }
 
