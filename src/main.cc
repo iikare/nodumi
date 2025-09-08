@@ -191,11 +191,36 @@ int main(int argc, char* argv[]) {
       pauseOffset = 0;
 
       if (ctr.open_file.pending()) {
-        ctr.load(ctr.open_file.getPath(), nowLine, showFPS, showImage, sheetMusicDisplay, measureLine,
-                 measureNumber, colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+        ctr.load(ctr.open_file.getPath(), nowLine, showFPS, showImage, showKey, showTempo, sheetMusicDisplay,
+                 measureLine, measureNumber, colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
 
         if (ctr.getFileType() == FILE_MKI) {
           ctr.save_file.setPending(ctr.open_file.getPath());
+
+          // update menu labels
+          viewMenu.setContentLabel(nowLine ? "VIEW_MENU_HIDE_NOW_LINE" : "VIEW_MENU_SHOW_NOW_LINE",
+                                   VIEW_MENU_NOW_LINE);
+          viewMenu.setContentLabel(showFPS ? "VIEW_MENU_HIDE_FPS" : "VIEW_MENU_SHOW_FPS", VIEW_MENU_FPS);
+          viewMenu.setContentLabel(showImage ? "VIEW_MENU_HIDE_BACKGROUND" : "VIEW_MENU_SHOW_BACKGROUND",
+                                   VIEW_MENU_BACKGROUND);
+          viewMenu.setContentLabel(showKey ? "VIEW_MENU_HIDE_KEY_SIGNATURE" : "VIEW_MENU_SHOW_KEY_SIGNATURE",
+                                   VIEW_MENU_KEY_SIGNATURE);
+          viewMenu.setContentLabel(showTempo ? "VIEW_MENU_HIDE_TEMPO" : "VIEW_MENU_SHOW_TEMPO",
+                                   VIEW_MENU_TEMPO);
+          editMenu.setContentLabel(
+              sheetMusicDisplay ? "EDIT_MENU_DISABLE_SHEET_MUSIC" : "EDIT_MENU_ENABLE_SHEET_MUSIC",
+              EDIT_MENU_SHEET_MUSIC);
+          viewMenu.setContentLabel(
+              measureLine ? "VIEW_MENU_HIDE_MEASURE_LINE" : "VIEW_MENU_SHOW_MEASURE_LINE",
+              VIEW_MENU_MEASURE_LINE);
+          viewMenu.setContentLabel(
+              measureNumber ? "VIEW_MENU_HIDE_MEASURE_NUMBER" : "VIEW_MENU_SHOW_MEASURE_NUMBER",
+              VIEW_MENU_MEASURE_NUMBER);
+          viewMenu.setContentLabel(
+              songTimeType != SONGTIME_NONE ? "VIEW_MENU_HIDE_SONG_TIME" : "VIEW_MENU_DISPLAY_SONG_TIME",
+              VIEW_MENU_SONG_TIME);
+
+          ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
         }
 
         ctr.open_file.reset();
@@ -1134,8 +1159,9 @@ int main(int argc, char* argv[]) {
           break;
         }
         if (ctr.getFileType() == FILE_MKI) {
-          ctr.save(ctr.save_file.getPath(), nowLine, showFPS, showImage, sheetMusicDisplay, measureLine,
-                   measureNumber, colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+          ctr.save(ctr.save_file.getPath(), nowLine, showFPS, showImage, showKey, showTempo,
+                   sheetMusicDisplay, measureLine, measureNumber, colorMode, displayMode, songTimeType,
+                   tonicOffset, zoomLevel);
           break;
         }
         [[fallthrough]];
@@ -1148,8 +1174,9 @@ int main(int argc, char* argv[]) {
               save_path += ".mki";
             }
 
-            ctr.save(save_path, nowLine, showFPS, showImage, sheetMusicDisplay, measureLine, measureNumber,
-                     colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+            ctr.save(save_path, nowLine, showFPS, showImage, showKey, showTempo, sheetMusicDisplay,
+                     measureLine, measureNumber, colorMode, displayMode, songTimeType, tonicOffset,
+                     zoomLevel);
             ctr.save_file.resetPending();
           }
         }

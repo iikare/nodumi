@@ -714,7 +714,9 @@ The MKI format is defined as follows:
   \mi{0x01[3:3]}                  & Display Measure Line \\
   \mi{0x01[2:2]}                  & Display Measure Number \\
   \mi{0x01[1:1]}                  & Image Exists? \\
-  \mi{0x01[0:0]-0x09}             & \mi{[reserved]} \\
+  \mi{0x01[1:1]}                  & Display Key Signature \\
+  \mi{0x02[7:7]}                  & Display Tempo \\
+  \mi{0x02[6:0]-0x09}             & \mi{[reserved]} \\
   \mi{0x0A[7:4]}                  & Color Scheme \\
   \mi{0x0A[3:0]}                  & Display Mode \\
   \mi{0x0B[7:4]}                  & Song Time Mode \\

@@ -97,16 +97,17 @@ class controller {
   vector<string> generateMenuLabels(const menuContentType& contentType);
 
   void clear();
-  void load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
-            bool& measureLine, bool& measureNumber,
+  void load(string path, bool& nowLine, bool& showFPS, bool& showImage,
+
+            bool& showKey, bool& showTempo, bool& sheetMusicDisplay, bool& measureLine, bool& measureNumber,
 
             int& colorMode, int& displayMode,
 
             int& songTimeType, int& tonicOffset,
 
             double& zoomLevel);
-  void save(string path, bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay, bool measureLine,
-            bool measureNumber,
+  void save(string path, bool nowLine, bool showFPS, bool showImage, bool showKey, bool showTempo,
+            bool sheetMusicDisplay, bool measureLine, bool measureNumber,
 
             int colorMode, int displayMode,
 

@@ -814,9 +814,10 @@ void controller::clear() {
   fileOutput.disallow(true);
 }
 
-void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& sheetMusicDisplay,
-                      bool& measureLine, bool& measureNumber, int& colorMode, int& displayMode,
-                      int& songTimeType, int& tonicOffset, double& zoomLevel) {
+void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& showKey,
+                      bool& showTempo, bool& sheetMusicDisplay, bool& measureLine, bool& measureNumber,
+                      int& colorMode, int& displayMode, int& songTimeType, int& tonicOffset,
+                      double& zoomLevel) {
   if (!isValidPath(path, PATH_DATA)) {
     logW(LL_WARN, "invalid path:", path);
     return;
@@ -884,17 +885,14 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
 
     bool imageExists = byteBuf & (1 << 1);
 
-    // logQ(nowLine);
-    // logQ(showFPS);
-    // logQ(showImage);
-    // logQ(sheetMusicDisplay);
-    // logQ(measureLine);
-    // logQ(measureNumber);
-    // logQ(imageExists);
+    showKey = byteBuf & (1 << 0);
 
-    // debugByte();
+    // 0x02:[7:7] - now line
+    // 0x02:[6:0] - reserved
+    readByte();
+    showTempo = byteBuf & (1 << 7);
 
-    // 0x02-0x04
+    // 0x03-0x09
     readUntil(0x09);
 
     // 0x0A
@@ -1242,9 +1240,9 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
   debug_time(start, "load");
 }
 
-void controller::save(string path, bool nowLine, bool showFPS, bool showImage, bool sheetMusicDisplay,
-                      bool measureLine, bool measureNumber, int colorMode, int displayMode, int songTimeType,
-                      int tonicOffset, double zoomLevel) {
+void controller::save(string path, bool nowLine, bool showFPS, bool showImage, bool showKey, bool showTempo,
+                      bool sheetMusicDisplay, bool measureLine, bool measureNumber, int colorMode,
+                      int displayMode, int songTimeType, int tonicOffset, double zoomLevel) {
   // open output file
   ofstream output(path, std::ofstream::out | std::ofstream::trunc | std::ios::binary);
   output.imbue(std::locale::classic());
@@ -1286,7 +1284,7 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   // 0x01:[3:3] - measure line display
   // 0x01:[2:2] - measure number display
   // 0x01:[1:1] - image existence
-  // 0x01:[0:0] - reserved
+  // 0x01:[0:0] - show key signature
   uint8_t byte1 = 0;
   byte1 |= (nowLine << 7);
   byte1 |= (showFPS << 6);
@@ -1295,9 +1293,16 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   byte1 |= (measureLine << 3);
   byte1 |= (measureNumber << 2);
   byte1 |= (image.exists() << 1);
+  byte1 |= (showKey << 0);
 
   // logQ(byte0);
   writeByte(byte1);
+
+  // 0x02:[7:7] - now line
+  // 0x02:[6:0] - reserved
+  uint8_t byte2 = 0;
+  byte2 |= (showTempo << 7);
+  writeByte(byte2);
 
   // 0x02-0x09 - reserved
   writeUntil(0x09);
