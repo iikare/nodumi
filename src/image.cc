@@ -157,12 +157,32 @@ void imageController::finalizePosition() {
   }
 }
 
+void imageController::fitWidth() {
+  bypassScale = true;
+  double newScale = static_cast<double>(ctr.getWidth()) / getWidth();
+  changeScale(newScale);
+  position.x = 0;
+}
+
+void imageController::fitHeight() {
+  bypassScale = true;
+  double newScale = static_cast<double>(ctr.getHeight() - ctr.barHeight) / getHeight();
+  changeScale(newScale);
+  position.y = ctr.barHeight;
+}
+
 void imageController::changeScale(double scaleOffset) {
   double oldScale = scale;
   double oldWidth = getWidth();
   double oldHeight = getHeight();
 
-  scale = min(max(0.1 * defaultScale, scale + scaleOffset * scale / defaultScale), 10.0 * defaultScale);
+  if (bypassScale) {
+    bypassScale = false;
+    scale = scale * scaleOffset;
+  }
+  else {
+    scale = min(max(0.1 * defaultScale, scale + scaleOffset * scale / defaultScale), 10.0 * defaultScale);
+  }
 
   double diffScale = scale - oldScale;
 

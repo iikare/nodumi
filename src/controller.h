@@ -1,7 +1,5 @@
 #pragma once
 
-#include <raylib.h>
-
 #include <functional>
 #include <random>
 #include <sstream>

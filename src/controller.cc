@@ -622,7 +622,7 @@ vector<string> controller::generateMenuLabels(const menuContentType& contentType
     case CONTENT_EDIT:
       return text.getStringSet("EDIT_MENU_EDIT", "EDIT_MENU_ENABLE_SHEET_MUSIC", "EDIT_MENU_PREFERENCES");
     case CONTENT_VIEW:
-      return text.getStringSet("VIEW_MENU_VIEW", "VIEW_MENU_DISPLAY_MODE", "VIEW_MENU_DISPLAY_SONG_TIME",
+      return text.getStringSet("VIEW_MENU_VIEW", "VIEW_MENU_DISPLAY_MODE", "VIEW_MENU_SHOW_SONG_TIME",
                                "VIEW_MENU_SHOW_KEY_SIGNATURE", "VIEW_MENU_SHOW_TEMPO",
                                "VIEW_MENU_HIDE_NOW_LINE", "VIEW_MENU_HIDE_MEASURE_LINE",
                                "VIEW_MENU_HIDE_MEASURE_NUMBER", "VIEW_MENU_HIDE_BACKGROUND",

@@ -31,13 +31,16 @@ class imageController {
         numColors(0),
         rawPixelData(),
         format(IMAGE_NONE),
-        buf(){};
+        buf() {};
 
   void load(const string& path);
   void unloadData();
 
   void render();
   void changeScale(double scaleOffset);
+
+  void fitWidth();
+  void fitHeight();
 
   vector<kMeansPoint> getRawData();
   double getMeanValue();
@@ -67,6 +70,7 @@ class imageController {
 
   bool isLoaded;
   bool canMove;
+  bool bypassScale = false;
 
   // must be floating-point for scale-in-place to work
   Vector2 position;

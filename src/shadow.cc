@@ -1,7 +1,5 @@
 #include "shadow.h"
 
-#include <raylib.h>
-
 #include "define.h"
 
 void shadowController::init() { update(); }

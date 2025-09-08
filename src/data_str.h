@@ -16,7 +16,7 @@
                         {"EDIT_MENU_PREFERENCES",               "Preferences"}, \
                         {"VIEW_MENU_VIEW",                      "View"}, \
                         {"VIEW_MENU_DISPLAY_MODE",              "Display Mode:"}, \
-                        {"VIEW_MENU_DISPLAY_SONG_TIME",         "Display Song Time:"}, \
+                        {"VIEW_MENU_SHOW_SONG_TIME",            "Show Song Time:"}, \
                         {"VIEW_MENU_HIDE_SONG_TIME",            "Hide Song Time"}, \
                         {"VIEW_MENU_SHOW_KEY_SIGNATURE",        "Show Key Signature"}, \
                         {"VIEW_MENU_HIDE_KEY_SIGNATURE",        "Hide Key Signature"}, \
@@ -67,6 +67,8 @@
                         {"RIGHT_MENU_CHANGE_COLOR",             "Change Color"}, \
                         {"RIGHT_MENU_SET_TONIC",                "Set Tonic"}, \
                         {"RIGHT_MENU_REMOVE_IMAGE",             "Remove Image"}, \
+                        {"RIGHT_MENU_FIT_IMAGE_WIDTH",          "Fit Image Width"}, \
+                        {"RIGHT_MENU_FIT_IMAGE_HEIGHT",         "Fit Image Height"}, \
                         {"RIGHT_MENU_EMPTY",                    "Empty"}, \
                         {"COLORSELECT_COLOR_SELECT",            "Color Select"}, \
                         {"GET_SONG_INFO_TRACK",                 "Track"}, \

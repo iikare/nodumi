@@ -1,7 +1,5 @@
 #pragma once
 
-#include <raylib.h>
-
 #include <algorithm>
 #include <map>
 #include <string>
@@ -31,21 +29,23 @@ class shaderData {
   void setShaderValue(const string& uf, const T& val, const int num = -1) {
     // verify types
     static_assert(is_same<T, Vector2>::value || is_same<T, Vector3>::value || is_same<T, colorRGB>::value ||
-                      is_same<T, float>::value || is_same<T, int>::value || is_same<T, vector<Vector2>>::value ||
-                      is_same<T, vector<Vector3>>::value || is_same<T, vector<colorRGB>>::value ||
-                      is_same<T, vector<float>>::value || is_same<T, vector<int>>::value,
+                      is_same<T, float>::value || is_same<T, int>::value ||
+                      is_same<T, vector<Vector2>>::value || is_same<T, vector<Vector3>>::value ||
+                      is_same<T, vector<colorRGB>>::value || is_same<T, vector<float>>::value ||
+                      is_same<T, vector<int>>::value,
                   "invalid type passed to uniform");
 
-    constexpr int ufType = is_same<T, Vector2>::value || is_same<T, vector<Vector2>>::value   ? SHADER_UNIFORM_VEC2
-                           : is_same<T, Vector3>::value || is_same<T, vector<Vector3>>::value ? SHADER_UNIFORM_VEC3
-                                                                                              :
-                                                                                              // cast to float
-                               is_same<T, colorRGB>::value || is_same<T, vector<colorRGB>>::value ? SHADER_UNIFORM_VEC3
-                           : is_same<T, float>::value || is_same<T, vector<float>>::value         ? SHADER_UNIFORM_FLOAT
-                                                                                                  :
-                                                                                          // 255 - unused value
-                               is_same<T, int>::value || is_same<T, vector<int>>::value ? SHADER_UNIFORM_INT
-                                                                                        : 255;
+    constexpr int ufType =
+        is_same<T, Vector2>::value || is_same<T, vector<Vector2>>::value   ? SHADER_UNIFORM_VEC2
+        : is_same<T, Vector3>::value || is_same<T, vector<Vector3>>::value ? SHADER_UNIFORM_VEC3
+                                                                           :
+                                                                           // cast to float
+            is_same<T, colorRGB>::value || is_same<T, vector<colorRGB>>::value ? SHADER_UNIFORM_VEC3
+        : is_same<T, float>::value || is_same<T, vector<float>>::value         ? SHADER_UNIFORM_FLOAT
+                                                                               :
+                                                                       // 255 - unused value
+            is_same<T, int>::value || is_same<T, vector<int>>::value ? SHADER_UNIFORM_INT
+                                                                     : 255;
 
     constexpr bool isVecType = is_same<T, vector<Vector2>>::value || is_same<T, vector<Vector3>>::value ||
                                is_same<T, vector<colorRGB>>::value || is_same<T, vector<float>>::value ||

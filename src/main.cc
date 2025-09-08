@@ -1,5 +1,3 @@
-#include <raylib.h>
-
 #include <algorithm>
 #include <bit>
 #include <string>
@@ -217,7 +215,7 @@ int main(int argc, char* argv[]) {
               measureNumber ? "VIEW_MENU_HIDE_MEASURE_NUMBER" : "VIEW_MENU_SHOW_MEASURE_NUMBER",
               VIEW_MENU_MEASURE_NUMBER);
           viewMenu.setContentLabel(
-              songTimeType != SONGTIME_NONE ? "VIEW_MENU_HIDE_SONG_TIME" : "VIEW_MENU_DISPLAY_SONG_TIME",
+              songTimeType != SONGTIME_NONE ? "VIEW_MENU_HIDE_SONG_TIME" : "VIEW_MENU_SHOW_SONG_TIME",
               VIEW_MENU_SONG_TIME);
 
           ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
@@ -1233,6 +1231,12 @@ int main(int argc, char* argv[]) {
           colorSelect.setColor(ctr.pendingColorValue);
         }
       } break;
+      case ACTION::FIT_IMAGE_WIDTH:
+        ctr.image.fitWidth();
+        break;
+      case ACTION::FIT_IMAGE_HEIGHT:
+        ctr.image.fitHeight();
+        break;
       case ACTION::RESIZE_WINDOW_WIDTH:
         logQ(ctr.pendingActionValue);
         ctr.setWidth(ctr.pendingActionValue);
@@ -1493,7 +1497,7 @@ int main(int argc, char* argv[]) {
               }
               else {
                 if (viewMenu.isContentLabel("VIEW_MENU_HIDE_SONG_TIME", VIEW_MENU_SONG_TIME)) {
-                  viewMenu.setContentLabel("VIEW_MENU_DISPLAY_SONG_TIME", VIEW_MENU_SONG_TIME);
+                  viewMenu.setContentLabel("VIEW_MENU_SHOW_SONG_TIME", VIEW_MENU_SONG_TIME);
                   songTimeType = SONGTIME_NONE;
                 }
                 else {
@@ -1775,19 +1779,17 @@ int main(int argc, char* argv[]) {
           }
           switch (rightMenu.getActiveElement()) {
             case 0:
+              if (rightMenu.isContentLabel("RIGHT_MENU_REMOVE_IMAGE", 0)) {
+                // logQ("attempted to remove image: size:");
+                ctr.image.unloadData();
+                rightMenu.render = false;
+              }
               if (rightMenu.getSize() == 1) {
                 if (rightMenu.childOpen() && colorSelect.render == false) {
                   rightMenu.hideChildMenu();
                 }
                 else {
-                  if (rightMenu.isContentLabel("RIGHT_MENU_REMOVE_IMAGE", 0)) {
-                    // logQ("attempted to remove image: size:");
-                    ctr.image.unloadData();
-                    rightMenu.render = false;
-                  }
-                  else {
-                    colorSelect.render = !colorSelect.render;
-                  }
+                  colorSelect.render = !colorSelect.render;
                 }
               }
               break;
@@ -1797,12 +1799,22 @@ int main(int argc, char* argv[]) {
                   rightMenu.hideChildMenu();
                 }
                 else {
-                  colorSelect.render = !colorSelect.render;
+                  if (rightMenu.isContentLabel("RIGHT_MENU_FIT_IMAGE_WIDTH", 1)) {
+                    action = ACTION::FIT_IMAGE_WIDTH;
+                  }
+                  else {
+                    colorSelect.render = !colorSelect.render;
+                  }
                 }
               }
               break;
             case 2:
-              tonicOffset = (notes[clickNote].y - MIN_NOTE_IDX + tonicOffset) % 12;
+              if (rightMenu.isContentLabel("RIGHT_MENU_FIT_IMAGE_HEIGHT", 2)) {
+                action = ACTION::FIT_IMAGE_HEIGHT;
+              }
+              else {
+                tonicOffset = (notes[clickNote].y - MIN_NOTE_IDX + tonicOffset) % 12;
+              }
               break;
           }
           break;
@@ -1883,8 +1895,8 @@ int main(int argc, char* argv[]) {
 
           if (clickNote != -1) {
             selectType = SELECT_NOTE;
-            rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_PART_COLOR");
-            rightMenuContents[2] = ctr.text.getString("RIGHT_MENU_SET_TONIC");
+            rightMenuContents = ctr.text.getStringSet("RIGHT_MENU_EMPTY", "RIGHT_MENU_CHANGE_PART_COLOR",
+                                                      "RIGHT_MENU_SET_TONIC");
             rightMenu.update(rightMenuContents);
             rightMenu.setContent(ctr.getNoteLabel(clickNote), 0);
 
@@ -1898,6 +1910,7 @@ int main(int argc, char* argv[]) {
                 !hoverType.contains(HOVER_DIALOG)) {
               hoverType.add(HOVER_SHEET);
               selectType = SELECT_SHEET;
+              rightMenuContents = ctr.text.getStringSet("RIGHT_MENU_EMPTY", "RIGHT_MENU_CHANGE_COLOR");
               colorSelect.setColor(ctr.bgSheet);
             }
             else if (pointInBox(getMousePosition(), {static_cast<int>(nowLineX - 3), ctr.barHeight, 6,
@@ -1905,7 +1918,7 @@ int main(int argc, char* argv[]) {
                      !hoverType.contains(HOVER_DIALOG)) {
               hoverType.add(HOVER_LINE);
               selectType = SELECT_LINE;
-              rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_LINE_COLOR");
+              rightMenuContents = ctr.text.getStringSet("RIGHT_MENU_EMPTY", "RIGHT_MENU_CHANGE_LINE_COLOR");
               colorSelect.setColor(ctr.bgNow);
             }
             else {
@@ -1922,7 +1935,7 @@ int main(int argc, char* argv[]) {
 
               if (measureSelected) {
                 selectType = SELECT_MEASURE;
-                rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_LINE_COLOR");
+                rightMenuContents = ctr.text.getStringSet("RIGHT_MENU_EMPTY", "RIGHT_MENU_CHANGE_LINE_COLOR");
                 colorSelect.setColor(ctr.bgMeasure);
               }
               else if (ctr.image.exists() &&
@@ -1930,23 +1943,24 @@ int main(int argc, char* argv[]) {
                                             HOVER_DIALOG) &&
                         !hoverType.containsLastFrame(HOVER_MENU) && hoverType.contains(HOVER_IMAGE))) {
                 selectType = SELECT_NONE;  // no color change on image
-                rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_REMOVE_IMAGE");
+                rightMenuContents =
+                    ctr.text.getStringSet("RIGHT_MENU_EMPTY", "RIGHT_MENU_REMOVE_IMAGE",
+                                          "RIGHT_MENU_FIT_IMAGE_WIDTH", "RIGHT_MENU_FIT_IMAGE_HEIGHT");
                 // logQ("rightclicked on image");
               }
               else if (!hoverType.contains(HOVER_DIALOG)) {
                 selectType = SELECT_BG;
-                rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_CHANGE_COLOR");
+                rightMenuContents = ctr.text.getStringSet("RIGHT_MENU_EMPTY", "RIGHT_MENU_CHANGE_COLOR");
                 colorSelect.setColor(ctr.bgColor);
               }
               else {
                 selectType = SELECT_NONE;
-                rightMenuContents[1] = ctr.text.getString("RIGHT_MENU_EMPTY");
+                rightMenuContents = ctr.text.getStringSet("RIGHT_MENU_EMPTY");
               }
             }
             rightMenu.setContent("", 0);
 
-            // logQ(formatVector(rightMenuContents));
-            vector<string> newRight(rightMenuContents.begin() + 1, rightMenuContents.end() - 1);
+            vector<string> newRight(rightMenuContents.begin() + 1, rightMenuContents.end());
             rightMenu.update(newRight);
           }
           rightMenu.setXY(rightX, rightY);
