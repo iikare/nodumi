@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
   bool colorMove = false;
   bool colorSquare = false;
   bool colorCircle = false;
-  bool sheetMusicDisplay = false;
+  bool sheetMusicDisplay = true;
 
   bool measureLine = true;
   bool measureNumber = true;
@@ -217,9 +217,8 @@ int main(int argc, char* argv[]) {
           viewMenu.setContentLabel(
               songTimeType != SONGTIME_NONE ? "VIEW_MENU_HIDE_SONG_TIME" : "VIEW_MENU_SHOW_SONG_TIME",
               VIEW_MENU_SONG_TIME);
-
-          ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
         }
+        ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
 
         ctr.open_file.reset();
       }
@@ -294,7 +293,7 @@ int main(int argc, char* argv[]) {
     switch (displayMode) {
       case DISPLAY_VORONOI:
         if (ctr.voronoi.vertex.size() != 0) {
-          int voro_y = ctr.menuHeight + (sheetMusicDisplay ? ctr.sheetHeight : 0);
+          int voro_y = ctr.barHeight;
           ctr.voronoi.resample(voro_y);
           ctr.voronoi.render();
         }
@@ -316,7 +315,7 @@ int main(int argc, char* argv[]) {
       for (unsigned int i = 0; i < stream.measureMap.size(); i++) {
         float measureLineWidth = 1;
         float measureLineOpacityRatio = 0.5;
-        int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
+        int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.barHeight : 0);
         double measureLineX = convertSSX(stream.measureMap[i].getLocation());
         double line_ratio = 1.0;
         if (i && i + 1 < stream.measureMap.size()) {
@@ -385,8 +384,7 @@ int main(int argc, char* argv[]) {
                   255 * max(0.0, (min(fadeWidth, measureLineX + measureSpacing)) / fadeWidth);
             }
 
-            int measureTextY =
-                ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.sheetHeight + ctr.menuHeight : 0);
+            int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.barHeight : 0);
             drawTextEx(to_string(i + 1), measureLineX + 4, measureTextY, ctr.bgColor2, measureLineTextAlpha);
             lastMeasureNum = i;
           }
@@ -402,7 +400,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (nowLine) {
-      int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : 0);
+      int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.barHeight : 0);
       if (pointInBox(getMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) &&
           !ctr.menu.mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {
         ctr.setShaderValue("SH_OVERLAY", "hover", 1);
