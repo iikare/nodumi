@@ -8,7 +8,8 @@
 #include "define.h"
 #include "log.h"
 
-midiInput::midiInput() : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
+midiInput::midiInput()
+    : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
   midiIn = unique_ptr<RtMidiIn>(new RtMidiIn());
   if (midiIn == nullptr) {
     logW(LL_WARN, "unable to initialize MIDI input");
@@ -85,7 +86,7 @@ bool midiInput::updateQueue() {
   if (msgQueue.size() > 0) {
     ctr.output.sendMessage(&msgQueue);
     if (!any_of(static_cast<int>(msgQueue[0]), 248, 254)) {
-      logQ("timestamp:", timestamp);
+      // logQ("timestamp:", timestamp);
     }
     return true;
   }
@@ -139,7 +140,8 @@ void midiInput::convertEvents() {
         noteStream.notes.push_back(tmpNote);
 
         numOn++;
-        tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ? findPartition(tmpNote) : 1;  // by default
+        tmpNote.track =
+            ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ? findPartition(tmpNote) : 1;  // by default
 
         // update track after determination
         noteStream.notes[noteCount].track = tmpNote.track;

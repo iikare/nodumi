@@ -1209,6 +1209,7 @@ int main(int argc, char* argv[]) {
         }
         midiMenu.swapLabel("MIDI_MENU_ENABLE_LIVE_PLAY", "MIDI_MENU_DISABLE_LIVE_PLAY", MIDI_MENU_LIVE_PLAY);
         ctr.toggleLivePlay();
+        colorFlag = true;
         if (!ctr.getLiveState()) {
           timeOffset = 0;
         }
