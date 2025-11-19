@@ -174,6 +174,9 @@ int main(int argc, char* argv[]) {
     // input parameter order is arbitrary
     ctr.updateFiles(&argv[1], argc - 1);
   }
+  else {
+    ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
+  }
 
   // DEBUG ONLY
   // ctr.toggleLivePlay();
