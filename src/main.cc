@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
   bool colorMove = false;
   bool colorSquare = false;
   bool colorCircle = false;
-  bool sheetMusicDisplay = true;
+  bool sheetMusicDisplay = false;
 
   bool measureLine = true;
   bool measureNumber = true;
@@ -427,6 +427,9 @@ int main(int argc, char* argv[]) {
     }
 
     auto getColorSetIndex = [&](int idx) {
+      if (idx == -1) {
+        return 0;
+      }
       switch (colorMode) {
         case COLOR_PART:
           return notes[idx].track;
