@@ -57,3 +57,5 @@
 
 #define sinDeg(x) sin(x* RAD2DEG)
 #define cosDeg(x) cos(x* RAD2DEG)
+
+#define N_UNUSED(x) (void)x;

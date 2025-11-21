@@ -44,7 +44,7 @@ class enumChecker {
   vector<T> itemsLastFrame;
 };
 
-enum class ASSET { FONT, RENDER_TEXTURE, TEXTURE, SHADER, IMAGE, NONE };
+enum class ASSET { FONT, RENDER_TEXTURE, TEXTURE, SHADER, IMAGE, MODEL, NONE };
 
 enum lerpType {
   INT_LINEAR,

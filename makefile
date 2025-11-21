@@ -19,6 +19,16 @@ CFLAGSOSD=--std=c99  $(shell pkg-config --cflags gtk+-3.0)
 LFLAGSOSD=$(shell pkg-config --libs gtk+-3.0)
 SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_gtk3.c
 
+ifneq ($(strip $(torch)),)
+LIBTORCH_ROOT := /opt/libtorch-cpu
+LIBTORCH_INCLUDES:= -I$(LIBTORCH_ROOT)/include \
+										-I$(LIBTORCH_ROOT)/include/torch/csrc \
+										-I$(LIBTORCH_ROOT)/include/torch/csrc/api/include
+LIBTORCH_LIB_PATH := -L$(LIBTORCH_ROOT)/lib
+LIBTORCH_LIB_FLAGS := -Wl,-rpath=$(LIBTORCH_ROOT)/lib -ltorch -ltorch_cpu -lc10
+LIBTORCH_DEFS=-DUSE_TORCH_CLASSIFIER
+endif
+
 else ifeq ($(strip $(arch)),win)
 
 CXX=x86_64-w64-mingw32-g++
@@ -33,9 +43,14 @@ DEPDEF=-DTARGET_WIN
 endif
 
 ifeq ($(strip $(rel)),)
+ifneq ($(strip $(torch)),)
+#RELFLAGS=-O3
 RELFLAGS=-Og -g
+else
+RELFLAGS=-Og -g
+endif
 else # release build
-RELFLAGS=-DTARGET_REL -O3 -ffast-math -fno-rtti
+RELFLAGS=-DTARGET_REL -O3 -ffast-math
 # thinLTO doesn't exist for cross-compiler
 ifeq ($(strip $(arch)),)
 RELFLAGS+=-flto=thin
@@ -46,11 +61,12 @@ endif
 
 endif
 
+
 # annoying whitespace
 ifeq ($(strip $(arch)),)
-CFLAGS=--std=c++20 -Wall -Wextra -fopenmp $(NONSTD)$(RELFLAGS)$(DEPDEF)
+CFLAGS=--std=c++23 -Wall -Wextra -fopenmp $(NONSTD)$(RELFLAGS)$(DEPDEF)
 else ifeq ($(strip $(arch)),win)
-CFLAGS=--std=c++20 -Wall -Wextra -fopenmp $(NONSTD)$(RELFLAGS) $(DEPDEF)
+CFLAGS=--std=c++23 -Wall -Wextra -fopenmp $(NONSTD)$(RELFLAGS) $(DEPDEF)
 endif
 
 CFLAGSSTD=$(CFLAGS) -fno-exceptions
@@ -75,8 +91,14 @@ BINDIR=bin
 
 NAME=$(addprefix $(BINDIR)/, nodumi)
 
-SRCS=$(wildcard $(SRCDIR)/*.cc)#$(wildcard $(SRCDIR)/*/*.cc)
-OBJS=$(patsubst $(SRCDIR)/%.cc, $(BUILDDIR)/%.o, $(SRCS))
+SRCSTORCH=$(SRCDIR)/classifier.cc
+OBJSTORCH=$(BUILDDIR)/classifier.o
+
+SRCS2=$(wildcard $(SRCDIR)/*.cc)
+OBJS2=$(patsubst $(SRCDIR)/%.cc, $(BUILDDIR)/%.o, $(SRCS2))
+
+SRCS=$(filter-out $(SRCSTORCH), $(SRCS2))
+OBJS=$(filter-out $(OBJSTORCH), $(OBJS2))
 
 SRCSMF=$(wildcard $(MFDIR)/*.cpp)
 OBJSMF=$(patsubst $(MFDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCSMF))
@@ -120,7 +142,7 @@ re: clean
 	@$(MAKE) --no-print-directory
 
 f: clean
-	@$(MAKE) rel=a relp=begin --no-print-directory
+	@$(MAKE) rel=a relp=begin torch=y --no-print-directory
 	@$(MAKE) arch=win rel=a relp=end --no-print-directory
 
 pre:
@@ -130,13 +152,31 @@ pre:
 doc:
 	@$(MAKE) -C doc
 
-$(NAME): $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) | $(@D)
+$(NAME): $(OBJSTORCH) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) | $(@D)
 	$(PREREQ_DIR)
-	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(LFLAGS)
+
+ifeq ($(strip $(torch)),)
+	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSTORCH) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(LFLAGS)
+else
+	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSTORCH) $(OBJSMF) $(OBJSOSD) $(OBJSRTM) $(LFLAGS) $(LIBTORCH_LIB_PATH) $(LIBTORCH_LIB_FLAGS)
+endif
 
 $(OBJS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
 	$(PREREQ_DIR)
 	$(CXX) $(CFLAGSSTD) -o $@ -c $<
+
+$(OBJSTORCH): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
+	$(PREREQ_DIR)
+
+ifeq ($(strip $(torch)),)
+	$(CXX) $(CFLAGSSTD) -o $@ -c $<
+else
+ifeq ($(strip $(win)),)
+	$(CXX) $(CFLAGSSTD) -w -o $@ $(LIBTORCH_DEFS) $(LIBTORCH_INCLUDES) -c $<
+else
+	$(CXX) $(CFLAGSSTD) -o $@ -c $<
+endif
+endif
 
 $(OBJSMF): $(BUILDDIR)/%.o: $(MFDIR)/%.cpp
 	$(PREREQ_DIR)

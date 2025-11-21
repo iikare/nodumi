@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "../dpd/rtmidi/RtMidi.h"
+#include "classifier.h"
 #include "log.h"
 #include "midi.h"
 #include "note.h"
@@ -18,11 +19,14 @@ class midiInput {
  public:
   midiInput();
 
+  void initClassifier();
+
   void openPort(int port, bool pauseEvent = false);
   void resetInput();
   void update();
   void pauseInput();
   void resumeInput();
+  void terminate();
 
   int getNoteCount() { return noteCount; }
   vector<string> getPorts();
@@ -44,4 +48,7 @@ class midiInput {
   int noteCount;
   int numOn;
   double timestamp;
+
+  unique_ptr<inputClassifier> classifier;
+  bool classifier_warmup = false;
 };

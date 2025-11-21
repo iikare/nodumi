@@ -115,6 +115,9 @@ void controller::initData(const vector<asset>& assetSet) {
           shaderMap.insert(make_pair(item.assetName, tmpShaderData));
         }
       } break;
+      case MODEL:
+        modelMap.insert(make_pair(item.assetName, make_pair(item.data, item.dataLen)));
+        break;
       default:
         // these items aren't statically loaded
         break;
@@ -170,6 +173,15 @@ Texture2D& controller::getImage(const string& imageIdentifier) {
   auto it = imageMap.find(imageIdentifier);
   if (it == imageMap.end()) {
     logW(LL_CRIT, "attempt to load unloaded image w/ identifier: " + imageIdentifier);
+    // exit(1);
+  }
+  return it->second;
+}
+
+pair<unsigned char*, unsigned int>& controller::getModel(const string& modelIdentifier) {
+  auto it = modelMap.find(modelIdentifier);
+  if (it == modelMap.end()) {
+    logW(LL_CRIT, "attempt to load unloaded model w/ identifier: " + modelIdentifier);
     // exit(1);
   }
   return it->second;
@@ -553,6 +565,9 @@ void controller::toggleLivePlay() {
   if (livePlayState) {
     livePlayOffset = 0;
     notes = &input.noteStream.notes;
+
+    //// warmup classifier model if needed
+    input.initClassifier();
   }
   else {
     // when turning off live input, revert to previously loaded file info

@@ -19,6 +19,16 @@ midiInput::midiInput()
   }
 }
 
+void midiInput::initClassifier() {
+  if (!classifier_warmup) {
+    classifier_warmup = true;
+    classifier = unique_ptr<inputClassifier>(new inputClassifier());
+    classifier->init();
+  }
+}
+
+void midiInput::terminate() { classifier->terminate(); }
+
 void midiInput::openPort(int port, bool pauseEvent) {
   if (!pauseEvent) {
     resetInput();
@@ -180,6 +190,16 @@ void midiInput::convertEvents() {
 
 int midiInput::findPartition(const note& n) {
   // logW(LL_WARN, "new note @", n.y);
+  if (noteCount > classifier->get_length()) {
+    vector<int> seq;
+    for (int i = 0; i < classifier->get_length(); ++i) {
+      int idx = i + 1;
+      seq.push_back(noteStream.notes[noteCount - 1 - idx].y);
+      seq.push_back(noteStream.notes[noteCount - 1 - idx].track);
+    }
+
+    return classifier->run_inference(seq, n.y);
+  }
   return findTrack(n, noteStream, true, numOn);
 }
 

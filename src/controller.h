@@ -51,6 +51,7 @@ class controller {
   const Font& getFont(const string& id, int size);
   Texture2D& getImage(const string& imageIdentifier);
   Shader& getShader(const string& shaderIdentifier);
+  pair<unsigned char*, unsigned int>& getModel(const string& modelIdentifier);
 
   void beginFrame();
   void endFrame();
@@ -271,4 +272,5 @@ class controller {
   unordered_map<string, pair<asset, map<int, Font>>> fontMap;
   unordered_map<string, Texture2D> imageMap;
   unordered_map<string, shaderData> shaderMap;
+  unordered_map<string, pair<unsigned char*, unsigned int>> modelMap;
 };
