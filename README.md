@@ -13,12 +13,13 @@ A usage guide is now [available](https://iika.re/nodumi/guide.pdf "nodumi usage 
 <br>
 
 # dependencies
-This project requires several dependencies, many of which are submodules to this repository.
+This project requires several dependencies, many of which are submodules to this repository. Some of these modules are optional and/or platform specific.
 
-* `midifile` (supplied as a submodule)
-* `osdialog` (supplied as a submodule)
-* `rtmidi` (supplied as a submodule)
-* `raylib`* (see below)
+* `midifile`  (supplied as a submodule)
+* `osdialog`  (supplied as a submodule)
+* `rtmidi`    (supplied as a submodule)
+* `libtorch`* (see below)
+* `raylib`**  (see below)
 * `openmp`
 * `make`
 * `xxd`
@@ -27,6 +28,8 @@ This project requires several dependencies, many of which are submodules to this
 Cross-compilation will require you to recompile `raylib` for the target platform. For this purpose, the included submodule must be used. Compiling for
 a linux platform does not require the use of the bundled `raylib` submodule. For these cases, the build process will link against the system `raylib`
 library.
+
+Live track-splitting via real-time inference using a small LSTM model is supported via `libtorch` on Linux only. To enable this support, use `make torch=y` while building, and ensure LibTorch is available on your system (expected at `/opt/libtorch-cpu/`, although you may have to change it manually depending on your system configuration).
 
 The current build script assumes you are building on a Linux environment with raylib installed in the appropriate directories (`/lib/libraylib.so` and `/usr/include/raylib.h`). This project should be compiler-agnostic, but for best results, use `clang`/`clang++`. For cross-compilation to Windows, the following tools are required:
 
