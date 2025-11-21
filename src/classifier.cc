@@ -96,6 +96,13 @@ void inputClassifier::init() {
 #endif
 }
 
+bool inputClassifier::enabled() {
+#ifdef USE_TORCH_CLASSIFIER
+  return true;
+#endif
+  return false;
+}
+
 void inputClassifier::terminate() {}
 
 int inputClassifier::run_inference(vector<int>& seq, int current) {
