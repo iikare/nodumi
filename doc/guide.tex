@@ -30,6 +30,10 @@
 \titlespacing{\subsection}{0pt}{1ex}{1ex}
 \titlespacing{\subsubsection}{0pt}{0.5ex}{0ex}
 
+\setlength{\cftsecnumwidth}{1.75em}
+\setlength{\cftsubsecnumwidth}{2.75em}
+\setlength{\cftsubsubsecnumwidth}{2.5em}
+
 \lstset{
   % frame=tb,
   aboveskip=3mm,
@@ -557,6 +561,12 @@ this mode, and then select the corresponding MIDI input port via
 This feature is accessible via 
 \mi{Midi} $\rightarrow$ \mi{{Enable, Disable} Live Play}.
 
+\subsection{LSTM-Based Track Separation}
+\label{subsec:lstm}
+
+Using a small LSTM (dependent on \mi{libtorch}, available only on Linux, and requiring compile-time support), left/right hand detection from a single MIDI input can be done. This is primarily intended for use with instruments such as piano, organ, etc. If the program is compiled without \mi{libtorch} support, this feature will fall back to a heuristic-based algorithm for track separation, if enabled via the corresponding
+\textcolor{lcol}{\hyperref[subsec:adaptivetrackdivision]{option}}.
+
 \section{Color Selection}
 
 Almost every UI element has a user-controllable color parameter. This section details the ways in which these
@@ -767,6 +777,7 @@ that maximizes $\Delta E(C_\text{LAB}, B_\text{LAB})$.
 This color will then be set as the default label color.
 
 \subsection{Adaptive Track Division}
+\label{subsec:adaptivetrackdivision}
 
 Many MIDI devices such as digital pianos only support single-channel MIDI output. Then, it can become difficult to discern the
 hand that plays a specific section of a piece. This option enables an algorithm that processes live MIDI input to split
