@@ -21,6 +21,13 @@ class inputClassifier {
   int run_inference(vector<int>& seq, int current);
   int get_length() { return sequence_length; }
 
+  bool enabled() {
+#ifdef USE_TORCH_CLASSIFIER
+    return true;
+#endif
+    return false;
+  }
+
  private:
   static constexpr int sequence_length = 16;
 #ifdef USE_TORCH_CLASSIFIER

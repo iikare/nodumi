@@ -190,7 +190,7 @@ void midiInput::convertEvents() {
 
 int midiInput::findPartition(const note& n) {
   // logW(LL_WARN, "new note @", n.y);
-  if (noteCount > classifier->get_length()) {
+  if (classifier->enabled() && noteCount > classifier->get_length()) {
     vector<int> seq;
     for (int i = 0; i < classifier->get_length(); ++i) {
       int idx = i + 1;
