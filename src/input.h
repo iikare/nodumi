@@ -11,6 +11,7 @@
 #include "note.h"
 #include "track_split.h"
 
+using std::make_unique;
 using std::string;
 using std::unique_ptr;
 using std::vector;

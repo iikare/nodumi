@@ -10,7 +10,7 @@
 
 midiInput::midiInput()
     : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
-  midiIn = unique_ptr<RtMidiIn>(new RtMidiIn());
+  midiIn = make_unique<RtMidiIn>();
   if (midiIn == nullptr) {
     logW(LL_WARN, "unable to initialize MIDI input");
   }
@@ -22,7 +22,7 @@ midiInput::midiInput()
 void midiInput::initClassifier() {
   if (!classifier_warmup) {
     classifier_warmup = true;
-    classifier = unique_ptr<inputClassifier>(new inputClassifier());
+    classifier = make_unique<inputClassifier>();
     classifier->init();
   }
 }
