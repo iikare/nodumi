@@ -4,164 +4,110 @@
 #include "define.h"
 
 int findTrack(const note& n, const midi& m_stream, bool live, int numOn) {
-  if (!live) {
-    // return n.y % 2;
+  bool print = false;
+
+  int n_start = 3250;
+  int n_end = n_start + 100;
+  print = true;
+  if (n.number < n_start || n.number > n_end) {
+    print = false;
   }
 
-  constexpr int seqLimit = 2000;
+  constexpr int lookback_limit = 8;
+  constexpr int duration_limit = 5 * UNK_CST;
+  // constexpr int out_of_range_modifier = 100;
+  // constexpr int empty_track_modifier = 10;
 
-  // find latest old note
-  int i = 0;
-  double minX = std::numeric_limits<double>::max();
-  int minIdx = 0;
+  int j = n.number - 1;
+  int j_i = 0;
 
-  // go back a minimum of seqLimit v. the oldest noteOn event
-  int adjNotes = 0;
-  int noteCount = live ? m_stream.getNoteCount() : numOn;
-  int j = noteCount;
+  double track0_sum = 0;
+  double track1_sum = 0;
+  int track0_ct = 0;
+  int track1_ct = 0;
 
-  // logQ("test", n.x, n.isOn);
+  int track0_on_min = 127;
+  int track1_on_min = 127;
 
-  while (j >= 0 && m_stream.notes[j].x >= 0) {
-    // logW(LL_CRIT, "break param:",  m_stream.notes[j].x+seqLimit, n.x);
-    if (m_stream.notes[j].x + seqLimit <= n.x) {
-      if (adjNotes == 0) {
-        minX = 0;
+  int track0_on_max = 0;
+  int track1_on_max = 0;
+
+  int temporal_ct0 = 0;
+  int temporal_ct1 = 0;
+
+  // auto last_onset = n.x;
+  while (j >= 0 && j_i < lookback_limit) {
+    // if (last_onset - m_stream.notes[j].x > 1000) break;
+
+    if (m_stream.notes[j].track) {
+      track1_sum += m_stream.notes[j].y;
+      track1_ct++;
+      if (abs(m_stream.notes[j].x - n.x) < duration_limit) {
+        track1_on_min = min(track1_on_min, m_stream.notes[j].y);
+        track1_on_max = max(track1_on_max, m_stream.notes[j].y);
+        temporal_ct1++;
       }
-
-      // logW(LL_WARN, "while BREAK on note:", m_stream.notes[j].x,
-      // m_stream.notes[j].y);
-
-      break;
     }
-    // logW(LL_WARN, "while on note:", m_stream.notes[j].x,
-    // m_stream.notes[j].y);
-
-    if (m_stream.notes[j].isOn) {
-      i++;
+    else {
+      track0_sum += m_stream.notes[j].y;
+      track0_ct++;
+      if (abs(m_stream.notes[j].x - n.x) < duration_limit) {
+        track0_on_min = min(track0_on_min, m_stream.notes[j].y);
+        track0_on_max = max(track0_on_max, m_stream.notes[j].y);
+        temporal_ct0++;
+      }
     }
 
-    adjNotes++;
-    minX = m_stream.notes[j].x;
-    minIdx = j;
     j--;
+    j_i++;
   }
 
-  if (i != numOn && live) {
-    for (; j >= 0; --j) {
-      // avoid this note (which is ON by definition)
-      if (i == numOn) {
-        // all on notes shifted
-        break;
-      }
-      if (m_stream.notes[j].isOn) {
-        if (m_stream.notes[j].x < minX) {
-          minX = m_stream.notes[j].x;
-          minIdx = j;
-        }
-        // logQ("j, X", j, m_stream.notes[j].x);
-        i++;
-      }
+  double track0_avg = 48;
+  double track1_avg = 72;
+
+  if (j_i) {
+    if (track0_ct) {
+      track0_avg = track0_sum / track0_ct;
+    }
+    if (track1_ct) {
+      track1_avg = track1_sum / track1_ct;
     }
   }
 
-  // logQ("MINIDX MINX", minIdx, minX, "|",i,numOn);
+  double score0 = abs(track0_avg - n.y);
+  double score1 = abs(track1_avg - n.y);
 
-  // minIdx = max(minIdx - 5, 0);
-
-  // find track range
-  int tr0minY = 127;
-  int tr0maxY = 0;
-  int tr1minY = 127;
-  int tr1maxY = 0;
-
-  // one hand range (approx. a 10th)
-  const int handRange = ctr.option.get(OPTION::HAND_RANGE);
-  constexpr int onLimit = 350;
-
-  vector<int> considerN;
-  // vector<int> onN;
-  for (int j = minIdx; j <= noteCount; j++) {
-    if (m_stream.notes[j].isOn || m_stream.notes[j].x + onLimit > n.x) {
-      // 1, then 0
-      if (j != noteCount) {  // exclude this note
-        if (m_stream.notes[j].track == 1) {
-          tr1maxY = max(tr1maxY, m_stream.notes[j].y);
-          tr1minY = min(tr1minY, m_stream.notes[j].y);
-        }
-        else {
-          tr0maxY = max(tr0maxY, m_stream.notes[j].y);
-          tr0minY = min(tr0minY, m_stream.notes[j].y);
-        }
-      }
-
-      // onN.push_back(j);
-    }
-
-    considerN.push_back(j);
+  int track0_range = track0_on_max - track0_on_min;
+  int track1_range = track1_on_max - track1_on_min;
+  int track0_range_new = max(track0_on_max, n.y) - min(track0_on_min, n.y);
+  int track1_range_new = max(track1_on_max, n.y) - min(track1_on_min, n.y);
+  if (temporal_ct0 == 0) {
+    track0_range = 0;
+    track0_range_new = 0;
+  }
+  if (temporal_ct1 == 0) {
+    track1_range = 0;
+    track1_range_new = 0;
   }
 
-  // logQ("range:", max(tr0maxY,tr1maxY) -  min(tr0minY,tr1minY));
-  // logQ("range0:", tr0maxY - tr0minY);
-  // logQ("range1:", tr1maxY - tr1minY);
-
-  // consider range WITH this note
-
-  int new_tr1maxY = max(tr1maxY, n.y);
-  int new_tr1minY = min(tr1minY, n.y);
-  int new_tr0maxY = max(tr0maxY, n.y);
-  int new_tr0minY = min(tr0minY, n.y);
-
-  // logQ("range0 (UPD):", new_tr0maxY - new_tr0minY);
-  // logQ("range1 (UPD):", new_tr1maxY - new_tr1minY);
-
-  // logQ("consider Y", relevantY);
-
-  if (considerN.size() == 1) {
-    if (m_stream.notes[considerN[0]].y >= 60) {
-      return 1;
-    }
-    return 0;
+  if (track0_range <= ctr.option.get(OPTION::HAND_RANGE) &&
+      track0_range_new > ctr.option.get(OPTION::HAND_RANGE)) {
+    // score0 += out_of_range_modifier;
   }
 
-  bool outOfRange0 = new_tr0maxY - new_tr0minY > handRange;
-  bool outOfRange1 = new_tr1maxY - new_tr1minY > handRange;
-
-  // force assign to other hand if adding to this track causes an out of range
-  if (!outOfRange0 && outOfRange1) {
-    return 0;
-  }
-  else if (outOfRange0 && !outOfRange1) {
-    return 1;
+  if (track1_range <= ctr.option.get(OPTION::HAND_RANGE) &&
+      track1_range_new > ctr.option.get(OPTION::HAND_RANGE)) {
+    // score1 += out_of_range_modifier;
   }
 
-  // int tr0sum = 0;
-  // int tr1sum = 0;
-  int tr0ct = 0;
-  int tr1ct = 0;
+  int track_result = score0 > score1;
 
-  for (auto considerNote : considerN) {
-    //(m_stream.notes[considerNote].track ? tr1sum : tr0sum) +=
-    // m_stream.notes[considerNote].y;
-    (m_stream.notes[considerNote].track ? tr1ct : tr0ct)++;
+  if (print) {
+    logQ(n.number, track0_range, track0_range_new, track1_range, track1_range_new);
+  }
+  if (print) {
+    logQ(n.number, track_result, track0_avg, track1_avg, temporal_ct0, temporal_ct1, n.y);
   }
 
-  // double tr0avg = ((tr0ct == 0) ? -1 : tr0sum/static_cast<double>(tr0ct));
-  // double tr1avg = ((tr1ct == 0) ? -1 : tr1sum/static_cast<double>(tr1ct));
-  // double dist0 = fabs(tr0avg - n.y);
-  // double dist1 = fabs(tr1avg - n.y);
-
-  // logQ("consider track avg", tr0avg, tr1avg);
-
-  // if both in range, choose track with least notes
-  if (!outOfRange0 && !outOfRange1) {
-    // return tr0ct >= tr1ct;
-    // if (fabs(dist0-dist1) < 2) {
-    // logW(LL_CRIT, "avg. mediator");
-    // return tr0ct >= tr1ct;
-    //}
-    return m_stream.notes[noteCount - 1].track;
-  }
-
-  return 0;
+  return track_result;
 }

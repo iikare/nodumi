@@ -1903,7 +1903,7 @@ int main(int argc, char* argv[]) {
             rightMenuContents = ctr.text.getStringSet("RIGHT_MENU_EMPTY", "RIGHT_MENU_CHANGE_PART_COLOR",
                                                       "RIGHT_MENU_SET_TONIC");
             rightMenu.update(rightMenuContents);
-            rightMenu.setContent(ctr.getNoteLabel(clickNote), 0);
+            rightMenu.setContent(ctr.getNoteLabel(clickNote) + " | " + to_string(notes[clickNote].number), 0);
 
             // set note color for color wheel
             auto set_idx = getColorSetIndex(clickNote);
