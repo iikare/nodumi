@@ -240,6 +240,7 @@ void midiInput::update() {
         convertEvents();
         updatePosition();
       }
+      updatePosition();
       // TODO: consider optimization
       // ctr.input.noteStream.buildLineMap();
     }
