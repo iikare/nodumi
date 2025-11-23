@@ -414,7 +414,6 @@ void controller::popTextureMode() {
   // logQ("call to popTextureMode() at frame: " + to_string(getFrame()));
 
   if (renderStack.empty()) {
-    // TODO: should popping a render texture off an empty stack be a warning??
     // logW(LL_WARN, "attempt to pop render texture with empty render stack");
     return;
   }
@@ -798,9 +797,7 @@ string controller::getTempoLabel(int offset) const {
 
 string controller::getKeySigLabel(int offset) const {
   if (livePlayState) {
-    // TODO: detect key signature from already-played notes
-    // return "NULL";
-    return "";
+    return ctr.input.findKeySig();
   }
 
   if (file.measureMap.size() == 0) {

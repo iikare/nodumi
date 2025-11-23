@@ -9,13 +9,32 @@
 #include "log.h"
 
 midiInput::midiInput()
-    : midiIn(nullptr), msgQueue(0), numPort(0), curPort(-1), noteCount(0), numOn(0), timestamp(0) {
+    : midiIn(nullptr),
+      msgQueue(0),
+      numPort(0),
+      curPort(-1),
+      noteCount(0),
+      numOn(0),
+      timestamp(0),
+      match(KEYSIG_NONE - 2) {
   midiIn = make_unique<RtMidiIn>();
   if (midiIn == nullptr) {
     logW(LL_WARN, "unable to initialize MIDI input");
   }
   for (auto& t : noteStream.getTracks()) {
     t.setNoteVector(&noteStream.notes);
+  }
+
+  for (int ch = 0; auto& m : match) {
+    // exclude 7flat/sharp
+    int k_t = KEYSIG_C + ch;
+    if (any_of(k_t, KEYSIG_CSHARP, KEYSIG_CFLAT)) {
+      ch++;
+      k_t++;
+    }
+
+    m = make_pair(0, keySig(k_t, 0, 0));
+    ch++;
   }
 }
 
@@ -62,7 +81,6 @@ void midiInput::resetInput() {
   numOn = 0;
   curPort = 0;
 
-  // TODO: implement midi reset handler
   noteStream.notes.clear();
   noteStream.measureMap.clear();
 
@@ -150,6 +168,22 @@ void midiInput::convertEvents() {
 
         // partition finder requires the current note to be present
         noteStream.notes.push_back(tmpNote);
+
+        // add this note and remove the oldest note in the queue
+        constexpr int keysig_match_limit = 32;
+        for (auto& m : match) {
+          int y_norm = tmpNote.y + 12 * 12;
+          int ks_idx = (y_norm + m.second.getIndex()) % 12;
+          bool on_key = any_of(ks_idx, 0, 2, 4, 5, 7, 9, 11);
+          on_key ? m.first++ : m.first--;
+
+          if (noteCount > keysig_match_limit) {
+            y_norm = noteStream.notes[noteCount - 1 - keysig_match_limit].y + 12 * 12;
+            ks_idx = (y_norm + m.second.getIndex()) % 12;
+            on_key = !any_of(ks_idx, 0, 2, 4, 5, 7, 9, 11);
+            on_key ? m.first++ : m.first--;
+          }
+        }
 
         numOn++;
         tmpNote.track =
@@ -258,4 +292,11 @@ void midiInput::update() {
       }
     }
   }
+}
+
+string midiInput::findKeySig() {
+  auto max_it = std::max_element(match.begin(), match.end(),
+                                 [&](const auto& a, const auto& b) { return a.first < b.first; });
+
+  return keySig(noteCount ? max_it->second.getKey() : KEYSIG_C, false, 0).getLabel();
 }
