@@ -39,6 +39,7 @@ void optionController::invert(OPTION opt) {
       if (ctr.getLiveState() && !get(opt)) {
         getColorScheme(2, ctr.setTrackOn, ctr.setTrackOff);
       }
+      ctr.input.reset_lstm_count();
       break;
     case OPTION::TRACK_DIVISION_MIDI:
       break;

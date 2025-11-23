@@ -27,6 +27,8 @@ void midiInput::initClassifier() {
   }
 }
 
+void midiInput::reset_lstm_count() { notes_since_lstm_enable = 0; }
+
 void midiInput::terminate() { classifier->terminate(); }
 
 void midiInput::openPort(int port, bool pauseEvent) {
@@ -190,7 +192,7 @@ void midiInput::convertEvents() {
 
 int midiInput::findPartition(const note& n) {
   // logW(LL_WARN, "new note @", n.y);
-  if (classifier->enabled() && noteCount > classifier->get_length()) {
+  if (classifier->enabled() && notes_since_lstm_enable > classifier->get_length()) {
     vector<int> seq;
     for (int i = 0; i < classifier->get_length(); ++i) {
       int idx = i + 1;
@@ -199,6 +201,9 @@ int midiInput::findPartition(const note& n) {
     }
 
     return classifier->run_inference(seq, n.y);
+  }
+  else {
+    notes_since_lstm_enable++;
   }
   return findTrack(n, noteStream, true, numOn);
 }

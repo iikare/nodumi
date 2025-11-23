@@ -28,6 +28,7 @@ class midiInput {
   void pauseInput();
   void resumeInput();
   void terminate();
+  void reset_lstm_count();
 
   int getNoteCount() { return noteCount; }
   vector<string> getPorts();
@@ -49,6 +50,8 @@ class midiInput {
   int noteCount;
   int numOn;
   double timestamp;
+
+  int notes_since_lstm_enable = 0;
 
   unique_ptr<inputClassifier> classifier;
   bool classifier_warmup = false;
