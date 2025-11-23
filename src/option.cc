@@ -48,6 +48,9 @@ void optionController::invert(OPTION opt) {
       break;
     case OPTION::SET_HAND_RANGE:
       break;
+    case OPTION::USE_LSTM:
+      // ctr.input.reset_lstm_count();
+      break;
     case OPTION::SET_DARKEN_IMAGE:
       ctr.setShaderValue("SH_LEVEL", "use_bw", static_cast<int>(!opts[static_cast<int>(opt)]));
       break;
@@ -79,9 +82,13 @@ void optionController::invert(OPTION opt) {
 bool optionController::invalid(OPTION opt) {
   switch (opt) {
     case OPTION::SET_HAND_RANGE:
-      [[fallthrough]];
+      if (get(OPTION::USE_LSTM)) {
+        return true;
+      }
     case OPTION::HAND_RANGE:
       return !get(OPTION::TRACK_DIVISION_LIVE) && !get(OPTION::TRACK_DIVISION_MIDI);
+    case OPTION::USE_LSTM:
+      return !get(OPTION::TRACK_DIVISION_LIVE) || !ctr.input.lstm_enabled();
     case OPTION::SET_DARKEN_IMAGE:
       [[fallthrough]];
     case OPTION::DARKEN_IMAGE:

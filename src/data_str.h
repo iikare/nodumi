@@ -84,6 +84,7 @@
                         {"PREF_TRACK_DIVIDE_LIVE",              "Adaptive Track Division (live)"}, \
                         {"PREF_TRACK_DIVIDE_MIDI",              "Adaptive Track Division (file)"}, \
                         {"PREF_HAND_RANGE",                     "Custom Hand Range"}, \
+                        {"PREF_USE_LSTM",                       "Use LSTM Classifier"}, \
                         {"PREF_IMAGE_DARKEN",                   "Darken Background Image"}, \
                         {"PREF_DYNAMIC_LABEL",                  "Dynamic Label Color"}, \
                         {"PREF_CIE_FUNCTION",                   "Set CIE Distance Function"}, \

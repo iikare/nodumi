@@ -29,6 +29,7 @@ class midiInput {
   void resumeInput();
   void terminate();
   void reset_lstm_count();
+  bool lstm_enabled() { return classifier->enabled(); }
 
   int getNoteCount() { return noteCount; }
   vector<string> getPorts();

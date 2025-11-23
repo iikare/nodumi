@@ -30,6 +30,8 @@ void dialogController::init() {
       dialogOption(DIA_OPT::SUBBOX, OPTION::SET_HAND_RANGE, OPTION::HAND_RANGE,
                    ctr.text.getStringSet("PREF_HAND_RANGE"), {"8", "9", "10", "11"}, {12, 14, 16, 17}));
   dia_opts.find(PREF::P1)->second.push_back(
+      dialogOption(DIA_OPT::CHECK_ONLY, OPTION::USE_LSTM, ctr.text.getStringSet("PREF_USE_LSTM")));
+  dia_opts.find(PREF::P1)->second.push_back(
       dialogOption(DIA_OPT::CHECK_ONLY, OPTION::LIMIT_FPS, ctr.text.getStringSet("PREF_LIMIT_FPS")));
 
   dia_opts.find(PREF::P2)->second.push_back(

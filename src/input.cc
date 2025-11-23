@@ -153,7 +153,7 @@ void midiInput::convertEvents() {
 
         numOn++;
         tmpNote.track =
-            ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ? findPartition(tmpNote) : 1;  // by default
+            ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ? findPartition(tmpNote) : 0;  // by default
 
         // update track after determination
         noteStream.notes[noteCount].track = tmpNote.track;
@@ -193,14 +193,16 @@ void midiInput::convertEvents() {
 int midiInput::findPartition(const note& n) {
   // logW(LL_WARN, "new note @", n.y);
   if (classifier->enabled() && notes_since_lstm_enable > classifier->get_length()) {
-    vector<int> seq;
-    for (int i = 0; i < classifier->get_length(); ++i) {
-      int idx = i + 1;
-      seq.push_back(noteStream.notes[noteCount - 1 - idx].y);
-      seq.push_back(noteStream.notes[noteCount - 1 - idx].track);
-    }
+    if (ctr.option.get(OPTION::USE_LSTM)) {
+      vector<int> seq;
+      for (int i = 0; i < classifier->get_length(); ++i) {
+        int idx = i + 1;
+        seq.push_back(noteStream.notes[noteCount - 1 - idx].y);
+        seq.push_back(noteStream.notes[noteCount - 1 - idx].track);
+      }
 
-    return classifier->run_inference(seq, n.y);
+      return classifier->run_inference(seq, n.y);
+    }
   }
   else {
     notes_since_lstm_enable++;
