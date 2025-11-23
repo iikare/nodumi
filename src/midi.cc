@@ -95,7 +95,8 @@ void midi::buildMessageMap(const MidiFile& mf) {
     // if (mf[0][i].seconds > 0.01){// || mf[0][i].isNote()) {
     if (mf[0][i].isNote() || mf[0][i].isController()) {
       // if (1) {
-      message_vec.push_back(make_pair(mf[0][i].seconds * UNK_CST, static_cast<vector<unsigned char>>(mf[0][i])));
+      message_vec.push_back(
+          make_pair(mf[0][i].seconds * UNK_CST, static_cast<vector<unsigned char>>(mf[0][i])));
     }
   }
   message_vec.shrink_to_fit();
@@ -217,8 +218,8 @@ int midi::findKeySig() {
   }
 
   // for (const auto& m : match) { logQ(m.first, "-", m.second.getLabel()); }
-  auto max_it =
-      std::max_element(match.begin(), match.end(), [&](const auto& a, const auto& b) { return a.first < b.first; });
+  auto max_it = std::max_element(match.begin(), match.end(),
+                                 [&](const auto& a, const auto& b) { return a.first < b.first; });
   return max_it->second.getKey();
   // return KEYSIG_C;
 }
@@ -362,7 +363,8 @@ void midi::load(stringstream& buf) {
     }
   }
 
-  tracks.erase(remove_if(tracks.begin(), tracks.end(), [&](auto& tr) { return !tr.getNoteCount(); }), tracks.end());
+  tracks.erase(remove_if(tracks.begin(), tracks.end(), [&](auto& tr) { return !tr.getNoteCount(); }),
+               tracks.end());
 
   if (ctr.option.get(OPTION::TRACK_DIVISION_MIDI) && trackCount == 1) {
     logW(LL_INFO, "MIDI track division enabled - performing division");
@@ -376,7 +378,7 @@ void midi::load(stringstream& buf) {
     }
 
     for (int idx = 0; auto& n : notes) {
-      n.track = findTrack(n, *this, false, idx);
+      n.track = findTrack(n, *this);
       // logQ(n.track);
       // logQ(tracks.at(n.track).getNoteCount());
       tracks.at(n.track).insert(idx);
@@ -401,7 +403,8 @@ void midi::load(stringstream& buf) {
     }
     if (midifile[0][i].isKeySignature()) {
       // logQ(LL_INFO, "key sig at event", i);
-      keySig tmpKS = eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick);
+      keySig tmpKS =
+          eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick);
       addKeySignature(midifile[0][i].seconds * UNK_CST, tmpKS);
     }
   }
@@ -440,7 +443,9 @@ void midi::load(stringstream& buf) {
   }
 
   sort(trackHeightMap.begin(), trackHeightMap.end(),
-       [](const pair<int, double>& left, const pair<int, double>& right) { return left.second < right.second; });
+       [](const pair<int, double>& left, const pair<int, double>& right) {
+         return left.second < right.second;
+       });
 
   // build measure map
   if (timeSignatureMap.size() == 0) {

@@ -3,15 +3,15 @@
 #include "controller.h"
 #include "define.h"
 
-int findTrack(const note& n, const midi& m_stream, bool live, int numOn) {
+int findTrack(const note& n, const midi& m_stream) {
   bool print = false;
 
-  int n_start = 3250;
-  int n_end = n_start + 100;
-  print = true;
-  if (n.number < n_start || n.number > n_end) {
-    print = false;
-  }
+  // int n_start = 3250;
+  // int n_end = n_start + 100;
+  // print = true;
+  // if (n.number < n_start || n.number > n_end) {
+  // print = false;
+  //}
 
   constexpr int lookback_limit = 8;
   constexpr int duration_limit = 5 * UNK_CST;

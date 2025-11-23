@@ -207,7 +207,7 @@ int midiInput::findPartition(const note& n) {
   else {
     notes_since_lstm_enable++;
   }
-  return findTrack(n, noteStream, true, numOn);
+  return findTrack(n, noteStream);
 }
 
 void midiInput::updatePosition() {
