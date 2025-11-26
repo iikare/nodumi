@@ -51,6 +51,9 @@
 
 #define VORONOI_MAX_POINTS 496
 
+#define DEFAULT_TPQ 48
+#define DEFAULT_TEMPO 180
+
 // already defined in <raylib.h>
 // #define RAD2DEG M_PI/180.0f
 // #define DEG2RAD 180.0f/M_PI

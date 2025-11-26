@@ -47,8 +47,6 @@ class midiInput {
   int findPartition(const note& n);
 
   void resetStream();
-  static constexpr int tick_len = 48;
-  static constexpr int tempo_default = 120;
 
   unique_ptr<RtMidiIn> midiIn;
   vector<unsigned char> msgQueue;

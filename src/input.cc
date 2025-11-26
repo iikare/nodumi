@@ -23,7 +23,7 @@ midiInput::midiInput()
     logW(LL_WARN, "unable to initialize MIDI input");
   }
 
-  noteStream.setTPQ(48);
+  noteStream.setTPQ(DEFAULT_TPQ);
   for (auto& t : noteStream.getTracks()) {
     t.setNoteVector(&noteStream.notes);
   }
@@ -99,10 +99,14 @@ void midiInput::resetInput(bool keepPort) {
 }
 
 void midiInput::resetStream() {
-  noteStream.tempoMap.push_back(make_pair(0, tempo_default));
-
-  auto initMeasure = measureController(0, 0, 0, tick_len, timeSig(4, 4, 0), keySig(KEYSIG_C, false, 0));
+  auto initMeasure = measureController(0, 0, 0, DEFAULT_TPQ, timeSig(4, 4, 0), keySig(KEYSIG_C, false, 0));
   noteStream.measureMap.push_back(initMeasure);
+
+  noteStream.timeSignatureMap.push_back(make_pair(0, timeSig(4, 4, 0)));
+
+  noteStream.keySignatureMap.push_back(make_pair(0, keySig(KEYSIG_C, false, 0)));
+
+  noteStream.tempoMap.push_back(make_pair(0, DEFAULT_TEMPO));
 }
 
 void midiInput::pauseInput() { midiIn->closePort(); }
@@ -243,20 +247,6 @@ void midiInput::convertEvents() {
       logW(LL_INFO, "reset event for MIDI port", curPort);
 
       resetInput(true);
-
-      // int i = 0;
-      // for (int j = noteCount - 1; j >= 0; j--) {
-      // if (i >= numOn) {
-      //// all on notes shifted
-      // break;
-      //}
-      // if (noteStream.notes[j].isOn) {
-      // noteStream.notes[j].duration = ctr.livePlayOffset - noteStream.notes[j].x;
-      // noteStream.notes[j].isOn = false;
-      // i++;
-      //}
-      //}
-      // numOn = 0;
     }
     else if (msgQueue[0] == 0b11000000) {
       // generic program change event, ignored
@@ -264,6 +254,9 @@ void midiInput::convertEvents() {
     else if (msgQueue[0] == 0b10110000) {
       // generic controller event, ignored
       // events are default sent to output device, no need to process
+    }
+    else if (msgQueue[0] == 0b11111110) {
+      // active sensing event (real-time devices only)
     }
     else {
       string tmp;
@@ -320,6 +313,17 @@ int midiInput::findNoteIndex(int key) {
 
 void midiInput::update() {
   if (ctr.getLiveState()) {
+    double measureLen =
+        60.0 / (noteStream.tempoMap.back().second / noteStream.timeSignatureMap.back().second.getQPM()) *
+        UNK_CST;
+    // logQ(ctr.livePlayOffset, noteStream.measureMap.back().getLocation(), measureLen);
+
+    if (ctr.livePlayOffset - noteStream.measureMap.back().getLocation() >= measureLen) {
+      noteStream.measureMap.push_back(measureController(
+          noteStream.measureMap.size(), measureLen * noteStream.measureMap.size(), DEFAULT_TPQ,
+          noteStream.timeSignatureMap[0].second.getQPM() * DEFAULT_TPQ, {}, {}));
+    }
+
     if (midiIn->isPortOpen()) {
       while (updateQueue()) {
         convertEvents();

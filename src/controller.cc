@@ -513,7 +513,7 @@ void controller::updateDimension(double& nowLineX) {
     nowLineX = getWidth() * nowLineX / lastWidth;
 
     if (livePlayState) {
-      // TODO: measure system for live input
+      ctr.input.noteStream.sheetData.findSheetPages();
     }
     else {
       file.sheetData.findSheetPages();
@@ -731,7 +731,7 @@ int controller::getLastTime() {
 
 int controller::getTempo(int idx) const {
   if (livePlayState) {
-    return 120;
+    return DEFAULT_TEMPO;
   }
   else {
     return file.getTempo(idx);
@@ -740,8 +740,7 @@ int controller::getTempo(int idx) const {
 
 int controller::getMinTickLen() const {
   if (livePlayState) {
-    // TODO: find/calculate default MIDI TPQ for live devices
-    return 60;
+    return DEFAULT_TPQ;
   }
   else {
     return file.getMinTickLen();
@@ -751,23 +750,21 @@ int controller::getMinTickLen() const {
 int controller::getCurrentMeasure() const { return curMeasure; }
 
 int controller::findCurrentMeasure(int pos) const {
-  // if (livePlayState) {
-  //// TODO: reimplement when measures are added to live input data
-  // return 0;
-  //}
-  // else {
-  return file.findMeasure(pos);
-  //}
+  if (livePlayState) {
+    return ctr.input.noteStream.findMeasure(pos);
+  }
+  else {
+    return file.findMeasure(pos);
+  }
 }
 
 int controller::getMeasureCount() const {
-  // if (livePlayState) {
-  //// TODO: reimplement when measures are added to live input data
-  // return 0;
-  //}
-  // else {
-  return file.measureMap.size();
-  //}
+  if (livePlayState) {
+    return ctr.input.noteStream.measureMap.size();
+  }
+  else {
+    return file.measureMap.size();
+  }
 }
 
 string controller::getNoteLabel(int index) {
@@ -781,11 +778,14 @@ string controller::getNoteLabel(int index) {
 
 string controller::getTempoLabel(int offset) const {
   if (livePlayState) {
-    return "";
+    if (ctr.input.noteStream.measureMap.size() == 0) {
+      return "";
+    }
   }
-
-  if (file.measureMap.size() == 0) {
-    return "";
+  else {
+    if (file.measureMap.size() == 0) {
+      return "";
+    }
   }
 
   if (offset == 0) {
