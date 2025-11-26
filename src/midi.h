@@ -58,7 +58,7 @@ class midi {
     lastTime = 0;
     lastTick = 0;
 
-    tpq = 0;
+    tpq = 48;
   }
 
   void clear();
@@ -78,6 +78,7 @@ class midi {
   vector<trackController>& getTracks() { return tracks; }
 
   void setNoteCount(int nc) { noteCount = nc; }
+  void setTPQ(int new_tpq) { tpq = new_tpq; }
 
   vector<note> notes;
   multiset<pair<double, vector<unsigned char>>> message;

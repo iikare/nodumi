@@ -751,23 +751,23 @@ int controller::getMinTickLen() const {
 int controller::getCurrentMeasure() const { return curMeasure; }
 
 int controller::findCurrentMeasure(int pos) const {
-  if (livePlayState) {
-    // TODO: reimplement when measures are added to live input data
-    return 0;
-  }
-  else {
-    return file.findMeasure(pos);
-  }
+  // if (livePlayState) {
+  //// TODO: reimplement when measures are added to live input data
+  // return 0;
+  //}
+  // else {
+  return file.findMeasure(pos);
+  //}
 }
 
 int controller::getMeasureCount() const {
-  if (livePlayState) {
-    // TODO: reimplement when measures are added to live input data
-    return 0;
-  }
-  else {
-    return file.measureMap.size();
-  }
+  // if (livePlayState) {
+  //// TODO: reimplement when measures are added to live input data
+  // return 0;
+  //}
+  // else {
+  return file.measureMap.size();
+  //}
 }
 
 string controller::getNoteLabel(int index) {

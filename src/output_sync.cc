@@ -71,8 +71,6 @@ void outputInstance::updateOffset(double off) {
   //}
   //}
 
-  //// TODO: a bunch of notes are stuck at time = 0 and are skipped
-
   // if (index_last > index) {
   // logQ("skipped note (backward):", index_last, index);
   ////index = min(static_cast<unsigned int>(index), index_last - 10);

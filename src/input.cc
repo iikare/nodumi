@@ -7,6 +7,7 @@
 #include "data.h"
 #include "define.h"
 #include "log.h"
+#include "measure.h"
 
 midiInput::midiInput()
     : midiIn(nullptr),
@@ -21,9 +22,13 @@ midiInput::midiInput()
   if (midiIn == nullptr) {
     logW(LL_WARN, "unable to initialize MIDI input");
   }
+
+  noteStream.setTPQ(48);
   for (auto& t : noteStream.getTracks()) {
     t.setNoteVector(&noteStream.notes);
   }
+
+  resetStream();
 
   for (int ch = 0; auto& m : match) {
     // exclude 7flat/sharp
@@ -72,14 +77,16 @@ void midiInput::openPort(int port, bool pauseEvent) {
   }
 }
 
-void midiInput::resetInput() {
+void midiInput::resetInput(bool keepPort) {
   ctr.livePlayOffset = 0;
-  midiIn->closePort();
+  if (!keepPort) {
+    midiIn->closePort();
+    curPort = 0;
+  }
   msgQueue.clear();
   timestamp = 0;
   noteCount = 0;
   numOn = 0;
-  curPort = 0;
 
   noteStream.notes.clear();
   noteStream.measureMap.clear();
@@ -87,6 +94,15 @@ void midiInput::resetInput() {
   for (unsigned int i = 0; i < noteStream.getTracks().size(); i++) {
     noteStream.getTracks()[i].reset();
   }
+
+  resetStream();
+}
+
+void midiInput::resetStream() {
+  noteStream.tempoMap.push_back(make_pair(0, tempo_default));
+
+  auto initMeasure = measureController(0, 0, 0, tick_len, timeSig(4, 4, 0), keySig(KEYSIG_C, false, 0));
+  noteStream.measureMap.push_back(initMeasure);
 }
 
 void midiInput::pauseInput() { midiIn->closePort(); }
@@ -139,22 +155,23 @@ void midiInput::convertEvents() {
   // logQ(" ");
 
   // logQ(ctr.livePlayOffset, timestamp);
-  for (long unsigned int i = 0; i < msgQueue.size(); i++) {
-    // logQ(bitset<8>(msgQueue[i]));
+  if (msgQueue.size()) {
+    // if (i) { break; }
+    //  logQ(bitset<8>(msgQueue[i]));
 
     // logQ(ctr.livePlayOffset);
 
-    if (msgQueue[i] == 0b11111000) {  // 248: clock signal
+    if (msgQueue[0] == 0b11111000) {  // 248: clock signal
       // cerr << "shift by " << timestamp*100 << endl;
       ctr.livePlayOffset += fmax(0, timestamp) * UNK_CST;
     }
-    else if (msgQueue[i] == 0b10010000) {  // 144: note on/off
-      if (msgQueue[i + 2] != 0) {          // if note on
+    else if (msgQueue[0] == 0b10010000) {  // 144: note on/off
+      if (msgQueue[2] != 0) {              // if note on
         note tmpNote;
 
         tmpNote.x = ctr.livePlayOffset;
-        tmpNote.y = static_cast<int>(msgQueue[i + 1]);
-        tmpNote.velocity = static_cast<int>(msgQueue[i + 2]);
+        tmpNote.y = static_cast<int>(msgQueue[1]);
+        tmpNote.velocity = static_cast<int>(msgQueue[2]);
         tmpNote.isOn = true;
 
         // if this is the note on event, duration is undefined
@@ -191,13 +208,13 @@ void midiInput::convertEvents() {
 
         // update track after determination
         noteStream.notes[noteCount].track = tmpNote.track;
+        noteStream.notes[noteCount].measure = noteStream.measureMap.size() - 1;
+        noteStream.measureMap.back().addNote(tmpNote);
 
         noteStream.getTracks()[tmpNote.track].insert(noteCount);
 
         // update last index only AFTER track splitter
         noteCount++;
-
-        i += 2;
 
         // cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " <<
         // tmpNote.y << ", " << tmpNote.velocity << endl;
@@ -205,7 +222,7 @@ void midiInput::convertEvents() {
         noteStream.setNoteCount(noteCount);
       }
       else {
-        int idx = findNoteIndex(static_cast<int>(msgQueue[i + 1]));
+        int idx = findNoteIndex(static_cast<int>(msgQueue[1]));
         noteStream.notes[idx].isOn = false;
         // note tmpNote = noteStream.notes[idx];
 
@@ -220,6 +237,40 @@ void midiInput::convertEvents() {
       }
       noteStream.buildLineMap();
       // logQ("line size:", noteStream.lines.size());
+    }
+    else if (msgQueue.size() > 1 && msgQueue[1] == 0b01111001) {
+      // reset all controllers
+      logW(LL_INFO, "reset event for MIDI port", curPort);
+
+      resetInput(true);
+
+      // int i = 0;
+      // for (int j = noteCount - 1; j >= 0; j--) {
+      // if (i >= numOn) {
+      //// all on notes shifted
+      // break;
+      //}
+      // if (noteStream.notes[j].isOn) {
+      // noteStream.notes[j].duration = ctr.livePlayOffset - noteStream.notes[j].x;
+      // noteStream.notes[j].isOn = false;
+      // i++;
+      //}
+      //}
+      // numOn = 0;
+    }
+    else if (msgQueue[0] == 0b11000000) {
+      // generic program change event, ignored
+    }
+    else if (msgQueue[0] == 0b10110000) {
+      // generic controller event, ignored
+      // events are default sent to output device, no need to process
+    }
+    else {
+      string tmp;
+      for (long unsigned int i = 0; i < msgQueue.size(); i++) {
+        tmp += toHex((int)msgQueue[i]) + " ";
+      }
+      logQ("unhandled event:", tmp);
     }
   }
 }
@@ -280,7 +331,10 @@ void midiInput::update() {
     }
     else {
       // shift even when midi input is disconnected
-      ctr.livePlayOffset += GetFrameTime() * UNK_CST;
+      // only if there's at least one note
+      if (noteCount) {
+        ctr.livePlayOffset += GetFrameTime() * UNK_CST;
+      }
     }
   }
   else {

@@ -23,7 +23,7 @@ class midiInput {
   void initClassifier();
 
   void openPort(int port, bool pauseEvent = false);
-  void resetInput();
+  void resetInput(bool keepPort = false);
   void update();
   void pauseInput();
   void resumeInput();
@@ -45,6 +45,10 @@ class midiInput {
   bool isUntimedQueue();
   int findNoteIndex(int key);
   int findPartition(const note& n);
+
+  void resetStream();
+  static constexpr int tick_len = 48;
+  static constexpr int tempo_default = 120;
 
   unique_ptr<RtMidiIn> midiIn;
   vector<unsigned char> msgQueue;
