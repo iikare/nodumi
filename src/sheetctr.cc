@@ -337,9 +337,11 @@ void sheetController::disectMeasure(measureController& measure) {
       if (stavect != 0) {
         if (stream.notes[n->oriNote].sheetY - stream.notes[dm.chords[ch].second[ct - 1]->oriNote].sheetY <
             2) {
-          n->left = !dm.chords[ch].second[ct - 1]->left;
+          // n->left = !dm.chords[ch].second[ct - 1]->left;
         }
       }
+      n->left = true;
+
       ct++;
       stavect++;
     }
@@ -758,8 +760,7 @@ int sheetController::getSymbolWidth(const int symbol) {
     case SYM_DOT:
       return 4;
     default:
-      // TODO: revert
-      // logQ("invalid symbol:", symbol);
+      logQ("invalid symbol:", symbol);
       break;
   }
 
@@ -828,8 +829,7 @@ int sheetController::getSymbolType(const int noteType) {
     case NOTE_64:
       return SYM_HEAD_STD;
     default:
-      // TODO: revert
-      // logQ("invalid note type:", noteType);
+      logQ("invalid note type:", noteType);
       break;
   }
 

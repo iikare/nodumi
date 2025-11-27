@@ -60,16 +60,17 @@ void sheetMeasure::buildFlagMap() {
       if (chn == 0) {
         // from bottom, check if flag needs to face up
 
-        if (stream.notes[c.second[n]->oriNote].sheetY <
-            sheetController::getFlagLimit(getFlagType(stream.notes[c.second[n]->oriNote].type), STAVE_BASS)) {
-          cFlag.flagDir = FLAG_UP;  // default due to space constraint
-        }
-        else {
-          // if first note has space for a flag-down position
-          cFlag.flagDir = FLAG_DOWN;
-          // invert notehead due to down-flag
-          c.second[n]->left = false;
-        }
+        cFlag.flagDir = FLAG_UP;
+        // if (stream.notes[c.second[n]->oriNote].sheetY <
+        // sheetController::getFlagLimit(getFlagType(stream.notes[c.second[n]->oriNote].type), STAVE_BASS)) {
+        // cFlag.flagDir = FLAG_UP;  // default due to space constraint
+        //}
+        // else {
+        //// if first note has space for a flag-down position
+        // cFlag.flagDir = FLAG_DOWN;
+        //// invert notehead due to down-flag
+        // c.second[n]->left = false;
+        //}
         cFlag.startY = stream.notes[c.second[n]->oriNote].sheetY;
         cFlag.endY = cFlag.startY;
         cFlag.flagType = getFlagType(stream.notes[c.second[n]->oriNote].type);
@@ -80,9 +81,9 @@ void sheetMeasure::buildFlagMap() {
         cFlag.startY = stream.notes[c.second[n]->oriNote].sheetY;
         // take larger of the stem types
         cFlag.flagType = min(cFlag.flagType, getFlagType(stream.notes[c.second[n]->oriNote].type));
-        if (cFlag.flagDir == FLAG_DOWN) {
-          c.second[n]->left = false;
-        }
+        // if (cFlag.flagDir == FLAG_DOWN) {
+        // c.second[n]->left = false;
+        //}
       }
 
       ++chn;
@@ -110,16 +111,17 @@ void sheetMeasure::buildFlagMap() {
       if (chn == 0) {
         // from top, check if flag needs to face down
 
-        if (stream.notes[(*nIt)->oriNote].sheetY >
-            sheetController::getFlagLimit(getFlagType(stream.notes[(*nIt)->oriNote].type), STAVE_TREBLE)) {
-          cFlag.flagDir = FLAG_DOWN;  // default due to space constraint
-          // invert notehead due to down-flag
-          (*nIt)->left = false;
-        }
-        else {
-          // if first note has space for a flag-up position
-          cFlag.flagDir = FLAG_UP;
-        }
+        cFlag.flagDir = FLAG_UP;
+        // if (stream.notes[(*nIt)->oriNote].sheetY >
+        // sheetController::getFlagLimit(getFlagType(stream.notes[(*nIt)->oriNote].type), STAVE_TREBLE)) {
+        // cFlag.flagDir = FLAG_DOWN;  // default due to space constraint
+        //// invert notehead due to down-flag
+        //(*nIt)->left = false;
+        //}
+        // else {
+        //// if first note has space for a flag-up position
+        // cFlag.flagDir = FLAG_UP;
+        //}
         cFlag.startY = stream.notes[(*nIt)->oriNote].sheetY;
         cFlag.endY = cFlag.startY;
         cFlag.flagType = getFlagType(stream.notes[(*nIt)->oriNote].type);
@@ -130,9 +132,9 @@ void sheetMeasure::buildFlagMap() {
         cFlag.endY = stream.notes[(*nIt)->oriNote].sheetY;
         // take larger of the stem types
         cFlag.flagType = min(cFlag.flagType, getFlagType(stream.notes[(*nIt)->oriNote].type));
-        if (cFlag.flagDir == FLAG_DOWN) {
-          (*nIt)->left = false;
-        }
+        // if (cFlag.flagDir == FLAG_DOWN) {
+        //(*nIt)->left = false;
+        //}
       }
 
       ++chn;
@@ -141,6 +143,35 @@ void sheetMeasure::buildFlagMap() {
       }
     }
     s_chordData[chordNum].flags.push_back(cFlag);
+
+    // force all flags in a chord to face majority direction
+    // for (int chf = 0; auto& c : s_chordData) {
+    // int up_ct = 0;
+    // int down_ct = 0;
+    // for (auto& f : c.flags) {
+    // if (f.flagDir == FLAG_UP) {
+    // up_ct++;
+    //}
+    // if (f.flagDir == FLAG_DOWN) {
+    // down_ct++;
+    //}
+    //}
+
+    // flagDirType dominantFlag = (FLAG_UP == 0 && FLAG_DOWN == 0)
+    //? FLAG_NONE : (up_ct > down_ct ? FLAG_UP : FLAG_DOWN);
+
+    // for (auto& f : c.flags) {
+    // if (f.flagDir != FLAG_NONE) {
+    // f.flagDir = dominantFlag;
+    //}
+    // for (auto& cn : chords[chf].second) {
+    // if (f.flagDir != FLAG_NONE) {
+    // cn->left = true;
+    //}
+    //}
+    //}
+    // chf++;
+    //}
 
     chordNum++;
   }
@@ -203,8 +234,7 @@ int sheetMeasure::getFlagType(const int noteType) const {
     case NOTE_64:
       return FLAGTYPE_64;
     default:
-      // logQ("invalid note type:", noteType);
-      //  TODO: revert
+      logQ("invalid note type:", noteType);
       break;
   }
 
