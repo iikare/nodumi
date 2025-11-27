@@ -315,6 +315,7 @@ void midiInput::updatePosition() {
       noteStream.notes[j].duration = ctr.livePlayOffset - noteStream.notes[j].x;
       noteStream.notes[j].tickDuration =
           noteStream.notes[j].duration / UNK_CST * (noteStream.tempoMap.back().second * DEFAULT_TPQ / 60.0);
+      noteStream.notes[j].findSize(noteStream.getTickSet());
       i++;
     }
   }

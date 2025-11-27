@@ -179,8 +179,9 @@ int main(int argc, char* argv[]) {
 
   // DEBUG ONLY
   // ctr.toggleLivePlay();
-  ctr.input.openPort(0);
+  // ctr.input.openPort(0);
   // ctr.output.openPort(3);
+  ctr.renderSheet = true;
 
   // main program logic
   while (ctr.getProgramState()) {

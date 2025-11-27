@@ -18,6 +18,7 @@ void note::findKeyPos(const keySig& key) {
   int mappedPos = y - MIN_NOTE_IDX;
   int octave = (9 + mappedPos) / 12;
   int keyStart = key.getIndex();
+  // int noteIndex = (12 + ((9 + mappedPos) % 12) - keyStart) % 12;
   int noteIndex = (12 + ((9 + mappedPos) % 12) - keyStart) % 12;
 
   auto keyParams = staveKeyMap[key.getKey()][noteIndex % 12];
@@ -26,13 +27,13 @@ void note::findKeyPos(const keySig& key) {
 
   sheetY = (octave - 4) * 7 + keyParams.offset + key.getStaveOffset();
 
-  // logQ(keyParams.offset, keyParams.acc, sheetY);
+  logQ("[", measure, number, y, "]", keyParams.offset, keyParams.acc, sheetY);
 }
 
 void note::findSize(const set<pair<int, int>, tickCmp>& tickSet) {
   auto it = tickSet.lower_bound(make_pair(tickDuration, 0));
 
-  // logQ(tickDuration, "map to notevalue", it->second);
+  logQ(tickDuration, "map to notevalue", it->second, "- eighth:", NOTE_8);
   type = it->second;
 }
 
