@@ -31,7 +31,8 @@ class midiInput {
   void reset_lstm_count();
   bool lstm_enabled() { return classifier->enabled(); }
 
-  string findKeySig();
+  int findKeySig();
+  string findKeySigLabel();
 
   int getNoteCount() { return noteCount; }
   vector<string> getPorts();
@@ -57,6 +58,7 @@ class midiInput {
   double timestamp;
 
   vector<pair<int, keySig>> match;
+  int ks_type;
 
   int notes_since_lstm_enable = 0;
 

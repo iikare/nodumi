@@ -560,8 +560,7 @@ void controller::toggleLivePlay() {
   if (setTrackOn.size() < 1 || option.get(OPTION::TRACK_DIVISION_LIVE)) {
     getColorScheme(2, setTrackOn, setTrackOff);
   }
-  livePlayState = !livePlayState;
-  if (livePlayState) {
+  if (!livePlayState) {  // since not set yet
     livePlayOffset = 0;
     notes = &input.noteStream.notes;
 
@@ -578,6 +577,7 @@ void controller::toggleLivePlay() {
   if (file.getTrackCount() > 0) {
     getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
   }
+  livePlayState = !livePlayState;
 }
 
 void controller::criticalSection(bool enter) {
@@ -797,7 +797,7 @@ string controller::getTempoLabel(int offset) const {
 
 string controller::getKeySigLabel(int offset) const {
   if (livePlayState) {
-    return ctr.input.findKeySig();
+    return ctr.input.findKeySigLabel();
   }
 
   if (file.measureMap.size() == 0) {
@@ -827,9 +827,8 @@ void controller::clear() {
 }
 
 void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& showKey,
-                      bool& showTempo, bool& sheetMusicDisplay, bool& measureLine, bool& measureNumber,
-                      int& colorMode, int& displayMode, int& songTimeType, int& tonicOffset,
-                      double& zoomLevel) {
+                      bool& showTempo, bool& measureLine, bool& measureNumber, int& colorMode,
+                      int& displayMode, int& songTimeType, int& tonicOffset, double& zoomLevel) {
   if (!isValidPath(path, PATH_DATA)) {
     logW(LL_WARN, "invalid path:", path);
     return;
@@ -891,7 +890,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     nowLine = byteBuf & (1 << 7);
     showFPS = byteBuf & (1 << 6);
     showImage = byteBuf & (1 << 5);
-    sheetMusicDisplay = byteBuf & (1 << 4);
+    renderSheet = byteBuf & (1 << 4);
     measureLine = byteBuf & (1 << 3);
     measureNumber = byteBuf & (1 << 2);
 
@@ -1253,8 +1252,8 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
 }
 
 void controller::save(string path, bool nowLine, bool showFPS, bool showImage, bool showKey, bool showTempo,
-                      bool sheetMusicDisplay, bool measureLine, bool measureNumber, int colorMode,
-                      int displayMode, int songTimeType, int tonicOffset, double zoomLevel) {
+                      bool measureLine, bool measureNumber, int colorMode, int displayMode, int songTimeType,
+                      int tonicOffset, double zoomLevel) {
   // open output file
   ofstream output(path, std::ofstream::out | std::ofstream::trunc | std::ios::binary);
   output.imbue(std::locale::classic());
@@ -1301,7 +1300,7 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   byte1 |= (nowLine << 7);
   byte1 |= (showFPS << 6);
   byte1 |= (showImage << 5);
-  byte1 |= (sheetMusicDisplay << 4);
+  byte1 |= (renderSheet << 4);
   byte1 |= (measureLine << 3);
   byte1 |= (measureNumber << 2);
   byte1 |= (image.exists() << 1);

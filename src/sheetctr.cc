@@ -60,11 +60,13 @@ void sheetController::drawTimeSignature(const timeSig& time, int x) {
 
   if (time.getTop() > 9) {  // two-digit top
     drawDoubleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin - ctr.barWidth * 2 + 1);
-    drawDoubleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin + ctr.barSpacing - ctr.barWidth * 2 + 1);
+    drawDoubleSig(time.getTop(),
+                  (ctr.sheetHeight - 200) / 2 - ctr.barMargin + ctr.barSpacing - ctr.barWidth * 2 + 1);
   }
   else {
     drawSingleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin - ctr.barWidth * 2 + 1);
-    drawSingleSig(time.getTop(), (ctr.sheetHeight - 200) / 2 - ctr.barMargin + ctr.barSpacing - ctr.barWidth * 2 + 1);
+    drawSingleSig(time.getTop(),
+                  (ctr.sheetHeight - 200) / 2 - ctr.barMargin + ctr.barSpacing - ctr.barWidth * 2 + 1);
   }
 
   if (time.getBottom() > 9) {  // two-digit bottom
@@ -146,7 +148,8 @@ void sheetController::drawKeySignature(const keySig& key, int x) {
 }
 
 void sheetController::drawNote(const sheetNote& noteData, int x, colorRGB col) {
-  const int y = findStaveY(noteData.oriNote->sheetY, noteData.stave);
+  const midi& stream = ctr.getStream();
+  const int y = findStaveY(stream.notes[noteData.oriNote].sheetY, noteData.stave);
   ;
   // retun;
   //  for centering
@@ -204,8 +207,8 @@ int sheetController::getKeyWidth(const keySig& key) {
   return xBound;
 }
 
-int sheetController::getTimeWidth(const timeSig& key) {
-  return max(findTimePartWidth(key.getTop()), findTimePartWidth(key.getBottom()));
+int sheetController::getTimeWidth(const timeSig& time) {
+  return max(findTimePartWidth(time.getTop()), findTimePartWidth(time.getBottom()));
 }
 
 int sheetController::findTimePartWidth(const int part) {
@@ -213,6 +216,7 @@ int sheetController::findTimePartWidth(const int part) {
   if (part < 10) {
     return timeWidths[part];
   }
+  logQ(part);
 
   // account for shortening of "1" glyph in range 10-19
   if (part / 10 == 1) {
@@ -250,6 +254,7 @@ void sheetController::disectMeasure(measureController& measure) {
   // logQ("measure", measure.getNumber(), "has timesig",
   // measure.currentTime.getTop(), measure.currentTime.getBottom());
   //  preprocessing
+  const midi& stream = ctr.getStream();
   sheetMeasure dm;
   dm.setParent(measure);
   dm.buildChordMap(measure.displayNotes);
@@ -263,19 +268,21 @@ void sheetController::disectMeasure(measureController& measure) {
   // find true accidental type for each note
   for (/*unsigned int ch = 0;*/ const auto& c : dm.chords) {
     for (unsigned int ct = 0; const auto& n : c.second) {
-      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
+      if (stream.notes[n->oriNote].sheetY > getStaveRenderLimit().first ||
+          stream.notes[n->oriNote].sheetY < getStaveRenderLimit().second) {
         continue;
       }
-      // int& keyPos = presentDFAState[n->oriNote->sheetY];
-      n->displayAcc = getDisplayAccType(presentDFAState[mapSheetY(n->oriNote->sheetY)], n->oriNote->accType);
+      // int& keyPos = presentDFAState[stream.notes[n->oriNote].sheetY];
+      n->displayAcc = getDisplayAccType(presentDFAState[mapSheetY(stream.notes[n->oriNote].sheetY)],
+                                        stream.notes[n->oriNote].accType);
       // logQ("pos:",
-      // n->oriNote->sheetY,presentDFAState[mapSheetY(n->oriNote->sheetY)],
-      // n->displayAcc, n->oriNote->accType);
+      // stream.notes[n->oriNote].sheetY,presentDFAState[mapSheetY(stream.notes[n->oriNote].sheetY)],
+      // n->displayAcc, stream.notes[n->oriNote].accType);
 
-      if (n->oriNote->sheetY > 0) {
+      if (stream.notes[n->oriNote].sheetY > 0) {
         n->stave = STAVE_TREBLE;
       }
-      else if (n->oriNote->sheetY < 0) {
+      else if (stream.notes[n->oriNote].sheetY < 0) {
         n->stave = STAVE_BASS;
       }
       else {
@@ -291,13 +298,15 @@ void sheetController::disectMeasure(measureController& measure) {
   // remove duplicate notes (rendering on same position)
   for (unsigned int ch = 0; const auto& c : dm.chords) {
     for (unsigned int ct = 0; const auto& n : c.second) {
-      if (ct > 0 && n->oriNote->sheetY - dm.chords[ch].second[ct - 1]->oriNote->sheetY == 0) {
+      if (ct > 0 &&
+          stream.notes[n->oriNote].sheetY - stream.notes[dm.chords[ch].second[ct - 1]->oriNote].sheetY == 0) {
         // n->displayAcc == dm.chords[ch].second[ct-1]->displayAcc) {
         n->visible = false;
       }
 
       // hide out-of-bounds notes
-      if ((n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second)) {
+      if ((stream.notes[n->oriNote].sheetY > getStaveRenderLimit().first ||
+           stream.notes[n->oriNote].sheetY < getStaveRenderLimit().second)) {
         n->visible = false;
       }
       ct++;
@@ -312,7 +321,8 @@ void sheetController::disectMeasure(measureController& measure) {
   for (unsigned int ch = 0; const auto& c : dm.chords) {
     int stavect = 0;
     for (unsigned int ct = 0; const auto& n : c.second) {
-      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
+      if (stream.notes[n->oriNote].sheetY > getStaveRenderLimit().first ||
+          stream.notes[n->oriNote].sheetY < getStaveRenderLimit().second) {
         continue;
       }
       if (!n->visible) {
@@ -325,7 +335,8 @@ void sheetController::disectMeasure(measureController& measure) {
         }
       }
       if (stavect != 0) {
-        if (n->oriNote->sheetY - dm.chords[ch].second[ct - 1]->oriNote->sheetY < 2) {
+        if (stream.notes[n->oriNote].sheetY - stream.notes[dm.chords[ch].second[ct - 1]->oriNote].sheetY <
+            2) {
           n->left = !dm.chords[ch].second[ct - 1]->left;
         }
       }
@@ -352,19 +363,20 @@ void sheetController::disectMeasure(measureController& measure) {
       if (!n->visible) {
         continue;
       }
-      if (n->oriNote->sheetY > getStaveRenderLimit().first || n->oriNote->sheetY < getStaveRenderLimit().second) {
+      if (stream.notes[n->oriNote].sheetY > getStaveRenderLimit().first ||
+          stream.notes[n->oriNote].sheetY < getStaveRenderLimit().second) {
         noteLW = placeholderWidth / 2;
         noteRW = placeholderWidth / 2;
       }
       else {
         if (n->left) {
-          noteLW += getSymbolWidth(getSymbolType(n->oriNote->type)) + chordStemWidth / 2;
+          noteLW += getSymbolWidth(getSymbolType(stream.notes[n->oriNote].type)) + chordStemWidth / 2;
         }
         else {
-          noteRW += getSymbolWidth(getSymbolType(n->oriNote->type)) + chordStemWidth / 2;
+          noteRW += getSymbolWidth(getSymbolType(stream.notes[n->oriNote].type)) + chordStemWidth / 2;
         }
 
-        if (n->oriNote->hasDot()) {
+        if (stream.notes[n->oriNote].hasDot()) {
           noteRW += getSymbolWidth(SYM_DOT) + dotSpacing;
         }
 
@@ -505,6 +517,7 @@ int sheetController::mapSheetY(int sheetY) {
 
 void sheetController::drawSheetPage() {
   int offset = ctr.sheetSymbolWidth;
+  const midi& stream = ctr.getStream();
 
   pair<int, int> measureRange = findSheetPageLimit(ctr.getCurrentMeasure());
 
@@ -524,7 +537,8 @@ void sheetController::drawSheetPage() {
     return;
   }
 
-  vector<int> spacingMargin(abs(margin) % spacingPositions, margin / spacingPositions + (margin > 0 ? 1 : -1));
+  vector<int> spacingMargin(abs(margin) % spacingPositions,
+                            margin / spacingPositions + (margin > 0 ? 1 : -1));
   vector<int> spacingExtra(spacingPositions - (abs(margin) % spacingPositions), margin / spacingPositions);
   spacingMargin.insert(spacingMargin.end(), spacingExtra.begin(), spacingExtra.end());
 
@@ -554,7 +568,8 @@ void sheetController::drawSheetPage() {
       }
     }
 
-    drawTextEx(to_string(m), {(float)offset + sigSpacing / 20.f, ctr.menuHeight + ctr.barMargin - ctr.barWidth * 1.75},
+    drawTextEx(to_string(m),
+               {(float)offset + sigSpacing / 20.f, ctr.menuHeight + ctr.barMargin - ctr.barWidth * 1.75},
                ctr.bgSheetNote);
 
     for (unsigned int ch = 0; ch < displayMeasure[m - 1].chords.size(); ++ch) {
@@ -576,21 +591,21 @@ void sheetController::drawSheetPage() {
           continue;
         }
 
-        const int y = findStaveY(note->oriNote->sheetY, note->stave);
+        const int y = findStaveY(stream.notes[note->oriNote].sheetY, note->stave);
         ;
         // for centering
         // drawRing({static_cast<float>(x), static_cast<float>(y)}, 0, 2,
         // {255,0,0}); drawLineEx(x, 0, x, ctr.getHeight(), 1, ctr.bgNow);
 
-        int noteSym = getSymbolType(note->oriNote->type);
+        int noteSym = getSymbolType(stream.notes[note->oriNote].type);
         int noteX = stemPos - stemWidth / 2;
         if (note->left) {
           noteX = stemPos - getSymbolWidth(noteSym) + stemWidth / 2;
         }
 
         // drawLineEx(noteX, y-1, noteX, y+30, stemWidth, ctr.bgSheetNote);
-        drawSymbol(noteSym, fSize, noteX + 0 * getSymbolWidth(noteSym) - stemWidth / 2, y + 2 - ctr.barSpacing,
-                   ctr.bgSheetNote);
+        drawSymbol(noteSym, fSize, noteX + 0 * getSymbolWidth(noteSym) - stemWidth / 2,
+                   y + 2 - ctr.barSpacing, ctr.bgSheetNote);
         // drawSymbol(SYM_FLAG_8D, fSize, noteX-+stemWidth/2,
         // y+30+5-ctr.barSpacing, ctr.bgSheetNote);
       }
@@ -743,7 +758,8 @@ int sheetController::getSymbolWidth(const int symbol) {
     case SYM_DOT:
       return 4;
     default:
-      logQ("invalid symbol:", symbol);
+      // TODO: revert
+      // logQ("invalid symbol:", symbol);
       break;
   }
 
@@ -812,7 +828,8 @@ int sheetController::getSymbolType(const int noteType) {
     case NOTE_64:
       return SYM_HEAD_STD;
     default:
-      logQ("invalid note type:", noteType);
+      // TODO: revert
+      // logQ("invalid note type:", noteType);
       break;
   }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <set>
 #include <vector>
 
@@ -8,11 +9,12 @@
 #include "note.h"
 #include "sheetnote.h"
 
+using std::deque;
 using std::pair;
 using std::vector;
 
-struct noteCmp {
-  bool operator()(const sheetNote* a, const sheetNote* b) const { return a->oriNote->y < b->oriNote->y; }
+class noteCmp {
+  bool operator()(const sheetNote* a, const sheetNote* b) const;
 };
 
 struct chordCmp {
@@ -45,7 +47,7 @@ class sheetMeasure {
   int hasFlag(int chordNum) const;
   int getFlagType(const int noteType) const;
 
-  void buildChordMap(vector<sheetNote>& vecNote);
+  void buildChordMap(deque<sheetNote>& vecNote);
   void buildFlagMap();
 
   void setParent(measureController& m) { measure = &m; }

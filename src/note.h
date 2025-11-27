@@ -32,6 +32,7 @@ class note {
   }
 
   void findKeyPos(const keySig& key);
+  void findKeyPos(int ks_type);
 
   void findSize(const set<pair<int, int>, tickCmp>& tickSet);
   bool hasDot() const;

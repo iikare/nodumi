@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <set>
 #include <vector>
 
@@ -8,6 +9,7 @@
 #include "sheetnote.h"
 #include "timekey.h"
 
+using std::deque;
 using std::set;
 using std::vector;
 
@@ -55,12 +57,12 @@ class measureController {
   set<int> tickMap;
 
   // persistent qualities to render
-  vector<note*> notes;
+  vector<int> notes;
   vector<timeSig> timeSignatures;
   vector<keySig> keySignatures;
 
   // adjustments for sheet rendering
-  vector<sheetNote> displayNotes;
+  deque<sheetNote> displayNotes;
 
   // transient qualities not present in measure itself
   timeSig currentTime;

@@ -24,12 +24,14 @@ class sheetController {
   }
 
   int getGlyphWidth(int codepoint, int size = fSize);
+  unsigned int getDisplayMeasureCount() const { return displayMeasure.size(); }
 
   // TODO: merge into chord drawing function
   // no beaming
   void drawNote(const sheetNote& noteData, int x, colorRGB col);
 
   void disectMeasure(measureController& measure);
+  void popMeasure() { displayMeasure.pop_back(); }
   void findSheetPages();
 
   void drawSheetPage();
@@ -45,7 +47,7 @@ class sheetController {
   void drawKeySignature(const keySig& key, int x);
 
   int getKeyWidth(const keySig& key);
-  int getTimeWidth(const timeSig& key);
+  int getTimeWidth(const timeSig& time);
   int getSymbolWidth(const int symbol);
   int getSymbolWidth(const int flagType, const int dir);
   int getSymbolType(const int noteType);

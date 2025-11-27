@@ -276,7 +276,7 @@ void midi::clear() {
 
   noteCount = 0;
   trackCount = 0;
-  tpq = 0;
+  tpq = 48;
 
   lastTime = 0;
   lastTick = 0;
@@ -470,7 +470,7 @@ void midi::load(stringstream& buf) {
 
   int measureNum = 1;
 
-  measureMap.reserve(4 * lastTick / (cTimeSig.getQPM() * tpq));
+  // measureMap.reserve(4 * lastTick / (cTimeSig.getQPM() * tpq));
   measureMap.push_back(measureController(measureNum++, 0, 0, cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   while (cTick < lastTick) {
     cTick += cTimeSig.getQPM() * tpq;
@@ -550,7 +550,7 @@ void midi::load(stringstream& buf) {
 
     for (auto& note : measure.notes) {
       // map note position to key (only if on/off signature)
-      note->findKeyPos(measure.currentKey);
+      notes[note].findKeyPos(measure.currentKey);
     }
     sheetData.disectMeasure(measure);
   }

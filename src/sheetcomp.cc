@@ -3,12 +3,18 @@
 #include <algorithm>
 #include <type_traits>
 
+#include "define.h"
 #include "note.h"
 #include "sheetctr.h"
 
 using std::min;
 
-void sheetMeasure::buildChordMap(vector<sheetNote>& vecNote) {
+bool noteCmp::operator()(const sheetNote* a, const sheetNote* b) const {
+  const midi& stream = ctr.getStream();
+  return stream.notes[a->oriNote].y < stream.notes[b->oriNote].y;
+}
+
+void sheetMeasure::buildChordMap(deque<sheetNote>& vecNote) {
   // intermediate representation of chordmap (needs to be tick-sorted)
   set<pair<int, vector<sheetNote*>>, chordCmp> chordSet;
 
@@ -24,8 +30,8 @@ void sheetMeasure::buildChordMap(vector<sheetNote>& vecNote) {
       chordSet.insert(newPos);
     }
   }
-  chords =
-      vector<pair<int, vector<sheetNote*>>>(make_move_iterator(chordSet.begin()), make_move_iterator(chordSet.end()));
+  chords = vector<pair<int, vector<sheetNote*>>>(make_move_iterator(chordSet.begin()),
+                                                 make_move_iterator(chordSet.end()));
   // chords = vector<pair<int,vector<sheetNote*>>>(chordSet.begin(),
   // chordSet.end());
 
@@ -34,27 +40,28 @@ void sheetMeasure::buildChordMap(vector<sheetNote>& vecNote) {
 
 void sheetMeasure::buildFlagMap() {
   // assign flag positions
+  const midi& stream = ctr.getStream();
   for (int chordNum = 0; const auto& c : chords) {
     flagData cFlag;
     int chn = 0;
     for (unsigned int n = 0; n < c.second.size(); ++n) {
-      if (c.second[n]->oriNote->sheetY > sheetController::getStaveRenderLimit().first ||
-          c.second[n]->oriNote->sheetY < sheetController::getStaveRenderLimit().second) {
+      if (stream.notes[c.second[n]->oriNote].sheetY > sheetController::getStaveRenderLimit().first ||
+          stream.notes[c.second[n]->oriNote].sheetY < sheetController::getStaveRenderLimit().second) {
         continue;
       }
       if (!c.second[n]->visible) {
         continue;
       }
       // ignore oversize notes
-      if (c.second[n]->oriNote->type < NOTE_HALF_DOT) {
+      if (stream.notes[c.second[n]->oriNote].type < NOTE_HALF_DOT) {
         continue;
       }
 
       if (chn == 0) {
         // from bottom, check if flag needs to face up
 
-        if (c.second[n]->oriNote->sheetY <
-            sheetController::getFlagLimit(getFlagType(c.second[n]->oriNote->type), STAVE_BASS)) {
+        if (stream.notes[c.second[n]->oriNote].sheetY <
+            sheetController::getFlagLimit(getFlagType(stream.notes[c.second[n]->oriNote].type), STAVE_BASS)) {
           cFlag.flagDir = FLAG_UP;  // default due to space constraint
         }
         else {
@@ -63,16 +70,16 @@ void sheetMeasure::buildFlagMap() {
           // invert notehead due to down-flag
           c.second[n]->left = false;
         }
-        cFlag.startY = c.second[n]->oriNote->sheetY;
+        cFlag.startY = stream.notes[c.second[n]->oriNote].sheetY;
         cFlag.endY = cFlag.startY;
-        cFlag.flagType = getFlagType(c.second[n]->oriNote->type);
+        cFlag.flagType = getFlagType(stream.notes[c.second[n]->oriNote].type);
         cFlag.stave = STAVE_BASS;
       }
       else {
         // all other notes
-        cFlag.startY = c.second[n]->oriNote->sheetY;
+        cFlag.startY = stream.notes[c.second[n]->oriNote].sheetY;
         // take larger of the stem types
-        cFlag.flagType = min(cFlag.flagType, getFlagType(c.second[n]->oriNote->type));
+        cFlag.flagType = min(cFlag.flagType, getFlagType(stream.notes[c.second[n]->oriNote].type));
         if (cFlag.flagDir == FLAG_DOWN) {
           c.second[n]->left = false;
         }
@@ -88,22 +95,23 @@ void sheetMeasure::buildFlagMap() {
 
     chn = 0;
     for (auto nIt = c.second.rbegin(); nIt != c.second.rend(); ++nIt) {
-      if ((*nIt)->oriNote->sheetY > sheetController::getStaveRenderLimit().first ||
-          (*nIt)->oriNote->sheetY < sheetController::getStaveRenderLimit().second) {
+      if (stream.notes[(*nIt)->oriNote].sheetY > sheetController::getStaveRenderLimit().first ||
+          stream.notes[(*nIt)->oriNote].sheetY < sheetController::getStaveRenderLimit().second) {
         continue;
       }
       if (!(*nIt)->visible) {
         continue;
       }
       // ignore oversize notes
-      if ((*nIt)->oriNote->type < NOTE_HALF_DOT) {
+      if (stream.notes[(*nIt)->oriNote].type < NOTE_HALF_DOT) {
         continue;
       }
 
       if (chn == 0) {
         // from top, check if flag needs to face down
 
-        if ((*nIt)->oriNote->sheetY > sheetController::getFlagLimit(getFlagType((*nIt)->oriNote->type), STAVE_TREBLE)) {
+        if (stream.notes[(*nIt)->oriNote].sheetY >
+            sheetController::getFlagLimit(getFlagType(stream.notes[(*nIt)->oriNote].type), STAVE_TREBLE)) {
           cFlag.flagDir = FLAG_DOWN;  // default due to space constraint
           // invert notehead due to down-flag
           (*nIt)->left = false;
@@ -112,16 +120,16 @@ void sheetMeasure::buildFlagMap() {
           // if first note has space for a flag-up position
           cFlag.flagDir = FLAG_UP;
         }
-        cFlag.startY = (*nIt)->oriNote->sheetY;
+        cFlag.startY = stream.notes[(*nIt)->oriNote].sheetY;
         cFlag.endY = cFlag.startY;
-        cFlag.flagType = getFlagType((*nIt)->oriNote->type);
+        cFlag.flagType = getFlagType(stream.notes[(*nIt)->oriNote].type);
         cFlag.stave = STAVE_BASS;
       }
       else {
         // all other notes
-        cFlag.endY = (*nIt)->oriNote->sheetY;
+        cFlag.endY = stream.notes[(*nIt)->oriNote].sheetY;
         // take larger of the stem types
-        cFlag.flagType = min(cFlag.flagType, getFlagType((*nIt)->oriNote->type));
+        cFlag.flagType = min(cFlag.flagType, getFlagType(stream.notes[(*nIt)->oriNote].type));
         if (cFlag.flagDir == FLAG_DOWN) {
           (*nIt)->left = false;
         }
@@ -139,9 +147,10 @@ void sheetMeasure::buildFlagMap() {
 }
 
 bool sheetMeasure::hasStem(int chordNum) const {
+  const midi& stream = ctr.getStream();
   for (const auto& chordNote : chords[chordNum].second) {
     // enum is inverted
-    if (chordNote->oriNote->type > NOTE_WHOLE) {
+    if (stream.notes[chordNote->oriNote].type > NOTE_WHOLE) {
       return true;
     }
   }
@@ -150,10 +159,11 @@ bool sheetMeasure::hasStem(int chordNum) const {
 
 int sheetMeasure::hasFlag(int chordNum) const {
   bool hasFlag = false;
+  const midi& stream = ctr.getStream();
 
   for (const auto& chordNote : chords[chordNum].second) {
     // enum is inverted
-    if (chordNote->oriNote->type > NOTE_QUARTER) {
+    if (stream.notes[chordNote->oriNote].type > NOTE_QUARTER) {
       hasFlag = true;
     }
   }
@@ -193,7 +203,8 @@ int sheetMeasure::getFlagType(const int noteType) const {
     case NOTE_64:
       return FLAGTYPE_64;
     default:
-      logQ("invalid note type:", noteType);
+      // logQ("invalid note type:", noteType);
+      //  TODO: revert
       break;
   }
 

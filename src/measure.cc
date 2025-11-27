@@ -39,7 +39,7 @@ void measureController::buildTickMap() {
 }
 
 void measureController::addNote(note& note) {
-  notes.push_back(&note);
+  notes.push_back(note.number);
 
   // below this point: not required for non-sheetmusic usage
 
@@ -51,9 +51,9 @@ void measureController::addNote(note& note) {
     // note.measure, "rectified to", quantTick);
 
     // parameter displayAcc is not calculated at this step
-    displayNotes.push_back({quantTick, -1, STAVE_NONE, true, true, &note});
+    displayNotes.push_back({quantTick, -1, STAVE_NONE, true, true, note.number});
   }
   else {
-    displayNotes.push_back({note.tick, -1, STAVE_NONE, true, true, &note});
+    displayNotes.push_back({note.tick, -1, STAVE_NONE, true, true, note.number});
   }
 }

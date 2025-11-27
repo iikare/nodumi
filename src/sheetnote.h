@@ -9,5 +9,5 @@ struct sheetNote {
   int stave;
   bool left;
   bool visible;
-  note* oriNote;
+  int oriNote;
 };

@@ -74,7 +74,6 @@ int main(int argc, char* argv[]) {
   bool colorMove = false;
   bool colorSquare = false;
   bool colorCircle = false;
-  bool sheetMusicDisplay = false;
 
   bool measureLine = true;
   bool measureNumber = true;
@@ -175,12 +174,12 @@ int main(int argc, char* argv[]) {
     ctr.updateFiles(&argv[1], argc - 1);
   }
   else {
-    ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
+    ctr.barHeight = ctr.renderSheet ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
   }
 
   // DEBUG ONLY
   // ctr.toggleLivePlay();
-  // ctr.input.openPort(1);
+  ctr.input.openPort(0);
   // ctr.output.openPort(3);
 
   // main program logic
@@ -192,8 +191,8 @@ int main(int argc, char* argv[]) {
       pauseOffset = 0;
 
       if (ctr.open_file.pending()) {
-        ctr.load(ctr.open_file.getPath(), nowLine, showFPS, showImage, showKey, showTempo, sheetMusicDisplay,
-                 measureLine, measureNumber, colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+        ctr.load(ctr.open_file.getPath(), nowLine, showFPS, showImage, showKey, showTempo, measureLine,
+                 measureNumber, colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
 
         if (ctr.getFileType() == FILE_MKI) {
           ctr.save_file.setPending(ctr.open_file.getPath());
@@ -209,7 +208,7 @@ int main(int argc, char* argv[]) {
           viewMenu.setContentLabel(showTempo ? "VIEW_MENU_HIDE_TEMPO" : "VIEW_MENU_SHOW_TEMPO",
                                    VIEW_MENU_TEMPO);
           editMenu.setContentLabel(
-              sheetMusicDisplay ? "EDIT_MENU_DISABLE_SHEET_MUSIC" : "EDIT_MENU_ENABLE_SHEET_MUSIC",
+              ctr.renderSheet ? "EDIT_MENU_DISABLE_SHEET_MUSIC" : "EDIT_MENU_ENABLE_SHEET_MUSIC",
               EDIT_MENU_SHEET_MUSIC);
           viewMenu.setContentLabel(
               measureLine ? "VIEW_MENU_HIDE_MEASURE_LINE" : "VIEW_MENU_SHOW_MEASURE_LINE",
@@ -221,7 +220,7 @@ int main(int argc, char* argv[]) {
               songTimeType != SONGTIME_NONE ? "VIEW_MENU_HIDE_SONG_TIME" : "VIEW_MENU_SHOW_SONG_TIME",
               VIEW_MENU_SONG_TIME);
         }
-        ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
+        ctr.barHeight = ctr.renderSheet ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
 
         ctr.open_file.reset();
       }
@@ -262,7 +261,7 @@ int main(int argc, char* argv[]) {
     }
 
     // update menu variables
-    if (sheetMusicDisplay) {
+    if (ctr.renderSheet) {
       songTimePosition.y = 26.0f + ctr.barHeight;
       ctr.topHeight = ctr.barHeight + ctr.menuHeight;
     }
@@ -318,7 +317,7 @@ int main(int argc, char* argv[]) {
       for (unsigned int i = 0; i < stream.measureMap.size(); i++) {
         float measureLineWidth = 1;
         float measureLineOpacityRatio = 0.5;
-        int measureLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.barHeight : 0);
+        int measureLineY = ctr.menuHeight + (ctr.renderSheet ? ctr.barHeight : 0);
         double measureLineX = convertSSX(stream.measureMap[i].getLocation());
         double line_ratio = 1.0;
         if (i && i + 1 < stream.measureMap.size()) {
@@ -387,7 +386,7 @@ int main(int argc, char* argv[]) {
                   255 * max(0.0, (min(fadeWidth, measureLineX + measureSpacing)) / fadeWidth);
             }
 
-            int measureTextY = ctr.menuHeight + 4 + (sheetMusicDisplay ? ctr.barHeight : 0);
+            int measureTextY = ctr.menuHeight + 4 + (ctr.renderSheet ? ctr.barHeight : 0);
             drawTextEx(to_string(i + 1), measureLineX + 4, measureTextY, ctr.bgColor2, measureLineTextAlpha);
             lastMeasureNum = i;
           }
@@ -403,7 +402,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (nowLine) {
-      int nowLineY = ctr.menuHeight + (sheetMusicDisplay ? ctr.barHeight : 0);
+      int nowLineY = ctr.menuHeight + (ctr.renderSheet ? ctr.barHeight : 0);
       if (pointInBox(getMousePosition(), {int(nowLineX - 3), nowLineY, 6, ctr.getHeight() - ctr.barHeight}) &&
           !ctr.menu.mouseOnMenu() && !hoverType.contains(HOVER_DIALOG)) {
         ctr.setShaderValue("SH_OVERLAY", "hover", 1);
@@ -966,7 +965,7 @@ int main(int argc, char* argv[]) {
     drawRectangle(0, 0, ctr.getWidth(), ctr.menuHeight, ctr.bgMenu);
 
     // sheet music layout
-    if (sheetMusicDisplay) {
+    if (ctr.renderSheet) {
       // bg
       drawRectangle(0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight, ctr.bgSheet);
       if (pointInBox(getMousePosition(), {0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight}) &&
@@ -997,7 +996,9 @@ int main(int argc, char* argv[]) {
                  ctr.bgSheetNote);
 
       if (stream.measureMap.size() != 0) {
-        stream.sheetData.drawSheetPage();
+        if (stream.measureMap.size() == stream.sheetData.getDisplayMeasureCount()) {
+          stream.sheetData.drawSheetPage();
+        }
       }
 
       if (isKeyPressed(KEY_F)) {
@@ -1161,9 +1162,8 @@ int main(int argc, char* argv[]) {
           break;
         }
         if (ctr.getFileType() == FILE_MKI) {
-          ctr.save(ctr.save_file.getPath(), nowLine, showFPS, showImage, showKey, showTempo,
-                   sheetMusicDisplay, measureLine, measureNumber, colorMode, displayMode, songTimeType,
-                   tonicOffset, zoomLevel);
+          ctr.save(ctr.save_file.getPath(), nowLine, showFPS, showImage, showKey, showTempo, measureLine,
+                   measureNumber, colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
           break;
         }
         [[fallthrough]];
@@ -1176,9 +1176,8 @@ int main(int argc, char* argv[]) {
               save_path += ".mki";
             }
 
-            ctr.save(save_path, nowLine, showFPS, showImage, showKey, showTempo, sheetMusicDisplay,
-                     measureLine, measureNumber, colorMode, displayMode, songTimeType, tonicOffset,
-                     zoomLevel);
+            ctr.save(save_path, nowLine, showFPS, showImage, showKey, showTempo, measureLine, measureNumber,
+                     colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
             ctr.save_file.resetPending();
           }
         }
@@ -1194,8 +1193,8 @@ int main(int argc, char* argv[]) {
       case ACTION::SHEET:
         editMenu.swapLabel("EDIT_MENU_DISABLE_SHEET_MUSIC", "EDIT_MENU_ENABLE_SHEET_MUSIC",
                            EDIT_MENU_SHEET_MUSIC);
-        sheetMusicDisplay = !sheetMusicDisplay;
-        ctr.barHeight = sheetMusicDisplay ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
+        ctr.renderSheet = !ctr.renderSheet;
+        ctr.barHeight = ctr.renderSheet ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
         break;
       case ACTION::PREFERENCES:
         ctr.dialog.clear_invert_status(DIALOG::PREFERENCES);
@@ -1910,7 +1909,7 @@ int main(int argc, char* argv[]) {
             colorSelect.setColor(ctr.findColorSet(colorMode, clickOn)[set_idx]);
           }
           else {
-            if (sheetMusicDisplay &&
+            if (ctr.renderSheet &&
                 pointInBox(getMousePosition(), (rect){0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight}) &&
                 !hoverType.contains(HOVER_DIALOG)) {
               hoverType.add(HOVER_SHEET);

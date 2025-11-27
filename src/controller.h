@@ -98,7 +98,7 @@ class controller {
   void clear();
   void load(string path, bool& nowLine, bool& showFPS, bool& showImage,
 
-            bool& showKey, bool& showTempo, bool& sheetMusicDisplay, bool& measureLine, bool& measureNumber,
+            bool& showKey, bool& showTempo, bool& measureLine, bool& measureNumber,
 
             int& colorMode, int& displayMode,
 
@@ -106,7 +106,7 @@ class controller {
 
             double& zoomLevel);
   void save(string path, bool nowLine, bool showFPS, bool showImage, bool showKey, bool showTempo,
-            bool sheetMusicDisplay, bool measureLine, bool measureNumber,
+            bool measureLine, bool measureNumber,
 
             int colorMode, int displayMode,
 
@@ -225,6 +225,7 @@ class controller {
   // shared across load/save routines
   static constexpr int imageBlockSize = 20;
 
+  bool renderSheet;
   double livePlayOffset;
   int curMeasure;
   int pendingActionValue;

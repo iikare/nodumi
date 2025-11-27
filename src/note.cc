@@ -7,6 +7,13 @@
 #include "log.h"
 #include "midi.h"
 
+void note::findKeyPos(int ks_type) {
+  if (ks_type == KEYSIG_NONE) {
+    logW(LL_WARN, "note", number, "with empty keysig", ks_type);
+  }
+  keySig ks(ks_type, false, 0);
+  findKeyPos(ks);
+}
 void note::findKeyPos(const keySig& key) {
   int mappedPos = y - MIN_NOTE_IDX;
   int octave = (9 + mappedPos) / 12;

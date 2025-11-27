@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <deque>
 #include <functional>
 #include <string>
 #include <vector>
@@ -18,6 +19,7 @@
 
 using namespace smf;
 
+using std::deque;
 using std::ifstream;
 using std::multiset;
 using std::pair;
@@ -76,6 +78,7 @@ class midi {
   int getTPQ() const { return tpq; }
   int getTempo(int offset) const;
   vector<trackController>& getTracks() { return tracks; }
+  const set<pair<int, int>, tickCmp>& getTickSet() const { return tickSet; }
 
   void setNoteCount(int nc) { noteCount = nc; }
   void setTPQ(int new_tpq) { tpq = new_tpq; }
@@ -85,7 +88,7 @@ class midi {
 
   vector<lineData> lines;
   sheetController sheetData;
-  vector<measureController> measureMap;
+  deque<measureController> measureMap;
 
   vector<pair<int, double>> trackHeightMap;
 

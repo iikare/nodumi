@@ -29,18 +29,6 @@ midiInput::midiInput()
   }
 
   resetStream();
-
-  for (int ch = 0; auto& m : match) {
-    // exclude 7flat/sharp
-    int k_t = KEYSIG_C + ch;
-    if (any_of(k_t, KEYSIG_CSHARP, KEYSIG_CFLAT)) {
-      ch++;
-      k_t++;
-    }
-
-    m = make_pair(0, keySig(k_t, 0, 0));
-    ch++;
-  }
 }
 
 void midiInput::initClassifier() {
@@ -88,6 +76,22 @@ void midiInput::resetInput(bool keepPort) {
   noteCount = 0;
   numOn = 0;
 
+  match = vector<pair<int, keySig>>(KEYSIG_NONE - 2);
+  ks_type = KEYSIG_C;
+
+  for (int ch = 0; auto& m : match) {
+    // exclude 7flat/sharp
+    int k_t = KEYSIG_C + ch;
+    if (any_of(k_t, KEYSIG_CSHARP, KEYSIG_CFLAT)) {
+      ch++;
+      k_t++;
+    }
+
+    m = make_pair(0, keySig(k_t, 0, 0));
+    ch++;
+  }
+
+  noteStream.clear();
   noteStream.notes.clear();
   noteStream.measureMap.clear();
 
@@ -99,14 +103,26 @@ void midiInput::resetInput(bool keepPort) {
 }
 
 void midiInput::resetStream() {
-  auto initMeasure = measureController(0, 0, 0, DEFAULT_TPQ, timeSig(4, 4, 0), keySig(KEYSIG_C, false, 0));
-  noteStream.measureMap.push_back(initMeasure);
+  timeSig ts(4, 4, 0);
+  keySig ks(KEYSIG_C, false, 0);
+  // ts.setMeasure(0);
+  // ks.setMeasure(0);
+  measureController m(1, 0, 0, DEFAULT_TPQ, ts, ks);
+  m.timeSignatures.push_back(ts);
+  m.keySignatures.push_back(ks);
+  noteStream.measureMap.push_back(m);
 
-  noteStream.timeSignatureMap.push_back(make_pair(0, timeSig(4, 4, 0)));
-
-  noteStream.keySignatureMap.push_back(make_pair(0, keySig(KEYSIG_C, false, 0)));
-
+  noteStream.measureMap.back().keySignatures.push_back(ks);
+  noteStream.measureMap.back().timeSignatures.push_back(ts);
+  noteStream.timeSignatureMap.push_back(make_pair(0, ts));
+  noteStream.keySignatureMap.push_back(make_pair(0, ks));
   noteStream.tempoMap.push_back(make_pair(0, DEFAULT_TEMPO));
+
+  noteStream.buildTickSet();
+
+  noteStream.sheetData.reset();
+  // noteStream.sheetData.disectMeasure(noteStream.measureMap.back());
+  // noteStream.sheetData.findSheetPages();
 }
 
 void midiInput::pauseInput() { midiIn->closePort(); }
@@ -173,22 +189,18 @@ void midiInput::convertEvents() {
       if (msgQueue[2] != 0) {              // if note on
         note tmpNote;
 
+        tmpNote.tick =
+            ctr.livePlayOffset / UNK_CST * (noteStream.tempoMap.back().second * DEFAULT_TPQ / 60.0);
         tmpNote.x = ctr.livePlayOffset;
         tmpNote.y = static_cast<int>(msgQueue[1]);
         tmpNote.velocity = static_cast<int>(msgQueue[2]);
         tmpNote.isOn = true;
+        tmpNote.measure = noteStream.measureMap.size() - 1;
+        tmpNote.number = noteCount;
 
         // if this is the note on event, duration is undefined
-        tmpNote.duration = -1;
-
-        // tmpNote.track = ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ?
-        // findPartition(tmpNote) : 1; // by default
-
-        // logQ("count, x, track, trackct:", noteCount, tmpNote.x,
-        // tmpNote.track, noteStream.getTracks()[tmpNote.track].getNoteCount());
-
-        // partition finder requires the current note to be present
-        noteStream.notes.push_back(tmpNote);
+        tmpNote.duration = 1;
+        tmpNote.tickDuration = 1;
 
         // add this note and remove the oldest note in the queue
         constexpr int keysig_match_limit = 32;
@@ -206,13 +218,20 @@ void midiInput::convertEvents() {
           }
         }
 
+        ks_type = findKeySig();
+        tmpNote.findKeyPos(ks_type);
+
+        tmpNote.findSize(noteStream.getTickSet());
+
+        // partition finder requires the current note to be present
+        noteStream.notes.push_back(tmpNote);
         numOn++;
+
         tmpNote.track =
             ctr.option.get(OPTION::TRACK_DIVISION_LIVE) ? findPartition(tmpNote) : 0;  // by default
 
         // update track after determination
         noteStream.notes[noteCount].track = tmpNote.track;
-        noteStream.notes[noteCount].measure = noteStream.measureMap.size() - 1;
         noteStream.measureMap.back().addNote(tmpNote);
 
         noteStream.getTracks()[tmpNote.track].insert(noteCount);
@@ -227,13 +246,10 @@ void midiInput::convertEvents() {
       }
       else {
         int idx = findNoteIndex(static_cast<int>(msgQueue[1]));
-        noteStream.notes[idx].isOn = false;
-        // note tmpNote = noteStream.notes[idx];
-
-        numOn--;
-
-        // cerr << "this note is: x, Y, Velocity:" << tmpNote.x << ", " <<
-        // tmpNote.y << ", " << tmpNote.velocity << endl;
+        if (idx < noteCount && numOn > 0) {
+          noteStream.notes[idx].isOn = false;
+          numOn--;
+        }
       }
 
       for (auto& t : noteStream.getTracks()) {
@@ -246,7 +262,7 @@ void midiInput::convertEvents() {
       // reset all controllers
       logW(LL_INFO, "reset event for MIDI port", curPort);
 
-      resetInput(true);
+      // resetInput(true);
     }
     else if (msgQueue[0] == 0b11000000) {
       // generic program change event, ignored
@@ -297,6 +313,8 @@ void midiInput::updatePosition() {
     }
     if (noteStream.notes[j].isOn) {
       noteStream.notes[j].duration = ctr.livePlayOffset - noteStream.notes[j].x;
+      noteStream.notes[j].tickDuration =
+          noteStream.notes[j].duration / UNK_CST * (noteStream.tempoMap.back().second * DEFAULT_TPQ / 60.0);
       i++;
     }
   }
@@ -318,10 +336,30 @@ void midiInput::update() {
         UNK_CST;
     // logQ(ctr.livePlayOffset, noteStream.measureMap.back().getLocation(), measureLen);
 
+    if (noteStream.sheetData.getDisplayMeasureCount()) {
+      noteStream.sheetData.popMeasure();
+    }
+    noteStream.sheetData.disectMeasure(noteStream.measureMap.back());
+
     if (ctr.livePlayOffset - noteStream.measureMap.back().getLocation() >= measureLen) {
-      noteStream.measureMap.push_back(measureController(
-          noteStream.measureMap.size(), measureLen * noteStream.measureMap.size(), DEFAULT_TPQ,
-          noteStream.timeSignatureMap[0].second.getQPM() * DEFAULT_TPQ, {}, {}));
+      int tick = ctr.livePlayOffset / UNK_CST * (noteStream.tempoMap.back().second * DEFAULT_TPQ / 60.0);
+      timeSig ts(4, 4, 0);
+      keySig ks(ks_type, false, tick);
+      ts.setMeasure(noteStream.measureMap.size());
+      ks.setMeasure(noteStream.measureMap.size());
+      measureController m(noteStream.measureMap.size(), measureLen * noteStream.measureMap.size(), tick,
+                          noteStream.timeSignatureMap[0].second.getQPM() * DEFAULT_TPQ, ts, ks);
+      // m.timeSignatures.push_back(ts);
+      // m.keySignatures.push_back(ks);
+
+      noteStream.measureMap.push_back(m);
+      // logQ("measure size:", noteStream.measureMap.size());
+
+      noteStream.sheetData.disectMeasure(noteStream.measureMap.back());
+    }
+
+    if (ctr.renderSheet) {
+      noteStream.sheetData.findSheetPages();
     }
 
     if (midiIn->isPortOpen()) {
@@ -352,9 +390,11 @@ void midiInput::update() {
   }
 }
 
-string midiInput::findKeySig() {
+int midiInput::findKeySig() {
   auto max_it = std::max_element(match.begin(), match.end(),
                                  [&](const auto& a, const auto& b) { return a.first < b.first; });
 
-  return keySig(noteCount ? max_it->second.getKey() : KEYSIG_C, false, 0).getLabel();
+  return noteCount ? max_it->second.getKey() : KEYSIG_C;
 }
+
+string midiInput::findKeySigLabel() { return keySig(findKeySig(), false, 0).getLabel(); }
