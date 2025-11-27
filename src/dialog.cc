@@ -238,6 +238,12 @@ void dialogController::renderInfo() {
       static_cast<float>(infoTopMargin / 2.0f + borderMargin)};
   drawTextureEx(ctr.getImage("ICON"), iconPos, 0, 0.3);
 
+  string build_deps = ctr.text.getString("INFO_BOX_BUILD_FLAGS") + " " +
+                      string(ctr.input.lstm_enabled() ? "+" : "-") + "torch";
+  double build_deps_height = measureTextEx(build_deps).y;
+  drawTextEx(build_deps, infoSideMargin / 2.0f + borderMargin,
+             infoTopMargin / 2.0f + ctr.infoHeight - build_deps_height - borderMargin - 22, ctr.bgDark);
+
   double copySymWidth = measureTextEx(copySym, copySymSize).x;
   double copyWidth = measureTextEx(copy).x;
   double copyHeight = measureTextEx(copy).y;

@@ -27,13 +27,13 @@ void note::findKeyPos(const keySig& key) {
 
   sheetY = (octave - 4) * 7 + keyParams.offset + key.getStaveOffset();
 
-  logQ("[", measure, number, y, "]", keyParams.offset, keyParams.acc, sheetY);
+  // logQ("[", measure, number, y, "]", keyParams.offset, keyParams.acc, sheetY);
 }
 
 void note::findSize(const set<pair<int, int>, tickCmp>& tickSet) {
   auto it = tickSet.lower_bound(make_pair(tickDuration, 0));
 
-  logQ(tickDuration, "map to notevalue", it->second, "- eighth:", NOTE_8);
+  // logQ(tickDuration, "map to notevalue", it->second, "- eighth:", NOTE_8);
   type = it->second;
 }
 

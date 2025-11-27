@@ -74,6 +74,7 @@
                         {"GET_SONG_INFO_TRACK",                 "Track"}, \
                         {"GET_LABEL_MAJOR",                     "Major"}, \
                         {"WIN_WARN_MSG_EXPERIMENTAL",           "WARNING: windows version is experimental"}, \
+                        {"INFO_BOX_BUILD_FLAGS",                "Flags:"}, \
                         {"INFO_BOX_BUILD_DATE",                 "Build Date:"}, \
                         {"INFO_BOX_VER",                        "Ver."}, \
                         {"INFO_BOX_LICENSE_GPL3",               "Licensed under GPLv3"}, \
