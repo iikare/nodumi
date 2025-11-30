@@ -51,6 +51,7 @@ class sheetController {
   int getSymbolWidth(const int symbol);
   int getSymbolWidth(const int flagType, const int dir);
   int getSymbolType(const int noteType);
+  int getAccType(const int accType);
 
   void findDFAStartVector(vector<int>& DFAState, const keySig& ks);
   void findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType);

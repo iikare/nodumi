@@ -157,7 +157,7 @@ void sheetController::drawNote(const sheetNote& noteData, int x, colorRGB col) {
   // drawLineEx(x, 0,
   // x, ctr.getHeight(), 1, ctr.bgNow);
 
-  drawLineEx(x, y - 1, x, y + 30, stemWidth, ctr.bgSheetNote);
+  // drawLineEx(x, y - 1, x, y + 30, stemWidth, ctr.bgSheetNote);
   int sym = SYM_HEAD_STD;
   drawSymbol(sym, fSize, x + 0 * getSymbolWidth(sym) - stemWidth / 2, y + 2 - ctr.barSpacing, col);
   drawSymbol(SYM_FLAG_8D, fSize, x - +stemWidth / 2, y + 30 + 5 - ctr.barSpacing, col);
@@ -600,6 +600,7 @@ void sheetController::drawSheetPage() {
         // {255,0,0}); drawLineEx(x, 0, x, ctr.getHeight(), 1, ctr.bgNow);
 
         int noteSym = getSymbolType(stream.notes[note->oriNote].type);
+        int accSym = getAccType(note->displayAcc);
         int noteX = stemPos - stemWidth / 2;
         if (note->left) {
           noteX = stemPos - getSymbolWidth(noteSym) + stemWidth / 2;
@@ -610,6 +611,10 @@ void sheetController::drawSheetPage() {
                    y + 2 - ctr.barSpacing, ctr.bgSheetNote);
         // drawSymbol(SYM_FLAG_8D, fSize, noteX-+stemWidth/2,
         // y+30+5-ctr.barSpacing, ctr.bgSheetNote);
+        if (note->displayAcc != ACC_NONE) {
+          drawSymbol(accSym, fSize, noteX - 1 * getSymbolWidth(noteSym) - stemWidth / 2 + 1,
+                     y + 2 - ctr.barSpacing, ctr.bgSheetNote);
+        }
       }
 
       // logQ(displayMeasure[m-1].s_chordData[ch].flags.size());
@@ -808,6 +813,19 @@ int sheetController::getSymbolWidth(const int flagType, const int dir) {
   }
 
   return -1;
+}
+
+int sheetController::getAccType(const int accType) {
+  switch (accType) {
+    case ACC_FLAT:
+      return SYM_ACC_FLAT;
+    case ACC_SHARP:
+      return SYM_ACC_SHARP;
+    case ACC_NATURAL:
+      return SYM_ACC_NATURAL;
+    default:
+      return 0;
+  }
 }
 
 int sheetController::getSymbolType(const int noteType) {
