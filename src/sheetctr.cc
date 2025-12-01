@@ -437,6 +437,13 @@ int sheetController::findMeasureWidth(int measureNum, bool includeSig) {
     width += sigSpacing;
   }
 
+  // ending bar line
+  if (displayMeasure.back().measure->getNumber() == measureNum + 1) {
+    if (!ctr.getLiveState()) {
+      width += sigSpacing + endSpacing;
+    }
+  }
+
   // int tickDist = dm.chords.size() < 2 ? 0 : __INT_MAX__;
 
   for (unsigned int c = 0; c < dm.chords.size(); ++c) {
@@ -685,6 +692,19 @@ void sheetController::drawSheetPage() {
         offset += sigSpacing;
         drawLineEx(offset, ctr.menuHeight + ctr.barMargin, offset,
                    ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgSheetNote);
+      }
+    }
+
+    // thicker double bar on final measure
+    if (displayMeasure.back().measure->getNumber() == m) {
+      if (!ctr.getLiveState()) {
+        offset += endSpacing + sigSpacing + 1;
+        drawLineEx(offset, ctr.menuHeight + ctr.barMargin, offset,
+                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgSheetNote);
+        offset += sigSpacing + 2;
+        drawLineEx(offset, ctr.menuHeight + ctr.barMargin, offset,
+                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing + 1, endSpacing,
+                   ctr.bgSheetNote);
       }
     }
   }

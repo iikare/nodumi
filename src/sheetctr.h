@@ -94,6 +94,7 @@ class sheetController {
   static constexpr int dotSpacing = 4;
   static constexpr int accSpacing = 4;
   static constexpr int sigSpacing = 4;
+  static constexpr int endSpacing = 4;
 
   static constexpr int placeholderWidth = 24;
 
