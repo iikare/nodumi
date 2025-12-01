@@ -968,39 +968,12 @@ int main(int argc, char* argv[]) {
     // sheet music layout
     if (ctr.renderSheet) {
       // bg
-      drawRectangle(0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight, ctr.bgSheet);
       if (pointInBox(getMousePosition(), {0, ctr.menuHeight, ctr.getWidth(), ctr.barHeight}) &&
           !hoverType.contains(HOVER_DIALOG)) {
         hoverType.add(HOVER_SHEET);
       }
 
-      // stave lines
-      for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 5; j++) {
-          drawLineEx(
-              ctr.sheetSideMargin, ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth,
-              ctr.getWidth() - ctr.sheetSideMargin,
-              ctr.menuHeight + ctr.barMargin + i * ctr.barSpacing + j * ctr.barWidth, 1, ctr.bgSheetNote);
-        }
-      }
-
-      //// end lines
-      drawLineEx(ctr.sheetSideMargin, ctr.menuHeight + ctr.barMargin, ctr.sheetSideMargin,
-                 ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgSheetNote);
-      drawLineEx(ctr.getWidth() - ctr.sheetSideMargin, ctr.menuHeight + ctr.barMargin,
-                 ctr.getWidth() - ctr.sheetSideMargin,
-                 ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgSheetNote);
-
-      drawSymbol(SYM_STAFF_BRACE, 480, 17.0f, float(ctr.menuHeight + ctr.barMargin) - 120, ctr.bgSheetNote);
-      drawSymbol(SYM_CLEF_TREBLE, 155, 40.0f, ctr.menuHeight + ctr.barMargin - 47, ctr.bgSheetNote);
-      drawSymbol(SYM_CLEF_BASS, 155, 40.0f, float(ctr.menuHeight + ctr.barSpacing + ctr.barMargin - 67),
-                 ctr.bgSheetNote);
-
-      if (stream.measureMap.size() != 0) {
-        if (stream.measureMap.size() == stream.sheetData.getDisplayMeasureCount()) {
-          stream.sheetData.drawSheetPage();
-        }
-      }
+      stream.sheetData.drawSheet();
 
       if (isKeyPressed(KEY_F)) {
       }

@@ -34,6 +34,7 @@ class sheetController {
   void popMeasure() { displayMeasure.pop_back(); }
   void findSheetPages();
 
+  void drawSheet();
   void drawSheetPage();
 
   friend class midi;
