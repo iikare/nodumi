@@ -501,16 +501,35 @@ void sheetController::findSheetPages() {
   int measureWidth = 0;
   int maxWidth = ctr.getWidth() - ctr.sheetSideMargin - ctr.sheetSymbolWidth;
 
-  for (int i = 0; i < ctr.getMeasureCount(); ++i) {
-    measureWidth = findMeasureWidth(i);
-    // logQ(i+1, measureWidth);
-    if (pageWidth + measureWidth > maxWidth) {
-      // logQ("divider at", i+1, "extra space", maxWidth - pageWidth);
-      sheetPageSeparator.push_back(i);
-      pageWidth = 0;
-      measureWidth = findMeasureWidth(i, true);  // include current keysig
+  if (ctr.getLiveState()) {
+    constexpr int max_measures = 6;
+    int m_i = 0;
+    for (int i = ctr.getMeasureCount() - 1; i >= 0; --i) {
+      measureWidth = findMeasureWidth(i);
+      // logQ(i+1, measureWidth);
+      if (pageWidth + measureWidth > maxWidth || m_i == max_measures) {
+        // logQ("divider at", i+1, "extra space", maxWidth - pageWidth);
+        sheetPageSeparator.push_back(i);
+        pageWidth = 0;
+        measureWidth = findMeasureWidth(i, true);  // include current keysig
+        break;
+      }
+      pageWidth += measureWidth;
+      m_i++;
     }
-    pageWidth += measureWidth;
+  }
+  else {
+    for (int i = 0; i < ctr.getMeasureCount(); ++i) {
+      measureWidth = findMeasureWidth(i);
+      // logQ(i+1, measureWidth);
+      if (pageWidth + measureWidth > maxWidth) {
+        // logQ("divider at", i+1, "extra space", maxWidth - pageWidth);
+        sheetPageSeparator.push_back(i);
+        pageWidth = 0;
+        measureWidth = findMeasureWidth(i, true);  // include current keysig
+      }
+      pageWidth += measureWidth;
+    }
   }
 }
 
