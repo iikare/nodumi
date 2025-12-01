@@ -432,6 +432,11 @@ int sheetController::findMeasureWidth(int measureNum, bool includeSig) {
     width += sigSpacing;
   }
 
+  // double bar line on time/key changes
+  if (!dm.measure->keySignatures.empty() || !dm.measure->timeSignatures.empty()) {
+    width += sigSpacing;
+  }
+
   // int tickDist = dm.chords.size() < 2 ? 0 : __INT_MAX__;
 
   for (unsigned int c = 0; c < dm.chords.size(); ++c) {
@@ -622,9 +627,11 @@ void sheetController::drawSheetPage() {
         // int stave = STAVE_TREBLE;//stc++ % 2 ? STAVE_BASS : STAVE_TREBLE; //
         // hack for two flag chords
         int lOffset = displayMeasure[m - 1].s_chordData[ch].getStemPosition();
-        drawLineEx(offset + lOffset, findStaveY(stem.startY, stem.stave), offset + lOffset,
-                   findStaveY(stem.endY, stem.stave), 2, ctr.bgSheetNote);
+        // drawLineEx(offset + lOffset, findStaveY(stem.startY, stem.stave), offset + lOffset,
+        // findStaveY(stem.endY, stem.stave), 2, ctr.bgSheetNote);
       }
+
+      // debug - red line
       drawLineEx(offset, ctr.menuHeight + ctr.barMargin, offset,
                  ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgNow);
 
@@ -638,6 +645,13 @@ void sheetController::drawSheetPage() {
     if (m != measureRange.second) {
       drawLineEx(offset, ctr.menuHeight + ctr.barMargin, offset,
                  ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgSheetNote);
+      // double bar line on time/key changes
+      if (!displayMeasure[m].measure->keySignatures.empty() ||
+          !displayMeasure[m].measure->timeSignatures.empty()) {
+        offset += sigSpacing;
+        drawLineEx(offset, ctr.menuHeight + ctr.barMargin, offset,
+                   ctr.menuHeight + ctr.barMargin + 4 * ctr.barWidth + ctr.barSpacing, 2, ctr.bgSheetNote);
+      }
     }
   }
   // logQ(formatVector(spacingMargin));
