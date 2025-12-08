@@ -408,6 +408,7 @@ void sheetController::disectMeasure(measureController& measure) {
 
   if (measure.notes.size() == 0) {
     // TODO: fill space with rests
+    logQ("empty measure:", measure.getNumber());
   }
 
   displayMeasure.push_back(dm);
@@ -454,7 +455,13 @@ int sheetController::findMeasureWidth(int measureNum, bool includeSig) {
     width += dm.s_chordData[c].getSize();
   }
 
+  if (dm.measure->notes.size() == 0) {
+    width += getSymbolWidth(SYM_REST_WHOLE);
+    // logQ("width:", width);
+  }
+
   // logQ("m", measureNum+1, "min dist.", tickDist, "width", width, "chords");
+  // logQ(measureNum+1, width);
 
   return width;
 }
@@ -601,7 +608,7 @@ void sheetController::drawSheetPage() {
     drawTextEx(to_string(measureRange.first),
                {(float)offset + sigSpacing / 2.0f, ctr.menuHeight + ctr.barMargin - ctr.barWidth * 1.75},
                ctr.bgSheetNote);
-    return;
+    // return;
   }
 
   vector<int> spacingMargin(abs(margin) % spacingPositions,
@@ -614,6 +621,9 @@ void sheetController::drawSheetPage() {
     // logQ(margin, spacingPositions, margin/spacingPositions, margin %
     // spacingPositions, std::accumulate(spacingMargin.begin(),
     // spacingMargin.end(), 0));
+    // if (displayMeasure[m-1].measure->notes.size() == 0) {
+    // continue;
+    //}
 
     // beginning of measure spacing (not first measure)
     if (m != measureRange.first) {
@@ -638,6 +648,16 @@ void sheetController::drawSheetPage() {
     drawTextEx(to_string(m),
                {(float)offset + sigSpacing / 20.f, ctr.menuHeight + ctr.barMargin - ctr.barWidth * 1.75},
                ctr.bgSheetNote);
+
+    if (displayMeasure[m - 1].measure->notes.size() == 0) {
+      offset += spacingMargin[spacingIndex++];
+      auto y1 = findStaveY(8, STAVE_TREBLE);
+      auto y2 = findStaveY(-4, STAVE_BASS);
+      drawSymbol(SYM_REST_WHOLE, fSize, offset, y1 + 3 - ctr.barSpacing, ctr.bgSheetNote);
+      drawSymbol(SYM_REST_WHOLE, fSize, offset, y2 + 3 - ctr.barSpacing, ctr.bgSheetNote);
+      // logQ("rest", y1, y2);
+      offset += getSymbolWidth(SYM_REST_WHOLE);
+    }
 
     for (unsigned int ch = 0; ch < displayMeasure[m - 1].chords.size(); ++ch) {
       int chordSize = displayMeasure[m - 1].s_chordData[ch].getSize();
@@ -851,6 +871,8 @@ int sheetController::getSymbolWidth(const int symbol) {
       return 10;
     case SYM_DOT:
       return 4;
+    case SYM_REST_WHOLE:
+      return 18;
     default:
       logQ("invalid symbol:", symbol);
       break;

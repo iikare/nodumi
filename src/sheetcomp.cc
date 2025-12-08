@@ -207,7 +207,7 @@ int sheetMeasure::hasFlag(int chordNum) const {
 
 int sheetMeasure::getSpacingCount() const {
   if (chords.empty()) {
-    return 0;
+    return 1;
   }
   return chords.size() - 1;
 }
