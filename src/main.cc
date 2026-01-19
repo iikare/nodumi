@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
   // ctr.toggleLivePlay();
   // ctr.input.openPort(0);
   // ctr.output.openPort(3);
-  ctr.renderSheet = true;
+  // ctr.renderSheet = true;
 
   // main program logic
   while (ctr.getProgramState()) {
@@ -516,7 +516,7 @@ int main(int argc, char* argv[]) {
           if (noteOn) {
           }
 
-          drawRectangle(cX, cY, cW, cH, col);
+          drawRectangle(floor(cX), cY, ceil(cW), cH, col);
         } break;
         case DISPLAY_VORONOI:
           if (cX > -0.2 * ctr.getWidth() && cX + cW < 1.2 * ctr.getWidth()) {
