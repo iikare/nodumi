@@ -233,6 +233,7 @@ enum class OPTION {
   LEVEL_CONTROL_G,
   LEVEL_CONTROL_B,
   LIMIT_FPS,
+  FRAME_SAVE,
   NONE
 };
 

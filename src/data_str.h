@@ -96,6 +96,7 @@
                         {"PREF_NOW_LINE_USE_OVERLAY",           "Enable Overlay Blend Mode"}, \
                         {"PREF_LEVEL_CONTROL",                  "Enable Level Control (RGB)"}, \
                         {"PREF_LIMIT_FPS",                      "Limit FPS"}, \
+                        {"PREF_FRAME_SAVE",                     "Save Frame-by-Frame Data"}, \
                         {"FILE_INFO_LABEL",                     "Information"}, \
                         {"FILE_TYPE",                           "Format"}, \
                         {"FILE_NOTE_COUNT",                     "Note Count"}, \

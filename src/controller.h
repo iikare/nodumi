@@ -177,6 +177,7 @@ class controller {
   Texture2D nowLineTex;
 
   bool run = false;
+  int run_frame = 0;
 
   vector<colorRGB> setTrackOn;
   vector<colorRGB> setTrackOff;

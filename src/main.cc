@@ -187,6 +187,7 @@ int main(int argc, char* argv[]) {
   while (ctr.getProgramState()) {
     if (ctr.open_file.pending() || clearFile) {
       ctr.run = false;
+      ctr.run_frame = 0;
       colorFlag = true;
       timeOffset = 0;
       pauseOffset = 0;
@@ -1067,8 +1068,9 @@ int main(int argc, char* argv[]) {
     action = ctr.process(action);
 
     if (ctr.run && !any_of(action, ACTION::NAV_PREV_MEASURE, ACTION::NAV_NEXT_MEASURE)) {
-      if (timeOffset + GetFrameTime() * UNK_CST < ctr.getLastTime()) {
-        timeOffset += GetFrameTime() * UNK_CST;
+      double time_interval = ctr.option.get(OPTION::FRAME_SAVE) ? 1 / 60.0 : GetFrameTime();
+      if (timeOffset + time_interval * UNK_CST < ctr.getLastTime()) {
+        timeOffset += time_interval * UNK_CST;
       }
       else {
         timeOffset = ctr.getLastTime();

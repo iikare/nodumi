@@ -379,7 +379,6 @@ void controller::endFrame() {
   popTextureMode();
   drawTexturePro(framebuffer.texture, {0, 0, ctr.getWidth(), -ctr.getHeight()},
                  {0, 0, ctr.getWidth(), ctr.getHeight()}, {0.0f, 0.0f}, 0.0f);
-
   EndDrawing();
 }
 
@@ -438,6 +437,16 @@ void controller::popTextureMode() {
 void controller::update(int offset, double zoom, double& nowLineX) {
   if (!programState) {
     return;
+  }
+
+  if (option.get(OPTION::FRAME_SAVE)) {
+    if (run) {
+      string frame_name = ctr.getFilePath().substr(0, ctr.getFilePath().find_last_of(".")) + "_" +
+                          to_string(run_frame) + ".png";
+      run_frame += 1;
+      TakeScreenshot(frame_name.c_str());
+      std::filesystem::rename(frame_name, "frame/" + frame_name);
+    }
   }
 
   frameCounter++;

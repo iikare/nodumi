@@ -65,6 +65,16 @@ void optionController::invert(OPTION opt) {
     case OPTION::LIMIT_FPS:
       ctr.updateFPSCap(get(opt));
       break;
+    case OPTION::FRAME_SAVE: {
+      const string path = "frame";
+      if (!std::filesystem::create_directory(path)) {
+        logW(LL_WARN, "could not create directory -", path);
+      }
+      else {
+        logW(LL_INFO, "frame data directory @", path);
+      }
+      break;
+    }
     case OPTION::NOW_LINE_USE_OVERLAY:
       ctr.setShaderValue("SH_OVERLAY", "use_line_color", static_cast<int>(!opts[static_cast<int>(opt)]));
       break;
@@ -123,6 +133,7 @@ void optionController::set(OPTION opt, int value) {
     case OPTION::SCALE_VELOCITY:
     case OPTION::SHADOW:
     case OPTION::LIMIT_FPS:
+    case OPTION::FRAME_SAVE:
     case OPTION::HAND_RANGE:
     case OPTION::CIE_FUNCTION:
     case OPTION::SHADOW_DISTANCE:
