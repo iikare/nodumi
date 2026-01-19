@@ -1152,6 +1152,7 @@ int main(int argc, char* argv[]) {
 
             ctr.save(save_path, nowLine, showFPS, showImage, showKey, showTempo, measureLine, measureNumber,
                      colorMode, displayMode, songTimeType, tonicOffset, zoomLevel);
+            ctr.save_file.setPending(save_path);
             ctr.save_file.resetPending();
           }
         }

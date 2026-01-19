@@ -1258,6 +1258,8 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   ofstream output(path, std::ofstream::out | std::ofstream::trunc | std::ios::binary);
   output.imbue(std::locale::classic());
 
+  logQ("save path:", path);
+
   if (!output) {
     logW(LL_WARN, "unable to save file to", path);
     return;
