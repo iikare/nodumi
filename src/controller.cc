@@ -439,7 +439,7 @@ void controller::update(int offset, double zoom, double& nowLineX) {
     return;
   }
 
-  if (option.get(OPTION::FRAME_SAVE)) {
+  if (option.get(OPTION::FRAME_SAVE) && !getLiveState()) {
     if (run) {
       string frame_name = ctr.getFilePath().substr(0, ctr.getFilePath().find_last_of(".")) + "_" +
                           to_string(run_frame) + ".png";

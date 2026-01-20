@@ -1068,7 +1068,8 @@ int main(int argc, char* argv[]) {
     action = ctr.process(action);
 
     if (ctr.run && !any_of(action, ACTION::NAV_PREV_MEASURE, ACTION::NAV_NEXT_MEASURE)) {
-      double time_interval = ctr.option.get(OPTION::FRAME_SAVE) ? 1 / 60.0 : GetFrameTime();
+      double time_interval =
+          ctr.option.get(OPTION::FRAME_SAVE) && !ctr.getLiveState() ? 1 / 60.0 : GetFrameTime();
       if (timeOffset + time_interval * UNK_CST < ctr.getLastTime()) {
         timeOffset += time_interval * UNK_CST;
       }
