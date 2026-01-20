@@ -12,6 +12,7 @@ gmon.out
 *perf.data
 *.data.old
 *.csv
+*.mp4
 output.png
 
 # latex output
