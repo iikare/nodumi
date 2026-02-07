@@ -62,7 +62,6 @@ int main(int argc, char* argv[]) {
 
   // scaling settings
   double zoomLevel = 0.125;
-  double timeOffset = 0;
   const double shiftC = 2.5;
   double pauseOffset = 0;
 
@@ -108,7 +107,7 @@ int main(int argc, char* argv[]) {
   bool clickOnTmp = false;
 
   // screen space conversion functions
-  const auto convertSSX = [&](int value) { return nowLineX + (value - timeOffset) * zoomLevel; };
+  const auto convertSSX = [&](int value) { return nowLineX + (value - ctr.timeOffset) * zoomLevel; };
 
   const auto convertSSY = [&](int value) {
     return (ctr.getHeight() - (ctr.getHeight() - (ctr.topHeight)) *
@@ -116,15 +115,15 @@ int main(int argc, char* argv[]) {
   };
 
   // inverse screen space conversion functions
-  const auto unconvertSSX = [&](int value) { return timeOffset + (value - nowLineX) / zoomLevel; };
+  const auto unconvertSSX = [&](int value) { return ctr.timeOffset + (value - nowLineX) / zoomLevel; };
 
   const auto inverseSSX = [&]() {
     // double spaceR = ctr.getWidth() - nowLineX;
-    double minVal = max(0.0, timeOffset - nowLineX / zoomLevel);
+    double minVal = max(0.0, ctr.timeOffset - nowLineX / zoomLevel);
 
     // extra "1" prevents roundoff error
-    double maxVal =
-        min(ctr.getLastTime(), static_cast<int>(timeOffset + (ctr.getWidth() + 1 - nowLineX) / zoomLevel));
+    double maxVal = min(ctr.getLastTime(),
+                        static_cast<int>(ctr.timeOffset + (ctr.getWidth() + 1 - nowLineX) / zoomLevel));
 
     return make_pair(minVal, maxVal);
   };
@@ -189,7 +188,7 @@ int main(int argc, char* argv[]) {
       ctr.run = false;
       ctr.run_frame = 0;
       colorFlag = true;
-      timeOffset = 0;
+      ctr.timeOffset = 0;
       pauseOffset = 0;
 
       if (ctr.open_file.pending()) {
@@ -238,7 +237,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (ctr.getLiveState()) {
-      timeOffset = ctr.livePlayOffset;
+      ctr.timeOffset = ctr.livePlayOffset;
       ctr.run = false;
     }
     // empty input queue even if not rendering live input
@@ -350,16 +349,16 @@ int main(int argc, char* argv[]) {
             Vector2 songInfoSize = {0, 0};
             switch (songTimeType) {
               case SONGTIME_ABSOLUTE:
-                songInfoSize = measureTextEx(getSongTime(timeOffset));
+                songInfoSize = measureTextEx(getSongTime(ctr.timeOffset));
                 break;
               case SONGTIME_RELATIVE:
-                songInfoSize = measureTextEx(getSongPercent(timeOffset));
+                songInfoSize = measureTextEx(getSongPercent(ctr.timeOffset));
                 break;
             }
             if (showKey) {
               // approximate actual rendered label width, it is usually good
               // enough
-              Vector2 keySigSize = measureTextEx(ctr.getKeySigLabel(timeOffset));
+              Vector2 keySigSize = measureTextEx(ctr.getKeySigLabel(ctr.timeOffset));
               songInfoSize.x += keySigSize.x;
               songInfoSize.y += keySigSize.y;
 
@@ -368,7 +367,7 @@ int main(int argc, char* argv[]) {
               }
             }
             if (showTempo && !ctr.getLiveState()) {
-              songInfoSize.x += measureTextEx(ctr.getTempoLabel(timeOffset)).x;
+              songInfoSize.x += measureTextEx(ctr.getTempoLabel(ctr.timeOffset)).x;
               songInfoSize.x += tl_spacing;
               if (songTimeType != SONGTIME_NONE || showKey) {
                 songInfoSize.x += tl_spacing;
@@ -496,7 +495,8 @@ int main(int argc, char* argv[]) {
       switch (displayMode) {
         case DISPLAY_BAR: {
           int colorID = getColorSetIndex(i);
-          if (notes[i].isOn || (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration)) {
+          if (notes[i].isOn ||
+              (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration)) {
             noteOn = true;
           }
 
@@ -510,7 +510,7 @@ int main(int argc, char* argv[]) {
           const auto& col = cSet[colorID];
           const auto& col_inv = cSetInv[colorID];
 
-          if (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration) {
+          if (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration) {
             ctr.particle.add_emitter(i, {nowLineX, cY, 0, cH, col, col_inv});
           }
 
@@ -522,7 +522,8 @@ int main(int argc, char* argv[]) {
         case DISPLAY_VORONOI:
           if (cX > -0.2 * ctr.getWidth() && cX + cW < 1.2 * ctr.getWidth()) {
             int colorID = getColorSetIndex(i);
-            if (notes[i].isOn || (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration)) {
+            if (notes[i].isOn ||
+                (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration)) {
               noteOn = true;
             }
 
@@ -540,7 +541,7 @@ int main(int argc, char* argv[]) {
             ctr.voronoi.vertex.push_back({cX / ctr.getWidth(), 1 - (cY + cH / 2) / ctr.getHeight()});
             ctr.voronoi.color.push_back(col);
 
-            if (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration) {
+            if (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration) {
               ctr.particle.add_emitter(i, {cX, (cY + cH / 2) - radius / 2.0, 0, radius, col, col_inv});
             }
 
@@ -561,9 +562,10 @@ int main(int argc, char* argv[]) {
             if (cX < nowLineX - cW) {
               radius *= 0.3;
             }
-            if (notes[i].isOn || (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration)) {
+            if (notes[i].isOn ||
+                (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration)) {
               noteOn = true;
-              radius *= (0.3f + 0.7f * (1.0f - float(timeOffset - notes[i].x) / notes[i].duration));
+              radius *= (0.3f + 0.7f * (1.0f - float(ctr.timeOffset - notes[i].x) / notes[i].duration));
             }
             if (!ctr.menu.mouseOnMenu()) {
               int realX = 0;
@@ -587,7 +589,7 @@ int main(int argc, char* argv[]) {
               }
             }
 
-            if (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration) {
+            if (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration) {
               ctr.particle.add_emitter(i, {nowLineX, ballY, 0, 0, col, col_inv});
             }
 
@@ -658,8 +660,8 @@ int main(int argc, char* argv[]) {
             const auto& col = cSet[colorID];
             const auto& col_inv = cSetInv[colorID];
 
-            if (timeOffset >= notes[lp[j].idx].x &&
-                timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
+            if (ctr.timeOffset >= notes[lp[j].idx].x &&
+                ctr.timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
               ctr.particle.add_emitter(lp[j].idx, {convSS[0], convSS[1], 0, 0, col, col_inv});
             }
 
@@ -715,8 +717,8 @@ int main(int argc, char* argv[]) {
                           : convSS[2],
                   nowNote ? newY - floatLERP(0, (newY - convSS[3]) / 2.0, nowRatio, INT_ISINE) : convSS[3], 3,
                   col);
-              if (timeOffset >= notes[lp[j].idx].x &&
-                  timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
+              if (ctr.timeOffset >= notes[lp[j].idx].x &&
+                  ctr.timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
                 ctr.particle.add_emitter(
                     lp[j].idx,
                     {nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE)
@@ -748,22 +750,22 @@ int main(int argc, char* argv[]) {
             }
 
             int ringLimit = 400;
-            int ringDist = timeOffset - lp[j].x_l;
+            int ringDist = ctr.timeOffset - lp[j].x_l;
 
             double ringRatio = ringDist / static_cast<double>(ringLimit);
-            if (ctr.run && lp[j].x_l < pauseOffset && timeOffset >= pauseOffset) {
+            if (ctr.run && lp[j].x_l < pauseOffset && ctr.timeOffset >= pauseOffset) {
               ringRatio = 0;
             }
-            else if (ctr.getPauseTime() < 1 && timeOffset == pauseOffset) {  // || linePositions[j+1] >=
-                                                                             // pauseOffset) {
+            else if (ctr.getPauseTime() < 1 && ctr.timeOffset == pauseOffset) {  // || linePositions[j+1] >=
+                                                                                 // pauseOffset) {
               // this effect has a run-down time of 1 second
               ringRatio += min(1 - ringRatio, ctr.getPauseTime());
             }
-            else if (lp[j].x_l < pauseOffset && timeOffset == pauseOffset) {
+            else if (lp[j].x_l < pauseOffset && ctr.timeOffset == pauseOffset) {
               ringRatio = 0;
               // ringRatio *= max(ctr.getRunTime(), 1.0);
             }
-            // logQ(timeOffset, (linePositions[j+1], linePositions[j+2]));
+            // logQ(ctr.timeOffset, (linePositions[j+1], linePositions[j+2]));
             if (ringDist <= ringLimit && ringDist > 4) {
               unsigned int noteLen =
                   notes[lp[j].idx].duration * zoomLevel < 1 ? 1 : notes[lp[j].idx].duration * zoomLevel;
@@ -824,8 +826,8 @@ int main(int argc, char* argv[]) {
                   col);
             }
 
-            if (timeOffset >= notes[lp[j].idx].x &&
-                timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
+            if (ctr.timeOffset >= notes[lp[j].idx].x &&
+                ctr.timeOffset < notes[lp[j].idx].x + notes[lp[j].idx].duration) {
               ctr.particle.add_emitter(
                   lp[j].idx,
                   {noteOn ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE)
@@ -852,13 +854,14 @@ int main(int argc, char* argv[]) {
             bool drawFFT = false;
             double fftStretchRatio = 1.78;  // TODO: make fft-selection semi-duration-invariant
             int colorID = getColorSetIndex(i);
-            if (notes[i].isOn || (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration)) {
+            if (notes[i].isOn ||
+                (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration)) {
               noteOn = true;
               drawFFT = true;
             }
-            else if ((timeOffset >= notes[i].x + notes[i].duration &&
-                      timeOffset < notes[i].x + fftStretchRatio * notes[i].duration) ||
-                     (timeOffset < notes[i].x && timeOffset >= notes[i].x - ctr.getMinTickLen())) {
+            else if ((ctr.timeOffset >= notes[i].x + notes[i].duration &&
+                      ctr.timeOffset < notes[i].x + fftStretchRatio * notes[i].duration) ||
+                     (ctr.timeOffset < notes[i].x && ctr.timeOffset >= notes[i].x - ctr.getMinTickLen())) {
               drawFFT = true;
             }
             if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) &&
@@ -871,7 +874,7 @@ int main(int argc, char* argv[]) {
             const auto& col = cSet[colorID];
             const auto& col_inv = cSetInv[colorID];
 
-            if (timeOffset >= notes[i].x && timeOffset < notes[i].x + notes[i].duration) {
+            if (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration) {
               ctr.particle.add_emitter(i, {nowLineX, cY, 0, cH, col, col_inv});
             }
 
@@ -890,7 +893,7 @@ int main(int argc, char* argv[]) {
       // int pf_calls = 0;
       //  must obtain last bins before dispatching next set
       const auto bins = ctr.fft.getFFTBins();
-      ctr.fft.generateFFTBins(current_note, timeOffset);
+      ctr.fft.generateFFTBins(current_note, ctr.timeOffset);
 
       bool foundNote = false;
       for (unsigned int bin = 0; bin < bins.size(); ++bin) {
@@ -979,9 +982,9 @@ int main(int argc, char* argv[]) {
       if (isKeyPressed(KEY_F)) {
       }
       // stream.sheetData.findSheetPages();
-      // logQ("cloc", ctr.getCurrentMeasure(timeOffset));
+      // logQ("cloc", ctr.getCurrentMeasure(ctr.timeOffset));
       // logQ("cloc",
-      // formatPair(stream.sheetData.findSheetPageLimit(ctr.getCurrentMeasure(timeOffset))));
+      // formatPair(stream.sheetData.findSheetPageLimit(ctr.getCurrentMeasure(ctr.timeOffset))));
     }
 
     // option actions
@@ -990,10 +993,10 @@ int main(int argc, char* argv[]) {
 
     switch (songTimeType) {
       case SONGTIME_RELATIVE:
-        songTimeContent = getSongPercent(timeOffset);
+        songTimeContent = getSongPercent(ctr.timeOffset);
         break;
       case SONGTIME_ABSOLUTE:
-        songTimeContent = getSongTime(timeOffset);
+        songTimeContent = getSongTime(ctr.timeOffset);
         break;
       case SONGTIME_NONE:
         break;
@@ -1010,13 +1013,13 @@ int main(int argc, char* argv[]) {
       if (songTimeType != SONGTIME_NONE) {
         tl_offset += tl_spacing;
       }
-      // logQ("got label:", ctr.getKeySigLabel(timeOffset));
-      string ksl = ctr.getKeySigLabel(timeOffset);
+      // logQ("got label:", ctr.getKeySigLabel(ctr.timeOffset));
+      string ksl = ctr.getKeySigLabel(ctr.timeOffset);
       int cKSOffset = songTimePosition.x + tl_offset;
 
       drawNoteLabel(ksl, cKSOffset, songTimePosition.y, 14, 74, ctr.bgColor2);
 
-      tl_offset += measureTextEx(ctr.getKeySigLabel(timeOffset)).x;
+      tl_offset += measureTextEx(ctr.getKeySigLabel(ctr.timeOffset)).x;
     }
 
     if (showTempo && !ctr.getLiveState()) {
@@ -1024,7 +1027,7 @@ int main(int argc, char* argv[]) {
       if (songTimeType != SONGTIME_NONE || showKey) {
         tl_offset += tl_spacing;
       }
-      drawTextEx(ctr.getTempoLabel(timeOffset), tl_offset, songTimePosition.y, ctr.bgColor2);
+      drawTextEx(ctr.getTempoLabel(ctr.timeOffset), tl_offset, songTimePosition.y, ctr.bgColor2);
     }
 
     if (!ctr.buffer.empty()) {
@@ -1070,13 +1073,13 @@ int main(int argc, char* argv[]) {
     if (ctr.run && !any_of(action, ACTION::NAV_PREV_MEASURE, ACTION::NAV_NEXT_MEASURE)) {
       double time_interval =
           ctr.option.get(OPTION::FRAME_SAVE) && !ctr.getLiveState() ? 1 / 60.0 : GetFrameTime();
-      if (timeOffset + time_interval * UNK_CST < ctr.getLastTime()) {
-        timeOffset += time_interval * UNK_CST;
+      if (ctr.timeOffset + time_interval * UNK_CST < ctr.getLastTime()) {
+        ctr.timeOffset += time_interval * UNK_CST;
       }
       else {
-        timeOffset = ctr.getLastTime();
+        ctr.timeOffset = ctr.getLastTime();
         ctr.run = false;
-        pauseOffset = timeOffset;
+        pauseOffset = ctr.timeOffset;
       }
     }
 
@@ -1117,10 +1120,10 @@ int main(int argc, char* argv[]) {
 
     switch (action) {
       case ACTION::OPEN:
-        // logQ("offset before:", timeOffset);
+        // logQ("offset before:", ctr.timeOffset);
         ctr.open_file.dialog();
         ctr.menu.hide();
-        // logQ("offset after:", timeOffset);
+        // logQ("offset after:", ctr.timeOffset);
         break;
       case ACTION::OPEN_IMAGE:
         ctr.open_image.dialog();
@@ -1194,7 +1197,7 @@ int main(int argc, char* argv[]) {
         ctr.toggleLivePlay();
         colorFlag = true;
         if (!ctr.getLiveState()) {
-          timeOffset = 0;
+          ctr.timeOffset = 0;
         }
         break;
       case ACTION::CHANGE_MODE:
@@ -1248,81 +1251,81 @@ int main(int argc, char* argv[]) {
         }
         break;
       case ACTION::NAV_HOME:
-        timeOffset = 0;
+        ctr.timeOffset = 0;
         break;
       case ACTION::NAV_SET_MEASURE:
         if (ctr.pendingActionValue < ctr.getMeasureCount()) {
           if (!ctr.getLiveState()) {
             double measureLineX = convertSSX(stream.measureMap[ctr.pendingActionValue - 1].getLocation());
-            timeOffset = unconvertSSX(measureLineX);
+            ctr.timeOffset = unconvertSSX(measureLineX);
           }
           break;
         }
         [[fallthrough]];
       case ACTION::NAV_END:
-        timeOffset = ctr.getLastTime();
-        pauseOffset = timeOffset;
+        ctr.timeOffset = ctr.getLastTime();
+        pauseOffset = ctr.timeOffset;
         break;
       case ACTION::NAV_PREV:
-        if (timeOffset > shiftC * 6) {
-          timeOffset -= shiftC * 6;
+        if (ctr.timeOffset > shiftC * 6) {
+          ctr.timeOffset -= shiftC * 6;
         }
-        else if (timeOffset > 0) {
-          timeOffset = 0;
+        else if (ctr.timeOffset > 0) {
+          ctr.timeOffset = 0;
         }
         break;
       case ACTION::NAV_PREV_FAST:
-        if (timeOffset > shiftC * 60) {
-          timeOffset -= shiftC * 60;
+        if (ctr.timeOffset > shiftC * 60) {
+          ctr.timeOffset -= shiftC * 60;
         }
-        else if (timeOffset > 0) {
-          timeOffset = 0;
+        else if (ctr.timeOffset > 0) {
+          ctr.timeOffset = 0;
         }
         break;
       case ACTION::NAV_PREV_MEASURE:
         if (!ctr.getLiveState()) {
-          int foundMeasure = ctr.findCurrentMeasure(timeOffset);
+          int foundMeasure = ctr.findCurrentMeasure(ctr.timeOffset);
           foundMeasure -= ctr.pendingActionValue <= 0 ? 1 : ctr.pendingActionValue;
           if (foundMeasure > 0) {
-            timeOffset = stream.measureMap[foundMeasure].getLocation() - 1;
+            ctr.timeOffset = stream.measureMap[foundMeasure].getLocation() - 1;
           }
           else {
-            timeOffset = 0;
+            ctr.timeOffset = 0;
           }
         }
         break;
       case ACTION::NAV_NEXT:
-        if (timeOffset + shiftC * 6 < ctr.getLastTime()) {
-          timeOffset += shiftC * 6;
+        if (ctr.timeOffset + shiftC * 6 < ctr.getLastTime()) {
+          ctr.timeOffset += shiftC * 6;
         }
         else {
-          timeOffset = ctr.getLastTime();
+          ctr.timeOffset = ctr.getLastTime();
         }
         break;
       case ACTION::NAV_NEXT_FAST:
-        if (timeOffset + shiftC * 60 < ctr.getLastTime()) {
-          timeOffset += shiftC * 60;
+        if (ctr.timeOffset + shiftC * 60 < ctr.getLastTime()) {
+          ctr.timeOffset += shiftC * 60;
         }
-        else if (timeOffset < ctr.getLastTime()) {
-          timeOffset = ctr.getLastTime();
+        else if (ctr.timeOffset < ctr.getLastTime()) {
+          ctr.timeOffset = ctr.getLastTime();
         }
         break;
       case ACTION::NAV_NEXT_MEASURE:
         if (!ctr.getLiveState()) {
-          int foundMeasure = ctr.findCurrentMeasure(timeOffset);
-          foundMeasure += timeOffset < stream.measureMap[foundMeasure].getLocation() ? 0 : 1;
+          int foundMeasure = ctr.findCurrentMeasure(ctr.timeOffset);
+          foundMeasure += ctr.timeOffset < stream.measureMap[foundMeasure].getLocation() ? 0 : 1;
           if (foundMeasure < ctr.getMeasureCount()) {
-            timeOffset = stream.measureMap[foundMeasure].getLocation();
+            ctr.timeOffset = stream.measureMap[foundMeasure].getLocation();
           }
           else {
-            timeOffset = ctr.getLastTime();
+            ctr.timeOffset = ctr.getLastTime();
           }
         }
         break;
       case ACTION::NAV_SPACE:
-        if (timeOffset != ctr.getLastTime()) {
+        if (ctr.timeOffset != ctr.getLastTime()) {
           ctr.run = !ctr.run;
-          pauseOffset = timeOffset;
+          pauseOffset = ctr.timeOffset;
         }
         break;
       default:
@@ -1863,7 +1866,7 @@ int main(int argc, char* argv[]) {
           int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
 
           if (clickNote != -1) {
-            rightX = round(nowLineX + (notes[clickNote].x - timeOffset) * zoomLevel);
+            rightX = round(nowLineX + (notes[clickNote].x - ctr.timeOffset) * zoomLevel);
             rightY = (ctr.getHeight() -
                       round((ctr.getHeight() - ctr.menuHeight) *
                             static_cast<double>(notes[clickNote].y - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 3)));
@@ -1958,7 +1961,7 @@ int main(int argc, char* argv[]) {
       hoverType.add(HOVER_MENU);
     }
 
-    ctr.update(timeOffset, zoomLevel, nowLineX);
+    ctr.update(zoomLevel, nowLineX);
   }
 
   ctr.unloadData();

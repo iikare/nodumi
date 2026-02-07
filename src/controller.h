@@ -84,7 +84,7 @@ class controller {
   void toggleLivePlay();
   void criticalSection(bool enter);
 
-  void update(int offset, double zoom, double& nowLineX);
+  void update(double zoom, double& nowLineX);
   void updateFiles(char** paths, int numFile = 1);
   ACTION process(ACTION action);
 
@@ -178,6 +178,8 @@ class controller {
 
   bool run = false;
   int run_frame = 0;
+
+  double timeOffset = 0;
 
   vector<colorRGB> setTrackOn;
   vector<colorRGB> setTrackOff;

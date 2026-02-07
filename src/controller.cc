@@ -434,7 +434,7 @@ void controller::popTextureMode() {
   }
 }
 
-void controller::update(int offset, double zoom, double& nowLineX) {
+void controller::update(double zoom, double& nowLineX) {
   if (!programState) {
     return;
   }
@@ -457,8 +457,8 @@ void controller::update(int offset, double zoom, double& nowLineX) {
     fileOutput.disallow();
   }
   // always update to prevent notes playing at once
-  if (offset < ctr.getLastTime()) {
-    fileOutput.updateOffset(offset);
+  if (timeOffset < ctr.getLastTime()) {
+    fileOutput.updateOffset(timeOffset);
   }
 
   menu.updateMouse();
@@ -466,7 +466,7 @@ void controller::update(int offset, double zoom, double& nowLineX) {
   updateKeyState();
   updateDimension(nowLineX);
   updateFPS();
-  curMeasure = findCurrentMeasure(offset);
+  curMeasure = findCurrentMeasure(timeOffset);
 
   particle.update(zoom);
 
