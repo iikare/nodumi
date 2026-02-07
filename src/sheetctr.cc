@@ -653,6 +653,22 @@ void sheetController::drawSheetPage() {
                {(float)offset + sigSpacing / 20.f, ctr.menuHeight + ctr.barMargin - ctr.barWidth * 1.75},
                ctr.bgSheetNote);
 
+    // arrow at current measure
+    if (ctr.getCurrentMeasure() == m) {
+      Vector2 m_text = measureTextEx(to_string(m));
+      Vector2 m_text_pos = {(float)offset + sigSpacing / 20.f,
+                            ctr.menuHeight + ctr.barMargin - ctr.barWidth * 1.75};
+      m_text_pos.x += m_text.x / 2;
+
+      constexpr float arrow_size = 10;
+      constexpr float arrow_size2 = 4;
+      drawLineEx(m_text_pos.x, ctr.menuHeight, m_text_pos.x, ctr.menuHeight + arrow_size, 2, ctr.bgOpt2);
+      drawLineEx(m_text_pos.x - arrow_size2, ctr.menuHeight + arrow_size - arrow_size2, m_text_pos.x,
+                 ctr.menuHeight + arrow_size, 1, ctr.bgOpt2);
+      drawLineEx(m_text_pos.x + arrow_size2, ctr.menuHeight + arrow_size - arrow_size2, m_text_pos.x,
+                 ctr.menuHeight + arrow_size, 1, ctr.bgOpt2);
+    }
+
     if (displayMeasure[m - 1].measure->notes.size() == 0) {
       offset += spacingMargin[spacingIndex++];
       auto y1 = findStaveY(8, STAVE_TREBLE);
