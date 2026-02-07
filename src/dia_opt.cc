@@ -215,10 +215,21 @@ void dialogOption::renderSlider() {
     drawLineEx(x_start, y_start, x_start + w, y_start, 2, ctr.bgMenuShade);
 
     constexpr int n_div = 4;
+    constexpr int n_div2 = 4;
 
     for (int i = 0; i <= n_div; ++i) {
       const int x_space = i * w / n_div;
       constexpr int y_space = sliderLineDashSize;
+
+      if (i != n_div) {
+        for (int j = 1; j < n_div2; ++j) {
+          const int x_space = i * w / n_div + j * w / n_div / n_div2;
+          constexpr int y_space = sliderLineDashSize / 2;
+
+          drawLineEx(x_start + x_space, y_start - y_space, x_start + x_space, y_start + y_space, 1,
+                     ctr.bgMenuShade);
+        }
+      }
 
       drawLineEx(x_start + x_space, y_start - y_space, x_start + x_space, y_start + y_space, 2,
                  ctr.bgMenuShade);
