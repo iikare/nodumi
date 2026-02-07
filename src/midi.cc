@@ -135,6 +135,12 @@ void midi::addKeySignature(double position, const keySig& keySignature) {
   if (keySignatureMap.size() != 0 && keySignatureMap[keySignatureMap.size() - 1].second == keySignature) {
     return;
   }
+  for (const auto& k : keySignatureMap) {
+    if (k.first == position) {
+      // logQ("skipped duplicate keysig at position", position, "v.", keySignature.getTick());
+      return;
+    }
+  }
   keySignatureMap.push_back(make_pair(position, keySignature));
 }
 
@@ -529,8 +535,7 @@ void midi::load(stringstream& buf) {
     // measures have 0-based index, but 1-based for rendering
     int ksMeasure = (mIt != itemStartSet.begin() ? (--mIt)->second : 0);
 
-    // logQ("ks", ks.second.getAcc(),"@", ks.second.getTick(), "has closest
-    // measure start", 1+ksMeasure);
+    // logQ("ks", ks.second.getAcc(),"@", ks.second.getTick(), "has closest measure start", 1+ksMeasure);
     ks.second.setMeasure(ksMeasure);
     measureMap[ksMeasure].keySignatures.push_back(ks.second);
   }
