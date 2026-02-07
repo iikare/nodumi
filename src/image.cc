@@ -85,7 +85,7 @@ void imageController::process() {
   meanV = 0;
   numColors = 0;
 
-  position = {0, 0};
+  ctr.renderSheet ? position = {0, static_cast<float>(ctr.topHeight)} : position = {0, 0};
 
   imageTex = LoadTextureFromImage(image);
   SetTextureFilter(imageTex, TEXTURE_FILTER_BILINEAR);
