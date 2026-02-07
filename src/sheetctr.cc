@@ -634,6 +634,12 @@ void sheetController::drawSheetPage() {
       offset += sigSpacing;
     }
 
+    int tick_diff = displayMeasure[m - 1].measure->getLocation() - ctr.timeOffset;
+    if (tick_diff > tick_delta && tick_diff < 0) {
+      tick_delta = tick_diff;
+      tick_offset = offset;
+    }
+
     if (m == measureRange.first && displayMeasure[m - 1].measure->keySignatures.empty()) {
       drawKeySignature(displayMeasure[m - 1].measure->currentKey, offset);
       offset += getKeyWidth(displayMeasure[m - 1].measure->currentKey);
