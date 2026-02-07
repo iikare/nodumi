@@ -424,8 +424,10 @@ int sheetController::findMeasureWidth(int measureNum, bool includeSig) {
     width += sigSpacing;
   }
   for (const auto& ks : dm.measure->keySignatures) {
-    width += getKeyWidth(ks);
-    width += sigSpacing;
+    if (ks.getPrev() != nullptr || ks.getAcc() != 0) {
+      width += getKeyWidth(ks);
+      width += sigSpacing;
+    }
   }
 
   if (dm.measure->keySignatures.empty() && includeSig) {
@@ -636,8 +638,10 @@ void sheetController::drawSheetPage() {
     }
     else {
       for (const auto& ks : displayMeasure[m - 1].measure->keySignatures) {
-        drawKeySignature(ks, offset);
-        offset += getKeyWidth(ks) + sigSpacing;
+        if (displayMeasure[m - 1].measure->currentKey.getAcc() != 0) {
+          drawKeySignature(ks, offset);
+          offset += getKeyWidth(ks) + sigSpacing;
+        }
       }
       for (const auto& ts : displayMeasure[m - 1].measure->timeSignatures) {
         drawTimeSignature(ts, offset);
