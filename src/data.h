@@ -2,8 +2,10 @@
 
 #include "data_str.h"
 
-#define W_WIDTH 1280
-#define W_HEIGHT 740
+#define W_WIDTH 640
+#define W_HEIGHT 500
+// #define W_WIDTH 1280
+// #define W_HEIGHT 740
 #define W_NAME "nodumi"
 #define W_VER "0.01a"
 

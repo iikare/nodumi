@@ -408,7 +408,7 @@ void sheetController::disectMeasure(measureController& measure) {
 
   if (measure.notes.size() == 0) {
     // TODO: fill space with rests
-    logQ("empty measure:", measure.getNumber());
+    // logQ("empty measure:", measure.getNumber());
   }
 
   displayMeasure.push_back(dm);

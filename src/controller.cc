@@ -601,7 +601,7 @@ void controller::criticalSection(bool enter) {
       input.pauseInput();
     }
     else {
-      fileOutput.disallow();
+      fileOutput.disallow(true);
     }
   }
   else {
