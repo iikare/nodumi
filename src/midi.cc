@@ -518,6 +518,9 @@ void midi::load(stringstream& buf) {
     measureMap[noteMeasure].addNote(note);
   }
 
+  // carry notes held past a barline into the following measures
+  sheetData.link_ties(*this);
+
   for (auto& ts : timeSignatureMap) {
     auto mIt = itemStartSet.lower_bound(make_pair(ts.second.getTick(), 0));
     // measures have 0-based index, but 1-based for rendering

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <deque>
-#include <set>
 #include <vector>
 
 #include "log.h"
@@ -10,7 +9,6 @@
 #include "timekey.h"
 
 using std::deque;
-using std::set;
 using std::vector;
 
 class measureController {
@@ -20,28 +18,22 @@ class measureController {
     number = -1;
     tick = -1;
     tickLength = 0;
-    tickMap = {};
     notes = {};
     timeSignatures = {};
     keySignatures = {};
     currentTime = timeSig();
     currentKey = keySig();
-
-    buildTickMap();
   }
   measureController(int num, double loc, int tk, int tkl, const timeSig& cTime, const keySig& cKey) {
     location = loc;
     number = num;
     tick = tk;
     tickLength = tkl;
-    tickMap = {};
     notes = {};
     timeSignatures = {};
     keySignatures = {};
     currentTime = cTime;
     currentKey = cKey;
-
-    buildTickMap();
   }
 
   void clear();
@@ -53,15 +45,16 @@ class measureController {
 
   void addNote(note& note);
 
-  // basic structural properties
-  set<int> tickMap;
-
   // persistent qualities to render
   vector<int> notes;
   vector<timeSig> timeSignatures;
   vector<keySig> keySignatures;
 
-  // adjustments for sheet rendering
+  // notes sustained across the start or end of this measure
+  vector<int> tie_in_notes;
+  vector<int> tie_out_notes;
+
+  // adjustments for sheet rendering, rebuilt from the note lists by the sheet controller
   deque<sheetNote> displayNotes;
 
   // transient qualities not present in measure itself
@@ -69,8 +62,6 @@ class measureController {
   keySig currentKey;
 
  private:
-  void buildTickMap();
-
   double location;
   int number;
   int tick;

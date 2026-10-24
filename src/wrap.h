@@ -20,6 +20,7 @@ void drawRectangleLines(float x, float y, float w, float h, float width, const c
 void drawLine(float xi, float yi, float xf, float yf, const colorRGB& col);
 void drawLineEx(float xi, float yi, float xf, float yf, float thick, const colorRGB& col, unsigned char alpha = 255);
 void drawLineBezier(float xi, float yi, float xf, float yf, float thick, const colorRGB& col);
+void draw_aa_strip(const Vector2* a, const Vector2* b, int count, const colorRGB& col, unsigned char alpha = 255);
 
 void drawTextEx(const string& msg, const Vector2& pos, const colorRGB& col, unsigned char alpha = 255, int size = 14,
                 const string& font = DEFAULT_FONT);

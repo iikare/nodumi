@@ -34,7 +34,8 @@ void note::findSize(const set<pair<int, int>, tickCmp>& tickSet) {
   auto it = tickSet.lower_bound(make_pair(tickDuration, 0));
 
   // logQ(tickDuration, "map to notevalue", it->second, "- eighth:", NOTE_8);
-  type = it->second;
+  // anything longer than the largest value clamps to it
+  type = it != tickSet.end() ? it->second : NOTE_LARGE;
 }
 
 bool note::hasDot() const {

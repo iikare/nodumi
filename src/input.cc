@@ -111,9 +111,6 @@ void midiInput::resetStream() {
   m.timeSignatures.push_back(ts);
   m.keySignatures.push_back(ks);
   noteStream.measureMap.push_back(m);
-
-  noteStream.measureMap.back().keySignatures.push_back(ks);
-  noteStream.measureMap.back().timeSignatures.push_back(ts);
   noteStream.timeSignatureMap.push_back(make_pair(0, ts));
   noteStream.keySignatureMap.push_back(make_pair(0, ks));
   noteStream.tempoMap.push_back(make_pair(0, DEFAULT_TEMPO));
@@ -141,9 +138,11 @@ vector<string> midiInput::getPorts() {
 
 bool midiInput::updateQueue() {
   int tempTS = midiIn->getMessage(&msgQueue);
-  if (isUntimedQueue()) {
+  // the queue is drained several times a frame, but the clock only moves once per frame
+  if (isUntimedQueue() && !frame_advanced) {
     timestamp += GetFrameTime();
     ctr.livePlayOffset += GetFrameTime() * UNK_CST;
+    frame_advanced = true;
   }
   else {
     timestamp = tempTS;
@@ -185,8 +184,8 @@ void midiInput::convertEvents() {
       // cerr << "shift by " << timestamp*100 << endl;
       ctr.livePlayOffset += fmax(0, timestamp) * UNK_CST;
     }
-    else if (msgQueue[0] == 0b10010000) {  // 144: note on/off
-      if (msgQueue[2] != 0) {              // if note on
+    else if (msgQueue.size() > 2 && any_of(msgQueue[0] & 0xF0, 0x80, 0x90)) {  // note on/off, any channel
+      if ((msgQueue[0] & 0xF0) == 0x90 && msgQueue[2] != 0) {                  // if note on
         note tmpNote;
 
         tmpNote.tick =
@@ -246,7 +245,7 @@ void midiInput::convertEvents() {
       }
       else {
         int idx = findNoteIndex(static_cast<int>(msgQueue[1]));
-        if (idx < noteCount && numOn > 0) {
+        if (idx >= 0 && numOn > 0) {
           noteStream.notes[idx].isOn = false;
           numOn--;
         }
@@ -322,12 +321,13 @@ void midiInput::updatePosition() {
 }
 
 int midiInput::findNoteIndex(int key) {
+  // a release belongs to the latest press of that key that is still held
   for (int i = noteCount - 1; i >= 0; i--) {
-    if (noteStream.notes[i].y == key) {
+    if (noteStream.notes[i].y == key && noteStream.notes[i].isOn) {
       return i;
     }
   }
-  return 0;
+  return -1;
 }
 
 void midiInput::update() {
@@ -353,9 +353,21 @@ void midiInput::update() {
       // m.timeSignatures.push_back(ts);
       // m.keySignatures.push_back(ks);
 
+      // held notes continue into the new measure as ties
+      for (int j = noteCount - 1, held = 0; j >= 0 && held < numOn; --j) {
+        if (noteStream.notes[j].isOn) {
+          noteStream.measureMap.back().tie_out_notes.push_back(j);
+          m.tie_in_notes.push_back(j);
+          held++;
+        }
+      }
+
       noteStream.measureMap.push_back(m);
       // logQ("measure size:", noteStream.measureMap.size());
 
+      // the closed measure is final from here on, so redo it with its outgoing ties
+      noteStream.sheetData.popMeasure();
+      noteStream.sheetData.disectMeasure(noteStream.measureMap[noteStream.measureMap.size() - 2]);
       noteStream.sheetData.disectMeasure(noteStream.measureMap.back());
     }
 
@@ -364,6 +376,7 @@ void midiInput::update() {
     }
 
     if (midiIn->isPortOpen()) {
+      frame_advanced = false;
       while (updateQueue()) {
         convertEvents();
         updatePosition();

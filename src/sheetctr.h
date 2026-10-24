@@ -16,20 +16,20 @@ using std::make_pair;
 using std::pair;
 using std::vector;
 
+class midi;
+
 class sheetController {
  public:
   void reset() {
     sheetPageSeparator.clear();
+    live_separator.clear();
     displayMeasure.clear();
   }
 
   int getGlyphWidth(int codepoint, int size = fSize);
   unsigned int getDisplayMeasureCount() const { return displayMeasure.size(); }
 
-  // TODO: merge into chord drawing function
-  // no beaming
-  void drawNote(const sheetNote& noteData, int x, colorRGB col);
-
+  void link_ties(midi& stream);
   void disectMeasure(measureController& measure);
   void popMeasure() { displayMeasure.pop_back(); }
   void findSheetPages();
@@ -41,8 +41,79 @@ class sheetController {
   friend class sheetMeasure;
 
  private:
+  struct beam_line {
+    float x0;
+    float y0;  // outer edge of the primary beam at x0
+    float slope;
+  };
+
+  // anything above the treble stave that a measure number must clear
+  struct label_obstacle {
+    float x0;
+    float x1;
+    float top;
+  };
+
+  struct measure_label {
+    int number;
+    float x;
+    float barline;
+    bool first;
+  };
+
+  struct open_tie {
+    int note;
+    float x;
+    float y;
+    bool up;
+    bool outside;
+  };
+
   vector<int> sheetPageSeparator;
+  vector<int> live_separator;  // page breaks already settled while playing live
   vector<sheetMeasure> displayMeasure;
+
+  // per-frame scratch space, kept to avoid reallocating every frame
+  vector<int> chord_x;
+  vector<float> chord_top;
+  vector<float> chord_bottom;
+  vector<beam_line> beam_lines;
+  vector<open_tie> open_ties;
+  vector<label_obstacle> label_obstacles;
+  vector<measure_label> measure_labels;
+  float staff_end = 0;
+
+  int to_units(const midi& stream, int ticks) const;
+  int find_note_begin(const midi& stream, const measureController& measure, const note& n) const;
+  int find_note_end(const midi& stream, const note& n) const;
+  int find_value_units(const midi& stream, const note& n) const;
+  void build_display_notes(measureController& measure);
+  void separate_staves(sheetMeasure& dm);
+  void find_chord_widths(sheetMeasure& dm);
+  void find_spacing(sheetMeasure& dm);
+  int find_measure_fixed(int measureNum, bool includeSig);
+  float find_content_width(const sheetMeasure& dm, float scale);
+
+  void draw_measure(const sheetMeasure& dm, int measure_x, int measure_end);
+  void add_obstacle(float x0, float x1, float top);
+  float find_label_y(float x, float width, float ink_bottom, float y) const;
+  void place_measure_labels();
+  void draw_rest(int type, int stave, float x);
+  int find_rest_y(int type, int stave);
+  float find_rest_extent(int type, bool below);
+  void draw_oob_markers(const sheetMeasure& dm, int ch);
+  int get_rest_symbol(const int noteType);
+  int find_acc_height(const int symbol);
+  void draw_group_shapes(const sheetMeasure& dm, int ch, int stave, int measure_x);
+  void draw_group_glyphs(const sheetMeasure& dm, int ch, int stave);
+  int find_head_x(const stem_group& g, const sheetNote* n, int anchor);
+  int find_flag_y(const stem_group& g, int stave);
+  void draw_ledger_lines(const stem_group& g, int stave, int anchor);
+  void draw_beam(const sheetMeasure& dm, int b);
+  void draw_tie(float x0, float x1, float y, bool up);
+  beam_line find_beam_line(const sheetMeasure& dm, const beam_group& beam);
+  float find_stem_x(int anchor, int dir) const;
+  void draw_flags(float x, float tip, int count, bool down);
 
   void drawTimeSignature(const timeSig& time, int x);
   void drawKeySignature(const keySig& key, int x);
@@ -58,7 +129,7 @@ class sheetController {
   void findKeyData(const keySig& key, int& symbol, int& prevAcc, int& prevType);
   int findTimePartWidth(const int part);
   int findStaveY(int sheetY, int stave);
-  int findMeasureWidth(int measureNum, bool includeSig = false);
+  float findMeasureWidth(int measureNum, bool includeSig = false, float scale = natural_scale);
   pair<int, int> findSheetPageLimit(int measureNum) const;
 
   static constexpr pair<int, int> getStaveRenderLimit() {
@@ -93,12 +164,65 @@ class sheetController {
   static constexpr int oobWidth = 16;
 
   static constexpr int stemWidth = 2;
-  static constexpr int dotSpacing = 4;
+  static constexpr int dotSpacing = 5;
   static constexpr int accSpacing = 4;
   static constexpr int sigSpacing = 4;
   static constexpr int endSpacing = 4;
 
   static constexpr int placeholderWidth = 24;
+
+  // engraving metrics, measured from leland at fSize (one staff space is ~9.75px)
+  static constexpr int glyph_baseline = 78;  // font ascent, so glyph origins land on y
+  static constexpr float head_width_exact = 12.68f;
+  static constexpr float stem_attach = 1.6f;  // stems start slightly past the notehead center
+  static constexpr int stem_len = 34;
+  static constexpr int flag_extra[4] = {0, 4, 11, 17};  // extra stem for 8th to 64th flags
+  static constexpr float flag_step = 6.5f;               // between stacked flags
+  static constexpr float flag_scale_single = 0.75f;      // flag tails end about a space above the note to clear dots
+  static constexpr float flag_scale_stacked = 0.62f;
+  static constexpr int beam_stem_len = 30;  // nearest notehead to the outer beam edge
+  static constexpr int beam_min_len = 16;   // how short a beamed stem may get to keep clear of the other stave
+  static constexpr float beam_thickness = 4.0f;
+  static constexpr float beam_step = 6.5f;
+  static constexpr float beam_max_slope = 0.25f;
+  static constexpr float beam_max_rise = 10.0f;
+  static constexpr float beamlet_width = 10.0f;
+  static constexpr int ledger_ext = 3;
+  static constexpr int acc_col_width = 11;
+  static constexpr int acc_col_max = 4;
+  static constexpr int acc_clearance = 6;  // sheetY distance before accidentals can share a column
+  static constexpr float head_half = 6.0f;
+  static constexpr int acc_above = 18;  // flats reach furthest above their note
+  static constexpr int acc_below = 13;
+  static constexpr float clef_x = 40.0f;  // treble clef as placed by drawSheet
+  static constexpr float clef_width = 25.0f;
+  static constexpr float clef_height = 43.0f;  // above the g line
+  static constexpr float marker_width = 9.0f;
+  static constexpr float marker_height = 6.0f;
+  static constexpr float marker_gap = 3.0f;
+  static constexpr float sheet_margin = 2.0f;  // stems turning around must stay this far inside the sheet
+  static constexpr float label_pad = 2.0f;
+  static constexpr int label_size = 14;
+  static constexpr float label_slide = 6.0f;        // furthest a measure number moves right of its spot
+  static constexpr float label_slide_back = 12.0f;  // extra room over the signatures on a page's first measure
+  static constexpr int tie_offset = 4;
+  static constexpr int tie_outside_offset = 7;  // clear of the notehead when tying around it
+  static constexpr float tie_max_height = 8.0f;
+  static constexpr float tie_min_len = 8.0f;
+  static constexpr float tie_mid_width = 2.0f;
+  static constexpr float tie_end_width = 0.6f;
+  static constexpr int tie_tolerance = 2;  // overhang in 64ths that is clipped instead of tied
+  static constexpr double value_tolerance = 0.125;  // relative error allowed when snapping to one value
+  static constexpr float natural_scale = 26.0f;  // width of a quarter note when nothing is stretched
+  static constexpr float max_scale = natural_scale * 1.75f;  // stretch limit, so short pages stay ragged
+  static constexpr float lead_pad = 10.0f;  // after the barline, before the first chord
+  static constexpr int trail_pad = 6;  // after the last chord, before the barline
+  static constexpr int chord_gap = 3;  // between the extents of neighbouring chords
+  static constexpr int min_unit = 4;  // shortest gap that sets a measure's spacing, in 64ths
+  static constexpr int live_unit = 8;  // fixed spacing reference for live measures, in 64ths
+  static constexpr float stave_clearance = 6.0f;      // closest a treble and bass stem may come between staves
+
+  static constexpr bool debug_layout = false;
 
   // order: 0, 4, 8, 16, 32, 64
   // limit is the sheetY that causes clipping when facing up

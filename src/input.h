@@ -56,6 +56,7 @@ class midiInput {
   int noteCount;
   int numOn;
   double timestamp;
+  bool frame_advanced = false;
 
   vector<pair<int, keySig>> match;
   int ks_type;

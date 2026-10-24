@@ -168,19 +168,19 @@ int main(int argc, char* argv[]) {
 
   menu colorSelect(ctr.getSize(), CONTENT_COLORSELECT, TYPE_COLOR, -100, -100, &rightMenu, 1);
 
+  // sheet music is shown by default, with or without a file
+  ctr.renderSheet = true;
+
   if (argc >= 2) {
     // input parameter order is arbitrary
     ctr.updateFiles(&argv[1], argc - 1);
   }
-  else {
-    ctr.barHeight = ctr.renderSheet ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
-  }
+  ctr.barHeight = ctr.renderSheet ? ctr.menuHeight + ctr.sheetHeight : ctr.menuHeight;
 
   // DEBUG ONLY
   // ctr.toggleLivePlay();
   // ctr.input.openPort(1);
   // ctr.output.openPort(3);
-  ctr.renderSheet = true;
 
   // main program logic
   while (ctr.getProgramState()) {
