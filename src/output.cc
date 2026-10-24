@@ -5,7 +5,7 @@
 #include "misc.h"
 
 midiOutput::midiOutput() : midiOut(nullptr), msgQueue(0), numPort(0), curPort(-1) {
-  midiOut = make_unique<RtMidiOut>();
+  midiOut = make_unique<RtMidiOut>(RtMidi::UNSPECIFIED, client_name);
   if (midiOut == nullptr) {
     logW(LL_WARN, "unable to initialize MIDI output");
   }
@@ -20,7 +20,8 @@ void midiOutput::openPort(int port) {
 
   midiOut->closePort();
 
-  midiOut->openPort(port, midiOut->getPortName(port));
+  port_name = midiOut->getPortName(port);
+  midiOut->openPort(port, port_name);
 
   curPort = port;
 

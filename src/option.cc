@@ -27,6 +27,8 @@ optionController::optionController() {
   opts[static_cast<int>(OPTION::LEVEL_CONTROL_G)] = 255;
   opts[static_cast<int>(OPTION::LEVEL_CONTROL_B)] = 255;
   opts[static_cast<int>(OPTION::LIMIT_FPS)] = true;
+  opts[static_cast<int>(OPTION::SET_LIVE_QUANTIZE)] = false;
+  opts[static_cast<int>(OPTION::LIVE_QUANTIZE)] = 4;  // in 64ths
 }
 
 void optionController::invert(OPTION opt) {
@@ -55,6 +57,8 @@ void optionController::invert(OPTION opt) {
       ctr.setShaderValue("SH_LEVEL", "use_bw", static_cast<int>(!opts[static_cast<int>(opt)]));
       break;
     case OPTION::SET_CIE_FUNCTION:
+      break;
+    case OPTION::SET_LIVE_QUANTIZE:
       break;
     case OPTION::PARTICLE:
       break;
@@ -138,6 +142,8 @@ void optionController::set(OPTION opt, int value) {
     case OPTION::CIE_FUNCTION:
     case OPTION::SHADOW_DISTANCE:
     case OPTION::SHADOW_ANGLE:
+    case OPTION::SET_LIVE_QUANTIZE:
+    case OPTION::LIVE_QUANTIZE:
       break;
     case OPTION::SET_DARKEN_IMAGE:
       ctr.setShaderValue("SH_LEVEL", "use_bw", value);

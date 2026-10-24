@@ -18,7 +18,7 @@ midiInput::midiInput()
       numOn(0),
       timestamp(0),
       match(KEYSIG_NONE - 2) {
-  midiIn = make_unique<RtMidiIn>();
+  midiIn = make_unique<RtMidiIn>(RtMidi::UNSPECIFIED, client_name);
   if (midiIn == nullptr) {
     logW(LL_WARN, "unable to initialize MIDI input");
   }
@@ -48,13 +48,15 @@ void midiInput::openPort(int port, bool pauseEvent) {
     resetInput();
   }
 
-  numPort = midiIn->getPortCount();
-  if (port < 0 || port >= numPort) {
+  // ports are numbered as listed in the menu, which leaves out this app's own output
+  getPorts();
+  if (port < 0 || port >= static_cast<int>(port_map.size())) {
     logW(LL_WARN, "unable to open port number", port);
     return;
   }
 
-  midiIn->openPort(port, midiIn->getPortName(port));
+  port_name = midiIn->getPortName(port_map[port]);
+  midiIn->openPort(port_map[port], port_name);
   midiIn->ignoreTypes(false, false, false);
 
   curPort = port;
@@ -128,9 +130,16 @@ void midiInput::resumeInput() { openPort(curPort, true); }
 
 vector<string> midiInput::getPorts() {
   vector<string> ports;
+  port_map.clear();
   numPort = midiIn->getPortCount();
   for (int i = 0; i < numPort; i++) {
-    ports.push_back(midiIn->getPortName(i));
+    // reading this app's own output would loop every message straight back in
+    const string name = midiIn->getPortName(i);
+    if (name.starts_with(midiOutput::client_name)) {
+      continue;
+    }
+    port_map.push_back(i);
+    ports.push_back(name);
   }
 
   return formatPortName(ports);
@@ -149,7 +158,10 @@ bool midiInput::updateQueue() {
   }
 
   if (msgQueue.size() > 0) {
-    ctr.output.sendMessage(&msgQueue);
+    // echoing into the port being read from would feed every message straight back in
+    if (ctr.output.get_port_name() != port_name) {
+      ctr.output.sendMessage(&msgQueue);
+    }
     if (!any_of(static_cast<int>(msgQueue[0]), 248, 254)) {
       // logQ("timestamp:", timestamp);
     }
@@ -251,27 +263,27 @@ void midiInput::convertEvents() {
         }
       }
 
-      for (auto& t : noteStream.getTracks()) {
-        t.buildChordMap();
-      }
-      noteStream.buildLineMap();
-      // logQ("line size:", noteStream.lines.size());
+      // chord and line maps are rebuilt once per frame, not per event
+      notes_changed = true;
     }
-    else if (msgQueue.size() > 1 && msgQueue[1] == 0b01111001) {
+    else if (msgQueue.size() > 2 && (msgQueue[0] & 0xF0) == 0xB0 && msgQueue[1] == 0b01111001) {
       // reset all controllers
       logW(LL_INFO, "reset event for MIDI port", curPort);
 
       // resetInput(true);
     }
-    else if (msgQueue[0] == 0b11000000) {
+    else if ((msgQueue[0] & 0xF0) == 0xC0) {
       // generic program change event, ignored
     }
-    else if (msgQueue[0] == 0b10110000) {
+    else if ((msgQueue[0] & 0xF0) == 0xB0) {
       // generic controller event, ignored
       // events are default sent to output device, no need to process
     }
-    else if (msgQueue[0] == 0b11111110) {
-      // active sensing event (real-time devices only)
+    else if (any_of(msgQueue[0] & 0xF0, 0xA0, 0xD0, 0xE0)) {
+      // aftertouch and pitch bend, ignored
+    }
+    else if (msgQueue[0] >= 0b11111000) {
+      // real-time events such as active sensing (real-time devices only)
     }
     else {
       string tmp;
@@ -376,12 +388,22 @@ void midiInput::update() {
     }
 
     if (midiIn->isPortOpen()) {
+      // a flood of input (or a loop back from the output) is spread over frames instead of stalling one
+      constexpr int max_events_per_frame = 1024;
       frame_advanced = false;
-      while (updateQueue()) {
+      for (int processed = 0; processed < max_events_per_frame && updateQueue(); ++processed) {
         convertEvents();
         updatePosition();
       }
       updatePosition();
+
+      if (notes_changed) {
+        for (auto& t : noteStream.getTracks()) {
+          t.buildChordMap();
+        }
+        noteStream.buildLineMap();
+        notes_changed = false;
+      }
       // TODO: consider optimization
       // ctr.input.noteStream.buildLineMap();
     }

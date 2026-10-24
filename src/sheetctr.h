@@ -52,6 +52,7 @@ class sheetController {
     float x0;
     float x1;
     float top;
+    float bottom;
   };
 
   struct measure_label {
@@ -61,12 +62,29 @@ class sheetController {
     bool first;
   };
 
+  struct drawn_tie {
+    float x0;
+    float x1;
+    float y;
+    bool up;
+  };
+
   struct open_tie {
     int note;
     float x;
     float y;
     bool up;
     bool outside;
+    float flip_y;   // where the tie would start on the other side of the note
+    int head_note;  // the note whose head the tie starts from
+  };
+
+  struct head_box {
+    float x0;
+    float x1;
+    float y0;
+    float y1;
+    int note;
   };
 
   vector<int> sheetPageSeparator;
@@ -79,6 +97,8 @@ class sheetController {
   vector<float> chord_bottom;
   vector<beam_line> beam_lines;
   vector<open_tie> open_ties;
+  vector<drawn_tie> drawn_ties;
+  vector<head_box> head_boxes;
   vector<label_obstacle> label_obstacles;
   vector<measure_label> measure_labels;
   float staff_end = 0;
@@ -88,15 +108,19 @@ class sheetController {
   int find_note_end(const midi& stream, const note& n) const;
   int find_value_units(const midi& stream, const note& n) const;
   void build_display_notes(measureController& measure);
+  void keep_in_sheet(sheetMeasure& dm);
   void separate_staves(sheetMeasure& dm);
+  void avoid_ties(sheetMeasure& dm);
+  float find_sheet_top() const;
+  float find_sheet_bottom() const;
   void find_chord_widths(sheetMeasure& dm);
   void find_spacing(sheetMeasure& dm);
   int find_measure_fixed(int measureNum, bool includeSig);
   float find_content_width(const sheetMeasure& dm, float scale);
 
   void draw_measure(const sheetMeasure& dm, int measure_x, int measure_end);
-  void add_obstacle(float x0, float x1, float top);
-  float find_label_y(float x, float width, float ink_bottom, float y) const;
+  void add_obstacle(float x0, float x1, float top, float bottom);
+  float find_label_y(float x, float width, float ink_top, float ink_bottom, float y) const;
   void place_measure_labels();
   void draw_rest(int type, int stave, float x);
   int find_rest_y(int type, int stave);
@@ -108,9 +132,13 @@ class sheetController {
   void draw_group_glyphs(const sheetMeasure& dm, int ch, int stave);
   int find_head_x(const stem_group& g, const sheetNote* n, int anchor);
   int find_flag_y(const stem_group& g, int stave);
-  void draw_ledger_lines(const stem_group& g, int stave, int anchor);
+  int find_dot_x(const sheetMeasure& dm, int ch, const stem_group& g, const sheetNote* n, int stave);
+  void draw_ledger_lines(const sheetMeasure& dm, int ch, const stem_group& g, int stave, int anchor);
   void draw_beam(const sheetMeasure& dm, int b);
-  void draw_tie(float x0, float x1, float y, bool up);
+  void draw_tie(float x0, float x1, float y, bool up, float flip_y, int start_note, int end_note);
+  float find_tie_arc(float t, float shoulder) const;
+  bool tie_hits_heads(float x0, float x1, float y, bool up, float height, float shoulder, float thickness,
+                      int start_note, int end_note) const;
   beam_line find_beam_line(const sheetMeasure& dm, const beam_group& beam);
   float find_stem_x(int anchor, int dir) const;
   void draw_flags(float x, float tip, int count, bool down);
@@ -203,13 +231,15 @@ class sheetController {
   static constexpr float sheet_margin = 2.0f;  // stems turning around must stay this far inside the sheet
   static constexpr float label_pad = 2.0f;
   static constexpr int label_size = 14;
-  static constexpr float label_slide = 6.0f;        // furthest a measure number moves right of its spot
+  static constexpr float label_slide = 12.0f;       // furthest a measure number moves right of its spot
   static constexpr float label_slide_back = 12.0f;  // extra room over the signatures on a page's first measure
   static constexpr int tie_offset = 4;
   static constexpr int tie_outside_offset = 7;  // clear of the notehead when tying around it
-  static constexpr float tie_max_height = 8.0f;
+  static constexpr float tie_min_height = 3.0f;
+  static constexpr float tie_max_height = 12.0f;
   static constexpr float tie_min_len = 8.0f;
-  static constexpr float tie_mid_width = 2.0f;
+  static constexpr float tie_merge_gap = 24.0f;
+  static constexpr float tie_head_clearance = 2.0f;  // room a tie keeps from noteheads it passes  // ties into the same head starting this close are drawn once
   static constexpr float tie_end_width = 0.6f;
   static constexpr int tie_tolerance = 2;  // overhang in 64ths that is clipped instead of tied
   static constexpr double value_tolerance = 0.125;  // relative error allowed when snapping to one value

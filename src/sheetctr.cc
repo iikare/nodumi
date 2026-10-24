@@ -145,7 +145,8 @@ void sheetController::drawKeySignature(const keySig& key, int x) {
     const int key_x = x + index * accConstSpacing + accSpacing[index];
     const float treble_y = y - ctr.barSpacing + posMod * (ctr.barWidth / 2.0f + 0.4) - accY[index];
     drawSymbol(symbol, fSize, key_x, treble_y, col);
-    add_obstacle(key_x, key_x + getSymbolWidth(symbol), treble_y + glyph_baseline - find_acc_height(symbol));
+    add_obstacle(key_x, key_x + getSymbolWidth(symbol), treble_y + glyph_baseline - find_acc_height(symbol),
+                 treble_y + glyph_baseline + acc_below);
     drawSymbol(symbol, fSize, x + index * accConstSpacing + accSpacing[index],
                y + posMod * (ctr.barWidth / 2.0f + 0.4) - accY[index] + 1 + ctr.barWidth, col);
   };
@@ -288,8 +289,11 @@ int sheetController::to_units(const midi& stream, int ticks) const {
 }
 
 int sheetController::find_note_begin(const midi& stream, const measureController& measure, const note& n) const {
-  // snap to the nearest grid position (live input uses a coarser grid)
-  const int grid = std::max(1, to_units(stream, ctr.getMinTickLen()));
+  // snap to the nearest grid position, live input on a coarser grid unless one is chosen in the preferences
+  int grid = std::max(1, to_units(stream, ctr.getMinTickLen()));
+  if (ctr.getLiveState() && ctr.option.get(OPTION::SET_LIVE_QUANTIZE)) {
+    grid = ctr.option.get(OPTION::LIVE_QUANTIZE);
+  }
   const int len = std::max(1, to_units(stream, measure.getTickLen()));
   const double units = (n.tick - measure.getTick()) * 16.0 / std::max(1, stream.getTPQ());
   const int pos = static_cast<int>(std::lround(units / grid)) * grid;
@@ -445,11 +449,42 @@ void sheetController::disectMeasure(measureController& measure) {
     }
   }
 
-  // remove duplicate notes (rendering on same position)
+  // a tie never switches staves, so a continued middle c stays where its note started
+  for (unsigned int ch = 0; ch < dm.chords.size(); ++ch) {
+    for (sheetNote* n : dm.chords[ch].second) {
+      const note& src = stream.notes[n->oriNote];
+      if (!n->tie_in || n->out_of_bounds || src.sheetY != 0) {
+        continue;
+      }
+
+      const sheetNote* prev = nullptr;
+      for (int earlier = static_cast<int>(ch) - 1; earlier >= 0 && !prev; --earlier) {
+        for (const sheetNote* m : dm.chords[earlier].second) {
+          if (m->oriNote == n->oriNote) {
+            prev = m;
+          }
+        }
+      }
+      if (!prev && src.measure >= 0 && src.measure < static_cast<int>(stream.measureMap.size()) &&
+          &stream.measureMap[src.measure] != &measure) {
+        for (const sheetNote& m : stream.measureMap[src.measure].displayNotes) {
+          if (m.oriNote == n->oriNote && !m.tie_in) {
+            prev = &m;
+          }
+        }
+      }
+      if (prev && prev->stave != STAVE_NONE) {
+        n->stave = prev->stave;
+      }
+    }
+  }
+
+  // remove duplicate notes (rendering on same position), which follow the visible one's stave
   for (const auto& c : dm.chords) {
     for (unsigned int ct = 1; ct < c.second.size(); ++ct) {
       if (stream.notes[c.second[ct]->oriNote].sheetY == stream.notes[c.second[ct - 1]->oriNote].sheetY) {
         c.second[ct]->visible = false;
+        c.second[ct]->stave = c.second[ct - 1]->stave;
       }
     }
   }
@@ -461,13 +496,63 @@ void sheetController::disectMeasure(measureController& measure) {
   dm.build_beams();
   dm.find_stem_prefs();
   dm.set_stem_dirs();
+  keep_in_sheet(dm);
   separate_staves(dm);
+  avoid_ties(dm);
   dm.place_heads();
 
   find_chord_widths(dm);
   find_spacing(dm);
 
   displayMeasure.push_back(std::move(dm));
+}
+
+float sheetController::find_sheet_top() const { return ctr.menuHeight + sheet_margin; }
+
+float sheetController::find_sheet_bottom() const {
+  // the sheet's height is fixed even while it is hidden, so layout does not depend on it being shown
+  return ctr.menuHeight + ctr.menuHeight + ctr.sheetHeight - sheet_margin;
+}
+
+void sheetController::keep_in_sheet(sheetMeasure& dm) {
+  // stems and beams never leave the sheet, so one that would turns around when the other way fits
+  auto turn = [&](int dir, int lo, int hi, int stave, float len) {
+    const float up_tip = findStaveY(hi, stave) - len;
+    const float down_tip = findStaveY(lo, stave) + len;
+    if (dir == FLAG_UP && up_tip < find_sheet_top() && down_tip <= find_sheet_bottom()) {
+      return static_cast<int>(FLAG_DOWN);
+    }
+    if (dir == FLAG_DOWN && down_tip > find_sheet_bottom() && up_tip >= find_sheet_top()) {
+      return static_cast<int>(FLAG_UP);
+    }
+    return dir;
+  };
+
+  for (auto& b : dm.beams) {
+    int lo = std::numeric_limits<int>::max();
+    int hi = std::numeric_limits<int>::min();
+    int levels = 0;
+    for (int ch : b.chords) {
+      const stem_group& g = dm.s_chordData[ch].groups[b.stave];
+      lo = std::min(lo, g.stem_lo);
+      hi = std::max(hi, g.stem_hi);
+      levels = std::max(levels, g.flag_type - FLAGTYPE_8);
+    }
+    b.dir = turn(b.dir, lo, hi, b.stave, beam_stem_len + levels * beam_step + beam_thickness);
+    for (int ch : b.chords) {
+      dm.s_chordData[ch].groups[b.stave].dir = b.dir;
+    }
+  }
+
+  for (auto& cd : dm.s_chordData) {
+    for (int stave = STAVE_TREBLE; stave <= STAVE_BASS; ++stave) {
+      stem_group& g = cd.groups[stave];
+      if (!g.empty() && g.has_stem() && g.beam < 0) {
+        const int extra = g.has_flag() ? flag_extra[g.flag_type - FLAGTYPE_8] : 0;
+        g.dir = turn(g.dir, g.stem_lo, g.stem_hi, stave, stem_len + extra);
+      }
+    }
+  }
 }
 
 void sheetController::separate_staves(sheetMeasure& dm) {
@@ -485,8 +570,8 @@ void sheetController::separate_staves(sheetMeasure& dm) {
   };
 
   vector<stem_unit> units[2];
-  const float sheet_top = ctr.menuHeight + sheet_margin;
-  const float sheet_bottom = ctr.menuHeight + ctr.menuHeight + ctr.sheetHeight - sheet_margin;
+  const float sheet_top = find_sheet_top();
+  const float sheet_bottom = find_sheet_bottom();
 
   auto add_unit = [&](int stave, int first, int last, int beam, int ch, const auto& groups) {
     const bool treble = stave == STAVE_TREBLE;
@@ -672,6 +757,108 @@ void sheetController::separate_staves(sheetMeasure& dm) {
       }
     }
     resolve(t, STAVE_TREBLE, ceiling);
+  }
+}
+
+void sheetController::avoid_ties(sheetMeasure& dm) {
+  // a tie from an earlier chord runs under or over later ones, so stems crossing it turn away instead
+  const midi& stream = ctr.getStream();
+  const int chord_count = dm.chords.size();
+
+  struct tie_span {
+    int start;
+    int end;
+    float y;  // the tied note, the tie bends away from it
+  };
+
+  for (int stave = STAVE_TREBLE; stave <= STAVE_BASS; ++stave) {
+    // only turning away from the gap between the staves, so the staves stay apart
+    const bool treble = stave == STAVE_TREBLE;
+    const int toward_gap = treble ? FLAG_DOWN : FLAG_UP;
+
+    // outer ties on the gap side, which is where a stem pointing into the gap would cross them
+    vector<tie_span> spans;
+    for (int c = 0; c < chord_count; ++c) {
+      const stem_group& g = dm.s_chordData[c].groups[stave];
+      if (g.empty()) {
+        continue;
+      }
+      const auto& notes = dm.chords[c].second;
+      const sheetNote* n = notes[treble ? g.first : g.last];
+      if (!n->tie_out) {
+        continue;
+      }
+      int count = 0;
+      for (int i = g.first; i <= g.last; ++i) {
+        count += notes[i]->visible && !notes[i]->out_of_bounds && notes[i]->stave == stave;
+      }
+      if (count == 1 && g.dir == toward_gap) {
+        continue;
+      }
+      int end = chord_count;
+      for (int e = c + 1; e < chord_count; ++e) {
+        if (std::ranges::find(dm.chords[e].second, n->oriNote, &sheetNote::oriNote) != dm.chords[e].second.end()) {
+          end = e;
+          break;
+        }
+      }
+      spans.push_back({c, end, static_cast<float>(findStaveY(stream.notes[n->oriNote].sheetY, stave))});
+    }
+    if (spans.empty()) {
+      continue;
+    }
+
+    // a chord the tie passes under (or over) crosses it when its stemmed notes sit on the tied note's side
+    auto crosses = [&](int ch) {
+      const stem_group& g = dm.s_chordData[ch].groups[stave];
+      const float near = findStaveY(treble ? g.stem_lo : g.stem_hi, stave);
+      for (const auto& span : spans) {
+        if (span.start < ch && ch < span.end && (treble ? near <= span.y : near >= span.y)) {
+          return true;
+        }
+      }
+      return false;
+    };
+    // a beam may overshoot by as much as its stems can shorten, since it is pulled back inside the sheet when drawn
+    auto fits_away = [&](int lo, int hi, float len, float give) {
+      return treble ? findStaveY(hi, stave) - len + give >= find_sheet_top()
+                    : findStaveY(lo, stave) + len - give <= find_sheet_bottom();
+    };
+    const int away = treble ? FLAG_UP : FLAG_DOWN;
+
+    for (auto& b : dm.beams) {
+      if (b.stave != stave || b.dir != toward_gap) {
+        continue;
+      }
+      int lo = std::numeric_limits<int>::max();
+      int hi = std::numeric_limits<int>::min();
+      int levels = 0;
+      for (int ch : b.chords) {
+        const stem_group& g = dm.s_chordData[ch].groups[stave];
+        lo = std::min(lo, g.stem_lo);
+        hi = std::max(hi, g.stem_hi);
+        levels = std::max(levels, g.flag_type - FLAGTYPE_8);
+      }
+      if (std::ranges::any_of(b.chords, crosses) &&
+          fits_away(lo, hi, beam_stem_len + levels * beam_step + beam_thickness, beam_stem_len - beam_min_len)) {
+        b.dir = away;
+        b.limited = false;
+        for (int ch : b.chords) {
+          dm.s_chordData[ch].groups[stave].dir = away;
+        }
+      }
+    }
+
+    for (int ch = 0; ch < chord_count; ++ch) {
+      stem_group& g = dm.s_chordData[ch].groups[stave];
+      if (g.empty() || !g.has_stem() || g.beam >= 0 || g.dir != toward_gap) {
+        continue;
+      }
+      const int extra = g.has_flag() ? flag_extra[g.flag_type - FLAGTYPE_8] : 0;
+      if (crosses(ch) && fits_away(g.stem_lo, g.stem_hi, stem_len + extra, 0)) {
+        g.dir = away;
+      }
+    }
   }
 }
 
@@ -1036,9 +1223,11 @@ void sheetController::drawSheetPage() {
   }
 
   open_ties.clear();
+  drawn_ties.clear();
+  head_boxes.clear();
   label_obstacles.clear();
   measure_labels.clear();
-  add_obstacle(clef_x, clef_x + clef_width, findStaveY(4, STAVE_TREBLE) - clef_height);
+  add_obstacle(clef_x, clef_x + clef_width, findStaveY(4, STAVE_TREBLE) - clef_height, findStaveY(10, STAVE_TREBLE));
 
   int tick_delta = std::numeric_limits<int>::min();
   int tick_offset = offset;
@@ -1148,10 +1337,7 @@ void sheetController::drawSheetPage() {
   const float system_end = std::min<float>(offset, ctr.getWidth() - ctr.sheetSideMargin) - 2;
   for (const auto& t : open_ties) {
     const float x1 = std::max(t.x + tie_min_len, system_end);
-    draw_tie(t.x, x1, t.y, t.up);
-    if (t.up) {
-      add_obstacle(t.x, x1, t.y - tie_max_height);
-    }
+    draw_tie(t.x, x1, t.y, t.up, t.flip_y, t.head_note, t.note);
   }
 
   place_measure_labels();
@@ -1169,21 +1355,25 @@ void sheetController::drawSheetPage() {
              ctr.menuHeight + arrow_size, 1, ctr.bgNow);
 }
 
-void sheetController::add_obstacle(float x0, float x1, float top) {
+void sheetController::add_obstacle(float x0, float x1, float top, float bottom) {
   // only what rises above the treble stave can meet a measure number
   if (top < ctr.menuHeight + ctr.barMargin) {
-    label_obstacles.push_back({x0, x1, top});
+    label_obstacles.push_back({x0, x1, top, bottom});
   }
 }
 
-float sheetController::find_label_y(float x, float width, float ink_bottom, float y) const {
-  // everything above the stave is treated as reaching down to it, so the label goes over the top
+float sheetController::find_label_y(float x, float width, float ink_top, float ink_bottom, float y) const {
+  // at its default height a label may sit under floating ties, but once displaced it goes over the whole
+  // column, so it never ends up wedged between ties and notes
+  float column_top = std::numeric_limits<float>::max();
+  bool clear = true;
   for (const auto& ob : label_obstacles) {
     if (ob.x1 >= x - label_pad && ob.x0 <= x + width + label_pad) {
-      y = std::min(y, ob.top - ink_bottom - label_pad);
+      column_top = std::min(column_top, ob.top);
+      clear &= ob.bottom <= y + ink_top - label_pad;
     }
   }
-  return y;
+  return clear ? y : std::min(y, column_top - ink_bottom - label_pad);
 }
 
 void sheetController::place_measure_labels() {
@@ -1191,9 +1381,11 @@ void sheetController::place_measure_labels() {
 
   // digits sit well inside the text box, so collide with their ink rather than the box
   const Font& font = ctr.getFont(DEFAULT_FONT, label_size);
+  float ink_top = std::numeric_limits<float>::max();
   float ink_bottom = 0;
   for (int digit = '0'; digit <= '9'; ++digit) {
     const GlyphInfo glyph = GetGlyphInfo(font, digit);
+    ink_top = std::min(ink_top, static_cast<float>(glyph.offsetY));
     ink_bottom = std::max(ink_bottom, static_cast<float>(glyph.offsetY + glyph.image.height));
   }
 
@@ -1206,7 +1398,7 @@ void sheetController::place_measure_labels() {
     const float lo = label.first ? label.x - width - label_slide_back : label.barline - width - label_pad;
     const float hi = label.x + label_slide;
     float best_x = label.x;
-    float best_y = find_label_y(label.x, width, ink_bottom, default_y);
+    float best_y = find_label_y(label.x, width, ink_top, ink_bottom, default_y);
     for (int step = 1; best_y < default_y; ++step) {
       bool in_range = false;
       for (const float x : {label.x - step, label.x + step}) {
@@ -1214,7 +1406,7 @@ void sheetController::place_measure_labels() {
           continue;
         }
         in_range = true;
-        const float y = find_label_y(x, width, ink_bottom, default_y);
+        const float y = find_label_y(x, width, ink_top, ink_bottom, default_y);
         if (y > best_y + 0.5f) {
           best_x = x;
           best_y = y;
@@ -1325,7 +1517,7 @@ void sheetController::draw_oob_markers(const sheetMeasure& dm, int ch) {
     const Vector2 left[2] = {{x - half, tip + marker_height}, {x, tip}};
     const Vector2 right[2] = {{x + half, tip + marker_height}, {x, tip}};
     draw_aa_strip(left, right, 2, ctr.bgSheetNote);
-    add_obstacle(x - half, x + half, tip);
+    add_obstacle(x - half, x + half, tip, tip + marker_height);
   }
   if (cd.oob_low) {
     const float tip = ctr.menuHeight + ctr.barHeight - marker_gap;
@@ -1351,10 +1543,33 @@ int sheetController::find_head_x(const stem_group& g, const sheetNote* n, int an
   return anchor;
 }
 
+int sheetController::find_dot_x(const sheetMeasure& dm, int ch, const stem_group& g, const sheetNote* n,
+                                int stave) {
+  // a dot follows whatever is on its own row, so it only moves past a flipped notehead right beside it
+  const midi& stream = ctr.getStream();
+  const auto& c = dm.chords[ch].second;
+  const int sheet_y = stream.notes[n->oriNote].sheetY;
+  const int row = sheet_y % 2 == 0 ? sheet_y + 1 : sheet_y;
+
+  int right = g.head_width;
+  if (g.flipped && g.dir != FLAG_DOWN) {
+    for (int i = g.first; i <= g.last; ++i) {
+      const sheetNote* m = c[i];
+      if (m->visible && !m->out_of_bounds && m->stave == stave && !m->left &&
+          std::abs(stream.notes[m->oriNote].sheetY - row) <= 1) {
+        right = getSymbolWidth(SYM_HEAD_STD) + g.head_width;
+      }
+    }
+  }
+  return right + dotSpacing;
+}
+
 int sheetController::find_flag_y(const stem_group& g, int stave) {
   // stems stay close to their notes, longer only when extra flags need the room
   const int len = stem_len + (g.has_flag() ? flag_extra[g.flag_type - FLAGTYPE_8] : 0);
-  return g.dir == FLAG_DOWN ? findStaveY(g.stem_lo, stave) + len : findStaveY(g.stem_hi, stave) - len;
+  // even when nothing else works, a stem stops at the edge of the sheet
+  return g.dir == FLAG_DOWN ? std::min<int>(findStaveY(g.stem_lo, stave) + len, find_sheet_bottom())
+                            : std::max<int>(findStaveY(g.stem_hi, stave) - len, find_sheet_top());
 }
 
 void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int stave, int measure_x) {
@@ -1371,7 +1586,7 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int stav
   float top = findStaveY(g.hi, stave) - head_half;
   float bottom = findStaveY(g.lo, stave) + head_half;
 
-  draw_ledger_lines(g, stave, anchor);
+  draw_ledger_lines(dm, ch, g, stave, anchor);
 
   for (int i = g.first; i <= g.last; ++i) {
     const sheetNote* n = c[i];
@@ -1382,8 +1597,10 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int stav
     const int y = findStaveY(stream.notes[n->oriNote].sheetY, stave);
     const int head_x = find_head_x(g, n, anchor);
     const int head_sym = getSymbolType(n->display_type);
+    head_boxes.push_back({static_cast<float>(head_x), static_cast<float>(head_x + getSymbolWidth(head_sym)),
+                          y - head_half, y + head_half, n->oriNote});
     if (stave == STAVE_TREBLE) {
-      add_obstacle(head_x, head_x + getSymbolWidth(head_sym), y - head_half);
+      add_obstacle(head_x, head_x + getSymbolWidth(head_sym), y - head_half, y + head_half);
     }
 
     if (has_acc(n)) {
@@ -1393,7 +1610,7 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int stav
         const int acc_sym = getAccType(n->displayAcc);
         const int acc_w = getSymbolWidth(acc_sym);
         const float acc_x = anchor - g.acc_x - n->acc_col * acc_col_width - acc_w;
-        add_obstacle(acc_x, acc_x + acc_w, y - find_acc_height(acc_sym));
+        add_obstacle(acc_x, acc_x + acc_w, y - find_acc_height(acc_sym), y + acc_below);
       }
     }
     if (!n->tie_in && !n->tie_out) {
@@ -1401,7 +1618,9 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int stav
     }
 
     const int head_w = getSymbolWidth(head_sym);
-    const float tie_y = y + (n->tie_up ? -1 : 1) * (n->tie_outside ? tie_outside_offset : tie_offset);
+    const int tie_off = n->tie_outside ? tie_outside_offset : tie_offset;
+    const float tie_y = y + (n->tie_up ? -tie_off : tie_off);
+    const float flip_y = y + (n->tie_up ? tie_off : -tie_off);
     top = std::min(top, tie_y - tie_max_height);
     bottom = std::max(bottom, tie_y + tie_max_height);
 
@@ -1412,29 +1631,23 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int stav
       auto it = std::ranges::find(open_ties, n->oriNote, &open_tie::note);
       if (it != open_ties.end()) {
         const float tie_end = find_tie_end(it->outside);
-        draw_tie(it->x, tie_end, it->y, it->up);
-        if (it->up && stave == STAVE_TREBLE) {
-          add_obstacle(it->x, tie_end, it->y - tie_max_height);
-        }
+        draw_tie(it->x, tie_end, it->y, it->up, it->flip_y, it->head_note, n->oriNote);
         open_ties.erase(it);
       }
       else {
         // the tie started on an earlier page, so it picks up from the start of the measure
         const float tie_end = find_tie_end(n->tie_outside);
         const float tie_x = std::min<float>(measure_x + 2, tie_end - tie_min_len);
-        draw_tie(tie_x, tie_end, tie_y, n->tie_up);
-        if (n->tie_up && stave == STAVE_TREBLE) {
-          add_obstacle(tie_x, tie_end, tie_y - tie_max_height);
-        }
+        draw_tie(tie_x, tie_end, tie_y, n->tie_up, flip_y, n->oriNote, n->oriNote);
       }
     }
     if (n->tie_out) {
       // a dotted note's tie starts after its dot
       float tie_x = n->tie_outside ? head_x + head_w * 0.65f : head_x + head_w + 2.0f;
       if (is_dotted_type(n->display_type)) {
-        tie_x = anchor + g.dot_x + getSymbolWidth(SYM_DOT) + 2;
+        tie_x = anchor + find_dot_x(dm, ch, g, n, stave) + getSymbolWidth(SYM_DOT) + 2;
       }
-      open_ties.push_back({n->oriNote, tie_x, tie_y, n->tie_up, n->tie_outside});
+      open_ties.push_back({n->oriNote, tie_x, tie_y, n->tie_up, n->tie_outside, flip_y, n->oriNote});
     }
   }
 
@@ -1456,15 +1669,22 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int stav
     if (hidden->tie_in) {
       auto it = std::ranges::find(open_ties, hidden->oriNote, &open_tie::note);
       if (it != open_ties.end()) {
-        draw_tie(it->x, it->outside ? head_x + head_w * 0.35f : head_x - 2.0f, it->y, it->up);
+        draw_tie(it->x, it->outside ? head_x + head_w * 0.35f : head_x - 2.0f, it->y, it->up, it->flip_y,
+                 it->head_note, (*twin)->oriNote);
         open_ties.erase(it);
       }
     }
     if (hidden->tie_out) {
       const int y = findStaveY(sheet_y, stave);
-      const float tie_y = y + ((*twin)->tie_up ? -1 : 1) * ((*twin)->tie_outside ? tie_outside_offset : tie_offset);
-      const float tie_x = (*twin)->tie_outside ? head_x + head_w * 0.65f : head_x + head_w + 2.0f;
-      open_ties.push_back({hidden->oriNote, tie_x, tie_y, (*twin)->tie_up, (*twin)->tie_outside});
+      const int tie_off = (*twin)->tie_outside ? tie_outside_offset : tie_offset;
+      const float tie_y = y + ((*twin)->tie_up ? -tie_off : tie_off);
+      const float flip_y = y + ((*twin)->tie_up ? tie_off : -tie_off);
+      float tie_x = (*twin)->tie_outside ? head_x + head_w * 0.65f : head_x + head_w + 2.0f;
+      if (is_dotted_type((*twin)->display_type)) {
+        tie_x = anchor + find_dot_x(dm, ch, g, *twin, stave) + getSymbolWidth(SYM_DOT) + 2;
+      }
+      open_ties.push_back(
+          {hidden->oriNote, tie_x, tie_y, (*twin)->tie_up, (*twin)->tie_outside, flip_y, (*twin)->oriNote});
     }
   }
 
@@ -1488,9 +1708,10 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int stav
     top = std::min(top, tip);
     bottom = std::max(bottom, tip);
 
-    if (stave == STAVE_TREBLE && !down) {
+    if (stave == STAVE_TREBLE) {
       const float flag_w = g.has_flag() ? getSymbolWidth(g.flag_type, g.dir) : 0;
-      add_obstacle(stem_x - stemWidth / 2.0f, stem_x + stemWidth / 2.0f + flag_w, tip);
+      add_obstacle(stem_x - stemWidth / 2.0f, stem_x + stemWidth / 2.0f + flag_w, std::min(base, tip),
+                   std::max(base, tip));
     }
   }
 
@@ -1532,7 +1753,7 @@ void sheetController::draw_group_glyphs(const sheetMeasure& dm, int ch, int stav
     if (is_dotted_type(n->display_type)) {
       // dots on a line move up into the space
       const int dot_y = src.sheetY % 2 == 0 ? y - ctr.barWidth / 2 : y;
-      drawSymbol(SYM_DOT, fSize, anchor + g.dot_x, dot_y - glyph_baseline, col);
+      drawSymbol(SYM_DOT, fSize, anchor + find_dot_x(dm, ch, g, n, stave), dot_y - glyph_baseline, col);
     }
   }
 
@@ -1555,30 +1776,45 @@ void sheetController::draw_flags(float x, float tip, int count, bool down) {
   }
 }
 
-void sheetController::draw_ledger_lines(const stem_group& g, int stave, int anchor) {
-  const int head = getSymbolWidth(SYM_HEAD_STD);
-  int x0 = anchor - ledger_ext;
-  int x1 = anchor + g.head_width + ledger_ext;
-  if (g.flipped && g.dir == FLAG_DOWN) {
-    x0 -= head;
-  }
-  else if (g.flipped) {
-    x1 += head;
-  }
-
+void sheetController::draw_ledger_lines(const sheetMeasure& dm, int ch, const stem_group& g, int stave,
+                                        int anchor) {
+  const midi& stream = ctr.getStream();
+  const auto& c = dm.chords[ch].second;
   const int top_line = stave == STAVE_TREBLE ? 10 : -2;
   const int bottom_line = stave == STAVE_TREBLE ? 2 : -10;
 
-  for (int s = top_line + 2; s <= g.hi; s += 2) {
-    const int y = findStaveY(s, stave);
-    drawLineEx(x0, y, x1, y, 1, ctr.bgSheetNote);
-    if (stave == STAVE_TREBLE) {
-      add_obstacle(x0, x1, y - 1);
+  // each ledger line only reaches across the noteheads at or beyond it
+  auto draw_ledger = [&](int line, bool above) {
+    float x0 = std::numeric_limits<float>::max();
+    float x1 = std::numeric_limits<float>::lowest();
+    for (int i = g.first; i <= g.last; ++i) {
+      const sheetNote* n = c[i];
+      if (!n->visible || n->out_of_bounds || n->stave != stave) {
+        continue;
+      }
+      const int sheet_y = stream.notes[n->oriNote].sheetY;
+      if (above ? sheet_y < line : sheet_y > line) {
+        continue;
+      }
+      const int head_x = find_head_x(g, n, anchor);
+      x0 = std::min<float>(x0, head_x - ledger_ext);
+      x1 = std::max<float>(x1, head_x + getSymbolWidth(getSymbolType(n->display_type)) + ledger_ext);
     }
-  }
-  for (int s = bottom_line - 2; s >= g.lo; s -= 2) {
-    const int y = findStaveY(s, stave);
+    if (x0 >= x1) {
+      return;
+    }
+    const int y = findStaveY(line, stave);
     drawLineEx(x0, y, x1, y, 1, ctr.bgSheetNote);
+    if (above && stave == STAVE_TREBLE) {
+      add_obstacle(x0, x1, y - 1, y + 1);
+    }
+  };
+
+  for (int line = top_line + 2; line <= g.hi; line += 2) {
+    draw_ledger(line, true);
+  }
+  for (int line = bottom_line - 2; line >= g.lo; line -= 2) {
+    draw_ledger(line, false);
   }
 }
 
@@ -1623,7 +1859,13 @@ sheetController::beam_line sheetController::find_beam_line(const sheetMeasure& d
   float y0 = up ? std::numeric_limits<float>::max() : std::numeric_limits<float>::lowest();
   for (int ch : beam.chords) {
     const float x = find_stem_x(chord_x[ch], beam.dir) - x0;
-    const float tip = up ? near_y(ch) - len : near_y(ch) + len;
+    float tip = up ? near_y(ch) - len : near_y(ch) + len;
+
+    // the beam also clears a stemless note sitting on its side of the chord
+    const stem_group& g = dm.s_chordData[ch].groups[beam.stave];
+    const float clear = head_half + 2 + (levels - 1) * beam_step + beam_thickness;
+    tip = up ? std::min(tip, findStaveY(g.hi, beam.stave) - clear) : std::max(tip, findStaveY(g.lo, beam.stave) + clear);
+
     y0 = up ? std::min(y0, tip - slope * x) : std::max(y0, tip - slope * x);
   }
 
@@ -1636,8 +1878,25 @@ sheetController::beam_line sheetController::find_beam_line(const sheetMeasure& d
       const float line_y = y0 + slope * (find_stem_x(chord_x[ch], beam.dir) - x0);
       shift = std::max(shift, up ? beam.limit - line_y : line_y - beam.limit);
       room = std::min(room, up ? near_y(ch) - min_len - line_y : line_y - near_y(ch) - min_len);
+
+      // nor past a stemless note on the beam's side, which matters more than a little room from the other stave
+      const stem_group& g = dm.s_chordData[ch].groups[beam.stave];
+      const float clear = head_half + 2 + (levels - 1) * beam_step + beam_thickness;
+      room = std::min(room, up ? findStaveY(g.hi, beam.stave) - clear - line_y
+                               : line_y - findStaveY(g.lo, beam.stave) - clear);
     }
     y0 += (up ? 1.0f : -1.0f) * std::clamp(shift, 0.0f, std::max(room, 0.0f));
+  }
+
+  // even when nothing else works, a beam stays inside the sheet (its other levels stack towards the notes)
+  for (int ch : beam.chords) {
+    const float line_y = y0 + slope * (find_stem_x(chord_x[ch], beam.dir) - x0);
+    if (up && line_y < find_sheet_top()) {
+      y0 += find_sheet_top() - line_y;
+    }
+    else if (!up && line_y > find_sheet_bottom()) {
+      y0 -= line_y - find_sheet_bottom();
+    }
   }
 
   return {x0, y0, slope};
@@ -1667,15 +1926,18 @@ void sheetController::draw_beam(const sheetMeasure& dm, int b) {
 
   segment(stem_x(0) - half, stem_x(count - 1) + half, 0);
 
-  if (up && beam.stave == STAVE_TREBLE) {
-    const float xa = stem_x(0) - half;
-    const float xb = stem_x(count - 1) + half;
-    add_obstacle(xa, xb, line.y0 + std::min(line.slope * (xa - line.x0), line.slope * (xb - line.x0)));
-  }
-
   int max_level = 0;
   for (int i = 0; i < count; ++i) {
     max_level = std::max(max_level, levels(i));
+  }
+
+  if (beam.stave == STAVE_TREBLE) {
+    const float xa = stem_x(0) - half;
+    const float xb = stem_x(count - 1) + half;
+    const float ya = line.y0 + line.slope * (xa - line.x0);
+    const float yb = line.y0 + line.slope * (xb - line.x0);
+    const float depth = (max_level - 1) * beam_step + beam_thickness;
+    add_obstacle(xa, xb, std::min(ya, yb) - (up ? 0 : depth), std::max(ya, yb) + (up ? depth : 0));
   }
 
   for (int level = 1; level < max_level; ++level) {
@@ -1704,27 +1966,95 @@ void sheetController::draw_beam(const sheetMeasure& dm, int b) {
   }
 }
 
-void sheetController::draw_tie(float x0, float x1, float y, bool up) {
+float sheetController::find_tie_arc(float t, float shoulder) const {
+  // flat at the ends' height, rising with shoulders that grow on longer ties
+  return 1.0f - std::pow(std::abs(2.0f * t - 1.0f), shoulder);
+}
+
+bool sheetController::tie_hits_heads(float x0, float x1, float y, bool up, float height, float shoulder,
+                                     float thickness, int start_note, int end_note) const {
+  const float len = x1 - x0;
+  const float sign = up ? -1.0f : 1.0f;
+  for (const auto& head : head_boxes) {
+    if (head.note == start_note || head.note == end_note || head.x1 <= x0 || head.x0 >= x1) {
+      continue;
+    }
+    // the lens over the head's width, sampled at its edges and where it comes closest to the middle
+    const float t0 = std::clamp((head.x0 - x0) / len, 0.0f, 1.0f);
+    const float t1 = std::clamp((head.x1 - x0) / len, 0.0f, 1.0f);
+    float reach_lo = std::numeric_limits<float>::max();
+    float reach_hi = std::numeric_limits<float>::lowest();
+    for (const float t : {t0, std::clamp(0.5f, t0, t1), t1}) {
+      const float arc = find_tie_arc(t, shoulder);
+      const float outer = y + sign * (height * arc + tie_end_width / 2);
+      const float inner = y + sign * ((height - thickness) * arc - tie_end_width / 2);
+      reach_lo = std::min({reach_lo, outer, inner});
+      reach_hi = std::max({reach_hi, outer, inner});
+    }
+    if (reach_hi > head.y0 - tie_head_clearance && reach_lo < head.y1 + tie_head_clearance) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void sheetController::draw_tie(float x0, float x1, float y, bool up, float flip_y, int start_note, int end_note) {
   if (x1 - x0 < tie_min_len) {
     const float mid = (x0 + x1) / 2;
     x0 = mid - tie_min_len / 2;
     x1 = mid + tie_min_len / 2;
   }
 
-  constexpr int segments = 12;
-  const float len = x1 - x0;
-  const float height = std::clamp(len * 0.1f + 2.0f, 3.0f, tie_max_height);
-  const float sign = up ? -1.0f : 1.0f;
+  // doubled notes tied to doubled notes would stack identical ties, so only the first is drawn
+  for (const auto& t : drawn_ties) {
+    if (t.up == up && std::abs(t.y - y) < 3 && std::abs(t.x1 - x1) < 3 && std::abs(t.x0 - x0) < tie_merge_gap) {
+      return;
+    }
+  }
+  drawn_ties.push_back({x0, x1, y, up});
 
-  // a lens between two parabolas, thick in the middle and thin at the ends
+  constexpr int segments = 16;
+  const float len = x1 - x0;
+
+  // longer ties rise higher but more slowly, and grow shoulders so the middle runs flatter
+  const float height = std::clamp(std::sqrt(len) * 1.1f, tie_min_height, tie_max_height);
+  const float shoulder = std::clamp(2.0f + len / 120.0f, 2.0f, 3.5f);
+  const float thickness = std::clamp(1.8f + len * 0.004f, 1.8f, 2.6f);
+
+  // a tie may cross stems but tries not to cross noteheads, first by reshaping and then by changing sides
+  struct candidate {
+    float y;
+    bool up;
+    float height;
+  };
+  const float flatter = std::max(tie_min_height, height * 0.5f);
+  const candidate candidates[] = {
+      {y, up, height},      {y, up, flatter},           {y, up, height * 1.6f},     {flip_y, !up, height},
+      {flip_y, !up, flatter}, {y, up, height * 2.2f},   {flip_y, !up, height * 1.6f},
+  };
+  candidate chosen = candidates[0];
+  for (const auto& c : candidates) {
+    if (!tie_hits_heads(x0, x1, c.y, c.up, c.height, shoulder, std::min(thickness, c.height * 0.7f), start_note,
+                        end_note)) {
+      chosen = c;
+      break;
+    }
+  }
+
+  const float sign = chosen.up ? -1.0f : 1.0f;
+  const float lens = std::min(thickness, chosen.height * 0.7f);
+  add_obstacle(x0, x1, chosen.up ? chosen.y - chosen.height - 1 : chosen.y,
+               chosen.up ? chosen.y : chosen.y + chosen.height + 1);
+
+  // a lens between two arcs, thick in the middle and thin at the ends
   Vector2 outer[segments + 1];
   Vector2 inner[segments + 1];
   for (int i = 0; i <= segments; ++i) {
     const float t = static_cast<float>(i) / segments;
-    const float arc = 4.0f * t * (1.0f - t);
+    const float arc = find_tie_arc(t, shoulder);
     const float x = x0 + len * t;
-    outer[i] = {x, y + sign * (height * arc + tie_end_width / 2)};
-    inner[i] = {x, y + sign * ((height - tie_mid_width) * arc - tie_end_width / 2)};
+    outer[i] = {x, chosen.y + sign * (chosen.height * arc + tie_end_width / 2)};
+    inner[i] = {x, chosen.y + sign * ((chosen.height - lens) * arc - tie_end_width / 2)};
   }
   draw_aa_strip(outer, inner, segments + 1, ctr.bgSheetNote);
 }

@@ -67,7 +67,11 @@ void sheetMeasure::buildChordMap(deque<sheetNote>& vecNote) {
     if (na.sheetY != nb.sheetY) {
       return na.sheetY < nb.sheetY;
     }
-    return na.y < nb.y;
+    if (na.y != nb.y) {
+      return na.y < nb.y;
+    }
+    // a continuing tie comes first among duplicates so it is the one left visible
+    return a->tie_in > b->tie_in;
   });
 
   chords.clear();

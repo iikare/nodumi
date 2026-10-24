@@ -37,6 +37,8 @@ class midiInput {
   int getNoteCount() { return noteCount; }
   vector<string> getPorts();
 
+  static constexpr const char* client_name = "nodumi input";
+
   midi noteStream;
 
  private:
@@ -57,6 +59,9 @@ class midiInput {
   int numOn;
   double timestamp;
   bool frame_advanced = false;
+  bool notes_changed = false;
+  string port_name;
+  vector<int> port_map;  // menu position to midi port, leaving out this app's own output
 
   vector<pair<int, keySig>> match;
   int ks_type;

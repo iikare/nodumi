@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 
+#include <bit>
 #include <bitset>
 #include <chrono>
 #include <filesystem>
@@ -955,12 +956,14 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     // 0x11:[6:6] - now line overlay blend mode
     // 0x11:[5:5] - use level control
     // 0x11:[4:4] - limit fps
-    // 0x11:[3:0] - reserved
+    // 0x11:[3:3] - set live quantization
+    // 0x11:[2:0] - reserved
     readByte();
     ctr.option.set(OPTION::SHADOW, (byteBuf >> 7) & 0x1);
     ctr.option.set(OPTION::NOW_LINE_USE_OVERLAY, (byteBuf >> 6) & 0x1);
     ctr.option.set(OPTION::USE_LEVEL_CONTROL, (byteBuf >> 5) & 0x1);
     ctr.option.set(OPTION::LIMIT_FPS, (byteBuf >> 4) & 0x1);
+    ctr.option.set(OPTION::SET_LIVE_QUANTIZE, (byteBuf >> 3) & 0x1);
 
     // 0x13:[7:2] - hand range (6 bits)
     // 0x13:[1:0] - CIE function (2 bits)
@@ -991,9 +994,10 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     ctr.option.set(OPTION::SHADOW_ANGLE, *(reinterpret_cast<uint16_t*>(shadowAngleBuf)));
 
     // 0x1A:[7:2] - shadow distance (6 bits)
-    // 0x1A:[1:0] - reserved
+    // 0x1A:[1:0] - live quantization, as a power of two in 64ths (2 bits)
     readByte();
     ctr.option.set(OPTION::SHADOW_DISTANCE, (byteBuf >> 2) & 0b00111111);
+    ctr.option.set(OPTION::LIVE_QUANTIZE, 1 << (byteBuf & 0b00000011));
 
     // 0x1B-0x2F - reserved
     readUntil(0x2F);
@@ -1376,12 +1380,14 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   // 0x11:[6:6] - now line overlay blend mode
   // 0x11:[5:5] - use level control
   // 0x11:[4:4] - limit fps
-  // 0x11:[3:0] - reserved
+  // 0x11:[3:3] - set live quantization
+  // 0x11:[2:0] - reserved
   uint8_t pref2 = 0;
   pref2 |= (static_cast<uint8_t>(ctr.option.get(OPTION::SHADOW)) << 7);
   pref2 |= (static_cast<uint8_t>(ctr.option.get(OPTION::NOW_LINE_USE_OVERLAY)) << 6);
   pref2 |= (static_cast<uint8_t>(ctr.option.get(OPTION::USE_LEVEL_CONTROL)) << 5);
   pref2 |= (static_cast<uint8_t>(ctr.option.get(OPTION::LIMIT_FPS)) << 4);
+  pref2 |= (static_cast<uint8_t>(ctr.option.get(OPTION::SET_LIVE_QUANTIZE)) << 3);
 
   writeByte(pref2);
 
@@ -1406,9 +1412,10 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   writeByte(static_cast<uint16_t>(ctr.option.get(OPTION::SHADOW_ANGLE)));
 
   // 0x1A:[7:2] - shadow distance (6 bits)
-  // 0x1A:[1:0] - reserved
+  // 0x1A:[1:0] - live quantization, as a power of two in 64ths (2 bits)
   uint8_t pref4 = 0;
   pref4 |= (static_cast<uint8_t>(ctr.option.get(OPTION::SHADOW_DISTANCE)) << 2);
+  pref4 |= static_cast<uint8_t>(std::countr_zero(static_cast<unsigned>(ctr.option.get(OPTION::LIVE_QUANTIZE))) & 0b11);
 
   writeByte(pref4);
 
