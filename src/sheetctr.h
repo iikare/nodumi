@@ -90,6 +90,8 @@ class sheetController {
 
   static constexpr int borderSpacing = 15;
 
+  static constexpr int oobWidth = 16;
+
   static constexpr int stemWidth = 2;
   static constexpr int dotSpacing = 4;
   static constexpr int accSpacing = 4;

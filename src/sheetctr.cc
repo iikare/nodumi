@@ -304,10 +304,10 @@ void sheetController::disectMeasure(measureController& measure) {
         n->visible = false;
       }
 
-      // hide out-of-bounds notes
+      // mark out-of-bounds notes
       if ((stream.notes[n->oriNote].sheetY > getStaveRenderLimit().first ||
            stream.notes[n->oriNote].sheetY < getStaveRenderLimit().second)) {
-        n->visible = false;
+        n->out_of_bounds = true;
       }
       ct++;
     }
@@ -363,6 +363,12 @@ void sheetController::disectMeasure(measureController& measure) {
       int noteLW = 0;
       int noteRW = 0;
       if (!n->visible) {
+        continue;
+      }
+      if (n->out_of_bounds) {
+        // default oob market width
+        noteLW = oobWidth/2; 
+        noteRW = oobWidth/2; 
         continue;
       }
       if (stream.notes[n->oriNote].sheetY > getStaveRenderLimit().first ||
@@ -708,6 +714,11 @@ void sheetController::drawSheetPage() {
         if (note->left) {
           noteX = stemPos - getSymbolWidth(noteSym) + stemWidth / 2;
         }
+
+        if (note->out_of_bounds) {
+          logQ(noteSym);
+        }
+        logQ(note->out_of_bounds, stream.notes[note->oriNote].type, noteSym);
 
         // drawLineEx(noteX, y-1, noteX, y+30, stemWidth, ctr.bgSheetNote);
         drawSymbol(noteSym, fSize, noteX + 0 * getSymbolWidth(noteSym) - stemWidth / 2,

@@ -9,5 +9,6 @@ struct sheetNote {
   int stave;
   bool left;
   bool visible;
+  bool out_of_bounds;
   int oriNote;
 };

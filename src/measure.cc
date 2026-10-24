@@ -51,9 +51,9 @@ void measureController::addNote(note& note) {
     // note.measure, "rectified to", quantTick);
 
     // parameter displayAcc is not calculated at this step
-    displayNotes.push_back({quantTick, -1, STAVE_NONE, true, true, note.number});
+    displayNotes.push_back({quantTick, -1, STAVE_NONE, true, true, false, note.number});
   }
   else {
-    displayNotes.push_back({note.tick, -1, STAVE_NONE, true, true, note.number});
+    displayNotes.push_back({note.tick, -1, STAVE_NONE, true, true, false, note.number});
   }
 }

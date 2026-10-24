@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 
   bool showKey = false;
   bool showTempo = false;
-  int songTimeType = SONGTIME_NONE;
+  int songTimeType = SONGTIME_ABSOLUTE;
   int tonicOffset = 0;
   int displayMode = DISPLAY_BAR;
 
@@ -625,7 +625,6 @@ int main(int argc, char* argv[]) {
                 drawRing({cX, ballY}, radius - 2, radius, col_inv);
               }
             }
-            // drawSymbol(SYM_TREBLE, 75, cX,cY, col_inv);
           }
         } break;
         case DISPLAY_LINE: {
