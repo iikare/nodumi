@@ -2050,7 +2050,7 @@ void sheetController::drawSheetPage() {
   octave_spans.clear();
   add_obstacle(clef_x, clef_x + clef_width, findStaveY(4, STAVE_TREBLE) - clef_height, findStaveY(10, STAVE_TREBLE));
 
-  int tick_delta = std::numeric_limits<int>::min();
+  double tick_delta = -std::numeric_limits<double>::infinity();
   int tick_offset = offset;
   int barline_x = offset;
   int open_octave[2] = {-1, -1};
@@ -2062,7 +2062,7 @@ void sheetController::drawSheetPage() {
       offset += sigSpacing;
     }
 
-    int tick_diff = dm.measure->getLocation() - ctr.timeOffset;
+    double tick_diff = dm.measure->getLocation() - ctr.timeOffset;
     if (tick_diff > tick_delta && tick_diff < 0) {
       tick_delta = tick_diff;
       tick_offset = offset;
@@ -2109,7 +2109,7 @@ void sheetController::drawSheetPage() {
         if (n->tie_in) {
           continue;
         }
-        int note_diff = stream.notes[n->oriNote].x - ctr.timeOffset;
+        double note_diff = stream.notes[n->oriNote].x - ctr.timeOffset;
         if (note_diff > tick_delta && note_diff < 0) {
           tick_delta = note_diff;
           tick_offset = chord_x[ch] - dm.s_chordData[ch].leftWidth;

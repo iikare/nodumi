@@ -25,9 +25,9 @@ void outputInstance::updateOffset(double off) {
   offset = off;
 
   double elapsed = std::chrono::duration<double>(update - update_last_overflow).count();
-  if (fabs(offset - offset_last) > elapsed * UNK_CST + 1) {
+  if (fabs(offset - offset_last) > (elapsed + 0.002) * UNIT_TPS) {
     // logQ("real offset exceeds maximum possible offset:",
-    // (offset-offset_last), elapsed*UNK_CST);
+    // (offset-offset_last), elapsed*UNIT_TPS);
 
     // don't play too many notes at once
     // return;
@@ -40,7 +40,8 @@ void outputInstance::updateOffset(double off) {
   // send = offset > offset_last;
   // offset_last = offset;
 
-  auto it = message.upper_bound(make_pair(off + (off <= 0 ? 0 : 1), vector<unsigned char>{}));
+  // messages up to 2 ms ahead are due now
+  auto it = message.upper_bound(make_pair(off + (off <= 0 ? 0 : 0.002 * UNIT_TPS), vector<unsigned char>{}));
   // if (it != message.begin()) { it--; }
 
   int new_index = distance(message.begin(), it);
@@ -107,7 +108,7 @@ void outputInstance::process() {
       // message.upper_bound(make_pair(offset+elapsedTime.count()+1,
       // vector<unsigned char>{})); if (it_end != message.begin()) { it_end--; }
 
-      double add_offset = elapsedTime.count() * UNK_CST + 0.5;
+      double add_offset = (elapsedTime.count() + 0.001) * UNIT_TPS;
 
       auto it = std::next(message.begin(), index_last);
       double max_offset = offset_last + add_offset;
@@ -121,7 +122,7 @@ void outputInstance::process() {
 
         vector<unsigned char>& msg = const_cast<vector<unsigned char>&>(it->second);
         // logQ("it. offset_last, limit offset_last:", it->first,
-        // offset_last+elapsedTime.count()*UNK_CST);
+        // offset_last+elapsedTime.count()*UNIT_TPS);
 
         // logQ("/*msg*/ sent:", distance(message.begin(),it));
         // crit.lock();

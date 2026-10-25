@@ -73,7 +73,9 @@ void fftController::generate(const vector<int> c_note, double offset) {
         pitchRatio = 1.0 * pow(nowRatio - 1.78,
                                2);  // TODO: make function duration-invariant
       }
-      int binScale = 2 + 5 * (1 + log(1 + notes[idx].duration)) + (15.0 / 128) * ((notes[idx].velocity) + 1);
+      // longer notes are louder, counting length in 2 ms steps
+      const double length_steps = notes[idx].duration / (0.002 * UNIT_TPS);
+      int binScale = 2 + 5 * (1 + log(1 + length_steps)) + (15.0 / 128) * ((notes[idx].velocity) + 1);
 
       // logQ(notes[idx].y, freq, bins.size());
       //  simulate harmonics

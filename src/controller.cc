@@ -71,6 +71,9 @@ void controller::init(vector<asset>& assetSet) {
   voronoi.init();
   fft.updateFFTBins();
 
+  // a resize before the first frame scales the now line from this width
+  lastWidth = getWidth();
+
   warning.init();
 
   updateFPS(true);
@@ -480,7 +483,8 @@ void controller::update(double zoom, double& nowLineX) {
     pauseTime += GetFrameTime();
   }
 
-  if (lastWidth != getWidth()) {
+  // a minimized window reports no width, so the last real one is kept
+  if (lastWidth != getWidth() && getWidth() > 0) {
     lastWidth = getWidth();
   }
 
@@ -520,7 +524,10 @@ void controller::updateDimension(double& nowLineX) {
     voronoi.update();
     fft.updateFFTBins();
 
-    nowLineX = getWidth() * nowLineX / lastWidth;
+    // keep the now line at the same fraction of the width, if both widths are known
+    if (lastWidth > 0 && getWidth() > 0) {
+      nowLineX = getWidth() * nowLineX / lastWidth;
+    }
 
     if (livePlayState) {
       ctr.input.noteStream.sheetData.findSheetPages();
@@ -735,19 +742,19 @@ int controller::getNoteCount() {
   return file.getNoteCount();
 }
 
-int controller::getLastTime() {
+double controller::getLastTime() {
   if (livePlayState) {
     return 0;
   }
   return file.getLastTime();
 }
 
-int controller::getTempo(int idx) const {
+int controller::getTempo(double offset) const {
   if (livePlayState) {
     return DEFAULT_TEMPO;
   }
   else {
-    return file.getTempo(idx);
+    return file.getTempo(offset);
   }
 }
 
@@ -762,7 +769,7 @@ int controller::getMinTickLen() const {
 
 int controller::getCurrentMeasure() const { return curMeasure; }
 
-int controller::findCurrentMeasure(int pos) const {
+int controller::findCurrentMeasure(double pos) const {
   if (livePlayState) {
     return ctr.input.noteStream.findMeasure(pos);
   }
@@ -789,7 +796,7 @@ string controller::getNoteLabel(int index) {
   return getNoteInfo(getNotes()[index].track, getNotes()[index].y - MIN_NOTE_IDX, is_flat);
 }
 
-string controller::getTempoLabel(int offset) const {
+string controller::getTempoLabel(double offset) const {
   if (livePlayState) {
     if (ctr.input.noteStream.measureMap.size() == 0) {
       return "";
@@ -801,14 +808,10 @@ string controller::getTempoLabel(int offset) const {
     }
   }
 
-  if (offset == 0) {
-    offset = 1;
-  }
-
   return to_string(getTempo(offset)) + " BPM";
 }
 
-string controller::getKeySigLabel(int offset) const {
+string controller::getKeySigLabel(double offset) const {
   if (livePlayState) {
     return ctr.input.findKeySigLabel();
   }
@@ -817,15 +820,12 @@ string controller::getKeySigLabel(int offset) const {
     return "";
   }
 
-  if (offset == 0) {
-    offset = 1;
-  }
-
   // int KSOffset =
   // file.measureMap[findCurrentMeasure(offset)-1].currentKey.getIndex();
   // logQ("the current measure", findCurrentMeasure(offset), "has key signature
   // offset", KSOffset);
-  return file.measureMap[findCurrentMeasure(offset) - 1].currentKey.getLabel();
+  // the start of the song counts as the first measure
+  return file.measureMap[std::max(1, findCurrentMeasure(offset)) - 1].currentKey.getLabel();
 }
 
 void controller::rebuild_sheet() {
@@ -1029,7 +1029,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     // 0x30-0x3F - reserved
     readUntil(0x3F);
 
-    // 0x40-0x44 - zoom level
+    // 0x40-0x44 - zoom level, in pixels per 1 / ZOOM_TPS seconds
     char zoomBuf[4] = {0};
     for (int i = 0; i < 4; ++i) {
       readByte();
@@ -1037,7 +1037,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       zoomBuf[i] = byteBuf;
     }
 
-    zoomLevel = *(reinterpret_cast<float*>(zoomBuf));
+    zoomLevel = *(reinterpret_cast<float*>(zoomBuf)) * (ZOOM_TPS / static_cast<double>(UNIT_TPS));
     // logQ("READ ZOOMLEVEL", zoomLevel);
 
     // logQ(zoomLevel);
@@ -1456,8 +1456,8 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   // 0x30-0x3F - reserved
   writeUntil(0x3F);
 
-  // 0x40-0x44 - zoom level (4bit float (cast from double))
-  float zlf = static_cast<float>(zoomLevel);
+  // 0x40-0x44 - zoom level (4bit float (cast from double)), in pixels per 1 / ZOOM_TPS seconds
+  float zlf = static_cast<float>(zoomLevel * (UNIT_TPS / static_cast<double>(ZOOM_TPS)));
   // logQ(static_cast<float>(zoomLevel));
   writeByte(zlf);
 
@@ -1576,8 +1576,8 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
     // logQ("saved image length is", imageSize, "bytes");
     output.write(reinterpret_cast<const char*>(&imageSize), sizeof(imageSize));
     // logQ(imageSize);
-    // output.write(image.buf.str().c_str(), image.buf.str().size());
-    output << image.buf.rdbuf();
+    // streaming rdbuf() would leave the read position at the end, and a second save would write no image
+    output.write(image.buf.str().c_str(), imageSize);
 
     // logQ(image.buf.str());
   }

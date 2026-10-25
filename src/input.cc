@@ -150,7 +150,7 @@ bool midiInput::updateQueue() {
   // the queue is drained several times a frame, but the clock only moves once per frame
   if (isUntimedQueue() && !frame_advanced) {
     timestamp += GetFrameTime();
-    ctr.livePlayOffset += GetFrameTime() * UNK_CST;
+    ctr.livePlayOffset += GetFrameTime() * UNIT_TPS;
     frame_advanced = true;
   }
   else {
@@ -194,14 +194,14 @@ void midiInput::convertEvents() {
 
     if (msgQueue[0] == 0b11111000) {  // 248: clock signal
       // cerr << "shift by " << timestamp*100 << endl;
-      ctr.livePlayOffset += fmax(0, timestamp) * UNK_CST;
+      ctr.livePlayOffset += fmax(0, timestamp) * UNIT_TPS;
     }
     else if (msgQueue.size() > 2 && any_of(msgQueue[0] & 0xF0, 0x80, 0x90)) {  // note on/off, any channel
       if ((msgQueue[0] & 0xF0) == 0x90 && msgQueue[2] != 0) {                  // if note on
         note tmpNote;
 
         tmpNote.tick =
-            ctr.livePlayOffset / UNK_CST * (noteStream.tempoMap.back().second * DEFAULT_TPQ / 60.0);
+            ctr.livePlayOffset / UNIT_TPS * (noteStream.tempoMap.back().second * DEFAULT_TPQ / 60.0);
         tmpNote.x = ctr.livePlayOffset;
         tmpNote.y = static_cast<int>(msgQueue[1]);
         tmpNote.velocity = static_cast<int>(msgQueue[2]);
@@ -210,7 +210,7 @@ void midiInput::convertEvents() {
         tmpNote.number = noteCount;
 
         // if this is the note on event, duration is undefined
-        tmpNote.duration = 1;
+        tmpNote.duration = 0.002 * UNIT_TPS;
         tmpNote.tickDuration = 1;
 
         // add this note and remove the oldest note in the queue
@@ -325,7 +325,7 @@ void midiInput::updatePosition() {
     if (noteStream.notes[j].isOn) {
       noteStream.notes[j].duration = ctr.livePlayOffset - noteStream.notes[j].x;
       noteStream.notes[j].tickDuration =
-          noteStream.notes[j].duration / UNK_CST * (noteStream.tempoMap.back().second * DEFAULT_TPQ / 60.0);
+          noteStream.notes[j].duration / UNIT_TPS * (noteStream.tempoMap.back().second * DEFAULT_TPQ / 60.0);
       noteStream.notes[j].findSize(noteStream.getTickSet());
       i++;
     }
@@ -346,7 +346,7 @@ void midiInput::update() {
   if (ctr.getLiveState()) {
     double measureLen =
         60.0 / (noteStream.tempoMap.back().second / noteStream.timeSignatureMap.back().second.getQPM()) *
-        UNK_CST;
+        UNIT_TPS;
     // logQ(ctr.livePlayOffset, noteStream.measureMap.back().getLocation(), measureLen);
 
     if (noteStream.sheetData.getDisplayMeasureCount()) {
@@ -355,7 +355,7 @@ void midiInput::update() {
     noteStream.sheetData.disectMeasure(noteStream.measureMap.back());
 
     if (ctr.livePlayOffset - noteStream.measureMap.back().getLocation() >= measureLen) {
-      int tick = ctr.livePlayOffset / UNK_CST * (noteStream.tempoMap.back().second * DEFAULT_TPQ / 60.0);
+      int tick = ctr.livePlayOffset / UNIT_TPS * (noteStream.tempoMap.back().second * DEFAULT_TPQ / 60.0);
       timeSig ts(4, 4, 0);
       keySig ks(ks_type, false, tick);
       ts.setMeasure(noteStream.measureMap.size());
@@ -411,7 +411,7 @@ void midiInput::update() {
       // shift even when midi input is disconnected
       // only if there's at least one note
       if (noteCount) {
-        ctr.livePlayOffset += GetFrameTime() * UNK_CST;
+        ctr.livePlayOffset += GetFrameTime() * UNIT_TPS;
       }
     }
   }

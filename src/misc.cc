@@ -106,10 +106,10 @@ string getSongTime(double pos) {
   string result;
   double total = ctr.getLastTime();
 
-  result += toMinutes(floor(pos / UNK_CST));
+  result += toMinutes(floor(pos / UNIT_TPS));
   if (!ctr.getLiveState()) {
     result += " / ";
-    result += toMinutes(floor(total / UNK_CST));
+    result += toMinutes(floor(total / UNIT_TPS));
   }
 
   return result;

@@ -12,13 +12,13 @@ using std::vector;
 
 namespace {
 
-// times are in UNK_CST units
-constexpr double chord_gap = 0.03 * UNK_CST;  // onsets closer than this belong to one chord
-constexpr int chord_limit = 10;               // two hands of five fingers
-constexpr double lookback_time = 8.0 * UNK_CST;
+// times are in units of 1 / UNIT_TPS seconds
+constexpr double chord_gap = 0.03 * UNIT_TPS;  // onsets closer than this belong to one chord
+constexpr int chord_limit = 10;                // two hands of five fingers
+constexpr double lookback_time = 8.0 * UNIT_TPS;
 constexpr int lookback_limit = 64;
-constexpr double position_decay = 3.0 * UNK_CST;
-constexpr double legato_grace = 0.03 * UNK_CST;  // shorter overlaps count as legato, not held notes
+constexpr double position_decay = 3.0 * UNIT_TPS;
+constexpr double legato_grace = 0.03 * UNIT_TPS;  // shorter overlaps count as legato, not held notes
 constexpr int recent_limit = 2;
 constexpr int max_fingers = 5;
 

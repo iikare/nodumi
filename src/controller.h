@@ -132,13 +132,13 @@ class controller {
   vector<note>& getNotes();
   int getTrackCount();
   int getNoteCount();
-  int getLastTime();
-  int getTempo(int idx) const;
+  double getLastTime();
+  int getTempo(double offset) const;
   int getMinTickLen() const;
   int getCurrentMeasure() const;
   int getMeasureCount() const;
-  string getKeySigLabel(int offset) const;
-  string getTempoLabel(int offset) const;
+  string getKeySigLabel(double offset) const;
+  string getTempoLabel(double offset) const;
   string getNoteLabel(int index);
 
   int getWidth() const { return GetScreenWidth(); }
@@ -152,7 +152,7 @@ class controller {
   void setWidth(int w) { SetWindowSize(w, getHeight()); }
   void setHeight(int h) { SetWindowSize(getWidth(), h); }
 
-  int findCurrentMeasure(int pos) const;
+  int findCurrentMeasure(double pos) const;
 
   midi file;
   midiInput input;

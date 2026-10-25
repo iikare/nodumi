@@ -68,15 +68,15 @@ class midi {
   void load(stringstream& buf);
 
   const vector<lineData>& getLines() { return lines; }
-  int findMeasure(int offset) const;
+  int findMeasure(double offset) const;
 
   int getMinTickLen() const { return tickNoteTransform[tickNoteTransformLen - 1] * tpq; }
   int getTrackCount() const { return trackCount; }
   int getNoteCount() const { return noteCount; }
   int getLastTick() const { return lastTick; }
-  int getLastTime() const { return lastTime; }
+  double getLastTime() const { return lastTime; }
   int getTPQ() const { return tpq; }
-  int getTempo(int offset) const;
+  int getTempo(double offset) const;
   vector<trackController>& getTracks() { return tracks; }
   const set<pair<int, int>, tickCmp>& getTickSet() const { return tickSet; }
 

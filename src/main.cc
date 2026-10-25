@@ -60,9 +60,10 @@ int main(int argc, char* argv[]) {
 
   // program-wide variables
 
-  // scaling settings
-  double zoomLevel = 0.125;
-  const double shiftC = 2.5;
+  // scaling settings, zoom in pixels per time unit
+  double zoomLevel = 0.125 * (ZOOM_TPS / static_cast<double>(UNIT_TPS));
+  constexpr double nav_step = 0.03 * UNIT_TPS;
+  constexpr double nav_step_fast = 0.3 * UNIT_TPS;
   double pauseOffset = 0;
 
   // view settings
@@ -107,23 +108,23 @@ int main(int argc, char* argv[]) {
   bool clickOnTmp = false;
 
   // screen space conversion functions
-  const auto convertSSX = [&](int value) { return nowLineX + (value - ctr.timeOffset) * zoomLevel; };
+  const auto convertSSX = [&](double value) { return nowLineX + (value - ctr.timeOffset) * zoomLevel; };
 
   const auto convertSSY = [&](int value) {
     return (ctr.getHeight() - (ctr.getHeight() - (ctr.topHeight)) *
                                   static_cast<double>(value - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 4));
   };
 
-  // inverse screen space conversion functions
-  const auto unconvertSSX = [&](int value) { return ctr.timeOffset + (value - nowLineX) / zoomLevel; };
+  // zoom as shown, in pixels per 1 / ZOOM_TPS seconds
+  const auto shown_zoom = [&]() { return zoomLevel * (UNIT_TPS / static_cast<double>(ZOOM_TPS)); };
 
+  // inverse screen space conversion functions
   const auto inverseSSX = [&]() {
     // double spaceR = ctr.getWidth() - nowLineX;
     double minVal = max(0.0, ctr.timeOffset - nowLineX / zoomLevel);
 
     // extra "1" prevents roundoff error
-    double maxVal = min(ctr.getLastTime(),
-                        static_cast<int>(ctr.timeOffset + (ctr.getWidth() + 1 - nowLineX) / zoomLevel));
+    double maxVal = min(ctr.getLastTime(), ctr.timeOffset + (ctr.getWidth() + 1 - nowLineX) / zoomLevel);
 
     return make_pair(minVal, maxVal);
   };
@@ -454,6 +455,10 @@ int main(int argc, char* argv[]) {
     pair<double, double> currentBoundaries = inverseSSX();
     vector<int> current_note;
 
+    // fft bins start to rise the shortest note value ahead of a note
+    const double fft_lead = ctr.getMinTickLen() * 60.0 /
+                            (max(1, stream.getTPQ()) * max(1, ctr.getTempo(ctr.timeOffset))) * UNIT_TPS;
+
     // note rendering
     for (int i = 0; i < ctr.getNoteCount(); i++) {
       auto break_line = [&]() {
@@ -748,8 +753,8 @@ int main(int argc, char* argv[]) {
               drawRing({convSS[2], convSS[3]}, 0, 3, col);
             }
 
-            int ringLimit = 400;
-            int ringDist = ctr.timeOffset - lp[j].x_l;
+            const double ringLimit = 0.8 * UNIT_TPS;
+            double ringDist = ctr.timeOffset - lp[j].x_l;
 
             double ringRatio = ringDist / static_cast<double>(ringLimit);
             if (ctr.run && lp[j].x_l < pauseOffset && ctr.timeOffset >= pauseOffset) {
@@ -765,7 +770,7 @@ int main(int argc, char* argv[]) {
               // ringRatio *= max(ctr.getRunTime(), 1.0);
             }
             // logQ(ctr.timeOffset, (linePositions[j+1], linePositions[j+2]));
-            if (ringDist <= ringLimit && ringDist > 4) {
+            if (ringDist <= ringLimit && ringDist > 0.008 * UNIT_TPS) {
               unsigned int noteLen =
                   notes[lp[j].idx].duration * zoomLevel < 1 ? 1 : notes[lp[j].idx].duration * zoomLevel;
               noteLen = noteLen ? 32 - countl_zero(noteLen) : 0;
@@ -860,7 +865,7 @@ int main(int argc, char* argv[]) {
             }
             else if ((ctr.timeOffset >= notes[i].x + notes[i].duration &&
                       ctr.timeOffset < notes[i].x + fftStretchRatio * notes[i].duration) ||
-                     (ctr.timeOffset < notes[i].x && ctr.timeOffset >= notes[i].x - ctr.getMinTickLen())) {
+                     (ctr.timeOffset < notes[i].x && ctr.timeOffset >= notes[i].x - fft_lead)) {
               drawFFT = true;
             }
             if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) &&
@@ -1050,7 +1055,7 @@ int main(int argc, char* argv[]) {
       drawTextEx(FPSText, rtOffset, 4, ctr.bgDark);
     }
 
-    string zoomText = to_string(zoomLevel) + (showFPS ? " |" : "");
+    string zoomText = to_string(shown_zoom()) + (showFPS ? " |" : "");
     rtOffset -= 1 + measureTextEx(zoomText).x;
     drawTextEx(zoomText, rtOffset, 4, ctr.bgDark);
 
@@ -1072,8 +1077,8 @@ int main(int argc, char* argv[]) {
     if (ctr.run && !any_of(action, ACTION::NAV_PREV_MEASURE, ACTION::NAV_NEXT_MEASURE)) {
       double time_interval =
           ctr.option.get(OPTION::FRAME_SAVE) && !ctr.getLiveState() ? 1 / 60.0 : GetFrameTime();
-      if (ctr.timeOffset + time_interval * UNK_CST < ctr.getLastTime()) {
-        ctr.timeOffset += time_interval * UNK_CST;
+      if (ctr.timeOffset + time_interval * UNIT_TPS < ctr.getLastTime()) {
+        ctr.timeOffset += time_interval * UNIT_TPS;
       }
       else {
         ctr.timeOffset = ctr.getLastTime();
@@ -1240,12 +1245,12 @@ int main(int argc, char* argv[]) {
         }
         break;
       case ACTION::NAV_ZOOM_IN:
-        if (zoomLevel > 0.00001) {
+        if (shown_zoom() > 0.00001) {
           zoomLevel *= (ctr.pendingActionValue ? 0.9 : 0.75);
         }
         break;
       case ACTION::NAV_ZOOM_OUT:
-        if (zoomLevel < 1.2) {
+        if (shown_zoom() < 1.2) {
           zoomLevel *= 1.0 / (ctr.pendingActionValue ? 0.9 : 0.75);
         }
         break;
@@ -1255,8 +1260,9 @@ int main(int argc, char* argv[]) {
       case ACTION::NAV_SET_MEASURE:
         if (ctr.pendingActionValue < ctr.getMeasureCount()) {
           if (!ctr.getLiveState()) {
-            double measureLineX = convertSSX(stream.measureMap[ctr.pendingActionValue - 1].getLocation());
-            ctr.timeOffset = unconvertSSX(measureLineX);
+            // land on the barline itself, as rounding to a pixel could fall into the measure before or below
+            // zero
+            ctr.timeOffset = stream.measureMap[max(1, ctr.pendingActionValue) - 1].getLocation();
           }
           break;
         }
@@ -1266,16 +1272,16 @@ int main(int argc, char* argv[]) {
         pauseOffset = ctr.timeOffset;
         break;
       case ACTION::NAV_PREV:
-        if (ctr.timeOffset > shiftC * 6) {
-          ctr.timeOffset -= shiftC * 6;
+        if (ctr.timeOffset > nav_step) {
+          ctr.timeOffset -= nav_step;
         }
         else if (ctr.timeOffset > 0) {
           ctr.timeOffset = 0;
         }
         break;
       case ACTION::NAV_PREV_FAST:
-        if (ctr.timeOffset > shiftC * 60) {
-          ctr.timeOffset -= shiftC * 60;
+        if (ctr.timeOffset > nav_step_fast) {
+          ctr.timeOffset -= nav_step_fast;
         }
         else if (ctr.timeOffset > 0) {
           ctr.timeOffset = 0;
@@ -1286,7 +1292,8 @@ int main(int argc, char* argv[]) {
           int foundMeasure = ctr.findCurrentMeasure(ctr.timeOffset);
           foundMeasure -= ctr.pendingActionValue <= 0 ? 1 : ctr.pendingActionValue;
           if (foundMeasure > 0) {
-            ctr.timeOffset = stream.measureMap[foundMeasure].getLocation() - 1;
+            // just before the barline, so the earlier measure is the current one
+            ctr.timeOffset = stream.measureMap[foundMeasure].getLocation() - 0.002 * UNIT_TPS;
           }
           else {
             ctr.timeOffset = 0;
@@ -1294,16 +1301,16 @@ int main(int argc, char* argv[]) {
         }
         break;
       case ACTION::NAV_NEXT:
-        if (ctr.timeOffset + shiftC * 6 < ctr.getLastTime()) {
-          ctr.timeOffset += shiftC * 6;
+        if (ctr.timeOffset + nav_step < ctr.getLastTime()) {
+          ctr.timeOffset += nav_step;
         }
         else {
           ctr.timeOffset = ctr.getLastTime();
         }
         break;
       case ACTION::NAV_NEXT_FAST:
-        if (ctr.timeOffset + shiftC * 60 < ctr.getLastTime()) {
-          ctr.timeOffset += shiftC * 60;
+        if (ctr.timeOffset + nav_step_fast < ctr.getLastTime()) {
+          ctr.timeOffset += nav_step_fast;
         }
         else if (ctr.timeOffset < ctr.getLastTime()) {
           ctr.timeOffset = ctr.getLastTime();

@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "data.h"
 #include "particle_info.h"
 #include "particle_inst.h"
 
@@ -20,7 +21,7 @@ class emitter {
  private:
   unsigned int max_parts = 127;
   static constexpr unsigned int max_cycle_parts = 1;
-  static constexpr double spp_const = 1.50;
+  static constexpr double spp_const = 0.003 * UNIT_TPS;  // note length per particle
   static constexpr double init_ratio = 0.25;
 
   void create_particle();

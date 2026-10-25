@@ -10,7 +10,10 @@
 #define MKI_VER_MAJOR '1'
 #define MKI_VER_MINOR 'c'
 
-#define UNK_CST 500
+// time is kept in units of 1 / UNIT_TPS seconds
+#define UNIT_TPS 500
+// zoom is shown and saved in pixels per 1 / ZOOM_TPS seconds, the time unit before UNIT_TPS
+#define ZOOM_TPS 500
 
 #define MIN_NOTE_IDX 21
 #define MAX_NOTE_IDX 108

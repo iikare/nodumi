@@ -17,19 +17,19 @@
 using std::priority_queue;
 using std::thread;
 
-int midi::getTempo(int offset) const {
-  if (tempoMap.size() != 0 && offset == 0) {
-    return tempoMap[0].second;
+int midi::getTempo(double offset) const {
+  if (tempoMap.size() == 0) {
+    return 120;
   }
-  if (offset > tempoMap[tempoMap.size() - 1].first) {
-    return tempoMap[tempoMap.size() - 1].second;
-  }
-  for (unsigned int i = 0; i < tempoMap.size(); i++) {
-    if (offset > tempoMap[i].first && offset < tempoMap[i + 1].first) {
-      return tempoMap[i].second;
+  // the last change at or before offset, which also settles several changes at the same time
+  int tempo = tempoMap[0].second;
+  for (const auto& t : tempoMap) {
+    if (t.first > offset) {
+      break;
     }
+    tempo = t.second;
   }
-  return 120;
+  return tempo;
 }
 
 void midi::buildLineMap() {
@@ -96,7 +96,7 @@ void midi::buildMessageMap(const MidiFile& mf) {
     if (mf[0][i].isNote() || mf[0][i].isController()) {
       // if (1) {
       message_vec.push_back(
-          make_pair(mf[0][i].seconds * UNK_CST, static_cast<vector<unsigned char>>(mf[0][i])));
+          make_pair(mf[0][i].seconds * UNIT_TPS, static_cast<vector<unsigned char>>(mf[0][i])));
     }
   }
   message_vec.shrink_to_fit();
@@ -106,8 +106,9 @@ void midi::buildMessageMap(const MidiFile& mf) {
   // logQ(num_zero, "events at position < 0.0001s");
 }
 
-int midi::findMeasure(int offset) const {
-  if (offset <= 0) {
+int midi::findMeasure(double offset) const {
+  // nothing is loaded, as after a file that failed to load
+  if (offset <= 0 || measureMap.empty()) {
     // logQ("bad offset", offset);
     return 0;
   }
@@ -317,7 +318,7 @@ void midi::load(stringstream& buf) {
   }
 
   tpq = midifile.getTicksPerQuarterNote();
-  lastTime = midifile.getFileDurationInSeconds() * UNK_CST;
+  lastTime = midifile.getFileDurationInSeconds() * UNIT_TPS;
   lastTick = midifile.getFileDurationInTicks();
 
   buildTickSet();
@@ -330,7 +331,7 @@ void midi::load(stringstream& buf) {
       if (midifile[i][j].isNoteOn()) {
         if (once) {
           once = false;
-          trackInfo.push_back(make_pair(midifile[i][j].seconds * UNK_CST, i));
+          trackInfo.push_back(make_pair(midifile[i][j].seconds * UNIT_TPS, i));
         }
         noteCount++;
       }
@@ -358,8 +359,8 @@ void midi::load(stringstream& buf) {
         notes[idx].tick = midifile[i][j].tick;
         notes[idx].tickDuration = midifile[i][j].getTickDuration();
         notes[idx].track = track;
-        notes[idx].duration = midifile[i][j].getDurationInSeconds() * UNK_CST;
-        notes[idx].x = midifile[i][j].seconds * UNK_CST;
+        notes[idx].duration = midifile[i][j].getDurationInSeconds() * UNIT_TPS;
+        notes[idx].x = midifile[i][j].seconds * UNIT_TPS;
         notes[idx].y = midifile[i][j].getKeyNumber();
         notes[idx].velocity = midifile[i][j][2];
 
@@ -399,18 +400,18 @@ void midi::load(stringstream& buf) {
 
   for (int i = 0; i < midifile.getEventCount(0); i++) {
     if (midifile[0][i].isTempo()) {
-      tempoMap.push_back(make_pair(midifile[0][i].seconds * UNK_CST, midifile[0][i].getTempoBPM()));
+      tempoMap.push_back(make_pair(midifile[0][i].seconds * UNIT_TPS, midifile[0][i].getTempoBPM()));
     }
     if (midifile[0][i].isTimeSignature()) {
       // logQ(LL_INFO, "time sig at event", j);
-      addTimeSignature(midifile[0][i].seconds * UNK_CST,
+      addTimeSignature(midifile[0][i].seconds * UNIT_TPS,
                        {(int)midifile[0][i][3], (int)pow(2, (int)midifile[0][i][4]), midifile[0][i].tick});
     }
     if (midifile[0][i].isKeySignature()) {
       // logQ(LL_INFO, "key sig at event", i);
       keySig tmpKS =
           eventToKeySignature((int)midifile[0][i][3], (bool)midifile[0][i][4], midifile[0][i].tick);
-      addKeySignature(midifile[0][i].seconds * UNK_CST, tmpKS);
+      addKeySignature(midifile[0][i].seconds * UNIT_TPS, tmpKS);
     }
   }
 
@@ -492,7 +493,7 @@ void midi::load(stringstream& buf) {
       }
     }
     // logQ(measureNum, "to",cKeySig.getAcc());
-    measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * UNK_CST, cTick,
+    measureMap.push_back(measureController(measureNum++, midifile.getTimeInSeconds(cTick) * UNIT_TPS, cTick,
                                            cTimeSig.getQPM() * tpq, cTimeSig, cKeySig));
   }
   measureMap.pop_back();
