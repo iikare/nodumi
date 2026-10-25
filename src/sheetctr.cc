@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include <limits>
+#include <bit>
 #include <numeric>
 
 #include "define.h"
@@ -246,24 +247,54 @@ void sheetController::findKeyData(const keySig& key, int& symbol, int& prevAcc, 
 
 namespace {
 
-// splits [begin, end) in 64ths into notatable values, keeping split pieces aligned to their own length
-template <typename F>
-void split_duration(int begin, int end, F&& emit) {
-  int pos = begin;
-  while (pos < end) {
-    const int remain = end - pos;
-    const int exact = find_exact_type(remain);
-    if (exact != NOTE_NONE) {
-      emit(pos, exact, true);
-      return;
-    }
+// beats strictly inside a value starting off the beat, which it would hide, or in compound meter (whose beats are
+// dotted) inside one starting on the beat that does not last whole beats
+int find_hidden_beats(int pos, int units, int beat) {
+  const int inside = (pos + units - 1) / beat - pos / beat;
+  if (pos % beat != 0) {
+    return inside;
+  }
+  return beat % 3 == 0 && units % beat != 0 ? inside : 0;
+}
 
-    int value = note_units[NOTE_WHOLE];
-    while (value > 1 && (value > remain || pos % value != 0)) {
-      value /= 2;
+// splits [begin, end) in 64ths into as few tied values as reads well: extra dots cost a little, a tied piece off
+// its own grid costs a piece, and a value hiding the beats it crosses costs most of one per beat
+template <typename F>
+void split_duration(int begin, int end, int beat, F&& emit) {
+  constexpr float dot_cost = 0.3f;
+  constexpr float beat_cost = 0.75f;
+
+  // most notes are one value that hides no beat
+  const note_value exact = find_exact_value(end - begin);
+  if (exact.type != NOTE_NONE && find_hidden_beats(begin, exact.units, beat) == 0) {
+    emit(begin, exact.type, exact.dots, true);
+    return;
+  }
+
+  // cheapest split of each remainder, filled from the end
+  const int len = end - begin;
+  vector<float> cost(len + 1, std::numeric_limits<float>::max());
+  vector<const note_value*> pick(len, nullptr);
+  cost[len] = 0;
+  for (int i = len - 1; i >= 0; --i) {
+    const int pos = begin + i;
+    for (const note_value& v : note_values) {
+      if (v.units > len - i) {
+        continue;
+      }
+      const int grid = v.dots == 1 ? note_units[v.type] / 2 : note_units[v.type];
+      float c = 1 + dot_cost * std::max(0, v.dots - 1) + cost[i + v.units];
+      c += i > 0 && pos % grid != 0 ? 1 : 0;
+      c += beat_cost * find_hidden_beats(pos, v.units, beat);
+      if (c < cost[i] - 0.001f) {
+        cost[i] = c;
+        pick[i] = &v;
+      }
     }
-    emit(pos, find_exact_type(value), false);
-    pos += value;
+  }
+
+  for (int i = 0; i < len; i += pick[i]->units) {
+    emit(begin + i, pick[i]->type, pick[i]->dots, i + pick[i]->units == len);
   }
 }
 
@@ -309,8 +340,8 @@ int sheetController::find_note_begin(const midi& stream, const measureController
   return std::clamp(pos, 0, (len - 1) / grid * grid);
 }
 
-int sheetController::find_value_units(const midi& stream, const note& n) const {
-  const int units = find_raw_value_units(stream, n);
+int sheetController::find_value_units(const midi& stream, int ticks, int type) const {
+  const int units = find_raw_value_units(stream, ticks, type);
   if (!is_quantized()) {
     return units;
   }
@@ -319,12 +350,12 @@ int sheetController::find_value_units(const midi& stream, const note& n) const {
   return std::max(grid, static_cast<int>(std::lround(static_cast<double>(units) / grid)) * grid);
 }
 
-int sheetController::find_raw_value_units(const midi& stream, const note& n) const {
-  const double actual = n.tickDuration * 16.0 / std::max(1, stream.getTPQ());
+int sheetController::find_raw_value_units(const midi& stream, int ticks, int type) const {
+  const double actual = ticks * 16.0 / std::max(1, stream.getTPQ());
 
   // very short notes keep their rounded-up value
   if (actual <= note_units[NOTE_16_DOT]) {
-    return note_units[std::clamp(n.type, static_cast<int>(NOTE_16_DOT), static_cast<int>(NOTE_64))];
+    return note_units[std::clamp(type, static_cast<int>(NOTE_16_DOT), static_cast<int>(NOTE_64))];
   }
 
   // a close single value absorbs shortened or overlapping performed notes
@@ -350,12 +381,288 @@ int sheetController::find_raw_value_units(const midi& stream, const note& n) con
   return std::max(sixteenth, static_cast<int>(std::lround(actual / sixteenth)) * sixteenth);
 }
 
+int sheetController::find_ledger_count(int sheet_y, int stave) const {
+  const int top = stave == STAVE_TREBLE ? 10 : -2;
+  const int bottom = stave == STAVE_TREBLE ? 2 : -10;
+  if (sheet_y > getStaveRenderLimit().first || sheet_y < getStaveRenderLimit().second) {
+    return octave_oob_cost;
+  }
+  return std::max(0, (sheet_y - top) / 2) + std::max(0, (bottom - sheet_y) / 2);
+}
+
+int sheetController::find_octave_y(int sheet_y, int stave, int octave) const {
+  // notes under an 8va line sit an octave lower than they sound, under an 8vb line an octave higher
+  return sheet_y + (stave == STAVE_TREBLE ? -7 : 7) * octave;
+}
+
+void sheetController::find_octaves(sheetMeasure& dm, int stave, int prev, vector<int>& state) const {
+  // each chord goes under an 8va or 8vb line or not, whichever needs fewer ledger lines over the measure, where
+  // starting or stopping a line and moving each note cost a little, so lines cover passages far off the stave, notes
+  // pushed far past the other side cost a lot, and a line never starts or stops while a tied note sounds
+  const midi& stream = ctr.getStream();
+  const int count = dm.chords.size();
+  vector<std::array<float, 2>> cost(count, {0.0f, 0.0f});
+  vector<bool> locked(count, false);  // no change before this chord, which for the first is at the barline
+
+  // a stave gathering more parts than two hands, as in an orchestral file, only gets busier with lines coming and
+  // going
+  vector<int> tracks;
+  for (const auto& c : dm.chords) {
+    for (const sheetNote* n : c.second) {
+      const int track = stream.notes[n->oriNote].track;
+      if (n->stave == stave && std::ranges::find(tracks, track) == tracks.end()) {
+        tracks.push_back(track);
+      }
+    }
+  }
+  const float crowded = tracks.size() > 2 ? octave_far_cost : 0.0f;
+  for (int ch = 0; ch < count; ++ch) {
+    const auto& c = dm.chords[ch].second;
+    for (unsigned int i = 0; i < c.size(); ++i) {
+      const sheetNote* n = c[i];
+      if (n->stave != stave) {
+        continue;
+      }
+      if (n->tie_in) {
+        int from = -1;
+        for (int e = ch - 1; e >= 0 && from < 0; --e) {
+          if (std::ranges::find(dm.chords[e].second, n->oriNote, &sheetNote::oriNote) != dm.chords[e].second.end()) {
+            from = e;
+          }
+        }
+        for (int k = from + 1; k <= ch; ++k) {
+          locked[k] = true;
+        }
+      }
+
+      const int sheet_y = stream.notes[n->oriNote].sheetY;
+      if (i > 0 && c[i - 1]->stave == stave && stream.notes[c[i - 1]->oriNote].sheetY == sheet_y) {
+        continue;
+      }
+      const int moved = find_octave_y(sheet_y, stave, 1);
+      const int after = find_ledger_count(moved, stave);
+      const bool other_side = stave == STAVE_TREBLE ? moved < 2 : moved > -2;
+      cost[ch][0] += find_ledger_count(sheet_y, stave);
+      cost[ch][1] += after + octave_note_cost + crowded + (other_side && after > octave_far_side ? octave_far_cost : 0);
+    }
+  }
+
+  // a line never starts or stops inside what will be one beam either, short notes running on within a beat
+  const int beat = sheetMeasure::find_beat(dm.measure->currentTime);
+  int prev_ch = -1;
+  int prev_end = 0;
+  for (int ch = 0; ch < count; ++ch) {
+    int shortest = std::numeric_limits<int>::max();
+    for (const sheetNote* n : dm.chords[ch].second) {
+      shortest = n->stave == stave ? std::min(shortest, note_len(n)) : shortest;
+    }
+    if (shortest == std::numeric_limits<int>::max()) {
+      continue;
+    }
+    const int pos = dm.chords[ch].first;
+    const bool beamed = shortest < note_units[NOTE_QUARTER];
+    if (beamed && prev_ch >= 0 && prev_end >= pos && dm.chords[prev_ch].first / beat == pos / beat) {
+      for (int k = prev_ch + 1; k <= ch; ++k) {
+        locked[k] = true;
+      }
+    }
+    prev_ch = beamed ? ch : -1;
+    prev_end = pos + shortest;
+  }
+
+  // the cheapest state for each chord given the state before it, keeping the state when a change saves nothing
+  constexpr float never = 1e9f;
+  vector<std::array<float, 2>> best(count);
+  vector<std::array<int, 2>> came(count);
+  for (int ch = 0; ch < count; ++ch) {
+    for (int s = 0; s < 2; ++s) {
+      best[ch][s] = never;
+      came[ch][s] = s;
+      for (int p = 0; p < 2; ++p) {
+        const float before = ch == 0 ? (p == prev ? 0.0f : never) : best[ch - 1][p];
+        const float change = p == s ? 0.0f : locked[ch] ? never : s == 1 ? octave_start_cost : octave_stop_cost;
+        const float total = before + change + cost[ch][s];
+        if (total < best[ch][s] - 0.001f || (p == s && total < best[ch][s] + 0.001f)) {
+          best[ch][s] = total;
+          came[ch][s] = p;
+        }
+      }
+    }
+  }
+
+  state.assign(count, prev);
+  int s = count > 0 && best[count - 1][1] < best[count - 1][0] - 0.001f ? 1 : count > 0 ? 0 : prev;
+  dm.octave_out[stave] = s;
+  for (int ch = count - 1; ch >= 0; --ch) {
+    state[ch] = s;
+    s = came[ch][s];
+  }
+}
+
 int sheetController::find_note_end(const midi& stream, const note& n) const {
   if (n.measure < 0 || n.measure >= static_cast<int>(stream.measureMap.size())) {
     return 0;
   }
   const measureController& measure = stream.measureMap[n.measure];
-  return to_units(stream, measure.getTick()) + find_note_begin(stream, measure, n) + find_value_units(stream, n);
+  return to_units(stream, measure.getTick()) + find_note_begin(stream, measure, n) +
+         find_value_units(stream, n.tickDuration, n.type);
+}
+
+bool sheetController::is_grace_length(int idx) const {
+  const midi& stream = ctr.getStream();
+  const note& n = stream.notes[idx];
+  return n.tickDuration * 16.0 / std::max(1, stream.getTPQ()) <= grace_max_units && n.duration <= grace_max_time;
+}
+
+int sheetController::find_next_struck(int idx) const {
+  // the next note of the same track within an octave, when it follows straight on
+  const midi& stream = ctr.getStream();
+  const note& n = stream.notes[idx];
+  int next = -1;
+  for (int m = std::max(0, n.measure); m <= n.measure + 1 && m < static_cast<int>(stream.measureMap.size()); ++m) {
+    for (int j : stream.measureMap[m].notes) {
+      const note& o = stream.notes[j];
+      if (o.track == n.track && o.x > n.x + grace_min_lead && std::abs(o.y - n.y) <= 12 &&
+          (next < 0 || o.x < stream.notes[next].x)) {
+        next = j;
+      }
+    }
+  }
+  if (next < 0) {
+    return -1;
+  }
+  const note& o = stream.notes[next];
+  return o.x - (n.x + n.duration) <= grace_join && o.x - n.x <= grace_max_lead ? next : -1;
+}
+
+int sheetController::find_prev_struck(int idx) const {
+  // the note this one follows straight on from, the reverse of find_next_struck
+  const midi& stream = ctr.getStream();
+  const note& n = stream.notes[idx];
+  int prev = -1;
+  for (int m = std::max(0, n.measure - 1); m <= n.measure && m < static_cast<int>(stream.measureMap.size()); ++m) {
+    for (int j : stream.measureMap[m].notes) {
+      const note& o = stream.notes[j];
+      if (o.track == n.track && o.x < n.x - grace_min_lead && std::abs(o.y - n.y) <= 12 &&
+          (prev < 0 || o.x > stream.notes[prev].x)) {
+        prev = j;
+      }
+    }
+  }
+  return prev >= 0 && find_next_struck(prev) == idx ? prev : -1;
+}
+
+int sheetController::find_grace_main(int idx) const {
+  // a very short note running straight into a clearly longer one nearby is a grace note, and so are up to two more
+  // before it, but a longer run of short notes is written out, so the first of them must not follow another
+  if (!is_grace_length(idx)) {
+    return -1;
+  }
+  int count = 1;
+  for (int prev = find_prev_struck(idx); prev >= 0 && is_grace_length(prev); prev = find_prev_struck(prev)) {
+    if (++count > grace_max_count) {
+      return -1;
+    }
+  }
+  int main = find_next_struck(idx);
+  for (; main >= 0 && is_grace_length(main); main = find_next_struck(main)) {
+    if (++count > grace_max_count) {
+      return -1;
+    }
+  }
+  if (main < 0) {
+    return -1;
+  }
+
+  const midi& stream = ctr.getStream();
+  const int sixteenth = stream.getTPQ() / 4;
+  const int shortest = std::max(sixteenth, grace_main_ratio * stream.notes[idx].tickDuration);
+  return stream.notes[main].tickDuration >= shortest ? main : -1;
+}
+
+void sheetController::find_rolls(vector<note_onset>& onsets) const {
+  // notes struck in quick succession and left ringing together are one chord, rolled when it rises steadily and
+  // spreads far enough to be heard that way, and otherwise only played loosely, which is looked for across all tracks
+  // first, as a roll can pass from one hand to the other, and then in each track, as both hands can roll at once
+  const midi& stream = ctr.getStream();
+  int rolls = 0;
+  vector<int> order;
+  auto scan = [&](bool by_track) {
+    order.clear();
+    for (unsigned int k = 0; k < onsets.size(); ++k) {
+      if (onsets[k].end < 0) {
+        order.push_back(k);
+      }
+    }
+    std::ranges::sort(order, [&](int a, int b) {
+      const note& na = stream.notes[onsets[a].note];
+      const note& nb = stream.notes[onsets[b].note];
+      if (by_track && na.track != nb.track) {
+        return na.track < nb.track;
+      }
+      return na.x != nb.x ? na.x < nb.x : na.y < nb.y;
+    });
+    auto at = [&](unsigned int k) -> const note& { return stream.notes[onsets[order[k]].note]; };
+
+    for (unsigned int i = 0; i < order.size();) {
+      unsigned int j = i + 1;
+      while (j < order.size() && (!by_track || at(j).track == at(i).track) && at(j).x - at(j - 1).x <= roll_step &&
+             at(j).x - at(i).x <= roll_span) {
+        ++j;
+      }
+
+      // notes struck almost together are one strike, and a roll climbs through at least three
+      const double spread = at(j - 1).x - at(i).x;
+      bool rings = j - i >= 2;
+      bool rising = true;
+      bool apart = false;
+      int strikes = 1;
+      int strike_lo = at(i).y;
+      int prev_hi = std::numeric_limits<int>::min();
+      int strike_hi = at(i).y;
+      for (unsigned int k = i; k < j; ++k) {
+        rings = rings && at(k).x + at(k).duration >= at(j - 1).x + std::max(roll_hold, spread);
+        apart = apart || onsets[order[k]].begin != onsets[order[i]].begin;
+        if (k > i && at(k).x - at(k - 1).x >= roll_min_step) {
+          rising = rising && strike_lo > prev_hi;
+          prev_hi = strike_hi;
+          strike_lo = at(k).y;
+          strike_hi = at(k).y;
+          ++strikes;
+        }
+        strike_lo = std::min(strike_lo, at(k).y);
+        strike_hi = std::max(strike_hi, at(k).y);
+      }
+      rising = rising && strike_lo > prev_hi;
+      const bool rolled = rings && rising && strikes >= 3 && spread >= roll_min_spread;
+      // a chord played loosely is close in time, or a little further when that is still within a 32nd
+      int first_begin = onsets[order[i]].begin;
+      int last_begin = first_begin;
+      for (unsigned int k = i; k < j; ++k) {
+        first_begin = std::min(first_begin, onsets[order[k]].begin);
+        last_begin = std::max(last_begin, onsets[order[k]].begin);
+      }
+      const bool near = spread <= chord_spread || (spread <= chord_spread_far && last_begin - first_begin <= 2);
+      const bool loose = rings && apart && near;
+      if (!rolled && !loose) {
+        // a shorter run from a later note may still be one
+        i += rings ? j - i : 1;
+        continue;
+      }
+
+      // every note starts with the first and lasts as if struck with it
+      for (unsigned int k = i; k < j; ++k) {
+        note_onset& o = onsets[order[k]];
+        o.begin = onsets[order[i]].begin;
+        o.end = o.begin + find_value_units(stream, at(k).tick + at(k).tickDuration - at(i).tick, at(k).type);
+        o.arpeggio = rolled ? rolls : -1;
+      }
+      rolls += rolled;
+      i = j;
+    }
+  };
+  scan(false);
+  scan(true);
 }
 
 void sheetController::link_ties(midi& stream) {
@@ -396,30 +703,86 @@ void sheetController::build_display_notes(measureController& measure) {
   const midi& stream = ctr.getStream();
   const int bar_begin = to_units(stream, measure.getTick());
   const int len = std::max(1, to_units(stream, measure.getTickLen()));
+  const int beat = sheetMeasure::find_beat(measure.currentTime);
 
   measure.displayNotes.clear();
 
-  vector<pair<int, int>> onsets;  // note and where it begins
+  // grace notes lead into a note of this measure from this measure or the end of the one before, and take no time,
+  // so they are kept apart from the notes that do
+  const int index = measure.notes.empty() ? -1 : stream.notes[measure.notes.front()].measure;
+  vector<pair<int, int>> graces;  // grace note and the note it leads into
+  vector<note_onset> onsets;
   for (int idx : measure.notes) {
-    onsets.push_back(make_pair(idx, find_note_begin(stream, measure, stream.notes[idx])));
+    const int main = find_grace_main(idx);
+    if (main < 0) {
+      onsets.push_back({idx, find_note_begin(stream, measure, stream.notes[idx])});
+    }
+    else if (stream.notes[main].measure == index) {
+      graces.push_back(make_pair(idx, main));
+    }
+  }
+  if (index > 0) {
+    for (int idx : stream.measureMap[index - 1].notes) {
+      const int main = find_grace_main(idx);
+      if (main >= 0 && stream.notes[main].measure == index) {
+        graces.push_back(make_pair(idx, main));
+      }
+    }
+  }
+  std::ranges::sort(graces,
+                    [&](const auto& a, const auto& b) { return stream.notes[a.first].x < stream.notes[b.first].x; });
+  find_rolls(onsets);
+
+  // a grace note leading into a rolled chord is where the roll begins, so it joins the chord instead
+  std::erase_if(graces, [&](const pair<int, int>& grace) {
+    auto it = std::ranges::find(onsets, grace.second, &note_onset::note);
+    if (it == onsets.end() || it->arpeggio < 0) {
+      return false;
+    }
+    const note_onset joined = {grace.first, it->begin, it->end, it->arpeggio};
+    onsets.push_back(joined);
+    return true;
+  });
+
+  // a grace note on a stronger beat than the note it leads into brings that note's chord back onto it, keeping their
+  // values
+  auto find_weight = [](int pos) { return pos == 0 ? 32 : std::countr_zero(static_cast<unsigned int>(pos)); };
+  for (const auto& [grace, main] : graces) {
+    auto it = std::ranges::find(onsets, main, &note_onset::note);
+    if (stream.notes[grace].measure != index || it == onsets.end()) {
+      continue;
+    }
+    const int from = find_note_begin(stream, measure, stream.notes[grace]);
+    const int to = it->begin;
+    if (from < to && find_weight(from) > find_weight(to)) {
+      for (auto& o : onsets) {
+        const note& n = stream.notes[o.note];
+        if (o.begin == to && n.track == stream.notes[main].track) {
+          o.end = (o.end >= 0 ? o.end - to : find_value_units(stream, n.tickDuration, n.type)) + from;
+          o.begin = from;
+        }
+      }
+    }
   }
 
   // where the same key is next played in this measure
   auto find_restrike = [&](int idx, int begin) {
     const note& src = stream.notes[idx];
     int next = len;
-    for (const auto& [other, pos] : onsets) {
-      const note& m = stream.notes[other];
-      if (pos > begin && m.y == src.y && m.track == src.track) {
-        next = std::min(next, pos);
+    for (const auto& o : onsets) {
+      const note& m = stream.notes[o.note];
+      if (o.begin > begin && m.y == src.y && m.track == src.track) {
+        next = std::min(next, o.begin);
       }
     }
     return next;
   };
 
-  auto add_note = [&](int idx, int begin, bool tie_in) {
+  auto add_note = [&](const note_onset& o, bool tie_in) {
+    const int idx = o.note;
+    const int begin = o.begin;
     const bool tie_out = std::ranges::find(measure.tie_out_notes, idx) != measure.tie_out_notes.end();
-    int end = tie_out ? len : std::min(len, find_note_end(stream, stream.notes[idx]) - bar_begin);
+    int end = tie_out ? len : std::min(len, o.end >= 0 ? o.end : find_note_end(stream, stream.notes[idx]) - bar_begin);
     // a key played again well before a note's rounded end cuts that note short, on the sixteenth grid if it can
     const int restrike = find_restrike(idx, begin);
     if (!tie_out && end - restrike >= legato_units) {
@@ -429,17 +792,30 @@ void sheetController::build_display_notes(measureController& measure) {
     // a held live note may have only just crossed the barline
     end = std::min(len, std::max(end, begin + (tie_in ? note_units[NOTE_16] : 1)));
 
-    split_duration(begin, end, [&](int pos, int type, bool last) {
-      measure.displayNotes.push_back({pos, ACC_NONE, STAVE_NONE, true, true, false, idx, type,
-                                      tie_in || pos != begin, tie_out || !last, false, 0, false, 0});
+    split_duration(begin, end, beat, [&](int pos, int type, int dots, bool last) {
+      measure.displayNotes.push_back({pos, ACC_NONE, STAVE_NONE, true, true, false, idx, type, dots,
+                                      tie_in || pos != begin, tie_out || !last, false, 0, false, 0,
+                                      stream.notes[idx].sheetY, pos == begin && !tie_in ? o.arpeggio : -1, -1});
     });
   };
 
-  for (const auto& [idx, begin] : onsets) {
-    add_note(idx, begin, false);
+  for (const auto& o : onsets) {
+    add_note(o, false);
   }
   for (int idx : measure.tie_in_notes) {
-    add_note(idx, 0, true);
+    add_note({idx, 0}, true);
+  }
+
+  // a lone grace note is an eighth and a group are sixteenths, all placed where their note begins
+  for (const auto& [grace, main] : graces) {
+    auto it = std::ranges::find(onsets, main, &note_onset::note);
+    if (it == onsets.end()) {
+      continue;
+    }
+    const int count = std::ranges::count(graces, main, &pair<int, int>::second);
+    measure.displayNotes.push_back({it->begin, ACC_NONE, STAVE_NONE, true, true, false, grace,
+                                    count == 1 ? NOTE_8 : NOTE_16, 0, false, false, false, 0, false, 0,
+                                    stream.notes[grace].sheetY, -1, main});
   }
 }
 
@@ -491,29 +867,10 @@ sheetMeasure sheetController::layout_measure(measureController& measure, const s
   dm.one_voice[STAVE_BASS] = one_voice[STAVE_BASS];
   dm.buildChordMap(measure.displayNotes);
 
-  // run a DFA for each valid midi key, advancing state based on
-  // new-note-to-midi-position values each DFA set is unique to its measure add
-  // "1" to size for inclusive bounding
-  vector<int> presentDFAState;
-  findDFAStartVector(presentDFAState, measure.currentKey);
-
-  // find true accidental type for each note
+  // each note goes on the stave of its pitch, a middle c by its place in the chord
   for (const auto& c : dm.chords) {
     for (unsigned int ct = 0; const auto& n : c.second) {
       const note& src = stream.notes[n->oriNote];
-
-      // mark out-of-bounds notes, which still occupy their stave for rests
-      if (src.sheetY > getStaveRenderLimit().first || src.sheetY < getStaveRenderLimit().second) {
-        n->out_of_bounds = true;
-        n->stave = src.sheetY > 0 ? STAVE_TREBLE : STAVE_BASS;
-        continue;
-      }
-
-      // tied continuations keep the accidental shown on their first piece
-      if (!n->tie_in) {
-        n->displayAcc = getDisplayAccType(presentDFAState[mapSheetY(src.sheetY)], src.accType);
-      }
-
       if (src.sheetY > 0) {
         n->stave = STAVE_TREBLE;
       }
@@ -528,11 +885,59 @@ sheetMeasure sheetController::layout_measure(measureController& measure, const s
     }
   }
 
-  // a tie never switches staves, so a continued middle c stays where its note started
+  // a low part under clearly higher treble notes, with nothing close above it at the time or near it a sixteenth
+  // either side, goes down to the bass stave when nothing there reaches within a third of it, a chord's low notes
+  // all together
+  vector<sheetNote*> absorbed;
+  for (unsigned int ch = 0; ch < dm.chords.size(); ++ch) {
+    const int begin = dm.chords[ch].first;
+    bool rejected = false;
+    for (sheetNote* n : dm.chords[ch].second) {
+      const int sheet_y = stream.notes[n->oriNote].sheetY;
+      if (n->stave != STAVE_TREBLE || n->tie_in || sheet_y > absorb_top) {
+        continue;
+      }
+      const int end = begin + note_len(n);
+      bool above = false;
+      bool blocked = false;
+      for (const auto& c : dm.chords) {
+        for (const sheetNote* m : c.second) {
+          const int y = stream.notes[m->oriNote].sheetY;
+          const int m_end = c.first + note_len(m);
+          const int near = note_units[NOTE_16];
+          if (m->oriNote == n->oriNote || c.first >= end + near || m_end + near <= begin) {
+            continue;
+          }
+          const bool during = c.first < end && m_end > begin;
+          if (m->stave == STAVE_TREBLE) {
+            above = above || (during && y >= sheet_y + absorb_gap);
+            blocked = blocked || (y > absorb_top && y < sheet_y + (during ? absorb_gap : absorb_near));
+          }
+          else {
+            blocked = blocked || (during && y > sheet_y - 2);
+          }
+        }
+      }
+      if (above && !blocked) {
+        absorbed.push_back(n);
+      }
+      else {
+        rejected = true;
+      }
+    }
+    if (rejected) {
+      std::erase_if(absorbed, [&](const sheetNote* m) { return m->displayBegin == begin; });
+    }
+  }
+  for (sheetNote* n : absorbed) {
+    n->stave = STAVE_BASS;
+  }
+
+  // a tie never switches staves, so a continued note stays where it started
   for (unsigned int ch = 0; ch < dm.chords.size(); ++ch) {
     for (sheetNote* n : dm.chords[ch].second) {
       const note& src = stream.notes[n->oriNote];
-      if (!n->tie_in || n->out_of_bounds || src.sheetY != 0) {
+      if (!n->tie_in) {
         continue;
       }
 
@@ -567,8 +972,71 @@ sheetMeasure sheetController::layout_measure(measureController& measure, const s
     }
   }
 
+  // a grace note goes with the note it leads into
+  auto find_main = [&](const sheetNote* g) -> sheetNote* {
+    for (const auto& c : dm.chords) {
+      for (sheetNote* n : c.second) {
+        if (c.first == g->displayBegin && n->oriNote == g->grace_of && !n->tie_in) {
+          return n;
+        }
+      }
+    }
+    return nullptr;
+  };
+  for (sheetNote* g : dm.graces) {
+    const sheetNote* main = find_main(g);
+    g->stave = main ? main->stave : (stream.notes[g->oriNote].sheetY >= 0 ? STAVE_TREBLE : STAVE_BASS);
+  }
+
+  // a stave far from its lines moves an octave nearer under an 8va or 8vb line, and notes still too far away get
+  // markers instead, though they keep their stave for rests
+  const sheetMeasure* prev = displayMeasure.empty() ? nullptr : &displayMeasure.back();
+  vector<int> octave[2];
+  for (int stave = STAVE_TREBLE; stave <= STAVE_BASS; ++stave) {
+    find_octaves(dm, stave, prev ? prev->octave_out[stave] : 0, octave[stave]);
+  }
+  auto place = [&](sheetNote* n, int ch) {
+    n->sheet_y = find_octave_y(stream.notes[n->oriNote].sheetY, n->stave, ch < 0 ? 0 : octave[n->stave][ch]);
+    n->out_of_bounds = n->sheet_y > getStaveRenderLimit().first || n->sheet_y < getStaveRenderLimit().second;
+  };
+  for (unsigned int ch = 0; ch < dm.chords.size(); ++ch) {
+    for (sheetNote* n : dm.chords[ch].second) {
+      place(n, ch);
+    }
+  }
+  for (sheetNote* g : dm.graces) {
+    auto it = std::ranges::find(dm.chords, g->displayBegin, &pair<int, vector<sheetNote*>>::first);
+    place(g, it == dm.chords.end() ? -1 : it - dm.chords.begin());
+  }
+
+  // run a DFA for each valid midi key, advancing state based on
+  // new-note-to-midi-position values each DFA set is unique to its measure add
+  // "1" to size for inclusive bounding
+  vector<int> presentDFAState;
+  findDFAStartVector(presentDFAState, measure.currentKey);
+
+  // find true accidental type for each note, where tied continuations keep the accidental shown on their first piece
+  // and grace notes come before their chord
+  auto read_acc = [&](sheetNote* n) {
+    const note& src = stream.notes[n->oriNote];
+    if (!n->out_of_bounds && !n->tie_in) {
+      n->displayAcc = getDisplayAccType(presentDFAState[mapSheetY(src.sheetY)], src.accType);
+    }
+  };
+  auto grace = dm.graces.begin();
+  for (const auto& c : dm.chords) {
+    for (; grace != dm.graces.end() && (*grace)->displayBegin <= c.first; ++grace) {
+      read_acc(*grace);
+    }
+    std::ranges::for_each(c.second, read_acc);
+  }
+
   const int len = std::max(1, to_units(stream, measure.getTickLen()));
   dm.find_voices(len);
+  for (sheetNote* g : dm.graces) {
+    const sheetNote* main = find_main(g);
+    g->voice = main ? main->voice : 0;
+  }
 
   // a duplicate within one voice is hidden behind the first, which is the continuing tie if there is one
   for (const auto& c : dm.chords) {
@@ -658,49 +1126,83 @@ void sheetController::place_rests(sheetMeasure& dm) {
   }
 }
 
-bool sheetController::clears_other_voice(const sheetMeasure& dm, int ch, int part, int dir, int lo, int hi,
-                                         float len) {
-  // a stem turned towards the other voice of its stave must stop short of that voice's notes and rests in the chord
-  const sheetChordData& cd = dm.s_chordData[ch];
+float sheetController::find_other_voice_bound(const sheetMeasure& dm, int first, int last, int part, int dir) {
+  // the nearest edge of the other voice's notes and rests in these chords, which a stem pointing at it stops short of
   const int stave = part_stave(part);
-  const stem_group& other = cd.groups[part ^ 1];
-  const int rest = cd.rests[part ^ 1];
-  const int rest_shift = cd.rest_shift[part ^ 1];
-  if (dir == FLAG_DOWN) {
-    float bound = std::numeric_limits<float>::max();
+  const bool down = dir == FLAG_DOWN;
+  float bound = down ? std::numeric_limits<float>::max() : std::numeric_limits<float>::lowest();
+  for (int ch = first; ch <= last; ++ch) {
+    const sheetChordData& cd = dm.s_chordData[ch];
+    const stem_group& other = cd.groups[part ^ 1];
+    const int rest = cd.rests[part ^ 1];
+    const int rest_shift = cd.rest_shift[part ^ 1];
     if (!other.empty()) {
-      bound = findStaveY(other.hi, stave) - head_half;
+      bound = down ? std::min<float>(bound, findStaveY(other.hi, stave) - head_half)
+                   : std::max<float>(bound, findStaveY(other.lo, stave) + head_half);
     }
     if (rest >= 0) {
-      bound = std::min(bound, find_rest_y(rest, stave, rest_shift) - find_rest_extent(rest, false));
+      const float y = find_rest_y(rest, stave, rest_shift);
+      bound = down ? std::min(bound, y - find_rest_extent(rest, false))
+                   : std::max(bound, y + find_rest_extent(rest, true));
     }
+  }
+  return bound;
+}
+
+bool sheetController::clears_other_voice(const sheetMeasure& dm, int first, int last, int part, int dir, int lo, int hi,
+                                         float len) {
+  // a stem or beam turned towards the other voice of its stave must stop short of that voice's notes and rests in
+  // every chord it reaches over, its own and those between
+  const int stave = part_stave(part);
+  const float bound = find_other_voice_bound(dm, first, last, part, dir);
+  if (dir == FLAG_DOWN) {
     return findStaveY(lo, stave) + len + stave_clearance <= bound;
-  }
-  float bound = std::numeric_limits<float>::lowest();
-  if (!other.empty()) {
-    bound = findStaveY(other.lo, stave) + head_half;
-  }
-  if (rest >= 0) {
-    bound = std::max(bound, find_rest_y(rest, stave, rest_shift) + find_rest_extent(rest, true));
   }
   return findStaveY(hi, stave) - len - stave_clearance >= bound;
 }
 
+bool sheetController::is_under_line(const sheetMeasure& dm, int first, int last, int part) const {
+  for (int ch = first; ch <= last; ++ch) {
+    for (const sheetNote* n : dm.chords[ch].second) {
+      if (in_part(n, part) && is_moved(n)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+float sheetController::find_stem_edge(const sheetMeasure& dm, int first, int last, int part, bool top) const {
+  // stems and beams reach the edge of the sheet, or stop short of it to leave room for an octave line over them
+  const bool room = (part_stave(part) == STAVE_TREBLE) == top && is_under_line(dm, first, last, part);
+  return top ? find_sheet_top() + (room ? octave_room : 0) : find_sheet_bottom() - (room ? octave_room : 0);
+}
+
 void sheetController::keep_in_sheet(sheetMeasure& dm) {
   // stems and beams never leave the sheet, so one that would turns around when the other way fits
-  auto turn = [&](int dir, int lo, int hi, int stave, float len) {
+  auto turn = [&](int dir, int lo, int hi, int first, int last, int part, float len) {
+    const int stave = part_stave(part);
     const float up_tip = findStaveY(hi, stave) - len;
     const float down_tip = findStaveY(lo, stave) + len;
-    if (dir == FLAG_UP && up_tip < find_sheet_top() && down_tip <= find_sheet_bottom()) {
+    const float top = find_stem_edge(dm, first, last, part, true);
+    const float bottom = find_stem_edge(dm, first, last, part, false);
+    if (dir == FLAG_UP && up_tip < top && down_tip <= bottom) {
       return static_cast<int>(FLAG_DOWN);
     }
-    if (dir == FLAG_DOWN && down_tip > find_sheet_bottom() && up_tip >= find_sheet_top()) {
+    if (dir == FLAG_DOWN && down_tip > bottom && up_tip >= top) {
       return static_cast<int>(FLAG_UP);
     }
     return dir;
   };
 
-  // a voice turns around only when it then keeps clear of its other voice, and otherwise drawing shortens its stems
+  // a voice turns around only when its stems, shortened as far as they may go, then stop short of the other voice,
+  // and otherwise drawing shortens them against the edge of the sheet
+  auto stops_short = [&](int first, int last, int part, int dir, int lo, int hi, float len, float give, float& limit) {
+    const int stave = part_stave(part);
+    limit = find_other_voice_bound(dm, first, last, part, dir) + (dir == FLAG_DOWN ? -1 : 1) * stave_clearance;
+    return dir == FLAG_DOWN ? findStaveY(lo, stave) + len - give <= limit : findStaveY(hi, stave) - len + give >= limit;
+  };
+
   for (auto& b : dm.beams) {
     int lo = std::numeric_limits<int>::max();
     int hi = std::numeric_limits<int>::min();
@@ -712,12 +1214,16 @@ void sheetController::keep_in_sheet(sheetMeasure& dm) {
       levels = std::max(levels, g.flag_type - FLAGTYPE_8);
     }
     const float len = beam_stem_len + levels * beam_step + beam_thickness;
-    const int dir = turn(b.dir, lo, hi, b.stave, len);
-    auto clear = [&](int ch) { return clears_other_voice(dm, ch, b.part(), dir, lo, hi, len); };
-    if (dir == b.dir || (b.fixed && !std::ranges::all_of(b.chords, clear))) {
+    const int dir = turn(b.dir, lo, hi, b.chords.front(), b.chords.back(), b.part(), len);
+    float limit = 0;
+    if (dir == b.dir ||
+        (b.fixed && !stops_short(b.chords.front(), b.chords.back(), b.part(), dir, lo, hi, len,
+                                 beam_stem_len - beam_min_len, limit))) {
       continue;
     }
     b.dir = dir;
+    b.limited = b.fixed;
+    b.limit = limit;
     for (int ch : b.chords) {
       dm.s_chordData[ch].groups[b.part()].dir = b.dir;
     }
@@ -730,9 +1236,18 @@ void sheetController::keep_in_sheet(sheetMeasure& dm) {
         continue;
       }
       const float len = stem_len + (g.has_flag() ? flag_extra[g.flag_type - FLAGTYPE_8] : 0);
-      const int dir = turn(g.dir, g.stem_lo, g.stem_hi, part_stave(part), len);
-      if (!g.fixed || clears_other_voice(dm, ch, part, dir, g.stem_lo, g.stem_hi, len)) {
+      const int dir = turn(g.dir, g.stem_lo, g.stem_hi, ch, ch, part, len);
+      float limit = 0;
+      if (dir == g.dir) {
+        continue;
+      }
+      if (!g.fixed) {
         g.dir = dir;
+      }
+      else if (stops_short(ch, ch, part, dir, g.stem_lo, g.stem_hi, len, stem_len - stem_min_len, limit)) {
+        g.dir = dir;
+        g.limited = true;
+        g.limit = limit;
       }
     }
   }
@@ -759,8 +1274,8 @@ void sheetController::separate_staves(sheetMeasure& dm, int (&crowded)[2]) {
   };
 
   vector<stem_unit> units[2];
-  const float sheet_top = find_sheet_top();
-  const float sheet_bottom = find_sheet_bottom();
+  auto sheet_top = [&](const stem_unit& u) { return find_stem_edge(dm, u.first, u.last, u.part, true); };
+  auto sheet_bottom = [&](const stem_unit& u) { return find_stem_edge(dm, u.first, u.last, u.part, false); };
 
   auto add_unit = [&](int part, int first, int last, int beam, int ch, bool fixed, const auto& groups) {
     const int stave = part_stave(part);
@@ -818,17 +1333,16 @@ void sheetController::separate_staves(sheetMeasure& dm, int (&crowded)[2]) {
 
   // turning around is only an option when the stems still fit on the sheet
   auto fits_flipped = [&](const stem_unit& u, int stave) {
-    return !u.fixed && (stave == STAVE_TREBLE ? u.flipped_tip >= sheet_top : u.flipped_tip <= sheet_bottom);
+    return !u.fixed && (stave == STAVE_TREBLE ? u.flipped_tip >= sheet_top(u) : u.flipped_tip <= sheet_bottom(u));
   };
   // a voice may still turn away from the gap when that keeps it clear of the other voice on its own stave
   auto turns_aside = [&](const stem_unit& u, int stave) {
-    const bool fits = stave == STAVE_TREBLE ? u.flipped_tip >= sheet_top : u.flipped_tip <= sheet_bottom;
+    const bool fits = stave == STAVE_TREBLE ? u.flipped_tip >= sheet_top(u) : u.flipped_tip <= sheet_bottom(u);
     if (!u.fixed || !fits) {
       return false;
     }
     const int dir = stave == STAVE_TREBLE ? FLAG_UP : FLAG_DOWN;
-    auto clears = [&](int ch) { return clears_other_voice(dm, ch, u.part, dir, u.lo, u.hi, u.len); };
-    return u.beam >= 0 ? std::ranges::all_of(dm.beams[u.beam].chords, clears) : clears(u.ch);
+    return clears_other_voice(dm, u.first, u.last, u.part, dir, u.lo, u.hi, u.len);
   };
   auto flip = [&](stem_unit& u, int stave) {
     const int dir = stave == STAVE_TREBLE ? FLAG_UP : FLAG_DOWN;
@@ -914,7 +1428,6 @@ void sheetController::separate_staves(sheetMeasure& dm, int (&crowded)[2]) {
   };
 
   // an outer tie bends away from its chord, so it can reach into the gap as well
-  const midi& stream = ctr.getStream();
   auto find_tie_reach = [&](int stave, int first, int last, float bound) {
     const bool treble = stave == STAVE_TREBLE;
     for (int c = 0; c <= last && c < static_cast<int>(dm.chords.size()); ++c) {
@@ -959,7 +1472,7 @@ void sheetController::separate_staves(sheetMeasure& dm, int (&crowded)[2]) {
           continue;
         }
 
-        const float y = findStaveY(stream.notes[n->oriNote].sheetY, stave);
+        const float y = findStaveY(n->sheet_y, stave);
         bound = treble ? std::max(bound, y + tie_outside_offset + tie_max_height)
                        : std::min(bound, y - tie_outside_offset - tie_max_height);
       }
@@ -1011,7 +1524,6 @@ void sheetController::separate_staves(sheetMeasure& dm, int (&crowded)[2]) {
 
 void sheetController::avoid_ties(sheetMeasure& dm) {
   // a tie from an earlier chord runs under or over later ones, so stems crossing it turn away instead
-  const midi& stream = ctr.getStream();
   const int chord_count = dm.chords.size();
 
   struct tie_span {
@@ -1057,7 +1569,7 @@ void sheetController::avoid_ties(sheetMeasure& dm) {
           break;
         }
       }
-      spans.push_back({c, end, static_cast<float>(findStaveY(stream.notes[n->oriNote].sheetY, stave))});
+      spans.push_back({c, end, static_cast<float>(findStaveY(n->sheet_y, stave))});
     }
     if (spans.empty()) {
       continue;
@@ -1075,9 +1587,9 @@ void sheetController::avoid_ties(sheetMeasure& dm) {
       return false;
     };
     // a beam may overshoot by as much as its stems can shorten, since it is pulled back inside the sheet when drawn
-    auto fits_away = [&](int lo, int hi, float len, float give) {
-      return treble ? findStaveY(hi, stave) - len + give >= find_sheet_top()
-                    : findStaveY(lo, stave) + len - give <= find_sheet_bottom();
+    auto fits_away = [&](int first, int last, int lo, int hi, float len, float give) {
+      return treble ? findStaveY(hi, stave) - len + give >= find_stem_edge(dm, first, last, part, true)
+                    : findStaveY(lo, stave) + len - give <= find_stem_edge(dm, first, last, part, false);
     };
     const int away = treble ? FLAG_UP : FLAG_DOWN;
 
@@ -1095,7 +1607,8 @@ void sheetController::avoid_ties(sheetMeasure& dm) {
         levels = std::max(levels, g.flag_type - FLAGTYPE_8);
       }
       if (std::ranges::any_of(b.chords, crosses) &&
-          fits_away(lo, hi, beam_stem_len + levels * beam_step + beam_thickness, beam_stem_len - beam_min_len)) {
+          fits_away(b.chords.front(), b.chords.back(), lo, hi, beam_stem_len + levels * beam_step + beam_thickness,
+                    beam_stem_len - beam_min_len)) {
         b.dir = away;
         b.limited = false;
         for (int ch : b.chords) {
@@ -1110,7 +1623,7 @@ void sheetController::avoid_ties(sheetMeasure& dm) {
         continue;
       }
       const int extra = g.has_flag() ? flag_extra[g.flag_type - FLAGTYPE_8] : 0;
-      if (crosses(ch) && fits_away(g.stem_lo, g.stem_hi, stem_len + extra, 0)) {
+      if (crosses(ch) && fits_away(ch, ch, g.stem_lo, g.stem_hi, stem_len + extra, 0)) {
         g.dir = away;
       }
     }
@@ -1118,7 +1631,6 @@ void sheetController::avoid_ties(sheetMeasure& dm) {
 }
 
 void sheetController::find_chord_widths(sheetMeasure& dm) {
-  const midi& stream = ctr.getStream();
   const int head = getSymbolWidth(SYM_HEAD_STD);
 
   for (unsigned int ch = 0; ch < dm.chords.size(); ++ch) {
@@ -1166,7 +1678,7 @@ void sheetController::find_chord_widths(sheetMeasure& dm) {
           continue;
         }
 
-        const int y = stream.notes[n->oriNote].sheetY;
+        const int y = n->sheet_y;
         int col = 0;
         while (col < acc_cols && col_y[col] - y < acc_clearance) {
           ++col;
@@ -1202,13 +1714,13 @@ void sheetController::find_chord_widths(sheetMeasure& dm) {
         }
 
         // dots sit right after the noteheads, tucked under an up flag rather than past it
-        if (g.dotted) {
+        if (g.dots > 0) {
           g.dot_x = g_right + dotSpacing;
           // the upper voice's dots also step past a lower voice moved in beside them
           if (part_voice(part) == 0 && lower.shift > 0) {
             g.dot_x = std::max(g.dot_x, lower.shift + lower.head_width + dotSpacing);
           }
-          g_right = g.dot_x + getSymbolWidth(SYM_DOT);
+          g_right = g.dot_x + find_dots_width(g.dots);
         }
 
         if (g.has_flag()) {
@@ -1218,6 +1730,26 @@ void sheetController::find_chord_widths(sheetMeasure& dm) {
 
         right = std::max(right, g.shift + g_right);
       }
+    }
+
+    // a rolled chord's wavy line stands left of its noteheads and accidentals
+    cd.arpeggio_x = 0;
+    if (std::ranges::any_of(c, [](const sheetNote* n) { return n->arpeggio >= 0 && !n->out_of_bounds; })) {
+      cd.arpeggio_x = std::lround(left + arpeggio_gap + arpeggio_width / 2);
+      left = std::lround(left + arpeggio_gap + arpeggio_width);
+    }
+
+    // grace notes stand left of everything else, each stave's in a row
+    cd.grace_x = 0;
+    int grace_w[2] = {0, 0};
+    for (const sheetNote* g : dm.graces) {
+      if (g->displayBegin == dm.chords[ch].first && !g->out_of_bounds) {
+        grace_w[g->stave] += find_grace_width(g);
+      }
+    }
+    if (grace_w[STAVE_TREBLE] + grace_w[STAVE_BASS] > 0) {
+      cd.grace_x = left + grace_lead + std::max(grace_w[STAVE_TREBLE], grace_w[STAVE_BASS]);
+      left = cd.grace_x;
     }
 
     // rests are centered on the notehead column
@@ -1515,11 +2047,13 @@ void sheetController::drawSheetPage() {
   head_boxes.clear();
   label_obstacles.clear();
   measure_labels.clear();
+  octave_spans.clear();
   add_obstacle(clef_x, clef_x + clef_width, findStaveY(4, STAVE_TREBLE) - clef_height, findStaveY(10, STAVE_TREBLE));
 
   int tick_delta = std::numeric_limits<int>::min();
   int tick_offset = offset;
   int barline_x = offset;
+  int open_octave[2] = {-1, -1};
   for (int m = measureRange.first; m <= measureRange.second; ++m) {
     const sheetMeasure& dm = displayMeasure[m - 1];
 
@@ -1586,6 +2120,9 @@ void sheetController::drawSheetPage() {
     offset = std::lround(cursor);
 
     draw_measure(dm, measure_x, offset);
+    for (int stave = STAVE_TREBLE; stave <= STAVE_BASS; ++stave) {
+      add_octave_span(dm, stave, open_octave[stave], offset);
+    }
 
     // end of measure spacing
     offset += sigSpacing;
@@ -1625,7 +2162,20 @@ void sheetController::drawSheetPage() {
   const float system_end = std::min<float>(offset, ctr.getWidth() - ctr.sheetSideMargin) - 2;
   for (const auto& t : open_ties) {
     const float x1 = std::max(t.x + tie_min_len, system_end);
-    draw_tie(t.x, x1, t.y, t.up, t.flip_y, t.head_note, t.note);
+    draw_tie(t.x, x1, t.y, t.up, t.flip_y, t.head_note, t.note, t.top, t.bottom);
+  }
+
+  // so do octave lines, which then have no hook
+  const int next = measureRange.second;
+  for (int stave = STAVE_TREBLE; stave <= STAVE_BASS; ++stave) {
+    if (open_octave[stave] >= 0 && next < static_cast<int>(displayMeasure.size()) &&
+        starts_moved(displayMeasure[next], stave)) {
+      octave_spans[open_octave[stave]].x1 = std::max(octave_spans[open_octave[stave]].x1, system_end);
+      octave_spans[open_octave[stave]].open_end = true;
+    }
+  }
+  for (const auto& span : octave_spans) {
+    draw_octave_line(span);
   }
 
   place_measure_labels();
@@ -1641,6 +2191,116 @@ void sheetController::drawSheetPage() {
              ctr.menuHeight + arrow_size, 1, ctr.bgNow);
   drawLineEx(m_text_pos.x + arrow_size2 + 1, ctr.menuHeight + arrow_size - arrow_size2, m_text_pos.x + 1,
              ctr.menuHeight + arrow_size, 1, ctr.bgNow);
+}
+
+bool sheetController::is_moved(const sheetNote* n) const {
+  return n->sheet_y != ctr.getStream().notes[n->oriNote].sheetY;
+}
+
+bool sheetController::starts_moved(const sheetMeasure& dm, int stave) const {
+  // whether the first notes of the stave sit under a line
+  for (const auto& c : dm.chords) {
+    for (const sheetNote* n : c.second) {
+      if (n->stave == stave) {
+        return is_moved(n);
+      }
+    }
+  }
+  return false;
+}
+
+void sheetController::add_octave_span(const sheetMeasure& dm, int stave, int& open, int measure_end) {
+  // a line runs over the chords whose notes on the stave are moved, until those notes stop sounding, and carries on
+  // the line of the measure before when there is one
+  const bool treble = stave == STAVE_TREBLE;
+  const int count = dm.chords.size();
+  for (int ch = 0; ch < count; ++ch) {
+    bool held = false;
+    bool moved = false;
+    int until = dm.chords[ch].first;
+    for (const sheetNote* n : dm.chords[ch].second) {
+      if (n->stave == stave) {
+        held = true;
+        moved = is_moved(n);
+        until = std::max(until, dm.chords[ch].first + note_len(n));
+      }
+    }
+    if (!held) {
+      continue;
+    }
+    if (!moved) {
+      open = -1;
+      continue;
+    }
+
+    float x1 = measure_end;
+    for (int e = ch + 1; e < count; ++e) {
+      auto back_in = [&](const sheetNote* n) { return n->stave == stave && !is_moved(n); };
+      const bool back = std::ranges::any_of(dm.chords[e].second, back_in);
+      if (dm.chords[e].first >= until || back) {
+        x1 = chord_x[e] - dm.s_chordData[e].leftWidth - octave_pad;
+        break;
+      }
+    }
+    x1 = std::max<float>(x1, chord_x[ch] + dm.s_chordData[ch].rightWidth);
+    const float edge = treble ? chord_top[ch] : chord_bottom[ch];
+    float reach = treble ? std::numeric_limits<float>::max() : std::numeric_limits<float>::lowest();
+    for (int k = 0; k < count; ++k) {
+      if (std::abs(chord_x[k] + head_width_exact / 2 - x1) < octave_hook_window) {
+        reach = treble ? std::min(reach, chord_top[k]) : std::max(reach, chord_bottom[k]);
+      }
+    }
+    if (open >= 0) {
+      octave_span& span = octave_spans[open];
+      span.x1 = x1;
+      span.edge = treble ? std::min(span.edge, edge) : std::max(span.edge, edge);
+      span.reach = reach;
+      continue;
+    }
+    const float x0 = chord_x[ch] - dm.s_chordData[ch].leftWidth;
+    octave_spans.push_back({stave, x0, x1, edge, reach, false});
+    open = octave_spans.size() - 1;
+  }
+  if (!dm.octave_out[stave]) {
+    open = -1;
+  }
+}
+
+void sheetController::draw_octave_line(const octave_span& span) {
+  // the text starts the line at the first note, and a dashed line runs on to a hook over the last
+  const bool treble = span.stave == STAVE_TREBLE;
+  const int sym = treble ? SYM_OTTAVA_ALTA : SYM_OTTAVA_BASSA;
+  const float text_w = getGlyphWidth(sym, octave_size);
+  const float half = octave_text_height / 2;
+
+  // the line keeps its usual height unless the notes under it reach further, but stays on the sheet
+  float y = 0;
+  if (treble) {
+    y = std::min<float>(findStaveY(octave_line_y, STAVE_TREBLE), span.edge - octave_pad - half);
+    y = std::max(y, find_sheet_top() + half);
+  }
+  else {
+    y = std::max<float>(findStaveY(-octave_line_y, STAVE_BASS), span.edge + octave_pad + half);
+    y = std::min(y, find_sheet_bottom() - half);
+  }
+
+  const float baseline = glyph_baseline * static_cast<float>(octave_size) / fSize;
+  drawSymbol(sym, octave_size, span.x0, y + half - baseline, ctr.bgSheetNote);
+
+  const float x1 = std::max(span.x1, span.x0 + text_w + octave_dash);
+  for (float x = span.x0 + text_w + octave_dash_gap; x < x1; x += octave_dash + octave_dash_gap) {
+    drawLineEx(x, y, std::min(x + octave_dash, x1), y, 1, ctr.bgSheetNote);
+  }
+  // the hook stops short of whatever stands under the end of the line, and is left out when nothing fits
+  const float hook = std::min(octave_hook, (treble ? span.reach - y : y - span.reach) - 2);
+  const bool hooked = !span.open_end && hook >= 2;
+  if (hooked) {
+    drawLineEx(x1, y, x1, y + (treble ? hook : -hook), 1, ctr.bgSheetNote);
+  }
+
+  if (treble) {
+    add_obstacle(span.x0, x1, y - half, y + (hooked ? hook : 1));
+  }
 }
 
 void sheetController::add_obstacle(float x0, float x1, float top, float bottom) {
@@ -1729,6 +2389,7 @@ void sheetController::draw_measure(const sheetMeasure& dm, int measure_x, int me
     for (int part = 0; part < part_count; ++part) {
       draw_group_shapes(dm, ch, part, measure_x);
     }
+    draw_graces(dm, ch, false);
     draw_oob_markers(dm, ch);
   }
   for (unsigned int b = 0; b < dm.beams.size(); ++b) {
@@ -1753,6 +2414,8 @@ void sheetController::draw_measure(const sheetMeasure& dm, int measure_x, int me
       }
       draw_group_glyphs(dm, ch, part);
     }
+    draw_graces(dm, ch, true);
+    draw_arpeggios(dm, ch);
   }
 
   // a stave silent for the whole measure gets one centered whole rest
@@ -1846,12 +2509,11 @@ int sheetController::find_head_x(const stem_group& g, const sheetNote* n, int an
 
 int sheetController::find_dot_x(const sheetMeasure& dm, int ch, int part, const sheetNote* n) {
   // a dot follows whatever is on its own row, so it only moves past a flipped notehead or a lower voice right beside it
-  const midi& stream = ctr.getStream();
   const auto& c = dm.chords[ch].second;
   const stem_group& g = dm.s_chordData[ch].groups[part];
-  const int row = find_dot_row(dm, part, stream.notes[n->oriNote].sheetY);
+  const int row = find_dot_row(dm, part, n->sheet_y);
 
-  auto near_row = [&](const sheetNote* m) { return std::abs(stream.notes[m->oriNote].sheetY - row) <= 1; };
+  auto near_row = [&](const sheetNote* m) { return std::abs(m->sheet_y - row) <= 1; };
 
   int right = g.head_width;
   if (g.flipped && g.dir != FLAG_DOWN) {
@@ -1872,6 +2534,10 @@ int sheetController::find_dot_x(const sheetMeasure& dm, int ch, int part, const 
   return right + dotSpacing;
 }
 
+int sheetController::find_dots_width(int dots) {
+  return dots * getSymbolWidth(SYM_DOT) + std::max(0, dots - 1) * dot_gap;
+}
+
 int sheetController::find_dot_row(const sheetMeasure& dm, int part, int sheet_y) const {
   // dots on a line move into the space above, or below for a lower voice
   if (sheet_y % 2 != 0) {
@@ -1880,7 +2546,7 @@ int sheetController::find_dot_row(const sheetMeasure& dm, int part, int sheet_y)
   return dm.two_voice[part_stave(part)] && part_voice(part) == 1 ? sheet_y - 1 : sheet_y + 1;
 }
 
-int sheetController::find_flag_y(const stem_group& g, int stave) {
+int sheetController::find_flag_y(const stem_group& g, int stave, float top, float bottom) {
   // stems stay close to their notes, longer only when extra flags need the room
   const int len = stem_len + (g.has_flag() ? flag_extra[g.flag_type - FLAGTYPE_8] : 0);
   const int shortest = len - (stem_len - stem_min_len);
@@ -1893,14 +2559,17 @@ int sheetController::find_flag_y(const stem_group& g, int stave) {
     if (g.limited) {
       tip = std::max<int>(std::min<float>(tip, g.limit), lo_y + shortest);
     }
-    // even when nothing else works, a stem stops at the edge of the sheet
-    return std::min<int>(tip, find_sheet_bottom());
+    // even when nothing else works, a stem stops at the edge of the sheet, and short of an octave line there as
+    // long as it keeps its shortest length
+    const float edge = std::max<float>(bottom, lo_y + shortest);
+    return std::min<int>(tip, std::min(edge, find_sheet_bottom()));
   }
   int tip = hi_y - len;
   if (g.limited) {
     tip = std::min<int>(std::max<float>(tip, g.limit), hi_y - shortest);
   }
-  return std::max<int>(tip, find_sheet_top());
+  const float edge = std::min<float>(top, hi_y - shortest);
+  return std::max<int>(tip, std::max(edge, find_sheet_top()));
 }
 
 void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int part, int measure_x) {
@@ -1909,7 +2578,6 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int part
     return;
   }
 
-  const midi& stream = ctr.getStream();
   const auto& c = dm.chords[ch].second;
   const int stave = part_stave(part);
   const int anchor = chord_x[ch] + g.shift;
@@ -1926,7 +2594,7 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int part
       continue;
     }
 
-    const int y = findStaveY(stream.notes[n->oriNote].sheetY, stave);
+    const int y = findStaveY(n->sheet_y, stave);
     const int head_x = find_head_x(g, n, anchor);
     const int head_sym = getSymbolType(n->display_type);
     head_boxes.push_back({static_cast<float>(head_x), static_cast<float>(head_x + getSymbolWidth(head_sym)),
@@ -1956,30 +2624,28 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int part
     top = std::min(top, tie_y - tie_max_height);
     bottom = std::max(bottom, tie_y + tie_max_height);
 
-    // ties around the heads run from centre to centre, ties between them from edge to edge
-    auto find_tie_end = [&](bool outside) { return outside ? head_x + head_w * 0.35f : head_x - 2.0f; };
+    // ties around the heads run from centre to centre, ties between them from edge to edge, never from the dots
+    auto find_tie_end = [&](bool outside) { return outside ? head_x + head_w * 0.5f : head_x - 2.0f; };
 
     if (n->tie_in) {
       auto it = std::ranges::find(open_ties, n->oriNote, &open_tie::note);
       if (it != open_ties.end()) {
         const float tie_end = find_tie_end(it->outside);
-        draw_tie(it->x, tie_end, it->y, it->up, it->flip_y, it->head_note, n->oriNote);
+        draw_tie(it->x, tie_end, it->y, it->up, it->flip_y, it->head_note, n->oriNote, it->top, it->bottom);
         open_ties.erase(it);
       }
       else {
         // the tie started on an earlier page, so it picks up from the start of the measure
         const float tie_end = find_tie_end(n->tie_outside);
         const float tie_x = std::min<float>(measure_x + 2, tie_end - tie_min_len);
-        draw_tie(tie_x, tie_end, tie_y, n->tie_up, flip_y, n->oriNote, n->oriNote);
+        draw_tie(tie_x, tie_end, tie_y, n->tie_up, flip_y, n->oriNote, n->oriNote, find_tie_edge(n, true),
+                 find_tie_edge(n, false));
       }
     }
     if (n->tie_out) {
-      // a dotted note's tie starts after its dot
-      float tie_x = n->tie_outside ? head_x + head_w * 0.65f : head_x + head_w + 2.0f;
-      if (is_dotted_type(n->display_type)) {
-        tie_x = anchor + find_dot_x(dm, ch, part, n) + getSymbolWidth(SYM_DOT) + 2;
-      }
-      open_ties.push_back({n->oriNote, tie_x, tie_y, n->tie_up, n->tie_outside, flip_y, n->oriNote});
+      const float tie_x = n->tie_outside ? head_x + head_w * 0.5f : head_x + head_w + 2.0f;
+      open_ties.push_back({n->oriNote, tie_x, tie_y, n->tie_up, n->tie_outside, flip_y, n->oriNote,
+                           find_tie_edge(n, true), find_tie_edge(n, false)});
     }
   }
 
@@ -1989,9 +2655,9 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int part
         !(hidden->tie_in || hidden->tie_out)) {
       continue;
     }
-    const int sheet_y = stream.notes[hidden->oriNote].sheetY;
-    auto twin = std::ranges::find_if(
-        c, [&](const sheetNote* n) { return in_part(n, part) && stream.notes[n->oriNote].sheetY == sheet_y; });
+    const int sheet_y = hidden->sheet_y;
+    auto twin =
+        std::ranges::find_if(c, [&](const sheetNote* n) { return in_part(n, part) && n->sheet_y == sheet_y; });
     if (twin == c.end()) {
       continue;
     }
@@ -2001,8 +2667,8 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int part
     if (hidden->tie_in) {
       auto it = std::ranges::find(open_ties, hidden->oriNote, &open_tie::note);
       if (it != open_ties.end()) {
-        draw_tie(it->x, it->outside ? head_x + head_w * 0.35f : head_x - 2.0f, it->y, it->up, it->flip_y,
-                 it->head_note, (*twin)->oriNote);
+        draw_tie(it->x, it->outside ? head_x + head_w * 0.5f : head_x - 2.0f, it->y, it->up, it->flip_y,
+                 it->head_note, (*twin)->oriNote, it->top, it->bottom);
         open_ties.erase(it);
       }
     }
@@ -2011,12 +2677,9 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int part
       const int tie_off = (*twin)->tie_outside ? tie_outside_offset : tie_offset;
       const float tie_y = y + ((*twin)->tie_up ? -tie_off : tie_off);
       const float flip_y = y + ((*twin)->tie_up ? tie_off : -tie_off);
-      float tie_x = (*twin)->tie_outside ? head_x + head_w * 0.65f : head_x + head_w + 2.0f;
-      if (is_dotted_type((*twin)->display_type)) {
-        tie_x = anchor + find_dot_x(dm, ch, part, *twin) + getSymbolWidth(SYM_DOT) + 2;
-      }
-      open_ties.push_back(
-          {hidden->oriNote, tie_x, tie_y, (*twin)->tie_up, (*twin)->tie_outside, flip_y, (*twin)->oriNote});
+      const float tie_x = (*twin)->tie_outside ? head_x + head_w * 0.5f : head_x + head_w + 2.0f;
+      open_ties.push_back({hidden->oriNote, tie_x, tie_y, (*twin)->tie_up, (*twin)->tie_outside, flip_y,
+                           (*twin)->oriNote, find_tie_edge(*twin, true), find_tie_edge(*twin, false)});
     }
   }
 
@@ -2030,7 +2693,7 @@ void sheetController::draw_group_shapes(const sheetMeasure& dm, int ch, int part
       tip = line.y0 + line.slope * (stem_x - line.x0);
     }
     else {
-      tip = find_flag_y(g, stave);
+      tip = find_flag_y(g, stave, find_stem_edge(dm, ch, ch, part, true), find_stem_edge(dm, ch, ch, part, false));
     }
 
     drawLineEx(stem_x, base, stem_x, tip, stemWidth, ctr.bgSheetNote);
@@ -2061,7 +2724,6 @@ void sheetController::draw_group_glyphs(const sheetMeasure& dm, int ch, int part
     return;
   }
 
-  const midi& stream = ctr.getStream();
   const colorRGB& col = ctr.bgSheetNote;
   const auto& c = dm.chords[ch].second;
   const int stave = part_stave(part);
@@ -2073,8 +2735,7 @@ void sheetController::draw_group_glyphs(const sheetMeasure& dm, int ch, int part
       continue;
     }
 
-    const note& src = stream.notes[n->oriNote];
-    const int y = findStaveY(src.sheetY, stave);
+    const int y = findStaveY(n->sheet_y, stave);
     drawSymbol(getSymbolType(n->display_type), fSize, find_head_x(g, n, anchor), y - glyph_baseline, col);
 
     if (has_acc(n)) {
@@ -2083,33 +2744,193 @@ void sheetController::draw_group_glyphs(const sheetMeasure& dm, int ch, int part
       drawSymbol(acc_sym, fSize, acc_x, y - glyph_baseline, col);
     }
 
-    if (is_dotted_type(n->display_type)) {
-      const int dot_y = y - (find_dot_row(dm, part, src.sheetY) - src.sheetY) * ctr.barWidth / 2;
-      drawSymbol(SYM_DOT, fSize, anchor + find_dot_x(dm, ch, part, n), dot_y - glyph_baseline, col);
+    const int dot_y = y - (find_dot_row(dm, part, n->sheet_y) - n->sheet_y) * ctr.barWidth / 2;
+    for (int k = 0; k < n->dots; ++k) {
+      const int dot_x = anchor + find_dot_x(dm, ch, part, n) + k * (getSymbolWidth(SYM_DOT) + dot_gap);
+      drawSymbol(SYM_DOT, fSize, dot_x, dot_y - glyph_baseline, col);
     }
   }
 
 }
 
-void sheetController::draw_flags(float x, float tip, int count, bool down) {
+void sheetController::draw_flags(float x, float tip, int count, bool down, float scale) {
   // the font's flags have hairline tails that break up at this size, so a thickened trace is drawn instead
-  const float scale_y = count == 1 ? flag_scale_single : flag_scale_stacked;
+  const float scale_y = (count == 1 ? flag_scale_single : flag_scale_stacked) * scale;
   const float dir = down ? -1.0f : 1.0f;
 
   for (int k = 0; k < count; ++k) {
-    const float y0 = tip + dir * k * flag_step;
+    const float y0 = tip + dir * k * flag_step * scale;
     Vector2 outer[flag_trace_len];
     Vector2 inner[flag_trace_len];
     for (int i = 0; i < flag_trace_len; ++i) {
-      outer[i] = {x + flag_outer[i][0], y0 + dir * flag_outer[i][1] * scale_y};
-      inner[i] = {x + flag_inner[i][0], y0 + dir * flag_inner[i][1] * scale_y};
+      outer[i] = {x + flag_outer[i][0] * scale, y0 + dir * flag_outer[i][1] * scale_y};
+      inner[i] = {x + flag_inner[i][0] * scale, y0 + dir * flag_inner[i][1] * scale_y};
     }
     draw_aa_strip(outer, inner, flag_trace_len, ctr.bgSheetNote);
   }
 }
 
+void sheetController::draw_arpeggios(const sheetMeasure& dm, int ch) {
+  // each rolled chord gets one wavy line from its lowest note to its highest, across both staves when it spans them
+  const sheetChordData& cd = dm.s_chordData[ch];
+  if (cd.arpeggio_x == 0) {
+    return;
+  }
+  const auto& c = dm.chords[ch].second;
+  const float x = chord_x[ch] - cd.arpeggio_x;
+  for (const sheetNote* first : c) {
+    if (first->arpeggio < 0 || first->out_of_bounds ||
+        std::ranges::find(c, first->arpeggio, &sheetNote::arpeggio) != std::ranges::find(c, first)) {
+      continue;
+    }
+    float top = std::numeric_limits<float>::max();
+    float bottom = std::numeric_limits<float>::lowest();
+    for (const sheetNote* n : c) {
+      if (n->arpeggio == first->arpeggio && !n->out_of_bounds) {
+        const float y = findStaveY(n->sheet_y, n->stave);
+        top = std::min(top, y - arpeggio_ext);
+        bottom = std::max(bottom, y + arpeggio_ext);
+      }
+    }
+
+    // whole segments of leland's wiggle turned upright, centred on the notes, each glyph's baseline running up its
+    // right edge once turned
+    const int count = std::max(1, static_cast<int>(std::lround((bottom - top) / arpeggio_segment)));
+    const float start = std::round((top + bottom + count * arpeggio_segment) / 2);
+    const float right = std::round(x + arpeggio_width / 2);
+    for (int i = 0; i < count; ++i) {
+      const float y = std::round(start - i * arpeggio_segment);
+      drawSymbolRotated(SYM_ARPEGGIO, fSize, right - glyph_baseline, y, -90.0f, ctr.bgSheetNote);
+    }
+    add_obstacle(x - arpeggio_width / 2, x + arpeggio_width / 2, start - count * arpeggio_segment, start);
+  }
+}
+
+int sheetController::find_grace_width(const sheetNote* g) {
+  const int acc = has_acc(g) ? getGlyphWidth(getAccType(g->displayAcc), grace_size) + grace_acc_gap : 0;
+  return acc + getGlyphWidth(SYM_HEAD_STD, grace_size) + grace_gap;
+}
+
+void sheetController::draw_graces(const sheetMeasure& dm, int ch, bool glyphs) {
+  const sheetChordData& cd = dm.s_chordData[ch];
+  if (cd.grace_x == 0) {
+    return;
+  }
+  const float scale = static_cast<float>(grace_size) / fSize;
+  const float baseline = glyph_baseline * scale;
+  const int head_w = getGlyphWidth(SYM_HEAD_STD, grace_size);
+  const float stroke = stemWidth * scale + 0.4f;
+
+  for (int stave = STAVE_TREBLE; stave <= STAVE_BASS; ++stave) {
+    // each stave's grace notes in a row ending before the chord, with stems up unless they belong to a lower voice
+    struct grace_head {
+      const sheetNote* n;
+      float x;
+      float y;
+    };
+    grace_head row[2 * grace_max_count];
+    int count = 0;
+    bool down = false;
+    float x = chord_x[ch] - cd.grace_x;
+    for (const sheetNote* g : dm.graces) {
+      if (g->displayBegin != dm.chords[ch].first || g->out_of_bounds || g->stave != stave ||
+          count == 2 * grace_max_count) {
+        continue;
+      }
+      const float acc = has_acc(g) ? getGlyphWidth(getAccType(g->displayAcc), grace_size) + grace_acc_gap : 0;
+      row[count++] = {g, x + acc, static_cast<float>(findStaveY(g->sheet_y, stave))};
+      down = down || (dm.two_voice[stave] && g->voice == 1);
+      x += find_grace_width(g);
+    }
+    if (count == 0) {
+      continue;
+    }
+
+    if (glyphs) {
+      for (int i = 0; i < count; ++i) {
+        const sheetNote* g = row[i].n;
+        drawSymbol(SYM_HEAD_STD, grace_size, row[i].x, row[i].y - baseline, ctr.bgSheetNote);
+        if (has_acc(g)) {
+          const int acc = getAccType(g->displayAcc);
+          drawSymbol(acc, grace_size, row[i].x - grace_acc_gap - getGlyphWidth(acc, grace_size), row[i].y - baseline,
+                     ctr.bgSheetNote);
+        }
+      }
+      continue;
+    }
+
+    // short ledger lines for heads off the stave
+    const int top_line = stave == STAVE_TREBLE ? 10 : -2;
+    const int bottom_line = stave == STAVE_TREBLE ? 2 : -10;
+    for (int i = 0; i < count; ++i) {
+      const int sheet_y = row[i].n->sheet_y;
+      for (int line = top_line + 2; line <= sheet_y; line += 2) {
+        drawLineEx(row[i].x - 2, findStaveY(line, stave), row[i].x + head_w + 2, findStaveY(line, stave), 1,
+                   ctr.bgSheetNote);
+      }
+      for (int line = bottom_line - 2; line >= sheet_y; line -= 2) {
+        drawLineEx(row[i].x - 2, findStaveY(line, stave), row[i].x + head_w + 2, findStaveY(line, stave), 1,
+                   ctr.bgSheetNote);
+      }
+    }
+
+    // stems reach a line through the first and last tips, moved out until every stem is long enough
+    const float sign = down ? 1.0f : -1.0f;
+    auto stem_x = [&](int i) { return down ? row[i].x + stroke / 2 : row[i].x + head_w - stroke / 2; };
+    const float x0 = stem_x(0);
+    const float dx = stem_x(count - 1) - x0;
+    const float slope =
+        dx > 0 ? std::clamp((row[count - 1].y - row[0].y) / dx, -grace_beam_slope, grace_beam_slope) : 0;
+    float y0 = row[0].y + sign * grace_stem_len;
+    for (int i = 0; i < count; ++i) {
+      const float tip = row[i].y + sign * grace_stem_len - slope * (stem_x(i) - x0);
+      y0 = down ? std::max(y0, tip) : std::min(y0, tip);
+    }
+    auto tip_y = [&](int i) { return y0 + slope * (stem_x(i) - x0); };
+
+    float top = std::numeric_limits<float>::max();
+    float bottom = std::numeric_limits<float>::lowest();
+    for (int i = 0; i < count; ++i) {
+      drawLineEx(stem_x(i), row[i].y + sign, stem_x(i), tip_y(i), stroke, ctr.bgSheetNote);
+      top = std::min({top, row[i].y - head_half, tip_y(i)});
+      bottom = std::max({bottom, row[i].y + head_half, tip_y(i)});
+    }
+
+    if (count == 1) {
+      // a lone grace note is flagged and struck through
+      const float tip = tip_y(0);
+      draw_flags(stem_x(0) - stroke / 2, tip, 1, down, scale);
+      const Vector2 a[2] = {{stem_x(0) - 4.0f, tip - sign * 9.0f}, {stem_x(0) + 6.0f, tip - sign * 2.0f}};
+      const Vector2 b[2] = {{stem_x(0) - 4.0f, tip - sign * 9.0f + 1.1f}, {stem_x(0) + 6.0f, tip - sign * 2.0f + 1.1f}};
+      draw_aa_strip(a, b, 2, ctr.bgSheetNote);
+    }
+    else {
+      // a group shares beams, one per level its values call for
+      const int levels = row[0].n->display_type == NOTE_16 ? 2 : 1;
+      for (int level = 0; level < levels; ++level) {
+        const float shift = -sign * level * grace_beam_step;
+        const float xa = stem_x(0) - stroke / 2;
+        const float xb = stem_x(count - 1) + stroke / 2;
+        const float ya = y0 + slope * (xa - x0) + shift;
+        const float yb = y0 + slope * (xb - x0) + shift;
+        const Vector2 a[2] = {{xa, ya}, {xb, yb}};
+        const Vector2 b[2] = {{xa, ya - sign * grace_beam_thickness}, {xb, yb - sign * grace_beam_thickness}};
+        draw_aa_strip(a, b, 2, ctr.bgSheetNote);
+      }
+    }
+
+    const float left = row[0].x - (has_acc(row[0].n) ? grace_acc_gap + 8 : 0);
+    if (stave == STAVE_TREBLE) {
+      chord_top[ch] = std::min(chord_top[ch], top);
+      add_obstacle(left, x, top, bottom);
+    }
+    else {
+      chord_bottom[ch] = std::max(chord_bottom[ch], bottom);
+    }
+  }
+}
+
 void sheetController::draw_ledger_lines(const sheetMeasure& dm, int ch, int part, int anchor) {
-  const midi& stream = ctr.getStream();
   const auto& c = dm.chords[ch].second;
   const stem_group& g = dm.s_chordData[ch].groups[part];
   const int stave = part_stave(part);
@@ -2125,7 +2946,7 @@ void sheetController::draw_ledger_lines(const sheetMeasure& dm, int ch, int part
       if (!in_part(n, part)) {
         continue;
       }
-      const int sheet_y = stream.notes[n->oriNote].sheetY;
+      const int sheet_y = n->sheet_y;
       if (above ? sheet_y < line : sheet_y > line) {
         continue;
       }
@@ -2221,14 +3042,24 @@ sheetController::beam_line sheetController::find_beam_line(const sheetMeasure& d
     y0 += (up ? 1.0f : -1.0f) * std::clamp(shift, 0.0f, std::max(room, 0.0f));
   }
 
-  // even when nothing else works, a beam stays inside the sheet (its other levels stack towards the notes)
+  // even when nothing else works, a beam stays inside the sheet (its other levels stack towards the notes), and short
+  // of an octave line there as long as its stems keep their shortest length
+  const float min_len = len - (beam_stem_len - beam_min_len);
+  float top = find_stem_edge(dm, first, last, beam.part(), true);
+  float bottom = find_stem_edge(dm, first, last, beam.part(), false);
+  for (int ch : beam.chords) {
+    top = up ? std::min(top, near_y(ch) - min_len) : top;
+    bottom = up ? bottom : std::max(bottom, near_y(ch) + min_len);
+  }
+  top = std::max(top, find_sheet_top());
+  bottom = std::min(bottom, find_sheet_bottom());
   for (int ch : beam.chords) {
     const float line_y = y0 + slope * (find_stem_x(stem_anchor(dm, beam, ch), beam.dir) - x0);
-    if (up && line_y < find_sheet_top()) {
-      y0 += find_sheet_top() - line_y;
+    if (up && line_y < top) {
+      y0 += top - line_y;
     }
-    else if (!up && line_y > find_sheet_bottom()) {
-      y0 -= line_y - find_sheet_bottom();
+    else if (!up && line_y > bottom) {
+      y0 -= line_y - bottom;
     }
   }
 
@@ -2331,7 +3162,17 @@ bool sheetController::tie_hits_heads(float x0, float x1, float y, bool up, float
   return false;
 }
 
-void sheetController::draw_tie(float x0, float x1, float y, bool up, float flip_y, int start_note, int end_note) {
+float sheetController::find_tie_edge(const sheetNote* n, bool top) const {
+  // a tie under an octave line keeps clear of the line where it runs along the sheet's edge
+  const bool room = is_moved(n) && (n->stave == STAVE_TREBLE) == top;
+  if (top) {
+    return room ? find_sheet_top() + octave_tie_room : std::numeric_limits<float>::lowest();
+  }
+  return room ? find_sheet_bottom() - octave_tie_room : std::numeric_limits<float>::max();
+}
+
+void sheetController::draw_tie(float x0, float x1, float y, bool up, float flip_y, int start_note, int end_note,
+                               float top, float bottom) {
   if (x1 - x0 < tie_min_len) {
     const float mid = (x0 + x1) / 2;
     x0 = mid - tie_min_len / 2;
@@ -2367,14 +3208,20 @@ void sheetController::draw_tie(float x0, float x1, float y, bool up, float flip_
       {y, up, height * 1.6f},  {flip_y, !up, height},      {flip_y, !up, flatter},
       {flip_y, !up, tie_min_height},
   };
-  candidate chosen = candidates[0];
-  for (const auto& c : candidates) {
-    if (!tie_hits_heads(x0, x1, c.y, c.up, c.height, shoulder, std::min(thickness, c.height * 0.7f), start_note,
-                        end_note)) {
-      chosen = c;
-      break;
-    }
+  // the first that misses noteheads and stays clear of an octave line, else the first missing noteheads
+  auto clear_of_heads = [&](const candidate& c) {
+    return !tie_hits_heads(x0, x1, c.y, c.up, c.height, shoulder, std::min(thickness, c.height * 0.7f), start_note,
+                           end_note);
+  };
+  auto clear_of_edge = [&](const candidate& c) {
+    return c.up ? c.y - c.height - tie_end_width >= top : c.y + c.height + tie_end_width <= bottom;
+  };
+  auto clear_of_both = [&](const candidate& c) { return clear_of_heads(c) && clear_of_edge(c); };
+  auto it = std::ranges::find_if(candidates, clear_of_both);
+  if (it == std::end(candidates)) {
+    it = std::ranges::find_if(candidates, clear_of_heads);
   }
+  const candidate chosen = it == std::end(candidates) ? candidates[0] : *it;
 
   const float sign = chosen.up ? -1.0f : 1.0f;
   const float lens = std::min(thickness, chosen.height * 0.7f);

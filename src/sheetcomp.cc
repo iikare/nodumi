@@ -47,14 +47,27 @@ void split_rest(int begin, int end, bool compound, F&& emit) {
 
 }  // namespace
 
+int sheetMeasure::find_beat(const timeSig& ts) {
+  // in 64ths, dotted in compound meter
+  const int unit = std::clamp(64 / std::max(1, ts.getBottom()), 1, 64);
+  if (ts.getTop() % 3 == 0 && ts.getTop() > 3 && unit < 64) {
+    return unit * 3;
+  }
+  return unit;
+}
+
 void sheetMeasure::buildChordMap(deque<sheetNote>& vecNote) {
   const midi& stream = ctr.getStream();
 
+  // grace notes take no time, so they stay out of the chords
   vector<sheetNote*> order;
   order.reserve(vecNote.size());
+  graces.clear();
   for (auto& n : vecNote) {
-    order.push_back(&n);
+    (n.grace_of < 0 ? order : graces).push_back(&n);
   }
+  std::stable_sort(graces.begin(), graces.end(),
+                   [](const sheetNote* a, const sheetNote* b) { return a->displayBegin < b->displayBegin; });
 
   // chords in time order, notes low to high within each chord
   std::sort(order.begin(), order.end(), [&](const sheetNote* a, const sheetNote* b) {
@@ -74,7 +87,7 @@ void sheetMeasure::buildChordMap(deque<sheetNote>& vecNote) {
     if (a->tie_in != b->tie_in) {
       return a->tie_in > b->tie_in;
     }
-    return a->display_type < b->display_type;
+    return note_len(a) > note_len(b);
   });
 
   chords.clear();
@@ -89,8 +102,6 @@ void sheetMeasure::buildChordMap(deque<sheetNote>& vecNote) {
 }
 
 void sheetMeasure::find_voices(int len) {
-  const midi& stream = ctr.getStream();
-
   // notes sounding over the same span form one group, and the pieces of a tied note share its span
   struct voice_group {
     int stave;
@@ -118,10 +129,10 @@ void sheetMeasure::find_voices(int len) {
       if (n->out_of_bounds || n->stave == STAVE_NONE) {
         continue;
       }
-      const int end = c.first + note_units[n->display_type];
+      const int end = c.first + note_len(n);
       auto it = std::find_if(spans.begin(), spans.end(), [&](const note_span& sp) { return sp.note == n->oriNote; });
       if (it == spans.end()) {
-        spans.push_back({n->oriNote, n->stave, c.first, end, stream.notes[n->oriNote].sheetY});
+        spans.push_back({n->oriNote, n->stave, c.first, end, n->sheet_y});
       }
       else {
         it->begin = min(it->begin, c.first);
@@ -130,8 +141,10 @@ void sheetMeasure::find_voices(int len) {
     }
   }
   for (const auto& sp : spans) {
+    // a gap of more than an octave inside a chord splits it, so each side can join its own line
     auto it = std::find_if(groups.begin(), groups.end(), [&](const voice_group& g) {
-      return g.stave == sp.stave && g.begin == sp.begin && g.end == sp.end;
+      return g.stave == sp.stave && g.begin == sp.begin && g.end == sp.end && sp.sheet_y >= g.lo - voice_apart &&
+             sp.sheet_y <= g.hi + voice_apart;
     });
     if (it == groups.end()) {
       groups.push_back({sp.stave, sp.begin, sp.end, 0, sp.sheet_y, sp.sheet_y, 0, -1});
@@ -147,11 +160,13 @@ void sheetMeasure::find_voices(int len) {
     g.pitch /= g.count;
   }
 
-  // groups sounding together for long enough cannot share a stem line
+  // groups sounding together for long enough cannot share a stem line, nor can lengths starting together that sit
+  // more than an octave apart, as one stem across both would hide the gap
   auto conflicts = [](const voice_group& a, const voice_group& b) {
     const int overlap = min(a.end, b.end) - max(a.begin, b.begin);
     const int shorter = min(a.end - a.begin, b.end - b.begin);
-    return overlap > max(legato_units, shorter / 2);
+    const bool apart = a.begin == b.begin && a.end != b.end && max(a.lo - b.hi, b.lo - a.hi) > voice_apart;
+    return overlap > max(legato_units, shorter / 2) || apart;
   };
 
   for (int stave = STAVE_TREBLE; stave <= STAVE_BASS; ++stave) {
@@ -307,10 +322,11 @@ void sheetMeasure::close_gaps(int len, bool open) {
           continue;
         }
         present = true;
-        const int end = pos + note_units[n->display_type];
-        const int type = next < 0 ? NOTE_NONE : find_exact_type(next - pos);
-        if (!n->tie_out && end < next && next - end < rest_min_units && type != NOTE_NONE) {
-          n->display_type = type;
+        const int end = pos + note_len(n);
+        const note_value held = find_exact_value(next - pos);
+        if (!n->tie_out && end < next && next - end < rest_min_units && held.type != NOTE_NONE) {
+          n->display_type = held.type;
+          n->dots = held.dots;
         }
       }
       if (present) {
@@ -357,7 +373,7 @@ void sheetMeasure::find_rests(int len, bool open) {
         }
         onset = true;
         fill(cursor, c.first, sounding[part].empty());
-        const int end = c.first + note_units[n->display_type];
+        const int end = c.first + note_len(n);
         sounding[part].push_back(make_pair(c.first, end));
         cursor = max(cursor, end);
       }
@@ -422,8 +438,6 @@ void sheetMeasure::find_rests(int len, bool open) {
 }
 
 void sheetMeasure::build_stem_groups(int len) {
-  const midi& stream = ctr.getStream();
-
   // where each part plays next, so a stem never claims more time than its part leaves it
   vector<std::array<int, part_count>> next(chords.size());
   std::array<int, part_count> after;
@@ -446,7 +460,7 @@ void sheetMeasure::build_stem_groups(int len) {
       }
 
       stem_group& g = s_chordData[ch].groups[find_part(n->stave, n->voice)];
-      const int sheet_y = stream.notes[n->oriNote].sheetY;
+      const int sheet_y = n->sheet_y;
       if (g.empty()) {
         g.first = i;
         g.lo = sheet_y;
@@ -455,26 +469,29 @@ void sheetMeasure::build_stem_groups(int len) {
       g.last = i;
       g.hi = max(g.hi, sheet_y);
       // whole notes sit beside the stem rather than on it
-      if (n->display_type >= NOTE_HALF_DOT) {
+      const bool stemmed = n->display_type >= NOTE_HALF;
+      if (stemmed) {
         g.stem_lo = min(g.stem_lo, sheet_y);
         g.stem_hi = max(g.stem_hi, sheet_y);
       }
       // the stem shows the longest value on it that ends before its part plays again, so it meets the rests after
-      // it, or the shortest when every value runs on (enum is inverted)
+      // it, or the shortest when every value runs on
       const int room = next[ch][find_part(n->stave, n->voice)] - chords[ch].first;
-      auto better = [&](int a, int b) {
-        if ((a >= NOTE_HALF_DOT) != (b >= NOTE_HALF_DOT)) {
-          return a >= NOTE_HALF_DOT;
+      const int units = note_len(n);
+      auto better = [&]() {
+        if (stemmed != (g.type >= NOTE_HALF)) {
+          return stemmed;
         }
-        if ((note_units[a] <= room) != (note_units[b] <= room)) {
-          return note_units[a] <= room;
+        if ((units <= room) != (g.units <= room)) {
+          return units <= room;
         }
-        return note_units[a] <= room ? a < b : a > b;
+        return units <= room ? units > g.units : units < g.units;
       };
-      if (i == g.first || better(n->display_type, g.type)) {
+      if (i == g.first || better()) {
         g.type = n->display_type;
+        g.units = units;
       }
-      g.dotted |= is_dotted_type(n->display_type);
+      g.dots = max(g.dots, n->dots);
     }
 
     for (auto& g : s_chordData[ch].groups) {
@@ -493,7 +510,7 @@ bool sheetMeasure::is_plain_half_bar(int part, int half) const {
     if (pos < half * 32 || pos >= half * 32 + 32 || s_chordData[ch].groups[part].empty()) {
       continue;
     }
-    if (s_chordData[ch].groups[part].type != NOTE_8 || pos != half * 32 + count * 8) {
+    if (s_chordData[ch].groups[part].units != note_units[NOTE_8] || pos != half * 32 + count * 8) {
       return false;
     }
     ++count;
@@ -512,7 +529,9 @@ void sheetMeasure::build_beams() {
     const int stave = part_stave(part);
     const bool half_bar[2] = {common && is_plain_half_bar(part, 0), common && is_plain_half_bar(part, 1)};
 
-    // beams never cross a beat (or half bar, or dotted beat in compound meter)
+    // beams never cross a beat (or half bar, or dotted beat in compound meter), except where an eighth or longer
+    // sounds through it into another, within half a 4/4 or 2/2 bar or within a 2/4 or 3/4 bar
+    const int through_span = common ? 32 : (!compound && ts.getBottom() == 4 && ts.getTop() <= 3 ? 64 : 0);
     auto find_window = [&](int pos) {
       if (compound) {
         return pos / 24;
@@ -526,6 +545,8 @@ void sheetMeasure::build_beams() {
     vector<int> run;
     int run_end = 0;
     int run_window = -1;
+    int run_pos = 0;
+    int run_units = 0;
 
     auto flush = [&]() {
       if (run.size() > 1) {
@@ -551,14 +572,16 @@ void sheetMeasure::build_beams() {
       const int window = find_window(pos);
 
       // a rest or a beat boundary breaks the beam
-      if (!run.empty() && (window != run_window || pos >= run_end + rest_min_units)) {
+      const bool through = through_span > 0 && run_end > pos - pos % 16 &&
+                           run_pos / through_span == pos / through_span && min(run_units, g.units) >= note_units[NOTE_8];
+      if (!run.empty() && ((window != run_window && !through) || pos >= run_end + rest_min_units)) {
         flush();
       }
-      if (run.empty()) {
-        run_window = window;
-      }
       run.push_back(ch);
-      run_end = pos + note_units[g.type];
+      run_window = window;
+      run_end = pos + g.units;
+      run_pos = pos;
+      run_units = g.units;
     }
     flush();
   }
@@ -608,8 +631,6 @@ void sheetMeasure::set_stem_dirs() {
 }
 
 void sheetMeasure::place_heads() {
-  const midi& stream = ctr.getStream();
-
   for (unsigned int ch = 0; ch < chords.size(); ++ch) {
     auto& c = chords[ch].second;
     for (int part = 0; part < part_count; ++part) {
@@ -637,7 +658,7 @@ void sheetMeasure::place_heads() {
           continue;
         }
 
-        const int y = stream.notes[n->oriNote].sheetY;
+        const int y = n->sheet_y;
         const bool flip = prev_normal && abs(y - prev_y) == 1;
         n->left = down ? flip : !flip;
         g.flipped |= flip;

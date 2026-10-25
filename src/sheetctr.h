@@ -78,6 +78,15 @@ class sheetController {
     bool outside;
     float flip_y;   // where the tie would start on the other side of the note
     int head_note;  // the note whose head the tie starts from
+    float top;      // how far the tie may reach, short of an octave line at the sheet's edge
+    float bottom;
+  };
+
+  struct note_onset {
+    int note;
+    int begin;
+    int end = -1;       // where a rolled chord's note ends, otherwise it keeps its own end
+    int arpeggio = -1;  // the rolled chord it belongs to
   };
 
   struct head_box {
@@ -86,6 +95,16 @@ class sheetController {
     float y0;
     float y1;
     int note;
+  };
+
+  // an 8va or 8vb line over consecutive measures of one stave
+  struct octave_span {
+    int stave;
+    float x0;
+    float x1;
+    float edge;     // furthest reach of the notes under the line
+    float reach;    // furthest reach of the notes near its end, which the hook stops short of
+    bool open_end;  // carries on past the page
   };
 
   vector<int> sheetPageSeparator;
@@ -102,6 +121,7 @@ class sheetController {
   vector<head_box> head_boxes;
   vector<label_obstacle> label_obstacles;
   vector<measure_label> measure_labels;
+  vector<octave_span> octave_spans;
   float staff_end = 0;
 
   int to_units(const midi& stream, int ticks) const;
@@ -109,12 +129,25 @@ class sheetController {
   int find_grid(const midi& stream) const;
   int find_note_begin(const midi& stream, const measureController& measure, const note& n) const;
   int find_note_end(const midi& stream, const note& n) const;
-  int find_value_units(const midi& stream, const note& n) const;
-  int find_raw_value_units(const midi& stream, const note& n) const;
+  int find_ledger_count(int sheet_y, int stave) const;
+  int find_octave_y(int sheet_y, int stave, int octave) const;
+  void find_octaves(sheetMeasure& dm, int stave, int prev, vector<int>& state) const;
+  bool is_moved(const sheetNote* n) const;
+  bool is_under_line(const sheetMeasure& dm, int first, int last, int part) const;
+  float find_stem_edge(const sheetMeasure& dm, int first, int last, int part, bool top) const;
+  bool starts_moved(const sheetMeasure& dm, int stave) const;
+  int find_value_units(const midi& stream, int ticks, int type) const;
+  int find_raw_value_units(const midi& stream, int ticks, int type) const;
+  void find_rolls(vector<note_onset>& onsets) const;
+  bool is_grace_length(int idx) const;
+  int find_next_struck(int idx) const;
+  int find_prev_struck(int idx) const;
+  int find_grace_main(int idx) const;
   void build_display_notes(measureController& measure);
   sheetMeasure layout_measure(measureController& measure, const std::array<bool, 2>& one_voice, int (&crowded)[2]);
   void place_rests(sheetMeasure& dm);
-  bool clears_other_voice(const sheetMeasure& dm, int ch, int part, int dir, int lo, int hi, float len);
+  float find_other_voice_bound(const sheetMeasure& dm, int first, int last, int part, int dir);
+  bool clears_other_voice(const sheetMeasure& dm, int first, int last, int part, int dir, int lo, int hi, float len);
   void keep_in_sheet(sheetMeasure& dm);
   void separate_staves(sheetMeasure& dm, int (&crowded)[2]);
   void avoid_ties(sheetMeasure& dm);
@@ -138,19 +171,27 @@ class sheetController {
   void draw_group_shapes(const sheetMeasure& dm, int ch, int part, int measure_x);
   void draw_group_glyphs(const sheetMeasure& dm, int ch, int part);
   int find_head_x(const stem_group& g, const sheetNote* n, int anchor);
-  int find_flag_y(const stem_group& g, int stave);
+  int find_flag_y(const stem_group& g, int stave, float top, float bottom);
   int find_dot_x(const sheetMeasure& dm, int ch, int part, const sheetNote* n);
   int find_dot_row(const sheetMeasure& dm, int part, int sheet_y) const;
+  int find_dots_width(int dots);
   void draw_ledger_lines(const sheetMeasure& dm, int ch, int part, int anchor);
   void draw_beam(const sheetMeasure& dm, int b);
-  void draw_tie(float x0, float x1, float y, bool up, float flip_y, int start_note, int end_note);
+  void draw_tie(float x0, float x1, float y, bool up, float flip_y, int start_note, int end_note, float top,
+                float bottom);
+  float find_tie_edge(const sheetNote* n, bool top) const;
   float find_tie_arc(float t, float shoulder) const;
   bool tie_hits_heads(float x0, float x1, float y, bool up, float height, float shoulder, float thickness,
                       int start_note, int end_note) const;
   beam_line find_beam_line(const sheetMeasure& dm, const beam_group& beam);
   float find_stem_x(int anchor, int dir) const;
   int stem_anchor(const sheetMeasure& dm, const beam_group& beam, int ch) const;
-  void draw_flags(float x, float tip, int count, bool down);
+  void draw_flags(float x, float tip, int count, bool down, float scale = 1.0f);
+  int find_grace_width(const sheetNote* g);
+  void draw_graces(const sheetMeasure& dm, int ch, bool glyphs);
+  void draw_arpeggios(const sheetMeasure& dm, int ch);
+  void add_octave_span(const sheetMeasure& dm, int stave, int& open, int measure_end);
+  void draw_octave_line(const octave_span& span);
 
   void drawTimeSignature(const timeSig& time, int x);
   void drawKeySignature(const keySig& key, int x);
@@ -202,6 +243,7 @@ class sheetController {
 
   static constexpr int stemWidth = 2;
   static constexpr int dotSpacing = 5;
+  static constexpr int dot_gap = 3;  // between the dots of a note with more than one
   static constexpr int accSpacing = 4;
   static constexpr int sigSpacing = 4;
   static constexpr int endSpacing = 4;
@@ -264,6 +306,52 @@ class sheetController {
   static constexpr float rest_clearance = 3.0f;  // between a voice's rest and the other voice's noteheads
   static constexpr int rest_shift_max = 6;       // furthest a rest moves past the other voice, in spaces
   static constexpr int voice_cross_gap = 4;      // extra room between the stems of crossing voices
+  static constexpr int absorb_top = 1;           // highest sheetY a low treble part may have to move to the bass
+  static constexpr int absorb_gap = 8;           // least distance to the treble notes over it, past an octave
+  static constexpr int absorb_near = 4;          // and to those just before or after it
+  static constexpr double roll_step = 0.07 * UNK_CST;   // most time between notes struck as one chord
+  static constexpr double roll_span = 0.4 * UNK_CST;    // most time from first to last
+  static constexpr double roll_hold = 0.1 * UNK_CST;    // least time they ring together after the last
+  static constexpr double roll_min_spread = 0.06 * UNK_CST;  // least spread heard as a roll
+  static constexpr double roll_min_step = 0.012 * UNK_CST;   // closer notes are struck together
+  static constexpr double chord_spread = 0.035 * UNK_CST;    // most spread of a chord that is only played loosely
+  static constexpr double chord_spread_far = 0.08 * UNK_CST;  // or of one landing within a 32nd
+  static constexpr double grace_max_units = 1.75;     // longest grace note, in 64ths
+  static constexpr double grace_max_time = 0.09 * UNK_CST;   // and in time
+  static constexpr double grace_min_lead = 0.004 * UNK_CST;  // closer notes are struck together
+  static constexpr double grace_join = 0.04 * UNK_CST;       // most silence between a grace note and the next
+  static constexpr double grace_max_lead = 0.25 * UNK_CST;   // most time from a grace note to the next
+  static constexpr int grace_max_count = 3;    // longer runs of short notes are written out
+  static constexpr int grace_main_ratio = 3;   // the note led into lasts at least this many times as long
+  static constexpr int grace_size = 102;       // font size of grace notes, about two thirds of the rest
+  static constexpr int grace_gap = 2;          // after each grace note
+  static constexpr int grace_acc_gap = 1;      // between a grace note and its accidental
+  static constexpr int grace_lead = 3;         // between the grace notes and their chord
+  static constexpr float grace_stem_len = 21.0f;
+  static constexpr float grace_beam_thickness = 2.6f;
+  static constexpr float grace_beam_step = 4.2f;
+  static constexpr float grace_beam_slope = 0.2f;
+  static constexpr float glyph_unit = head_width_exact / 325.0f;  // pixels per font unit
+  static constexpr float arpeggio_gap = 3.0f;  // between the wavy line and the accidentals or noteheads
+  static constexpr float arpeggio_width = 164 * glyph_unit;    // of leland's wiggle segment, turned upright
+  static constexpr float arpeggio_segment = 220 * glyph_unit;  // its length
+  static constexpr float arpeggio_ext = 3.0f;  // past the outer noteheads
+  static constexpr int octave_oob_cost = 8;           // ledger lines a note too far off the stave to draw counts as
+  static constexpr float octave_start_cost = 4.0f;    // ledger lines an 8va or 8vb line must save to start
+  static constexpr float octave_stop_cost = 1.0f;     // and to stop, so short islands are left out
+  static constexpr float octave_note_cost = 0.6f;     // for each note moved, so notes near the stave stay put
+  static constexpr float octave_far_cost = 20.0f;     // for each note moved too far past the other side
+  static constexpr int octave_far_side = 2;           // most ledger lines a note may need past the other side
+  static constexpr int octave_size = 118;        // font size of the 8va and 8vb text
+  static constexpr float octave_text_height = 11.7f;
+  static constexpr int octave_line_y = 16;       // sheetY of the text's middle above the treble, mirrored below the bass
+  static constexpr float octave_pad = 4.0f;      // between the line and the notes under it
+  static constexpr float octave_hook = 7.0f;
+  static constexpr float octave_hook_window = 24.0f;  // chords this near the end of a line limit its hook
+  static constexpr float octave_room = octave_text_height + octave_pad;  // kept free at the sheet's edge under a line
+  static constexpr float octave_tie_room = octave_text_height / 2 + 3.0f;  // by ties, which only meet its dashes
+  static constexpr float octave_dash = 4.0f;
+  static constexpr float octave_dash_gap = 3.0f;
 
   static constexpr bool debug_layout = false;
 

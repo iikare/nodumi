@@ -22,6 +22,9 @@ inline constexpr int rest_min_units = 4;
 // overlaps up to this long (or half the shorter note) are legato playing, not a second voice
 inline constexpr int legato_units = 4;
 
+// notes starting together with different lengths further apart than this many steps are separate voices
+inline constexpr int voice_apart = 7;
+
 // a stave with more noteheads than this per quarter note stays in one voice, as two would only add clutter
 inline constexpr int voice_max_density = 10;
 
@@ -51,6 +54,38 @@ inline int find_exact_type(int units) {
   return NOTE_NONE;
 }
 
+// a written value, an undotted type with up to max_dots dots, each adding half the one before
+struct note_value {
+  int units;
+  int type;
+  int dots;
+};
+
+inline constexpr int max_dots = 3;
+
+// every value a note piece may take, longest first
+inline constexpr note_value note_values[] = {
+    {120, NOTE_WHOLE, 3},  {112, NOTE_WHOLE, 2},  {96, NOTE_WHOLE, 1},  {64, NOTE_WHOLE, 0},
+    {60, NOTE_HALF, 3},    {56, NOTE_HALF, 2},    {48, NOTE_HALF, 1},   {32, NOTE_HALF, 0},
+    {30, NOTE_QUARTER, 3}, {28, NOTE_QUARTER, 2}, {24, NOTE_QUARTER, 1}, {16, NOTE_QUARTER, 0},
+    {15, NOTE_8, 3},       {14, NOTE_8, 2},       {12, NOTE_8, 1},      {8, NOTE_8, 0},
+    {7, NOTE_16, 2},       {6, NOTE_16, 1},       {4, NOTE_16, 0},      {3, NOTE_32, 1},
+    {2, NOTE_32, 0},       {1, NOTE_64, 0},
+};
+
+inline int value_units(int type, int dots) { return note_units[type] * 2 - (note_units[type] >> dots); }
+inline int note_len(const sheetNote* n) { return value_units(n->display_type, n->dots); }
+
+// the value spanning exactly this many 64ths, with a NOTE_NONE type if there is none
+inline note_value find_exact_value(int units) {
+  for (const note_value& v : note_values) {
+    if (v.units == units) {
+      return v;
+    }
+  }
+  return {units, NOTE_NONE, 0};
+}
+
 // drawable notes of one chord in one voice of one stave, sharing a stem
 struct stem_group {
   int first = -1;  // range of chord indices holding this voice's notes
@@ -60,12 +95,13 @@ struct stem_group {
   int stem_lo = INT_MAX;  // sheetY extremes of notes that take a stem
   int stem_hi = INT_MIN;
   int type = -1;  // value the stem shows, the longest that ends before the part's next notes
+  int units = 0;  // its length with dots
   int flag_type = FLAGTYPE_NONE;
   int dir = FLAG_UP;
   bool fixed = false;  // the direction comes from the voice, so it is shortened but never turned around
   int beam = -1;
   bool flipped = false;  // a second pushed a notehead to the far side of the stem
-  bool dotted = false;
+  int dots = 0;  // most dots on any of its notes
   int head_width = 0;
   int acc_x = 0;  // distance left of the anchor to the first accidental column
   int dot_x = 0;  // distance right of the anchor to the dots
@@ -102,6 +138,8 @@ struct sheetChordData {
   int rest_shift[part_count] = {0, 0, 0, 0};  // how far each rest moves out of the other voice's way, in sheetY steps
   bool oob_high = false;  // notes too high or low for the stave
   bool oob_low = false;
+  int arpeggio_x = 0;  // distance left of the anchor to the middle of a rolled chord's wavy line, 0 for none
+  int grace_x = 0;     // distance left of the anchor to the grace notes before it, 0 for none
 
   // the anchor is the left edge of the main notehead column
   int getStemPosition() const { return leftWidth; }
@@ -111,6 +149,8 @@ struct sheetChordData {
 class sheetMeasure {
  public:
   static int getFlagType(const int noteType);
+
+  static int find_beat(const timeSig& ts);
 
   void buildChordMap(deque<sheetNote>& vecNote);
   void find_voices(int len);
@@ -125,6 +165,7 @@ class sheetMeasure {
 
   vector<sheetChordData> s_chordData;
   vector<pair<int, vector<sheetNote*>>> chords;
+  vector<sheetNote*> graces;  // in time order, each before the chord at its position
   vector<beam_group> beams;
   measureController* measure;
 
@@ -133,6 +174,7 @@ class sheetMeasure {
   bool two_voice[2] = {false, false};  // a stave whose notes overlap, written as two voices
   bool one_voice[2] = {false, false};  // a stave kept to one voice because two ran into the other stave
   float voice_gap[2] = {0, 0};         // mean pitch distance between the voices, so how far one voice would stretch
+  int octave_out[2] = {0, 0};  // a stave's 8va (treble) or 8vb (bass) line runs on into the next measure
 
  private:
   bool is_plain_half_bar(int part, int half) const;

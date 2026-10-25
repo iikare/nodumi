@@ -30,7 +30,7 @@ optionController::optionController() {
   opts[static_cast<int>(OPTION::SET_QUANTIZE_LIVE)] = true;
   opts[static_cast<int>(OPTION::QUANTIZE_LIVE)] = 4;  // in 64ths
   opts[static_cast<int>(OPTION::SET_QUANTIZE_MIDI)] = true;
-  opts[static_cast<int>(OPTION::QUANTIZE_MIDI)] = 1;
+  opts[static_cast<int>(OPTION::QUANTIZE_MIDI)] = 2;
 }
 
 void optionController::invert(OPTION opt) {

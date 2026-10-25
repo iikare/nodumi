@@ -29,6 +29,8 @@ void drawTextEx(const string& msg, int x, int y, const colorRGB& col, unsigned c
 
 void drawSymbol(int sym, int size, int x, int y, const colorRGB& col, unsigned char alpha = 255,
                 const string& font = GLYPH_FONT);
+void drawSymbolRotated(int sym, int size, float x, float y, float angle, const colorRGB& col,
+                       unsigned char alpha = 255, const string& font = GLYPH_FONT);
 
 void drawCircle(float x, float y, float r, const colorRGB& col, float alpha = 255);
 

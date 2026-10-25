@@ -141,6 +141,18 @@ void drawSymbol(int sym, int size, int x, int y, const colorRGB& col, unsigned c
                     color);
 }
 
+void drawSymbolRotated(int sym, int size, float x, float y, float angle, const colorRGB& col, unsigned char alpha,
+                       const string& font) {
+  // turned about the top left of the glyph's line, which drawSymbol places at x and y
+  Color color =
+      (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, static_cast<unsigned char>(alpha)};
+  rlPushMatrix();
+  rlTranslatef(x, y, 0);
+  rlRotatef(angle, 0, 0, 1);
+  DrawTextCodepoint(ctr.getFont(font, size), sym, (const Vector2){0, 0}, size, color);
+  rlPopMatrix();
+}
+
 void drawCircle(float x, float y, float r, const colorRGB& col, float alpha) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, (unsigned char)alpha};
 
