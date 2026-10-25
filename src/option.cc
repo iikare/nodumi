@@ -27,8 +27,10 @@ optionController::optionController() {
   opts[static_cast<int>(OPTION::LEVEL_CONTROL_G)] = 255;
   opts[static_cast<int>(OPTION::LEVEL_CONTROL_B)] = 255;
   opts[static_cast<int>(OPTION::LIMIT_FPS)] = true;
-  opts[static_cast<int>(OPTION::SET_LIVE_QUANTIZE)] = false;
-  opts[static_cast<int>(OPTION::LIVE_QUANTIZE)] = 4;  // in 64ths
+  opts[static_cast<int>(OPTION::SET_QUANTIZE_LIVE)] = true;
+  opts[static_cast<int>(OPTION::QUANTIZE_LIVE)] = 4;  // in 64ths
+  opts[static_cast<int>(OPTION::SET_QUANTIZE_MIDI)] = true;
+  opts[static_cast<int>(OPTION::QUANTIZE_MIDI)] = 1;
 }
 
 void optionController::invert(OPTION opt) {
@@ -58,8 +60,12 @@ void optionController::invert(OPTION opt) {
       break;
     case OPTION::SET_CIE_FUNCTION:
       break;
-    case OPTION::SET_LIVE_QUANTIZE:
+    case OPTION::SET_QUANTIZE_LIVE:
       break;
+    case OPTION::SET_QUANTIZE_MIDI:
+      opts[static_cast<int>(opt)] = !opts[static_cast<int>(opt)];
+      ctr.rebuild_sheet();
+      return;
     case OPTION::PARTICLE:
       break;
     case OPTION::SCALE_VELOCITY:
@@ -142,8 +148,10 @@ void optionController::set(OPTION opt, int value) {
     case OPTION::CIE_FUNCTION:
     case OPTION::SHADOW_DISTANCE:
     case OPTION::SHADOW_ANGLE:
-    case OPTION::SET_LIVE_QUANTIZE:
-    case OPTION::LIVE_QUANTIZE:
+    case OPTION::SET_QUANTIZE_LIVE:
+    case OPTION::QUANTIZE_LIVE:
+    case OPTION::SET_QUANTIZE_MIDI:
+    case OPTION::QUANTIZE_MIDI:
       break;
     case OPTION::SET_DARKEN_IMAGE:
       ctr.setShaderValue("SH_LEVEL", "use_bw", value);
@@ -171,7 +179,14 @@ void optionController::set(OPTION opt, int value) {
       return;
   }
 
+  const bool changed = opts[static_cast<int>(opt)] != value;
   opts[static_cast<int>(opt)] = value;
+
+  // a file's notes snap to a different grid, so its sheet is laid out again
+  if (changed &&
+      (opt == OPTION::SET_QUANTIZE_MIDI || (opt == OPTION::QUANTIZE_MIDI && get(OPTION::SET_QUANTIZE_MIDI)))) {
+    ctr.rebuild_sheet();
+  }
 }
 
 int optionController::get(OPTION opt) { return opts[static_cast<int>(opt)]; }

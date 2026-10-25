@@ -96,6 +96,7 @@ class controller {
   vector<string> generateMenuLabels(const menuContentType& contentType);
 
   void clear();
+  void rebuild_sheet();
   void load(string path, bool& nowLine, bool& showFPS, bool& showImage,
 
             bool& showKey, bool& showTempo, bool& measureLine, bool& measureNumber,
@@ -256,6 +257,7 @@ class controller {
   bool programState = true;
   bool playState;
   bool livePlayState;
+  bool sheet_stale = false;  // the file's sheet missed a layout change made while playing live
   fileType fType;
   string fPath;
 

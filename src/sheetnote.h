@@ -17,4 +17,5 @@ struct sheetNote {
   bool tie_up;
   int acc_col;  // accidental column, counted leftwards from the notehead
   bool tie_outside;  // tied around the noteheads rather than between them
+  int voice;  // 0 for the upper (or only) voice of the stave, 1 for the lower
 };

@@ -86,7 +86,8 @@
                         {"PREF_TRACK_DIVIDE_MIDI",              "Adaptive Track Division (file)"}, \
                         {"PREF_HAND_RANGE",                     "Custom Hand Range"}, \
                         {"PREF_USE_LSTM",                       "Use LSTM Classifier"}, \
-                        {"PREF_LIVE_QUANTIZE",                  "Quantization Threshold"}, \
+                        {"PREF_QUANTIZE_LIVE",                  "Quantization Threshold (live)"}, \
+                        {"PREF_QUANTIZE_MIDI",                  "Quantization Threshold (file)"}, \
                         {"PREF_IMAGE_DARKEN",                   "Darken Background Image"}, \
                         {"PREF_DYNAMIC_LABEL",                  "Dynamic Label Color"}, \
                         {"PREF_CIE_FUNCTION",                   "Set CIE Distance Function"}, \

@@ -32,8 +32,11 @@ void dialogController::init() {
   dia_opts.find(PREF::P1)->second.push_back(
       dialogOption(DIA_OPT::CHECK_ONLY, OPTION::USE_LSTM, ctr.text.getStringSet("PREF_USE_LSTM")));
   dia_opts.find(PREF::P1)->second.push_back(
-      dialogOption(DIA_OPT::SUBBOX, OPTION::SET_LIVE_QUANTIZE, OPTION::LIVE_QUANTIZE,
-                   ctr.text.getStringSet("PREF_LIVE_QUANTIZE"), {"64", "32", "16", "8"}, {1, 2, 4, 8}));
+      dialogOption(DIA_OPT::SUBBOX, OPTION::SET_QUANTIZE_MIDI, OPTION::QUANTIZE_MIDI,
+                   ctr.text.getStringSet("PREF_QUANTIZE_MIDI"), {"64", "32", "16", "8"}, {1, 2, 4, 8}));
+  dia_opts.find(PREF::P1)->second.push_back(
+      dialogOption(DIA_OPT::SUBBOX, OPTION::SET_QUANTIZE_LIVE, OPTION::QUANTIZE_LIVE,
+                   ctr.text.getStringSet("PREF_QUANTIZE_LIVE"), {"64", "32", "16", "8"}, {1, 2, 4, 8}));
   dia_opts.find(PREF::P1)->second.push_back(
       dialogOption(DIA_OPT::CHECK_ONLY, OPTION::LIMIT_FPS, ctr.text.getStringSet("PREF_LIMIT_FPS")));
   dia_opts.find(PREF::P1)->second.push_back(

@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include <algorithm>
+#include <array>
 #include <vector>
 
 #include "color.h"
@@ -104,12 +105,18 @@ class sheetController {
   float staff_end = 0;
 
   int to_units(const midi& stream, int ticks) const;
+  bool is_quantized() const;
+  int find_grid(const midi& stream) const;
   int find_note_begin(const midi& stream, const measureController& measure, const note& n) const;
   int find_note_end(const midi& stream, const note& n) const;
   int find_value_units(const midi& stream, const note& n) const;
+  int find_raw_value_units(const midi& stream, const note& n) const;
   void build_display_notes(measureController& measure);
+  sheetMeasure layout_measure(measureController& measure, const std::array<bool, 2>& one_voice, int (&crowded)[2]);
+  void place_rests(sheetMeasure& dm);
+  bool clears_other_voice(const sheetMeasure& dm, int ch, int part, int dir, int lo, int hi, float len);
   void keep_in_sheet(sheetMeasure& dm);
-  void separate_staves(sheetMeasure& dm);
+  void separate_staves(sheetMeasure& dm, int (&crowded)[2]);
   void avoid_ties(sheetMeasure& dm);
   float find_sheet_top() const;
   float find_sheet_bottom() const;
@@ -122,18 +129,19 @@ class sheetController {
   void add_obstacle(float x0, float x1, float top, float bottom);
   float find_label_y(float x, float width, float ink_top, float ink_bottom, float y) const;
   void place_measure_labels();
-  void draw_rest(int type, int stave, float x);
-  int find_rest_y(int type, int stave);
+  void draw_rest(int type, int stave, float x, int shift = 0);
+  int find_rest_y(int type, int stave, int shift = 0);
   float find_rest_extent(int type, bool below);
   void draw_oob_markers(const sheetMeasure& dm, int ch);
   int get_rest_symbol(const int noteType);
   int find_acc_height(const int symbol);
-  void draw_group_shapes(const sheetMeasure& dm, int ch, int stave, int measure_x);
-  void draw_group_glyphs(const sheetMeasure& dm, int ch, int stave);
+  void draw_group_shapes(const sheetMeasure& dm, int ch, int part, int measure_x);
+  void draw_group_glyphs(const sheetMeasure& dm, int ch, int part);
   int find_head_x(const stem_group& g, const sheetNote* n, int anchor);
   int find_flag_y(const stem_group& g, int stave);
-  int find_dot_x(const sheetMeasure& dm, int ch, const stem_group& g, const sheetNote* n, int stave);
-  void draw_ledger_lines(const sheetMeasure& dm, int ch, const stem_group& g, int stave, int anchor);
+  int find_dot_x(const sheetMeasure& dm, int ch, int part, const sheetNote* n);
+  int find_dot_row(const sheetMeasure& dm, int part, int sheet_y) const;
+  void draw_ledger_lines(const sheetMeasure& dm, int ch, int part, int anchor);
   void draw_beam(const sheetMeasure& dm, int b);
   void draw_tie(float x0, float x1, float y, bool up, float flip_y, int start_note, int end_note);
   float find_tie_arc(float t, float shoulder) const;
@@ -141,6 +149,7 @@ class sheetController {
                       int start_note, int end_note) const;
   beam_line find_beam_line(const sheetMeasure& dm, const beam_group& beam);
   float find_stem_x(int anchor, int dir) const;
+  int stem_anchor(const sheetMeasure& dm, const beam_group& beam, int ch) const;
   void draw_flags(float x, float tip, int count, bool down);
 
   void drawTimeSignature(const timeSig& time, int x);
@@ -204,6 +213,7 @@ class sheetController {
   static constexpr float head_width_exact = 12.68f;
   static constexpr float stem_attach = 1.6f;  // stems start slightly past the notehead center
   static constexpr int stem_len = 34;
+  static constexpr int stem_min_len = 24;  // how short a voice's stem may get to keep clear of the other stave
   static constexpr int flag_extra[4] = {0, 4, 11, 17};  // extra stem for 8th to 64th flags
   static constexpr float flag_step = 6.5f;               // between stacked flags
   static constexpr float flag_scale_single = 0.75f;      // flag tails end about a space above the note to clear dots
@@ -238,9 +248,9 @@ class sheetController {
   static constexpr float tie_min_height = 3.0f;
   static constexpr float tie_max_height = 12.0f;
   static constexpr float tie_min_len = 8.0f;
-  static constexpr float tie_merge_gap = 24.0f;
-  static constexpr float tie_head_clearance = 2.0f;  // room a tie keeps from noteheads it passes  // ties into the same head starting this close are drawn once
-  static constexpr float tie_end_width = 0.6f;
+  static constexpr float tie_merge_gap = 24.0f;      // ties into the same head starting this close are drawn once
+  static constexpr float tie_head_clearance = 2.0f;  // room a tie keeps from noteheads it passes
+  static constexpr float tie_end_width = 0.5f;
   static constexpr int tie_tolerance = 2;  // overhang in 64ths that is clipped instead of tied
   static constexpr double value_tolerance = 0.125;  // relative error allowed when snapping to one value
   static constexpr float natural_scale = 26.0f;  // width of a quarter note when nothing is stretched
@@ -251,6 +261,9 @@ class sheetController {
   static constexpr int min_unit = 4;  // shortest gap that sets a measure's spacing, in 64ths
   static constexpr int live_unit = 8;  // fixed spacing reference for live measures, in 64ths
   static constexpr float stave_clearance = 6.0f;      // closest a treble and bass stem may come between staves
+  static constexpr float rest_clearance = 3.0f;  // between a voice's rest and the other voice's noteheads
+  static constexpr int rest_shift_max = 6;       // furthest a rest moves past the other voice, in spaces
+  static constexpr int voice_cross_gap = 4;      // extra room between the stems of crossing voices
 
   static constexpr bool debug_layout = false;
 
