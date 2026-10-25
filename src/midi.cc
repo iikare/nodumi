@@ -342,6 +342,10 @@ void midi::load(stringstream& buf) {
     return;
   }
 
+  // tracks without notes, such as tempo tracks, are not parts
+  trackCount = trackInfo.size();
+  tracks.resize(trackCount);
+
   // sort(trackInfo.begin(), trackInfo.end());
   notes.resize(noteCount);
   int idx = 0;
@@ -353,7 +357,7 @@ void midi::load(stringstream& buf) {
         notes[idx].number = idx;
         notes[idx].tick = midifile[i][j].tick;
         notes[idx].tickDuration = midifile[i][j].getTickDuration();
-        notes[idx].track = i;
+        notes[idx].track = track;
         notes[idx].duration = midifile[i][j].getDurationInSeconds() * UNK_CST;
         notes[idx].x = midifile[i][j].seconds * UNK_CST;
         notes[idx].y = midifile[i][j].getKeyNumber();
@@ -369,16 +373,11 @@ void midi::load(stringstream& buf) {
     }
   }
 
-  tracks.erase(remove_if(tracks.begin(), tracks.end(), [&](auto& tr) { return !tr.getNoteCount(); }),
-               tracks.end());
-
   if (ctr.option.get(OPTION::TRACK_DIVISION_MIDI) && trackCount == 1) {
     logW(LL_INFO, "MIDI track division enabled - performing division");
 
     trackCount = 2;
     tracks.push_back(tracks[0]);
-    trackInfo.push_back(trackInfo[0]);
-    trackInfo[1].second = 1;
     for (auto& t : tracks) {
       t.reset();
     }
