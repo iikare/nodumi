@@ -1,176 +1,127 @@
 #include "output_sync.h"
 
 #include <algorithm>
-#include <chrono>
 
-using std::distance;
-using std::make_pair;
+using std::lock_guard;
+using std::unique_lock;
+
+// messages this close to due are sent early, to cover the sender thread waking late
+constexpr double send_lead = 0.001 * UNIT_TPS;
+// a jump past this is a seek, anything smaller is frame jitter or arrow key scrubbing that keeps playing
+constexpr double seek_limit = 0.1 * UNIT_TPS;
 
 void outputInstance::init(midiOutput* out) {
   output = out;
 
   oThread = thread(&outputInstance::process, this);
 }
+
 void outputInstance::updateOffset(double off) {
-  // crit.lock();
-  // if (fabs(offset - this->offset) > std::numeric_limits<double>::epsilon()) {
-  // interrupt = false;
-  // return;
-  //}
-  auto update = std::chrono::high_resolution_clock::now();
+  auto now = std::chrono::steady_clock::now();
 
-  // logQ("provided offset", off);
-
-  offset_last = offset;
-  offset = off;
-
-  double elapsed = std::chrono::duration<double>(update - update_last_overflow).count();
-  if (fabs(offset - offset_last) > (elapsed + 0.002) * UNIT_TPS) {
-    // logQ("real offset exceeds maximum possible offset:",
-    // (offset-offset_last), elapsed*UNIT_TPS);
-
-    // don't play too many notes at once
-    // return;
-  }
-
-  // the overflow is strictly to stop too many notes from playing
-  update_last = update;
-  update_last_overflow = update;
-
-  // send = offset > offset_last;
-  // offset_last = offset;
-
-  // messages up to 2 ms ahead are due now
-  auto it = message.upper_bound(make_pair(off + (off <= 0 ? 0 : 0.002 * UNIT_TPS), vector<unsigned char>{}));
-  // if (it != message.begin()) { it--; }
-
-  int new_index = distance(message.begin(), it);
-  // crit.lock();
-  index_last = index;
-  index = new_index;
-
-  // crit.unlock();
-  // logQ("lowest index:", index, "w/offset:", it->first, "v", offset);
-
-  if (index != index_last) {
-    // logQ("index_last v. index:", index_last, "v", index);
-    if (index < index_last) {
-      // logW(LL_WARN, "invalid direction");
+  lock_guard<mutex> lock(crit);
+  if (send && anchored) {
+    double expect = offset + std::chrono::duration<double>(now - update_last).count() * UNIT_TPS;
+    // after a stall off can trail what was played for a frame, so only a drop in off itself is a seek back
+    bool back = off < offset && (off < offset - seek_limit || played > off + seek_limit);
+    bool forward = off > std::max(expect, played) + seek_limit;
+    if (back || forward) {
+      silence();
+      index = find_index(off);
+      played = off;
     }
-    // index_last = index;
+    settling = back || forward;
+  }
+  else {
+    index = find_index(off);
+    played = off;
+    settling = false;
   }
 
-  // unsigned int index_last = index;
-  // for (unsigned int idx = 0; idx < message.size(); ++idx) {
-  // if (message[idx].first < 0.01) {
-  ////logQ("alert");
-  // continue;
-  //}
-  // if (message[idx].first >= offset) {
-  // index = idx;//idx == 0 ? 0 : idx - 1;
-  // break;
-  //}
-  //}
-
-  // if (index_last > index) {
-  // logQ("skipped note (backward):", index_last, index);
-  ////index = min(static_cast<unsigned int>(index), index_last - 10);
-  //}
-  // if (index_last < index) {
-  // logQ("skipped note (forward):", index_last, index);
-  ////index = max(index_last, index - 10);
-  // index = index_last;
-  //}
-  // else {
-  // this->offset = offset;
-  // last_update = std::chrono::high_resolution_clock::now();
-  //}
-
-  // crit.unlock();
+  anchored = true;
+  offset = off;
+  update_last = now;
+  wake.notify_one();
 }
 
 void outputInstance::terminate() {
-  end = true;
-  oThread.join();
+  {
+    lock_guard<mutex> lock(crit);
+    if (send) {
+      send = false;
+      silence();
+    }
+    end = true;
+  }
+  wake.notify_one();
+  if (oThread.joinable()) {
+    oThread.join();
+  }
 }
 
 void outputInstance::process() {
-  while (true) {
-    if (end) {
-      break;
+  unique_lock<mutex> lock(crit);
+  while (!end) {
+    if (!send || !anchored || settling || index >= message.size()) {
+      wake.wait(lock);
+      continue;
     }
 
-    if (send && !(offset == 0)) {
-      crit.lock();
-      std::chrono::duration<double> elapsedTime = std::chrono::high_resolution_clock::now() - update_last;
-
-      // auto it_end =
-      // message.upper_bound(make_pair(offset+elapsedTime.count()+1,
-      // vector<unsigned char>{})); if (it_end != message.begin()) { it_end--; }
-
-      double add_offset = (elapsedTime.count() + 0.001) * UNIT_TPS;
-
-      auto it = std::next(message.begin(), index_last);
-      double max_offset = offset_last + add_offset;
-
-      // double offset =
-
-      int up = 0;
-
-      if (index_last < index || (it != message.end() && it->first < max_offset)) {
-        // while (it != it_end) {
-
-        vector<unsigned char>& msg = const_cast<vector<unsigned char>&>(it->second);
-        // logQ("it. offset_last, limit offset_last:", it->first,
-        // offset_last+elapsedTime.count()*UNIT_TPS);
-
-        // logQ("/*msg*/ sent:", distance(message.begin(),it));
-        // crit.lock();
-        output->sendMessage(&msg);
-        // crit.unlock();
-
-        it++;
-        up++;
-      }
-
-      index_last += up;
-      crit.unlock();
-
-      // crit.unlock();
-      // index++;
-
-      // update_last = std::chrono::high_resolution_clock::now();
-
-      // logQ(elapsedTime);
-    }
-    else {
-      std::this_thread::yield();
+    double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - update_last).count();
+    double due = offset + elapsed * UNIT_TPS + send_lead;
+    played = std::max(played, due);
+    while (index < message.size() && message[index].first <= due) {
+      output->sendMessage(&message[index].second);
+      sounding |= 1u << (message[index].second[0] & 0x0F);
+      index++;
     }
 
-    // logQ("hi from concurrent thread");
+    // sleep until the next message is due, any change from the main thread wakes this early
+    if (index < message.size()) {
+      wake.wait_for(lock, std::chrono::duration<double>((message[index].first - due) / UNIT_TPS));
+    }
   }
 }
 
 void outputInstance::load(const multiset<pair<double, vector<unsigned char>>>& message) {
-  crit.lock();
-  this->message = message;
-  crit.unlock();
+  lock_guard<mutex> lock(crit);
+  this->message.assign(message.begin(), message.end());
+  index = 0;
+  anchored = false;
 }
 
 void outputInstance::allow() {
+  lock_guard<mutex> lock(crit);
   if (!send) {
-    crit.lock();
     send = true;
-    crit.unlock();
+    anchored = false;
   }
 }
+
 void outputInstance::disallow(bool force) {
+  lock_guard<mutex> lock(crit);
   if (send || force) {
     send = false;
-    crit.lock();
-    // all sound off, all note off
-    vector<unsigned char> s = {120, 0, 123, 0};
-    output->sendMessage(&s);
-    crit.unlock();
+    silence(force);
   }
+}
+
+size_t outputInstance::find_index(double off) const {
+  auto it = std::lower_bound(message.begin(), message.end(), off,
+                             [](const pair<double, vector<unsigned char>>& m, double t) { return m.first < t; });
+  return std::distance(message.begin(), it);
+}
+
+void outputInstance::silence(bool all) {
+  // all sound off and all notes off, as one message each for backends that can't take more
+  for (unsigned char ch = 0; ch < 16; ch++) {
+    if (!all && !(sounding >> ch & 1)) {
+      continue;
+    }
+    vector<unsigned char> sound_off = {static_cast<unsigned char>(0xB0 | ch), 120, 0};
+    vector<unsigned char> notes_off = {static_cast<unsigned char>(0xB0 | ch), 123, 0};
+    output->sendMessage(&sound_off);
+    output->sendMessage(&notes_off);
+  }
+  sounding = 0;
 }

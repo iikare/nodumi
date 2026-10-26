@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -10,7 +11,9 @@
 #include "midi.h"
 #include "note.h"
 
+using std::lock_guard;
 using std::make_unique;
+using std::mutex;
 using std::string;
 using std::unique_ptr;
 using std::vector;
@@ -22,7 +25,10 @@ class midiOutput {
   // named so the input side can recognise this app's own output and never read it back
   static constexpr const char* client_name = "nodumi output";
 
-  bool isPortOpen() { return midiOut->isPortOpen(); }
+  bool isPortOpen() {
+    lock_guard<mutex> lock(crit);
+    return midiOut->isPortOpen();
+  }
   void openPort(int port);
   void update();
   void sendMessage(vector<unsigned char>* msgQueue);
@@ -36,4 +42,7 @@ class midiOutput {
   vector<unsigned char> msgQueue;
   int numPort;
   int curPort;
+
+  // the output thread sends while the main thread switches ports or echoes live input
+  mutex crit;
 };

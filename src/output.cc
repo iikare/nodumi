@@ -12,6 +12,7 @@ midiOutput::midiOutput() : midiOut(nullptr), msgQueue(0), numPort(0), curPort(-1
 }
 
 void midiOutput::openPort(int port) {
+  lock_guard<mutex> lock(crit);
   numPort = midiOut->getPortCount();
   if (port < 0 || port >= numPort) {
     logW(LL_WARN, "unable to open port number", port);
@@ -29,6 +30,7 @@ void midiOutput::openPort(int port) {
 }
 
 vector<string> midiOutput::getPorts() {
+  lock_guard<mutex> lock(crit);
   vector<string> ports;
   numPort = midiOut->getPortCount();
   ports.resize(numPort);
@@ -40,6 +42,7 @@ vector<string> midiOutput::getPorts() {
 }
 
 void midiOutput::sendMessage(vector<unsigned char>* msgQueue) {
+  lock_guard<mutex> lock(crit);
   if (curPort != -1 && midiOut->isPortOpen()) {
     midiOut->sendMessage(msgQueue);
   }
