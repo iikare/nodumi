@@ -686,7 +686,7 @@ int main(int argc, char* argv[]) {
               drawLineBezier(convSS[0], convSS[1], convSS[2], convSS[3], 2, col);
             }
             else {
-              drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3], 2, col);
+              draw_line_smooth(convSS[0], convSS[1], convSS[2], convSS[3], 2, col);
             }
           }
         } break;
@@ -726,7 +726,7 @@ int main(int argc, char* argv[]) {
             if (noteOn || clickTmp == static_cast<int>(lp[j].idx)) {
               double newY = (convSS[3] - convSS[1]) * nowRatio + convSS[1];
               bool nowNote = clickTmp == static_cast<int>(lp[j].idx) ? false : noteOn;
-              drawLineEx(
+              draw_line_smooth(
                   nowNote ? nowLineX - floatLERP(0, (nowLineX - convSS[0]) / 2.0, nowRatio, INT_SINE)
                           : convSS[0],
                   nowNote ? newY - floatLERP(0, (newY - convSS[1]) / 2.0, nowRatio, INT_SINE) : convSS[1],
@@ -832,10 +832,10 @@ int main(int argc, char* argv[]) {
             double nowRatio = (nowLineX - convSS[0]) / (convSS[2] - convSS[0]);
             double newY = (convSS[3] - convSS[1]) * nowRatio + convSS[1];
             if (clickTmp == static_cast<int>(lp[j].idx) || convSS[2] < nowLineX) {
-              drawLineEx(convSS[0], convSS[1], convSS[2], convSS[3], 2, col);
+              draw_line_smooth(convSS[0], convSS[1], convSS[2], convSS[3], 2, col);
             }
             else if (convSS[0] < nowLineX) {
-              drawLineEx(
+              draw_line_smooth(
                   convSS[0], convSS[1],
                   noteOn ? nowLineX - floatLERP(0, (nowLineX - convSS[2]) / 2.0, nowRatio, INT_ISINE)
                          : convSS[2],
