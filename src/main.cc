@@ -464,11 +464,6 @@ int main(int argc, char* argv[]) {
     };
 
     pair<double, double> currentBoundaries = inverseSSX();
-    vector<int> current_note;
-
-    // fft bins start to rise the shortest note value ahead of a note
-    const double fft_lead = ctr.getMinTickLen() * 60.0 /
-                            (max(1, stream.getTPQ()) * max(1, ctr.getTempo(ctr.timeOffset))) * UNIT_TPS;
 
     // note rendering
     for (int i = 0; i < ctr.getNoteCount(); i++) {
@@ -871,18 +866,10 @@ int main(int argc, char* argv[]) {
         } break;
         case DISPLAY_FFT:
           if (cX + cW > 0 && cX < ctr.getWidth()) {
-            bool drawFFT = false;
-            double fftStretchRatio = 1.78;  // TODO: make fft-selection semi-duration-invariant
             int colorID = getColorSetIndex(i);
             if (notes[i].isOn ||
                 (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration)) {
               noteOn = true;
-              drawFFT = true;
-            }
-            else if ((ctr.timeOffset >= notes[i].x + notes[i].duration &&
-                      ctr.timeOffset < notes[i].x + fftStretchRatio * notes[i].duration) ||
-                     (ctr.timeOffset < notes[i].x && ctr.timeOffset >= notes[i].x - fft_lead)) {
-              drawFFT = true;
             }
             if (pointInBox(getMousePosition(), (rect){int(cX), int(cY), int(cW), int(cH)}) &&
                 !ctr.menu.mouseOnMenu()) {
@@ -898,57 +885,64 @@ int main(int argc, char* argv[]) {
               ctr.particle.add_emitter(i, {nowLineX, cY, 0, cH, col, col_inv});
             }
 
-            if (drawFFT) {
-              current_note.push_back(i);
-            }
-
             drawRectangle(cX, cY, cW, cH, col);
           }
           break;
       }
     }
 
-    // render FFT lines after notes
+    // render the spectrum after notes
     if (displayMode == DISPLAY_FFT) {
-      // int pf_calls = 0;
-      //  must obtain last bins before dispatching next set
-      const auto bins = ctr.fft.getFFTBins();
-      ctr.fft.generateFFTBins(current_note, ctr.timeOffset);
+      const double frame_s =
+          ctr.option.get(OPTION::FRAME_SAVE) && !ctr.getLiveState() ? 1 / 60.0 : GetFrameTime();
+      ctr.fft.update(ctr.timeOffset, ctr.run || ctr.getLiveState(), frame_s);
+
+      const auto& heights = ctr.fft.get_heights();
+      const auto& peaks = ctr.fft.get_peaks();
+      const auto& parts = ctr.fft.get_parts();
+      // scaled so the bars average about the height the old spectrum's did
+      const double max_h = 0.135 * (ctr.getHeight() - ctr.topHeight);
+      const int base = ctr.getHeight();
 
       bool foundNote = false;
-      for (unsigned int bin = 0; bin < bins.size(); ++bin) {
-        for (const auto& note_pair : bins[bin]) {
-          const int idx = note_pair.first;
-          const int bin_len = note_pair.second;
-          int colorID = getColorSetIndex(idx);
+      for (int bin = 0; bin < ctr.fft.get_bin_count(); ++bin) {
+        // one pixel lines, with a wider box for hovering
+        const int x = fftController::bin_spacing * (bin + 1);
+        const double bar_h = heights[bin] * max_h;
 
-          if (bin_len >= 1) {
-            int startX = FFT_BIN_WIDTH * (bin + 1);
-            auto cSet = colorSetOn;
-
-            // collision
-            if (clickTmp == idx ||
-                (!foundNote && !hoverType.contains(HOVER_DIALOG) &&
-                 pointInBox(
-                     getMousePosition(),
-                     {startX - 3, static_cast<int>(ctr.getHeight() - ctr.fft.bins[bin].second - bin_len), 7,
-                      static_cast<int>(bin_len)}))) {
-              foundNote = true;
-              cSet = colorSetOff;
-              hoverType.add(HOVER_NOTE);
-              clickOnTmp = true;
-              clickTmp = idx;
-            }
-
-            // pf_calls++;
-            drawLineEx(startX, ctr.getHeight() - ctr.fft.bins[bin].second, startX,
-                       ctr.getHeight() - ctr.fft.bins[bin].second - bin_len, 1, cSet[colorID]);
-            ctr.fft.bins[bin].second += bin_len;
+        // each note's share stacks from the bottom, highest track first
+        double below = 0;
+        const int top_note = parts[bin].empty() ? -1 : parts[bin].back().note;
+        for (const auto& part : parts[bin]) {
+          const int y_bottom = round(base - below * bar_h);
+          below += part.share;
+          const int y_top = round(base - below * bar_h);
+          if (part.note >= ctr.getNoteCount() || y_bottom - y_top < 1) {
+            continue;
           }
+
+          const rect segment = {x, y_top, 1, y_bottom - y_top};
+          bool hover = false;
+          if (clickTmp == part.note ||
+              (!foundNote && !hoverType.contains(HOVER_DIALOG) &&
+               pointInBox(getMousePosition(), {x - 3, segment.y, 7, segment.height}))) {
+            hover = true;
+            foundNote = true;
+            hoverType.add(HOVER_NOTE);
+            clickOnTmp = true;
+            clickTmp = part.note;
+          }
+          const auto& cSet = hover ? colorSetOff : colorSetOn;
+          drawRectangle(segment.x, segment.y, segment.width, segment.height,
+                        cSet[getColorSetIndex(part.note)]);
+        }
+
+        // the peak marker takes the color of the bar's top note
+        const int peak_y = round(base - peaks[bin] * max_h);
+        if (top_note != -1 && top_note < ctr.getNoteCount() && peak_y <= round(base - bar_h) - 3) {
+          drawRectangle(x, peak_y, 1, 2, colorSetOn[getColorSetIndex(top_note)]);
         }
       }
-      // logQ("pf_calls:", pf_calls);
-      // logQ("current_note size:", current_note.size());
     }
 
     // particle handling

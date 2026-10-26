@@ -64,9 +64,9 @@ endif
 
 # annoying whitespace
 ifeq ($(strip $(arch)),)
-CFLAGS=--std=c++23 -Wall -Wextra -fopenmp $(NONSTD)$(RELFLAGS)$(DEPDEF)
+CFLAGS=--std=c++23 -Wall -Wextra $(NONSTD)$(RELFLAGS)$(DEPDEF)
 else ifeq ($(strip $(arch)),win)
-CFLAGS=--std=c++23 -Wall -Wextra -fopenmp $(NONSTD)$(RELFLAGS) $(DEPDEF)
+CFLAGS=--std=c++23 -Wall -Wextra $(NONSTD)$(RELFLAGS) $(DEPDEF)
 endif
 
 CFLAGSSTD=$(CFLAGS) -fno-exceptions

@@ -69,7 +69,6 @@ void controller::init(vector<asset>& assetSet) {
   updateResolution();
   shadow.init();
   voronoi.init();
-  fft.updateFFTBins();
 
   // a resize before the first frame scales the now line from this width
   lastWidth = getWidth();
@@ -233,7 +232,6 @@ void controller::unloadData() {
   image.unloadData();
 
   voronoi.unloadData();
-  fft.generator_join();
 
   CloseWindow();
 }
@@ -493,11 +491,6 @@ void controller::update(double zoom, double& nowLineX) {
     lastWidth = getWidth();
   }
 
-  if (run || livePlayState) {
-    // persistent randomness for animation
-    psrValue = getRandRange(0, std::numeric_limits<int>::max());
-  }
-
   updateDroppedFiles();
 }
 
@@ -534,7 +527,6 @@ void controller::updateDimension(double& nowLineX) {
     updateFrameBuffer();
     shadow.update();
     voronoi.update();
-    fft.updateFFTBins();
 
     // keep the now line at the same fraction of the width, if both widths are known
     if (lastWidth > 0 && getWidth() > 0) {
@@ -602,6 +594,7 @@ void controller::toggleLivePlay() {
     input.resetInput();
     notes = &file.notes;
   }
+  fft.reset();
   // ensure sufficient track colors
   if (file.getTrackCount() > 0) {
     getColorScheme(getTrackCount(), setTrackOn, setTrackOff, file.trackHeightMap);
@@ -863,6 +856,7 @@ void controller::clear() {
   fType = FILE_NONE;
   fPath = "";
   fileOutput.disallow(true);
+  fft.reset();
 }
 
 void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage, bool& showKey,
@@ -1295,6 +1289,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
 
   fPath = path;
   fileOutput.load(file.message);
+  fft.reset();
   particle.end_emission();
 
   debug_time(start, "load");

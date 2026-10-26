@@ -300,9 +300,8 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
 
   // iterate over points
   for (unsigned int it = 0; it < KMEANS_ITERATIONS; ++it) {
-    nPoints.clear();
+    nPoints.assign(centroids.size(), 0);
 
-#pragma omp parallel for
     for (unsigned int pixel = 0; pixel < colorData.size(); ++pixel) {
       colorData[pixel].cluster = -1;
       colorData[pixel].cDist = __DBL_MAX__;
@@ -321,7 +320,6 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
 
     vector<colorLAB> centroidSum(centroids.size(), {0.0, 0.0, 0.0});
 
-#pragma omp parallel for
     for (unsigned int centroid = 0; centroid < centroids.size(); ++centroid) {
       for (unsigned int pixel = 0; pixel < colorData.size(); ++pixel) {
         if (static_cast<int>(centroid) == colorData[pixel].cluster) {
@@ -334,6 +332,10 @@ vector<colorRGB> findKMeans(vector<kMeansPoint>& colorData, int k) {
     }
 
     for (unsigned int centroid = 0; centroid < centroids.size(); ++centroid) {
+      // a centroid no pixel chose stays where it is
+      if (nPoints[centroid] == 0) {
+        continue;
+      }
       float newL = centroidSum[centroid].l / nPoints[centroid];
       float newA = centroidSum[centroid].a / nPoints[centroid];
       float newB = centroidSum[centroid].b / nPoints[centroid];

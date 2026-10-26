@@ -123,7 +123,6 @@ class controller {
   string getFileFullPath() const;
   double getRunTime() const { return runTime; }
   double getPauseTime() const { return pauseTime; }
-  int getPSR() const { return psrValue; }
   int getRandRange(int a, int b);
   double getRandClamp();
   unsigned int getFrameCounter() const { return frameCounter; }
@@ -268,7 +267,6 @@ class controller {
   double runTime;
   double pauseTime;
 
-  int psrValue = 0;
   std::random_device rd;
   std::mt19937 gen;
 

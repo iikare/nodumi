@@ -20,7 +20,6 @@ This project requires several dependencies, many of which are submodules to this
 * `rtmidi`    (supplied as a submodule)
 * `libtorch`* (see below)
 * `raylib`**  (see below)
-* `openmp`
 * `make`
 * `xxd`
 
