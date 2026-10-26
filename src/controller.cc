@@ -445,11 +445,16 @@ void controller::update(double zoom, double& nowLineX) {
 
   if (option.get(OPTION::FRAME_SAVE) && !getLiveState()) {
     if (run) {
-      string frame_name = ctr.getFilePath().substr(0, ctr.getFilePath().find_last_of(".")) + "_" +
+      string frame_name = "frame/" + std::filesystem::path(getFilePath()).stem().string() + "_" +
                           to_string(run_frame) + ".png";
       run_frame += 1;
-      TakeScreenshot(frame_name.c_str());
-      std::filesystem::rename(frame_name, "frame/" + frame_name);
+
+      // read the frame buffer, since the window blends partly transparent pixels over an older frame
+      Image frame = LoadImageFromTexture(framebuffer.texture);
+      ImageFlipVertical(&frame);
+      ImageFormat(&frame, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
+      ExportImage(frame, frame_name.c_str());
+      UnloadImage(frame);
     }
   }
 

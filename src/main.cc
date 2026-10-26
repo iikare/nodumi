@@ -108,7 +108,10 @@ int main(int argc, char* argv[]) {
   bool clickOnTmp = false;
 
   // screen space conversion functions
-  const auto convertSSX = [&](double value) { return nowLineX + (value - ctr.timeOffset) * zoomLevel; };
+  // the scroll moves in whole pixels, so everything shifts together instead of each element rounding alone
+  const auto convertSSX = [&](double value) {
+    return nowLineX + value * zoomLevel - round(ctr.timeOffset * zoomLevel);
+  };
 
   const auto convertSSY = [&](int value) {
     return (ctr.getHeight() - (ctr.getHeight() - (ctr.topHeight)) *
@@ -1885,7 +1888,7 @@ int main(int argc, char* argv[]) {
           int rightX = 0, rightY = 0, colorX = 0, colorY = 0;
 
           if (clickNote != -1) {
-            rightX = round(nowLineX + (notes[clickNote].x - ctr.timeOffset) * zoomLevel);
+            rightX = round(convertSSX(notes[clickNote].x));
             rightY = (ctr.getHeight() -
                       round((ctr.getHeight() - ctr.menuHeight) *
                             static_cast<double>(notes[clickNote].y - MIN_NOTE_IDX + 3) / (NOTE_RANGE + 3)));
