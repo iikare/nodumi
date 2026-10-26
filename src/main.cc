@@ -329,7 +329,10 @@ int main(int argc, char* argv[]) {
           }
         }
 
-        if (measureLine) {
+        // the widest number or a hover box can reach the screen from just outside it
+        bool measure_visible = measureLineX > -measureSpacing - 8 && measureLineX < ctr.getWidth() + 4;
+
+        if (measureLine && measure_visible) {
           if (pointInBox(getMousePosition(),
                          {int(measureLineX - 3), measureLineY, 6, ctr.getHeight() - measureLineY}) &&
               !hoverType.containsLastFrame(HOVER_MENU) && !hoverType.contains(HOVER_DIALOG, HOVER_MEASURE)) {
@@ -346,6 +349,12 @@ int main(int argc, char* argv[]) {
         if (measureNumber) {
           double lastMeasureLocation = convertSSX(stream.measureMap[lastMeasureNum].getLocation());
           if (!i || lastMeasureLocation + measureSpacing + 10 < measureLineX) {
+            // which numbers fit depends on every one before, so off-screen ones still count here
+            lastMeasureNum = i;
+            if (!measure_visible) {
+              continue;
+            }
+
             // measure number / song time + key sig collision detection
             Vector2 songInfoSize = {0, 0};
             switch (songTimeType) {
@@ -390,7 +399,6 @@ int main(int argc, char* argv[]) {
 
             int measureTextY = ctr.menuHeight + 4 + (ctr.renderSheet ? ctr.barHeight : 0);
             drawTextEx(to_string(i + 1), measureLineX + 4, measureTextY, ctr.bgColor2, measureLineTextAlpha);
-            lastMeasureNum = i;
           }
         }
       }
@@ -499,6 +507,11 @@ int main(int argc, char* argv[]) {
 
       switch (displayMode) {
         case DISPLAY_BAR: {
+          // the shared check above never skips a note, so off-screen ones are dropped here
+          if (cX + cW < 0 || cX > ctr.getWidth()) {
+            break;
+          }
+
           int colorID = getColorSetIndex(i);
           if (notes[i].isOn ||
               (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration)) {
@@ -510,8 +523,8 @@ int main(int argc, char* argv[]) {
             updateClickIndex();
           }
 
-          auto cSet = noteOn ? colorSetOn : colorSetOff;
-          auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+          const auto& cSet = noteOn ? colorSetOn : colorSetOff;
+          const auto& cSetInv = !noteOn ? colorSetOn : colorSetOff;
           const auto& col = cSet[colorID];
           const auto& col_inv = cSetInv[colorID];
 
@@ -538,8 +551,8 @@ int main(int argc, char* argv[]) {
               updateClickIndex();
             }
 
-            auto cSet = noteOn ? colorSetOn : colorSetOff;
-            auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+            const auto& cSet = noteOn ? colorSetOn : colorSetOff;
+            const auto& cSetInv = !noteOn ? colorSetOn : colorSetOff;
             const auto& col = cSet[colorID];
             const auto& col_inv = cSetInv[colorID];
 
@@ -556,8 +569,8 @@ int main(int argc, char* argv[]) {
           break;
         case DISPLAY_BALL: {
           int colorID = getColorSetIndex(i);
-          auto cSet = noteOn ? colorSetOn : colorSetOff;
-          auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+          const auto& cSet = noteOn ? colorSetOn : colorSetOff;
+          const auto& cSetInv = !noteOn ? colorSetOn : colorSetOff;
           const auto& col = cSet[colorID];
           const auto& col_inv = cSetInv[colorID];
           float radius = -1 + 2 * (32 - countl_zero(static_cast<unsigned int>(cW)));
@@ -659,8 +672,8 @@ int main(int argc, char* argv[]) {
               updateClickIndex(lp[j].idx);
             }
 
-            auto cSet = noteOn ? colorSetOn : colorSetOff;
-            auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+            const auto& cSet = noteOn ? colorSetOn : colorSetOff;
+            const auto& cSetInv = !noteOn ? colorSetOn : colorSetOff;
             const auto& col = cSet[colorID];
             const auto& col_inv = cSetInv[colorID];
 
@@ -704,8 +717,8 @@ int main(int argc, char* argv[]) {
               updateClickIndex(lp[j].idx);
             }
 
-            auto cSet = noteOn ? colorSetOn : colorSetOff;
-            auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+            const auto& cSet = noteOn ? colorSetOn : colorSetOff;
+            const auto& cSetInv = !noteOn ? colorSetOn : colorSetOff;
             const auto& col = cSet[colorID];
             const auto& col_inv = cSetInv[colorID];
 
@@ -811,8 +824,8 @@ int main(int argc, char* argv[]) {
               updateClickIndex(lp[j].idx);
             }
 
-            auto cSet = noteOn ? colorSetOn : colorSetOff;
-            auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+            const auto& cSet = noteOn ? colorSetOn : colorSetOff;
+            const auto& cSetInv = !noteOn ? colorSetOn : colorSetOff;
             const auto& col = cSet[colorID];
             const auto& col_inv = cSetInv[colorID];
 
@@ -873,8 +886,8 @@ int main(int argc, char* argv[]) {
               updateClickIndex();
             }
 
-            auto cSet = noteOn ? colorSetOn : colorSetOff;
-            auto cSetInv = !noteOn ? colorSetOn : colorSetOff;
+            const auto& cSet = noteOn ? colorSetOn : colorSetOff;
+            const auto& cSetInv = !noteOn ? colorSetOn : colorSetOff;
             const auto& col = cSet[colorID];
             const auto& col_inv = cSetInv[colorID];
 
