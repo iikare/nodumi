@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <utility>
+#include <vector>
 
 
 void drawPixel(float x, float y, const colorRGB& col, unsigned char alpha) {
@@ -333,11 +334,130 @@ void drawCircle(float x, float y, float r, const colorRGB& col, float alpha) {
   DrawCircle(x, y, r, color);
 }
 
+namespace {
+
+// raylib's point count for a full circle, raised when the one asked for can't look round at this radius
+int circle_segments(int segments, float radius) {
+  constexpr float error_rate = 0.5f;
+  constexpr int min_segments = 4;
+  if (segments < min_segments) {
+    const float th = std::acos(2 * std::pow(1 - error_rate / radius, 2.0f) - 1);
+    segments = static_cast<int>(360.0f * std::ceil(2 * PI / th) / 360);
+    if (segments <= 0) {
+      segments = min_segments;
+    }
+  }
+  return segments;
+}
+
+// unit circle points for a segment count, from the same angle sums and float math raylib's DrawRing and
+// DrawCircleSector use, so drawing from them lands on the same pixels without any trig per circle
+struct unit_circle {
+  // a ring's corners at each step
+  vector<Vector2> ring;
+  // a filled circle's corners every second step, and the points between them
+  vector<Vector2> sector;
+  vector<Vector2> sector_mid;
+};
+
+const unit_circle& unit_circle_for(int segments) {
+  static vector<unit_circle> cache;
+  if (segments >= static_cast<int>(cache.size())) {
+    cache.resize(segments + 1);
+  }
+  unit_circle& points = cache[segments];
+  if (points.ring.empty()) {
+    const float step = 360.0f / static_cast<float>(segments);
+    float angle = 0;
+    for (int i = 0; i <= segments; i++) {
+      points.ring.push_back({std::cos(DEG2RAD * angle), std::sin(DEG2RAD * angle)});
+      angle += step;
+    }
+    angle = 0;
+    for (int i = 0; i <= segments / 2; i++) {
+      points.sector.push_back({std::cos(DEG2RAD * angle), std::sin(DEG2RAD * angle)});
+      points.sector_mid.push_back({std::cos(DEG2RAD * (angle + step)), std::sin(DEG2RAD * (angle + step))});
+      angle += step * 2.0f;
+    }
+  }
+  return points;
+}
+
+}  // namespace
+
 void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col, float alpha, float sAngle,
               float eAngle) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, (unsigned char)alpha};
 
-  DrawRing(center, iRad, oRad, sAngle, eAngle, 1 + oRad, color);
+  // only whole circles come from the cached points, any other arc is left to raylib
+  if (sAngle != 0 || eAngle != 360) {
+    DrawRing(center, iRad, oRad, sAngle, eAngle, 1 + oRad, color);
+    return;
+  }
+
+  float inner = iRad;
+  float outer = oRad;
+  if (outer < inner) {
+    std::swap(inner, outer);
+    if (outer <= 0.0f) {
+      outer = 0.1f;
+    }
+  }
+  const int segments = circle_segments(static_cast<int>(1 + oRad), outer);
+  const unit_circle& points = unit_circle_for(segments);
+
+  const Texture2D tex = GetShapesTexture();
+  const Rectangle rect = GetShapesTextureRectangle();
+  const float u0 = rect.x / tex.width;
+  const float v0 = rect.y / tex.height;
+  const float u1 = (rect.x + rect.width) / tex.width;
+  const float v1 = (rect.y + rect.height) / tex.height;
+  const auto corner = [&](const Vector2& unit, float radius) {
+    rlVertex2f(center.x + unit.x * radius, center.y + unit.y * radius);
+  };
+
+  rlSetTexture(tex.id);
+  rlBegin(RL_QUADS);
+  if (inner <= 0.0f) {
+    // a filled circle, two steps to a quad, as DrawCircleSector draws it
+    for (int i = 0; i < segments / 2; i++) {
+      rlColor4ub(color.r, color.g, color.b, color.a);
+      rlTexCoord2f(u0, v0);
+      rlVertex2f(center.x, center.y);
+      rlTexCoord2f(u1, v0);
+      corner(points.sector[i + 1], outer);
+      rlTexCoord2f(u1, v1);
+      corner(points.sector_mid[i], outer);
+      rlTexCoord2f(u0, v1);
+      corner(points.sector[i], outer);
+    }
+    if (segments % 2 == 1) {
+      rlColor4ub(color.r, color.g, color.b, color.a);
+      rlTexCoord2f(u0, v0);
+      rlVertex2f(center.x, center.y);
+      rlTexCoord2f(u1, v1);
+      corner(points.sector_mid[segments / 2], outer);
+      rlTexCoord2f(u0, v1);
+      corner(points.sector[segments / 2], outer);
+      rlTexCoord2f(u1, v0);
+      rlVertex2f(center.x, center.y);
+    }
+  }
+  else {
+    for (int i = 0; i < segments; i++) {
+      rlColor4ub(color.r, color.g, color.b, color.a);
+      rlTexCoord2f(u0, v1);
+      corner(points.ring[i], outer);
+      rlTexCoord2f(u0, v0);
+      corner(points.ring[i], inner);
+      rlTexCoord2f(u1, v0);
+      corner(points.ring[i + 1], inner);
+      rlTexCoord2f(u1, v1);
+      corner(points.ring[i + 1], outer);
+    }
+  }
+  rlEnd();
+  rlSetTexture(0);
 }
 
 void drawGradientLineH(const Vector2& a, const Vector2& b, float thick, const colorRGB& col, float alphaA,

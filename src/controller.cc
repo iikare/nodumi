@@ -11,6 +11,7 @@
 
 #include "build_target.h"
 #include "define.h"
+#include "gl_compat.h"
 #include "log.h"
 #include "menuctr.h"
 #include "voronoi.h"
@@ -237,8 +238,10 @@ void controller::unloadData() {
 }
 
 void controller::beginBlendMode(int a, int b, int c) {
-  rlSetBlendFactors(a, b, c);
-  BeginBlendMode(BLEND_CUSTOM);
+  // the frame keeps its alpha, as an inverting blend would zero it and the window would then show a stale
+  // frame there instead of what was drawn
+  rlSetBlendFactorsSeparate(a, b, CGL_ZERO, CGL_ONE, c, c);
+  BeginBlendMode(BLEND_CUSTOM_SEPARATE);
 }
 void controller::endBlendMode() { EndBlendMode(); }
 

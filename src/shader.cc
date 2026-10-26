@@ -48,10 +48,14 @@ shaderData::shaderData(const asset& item) {
 void shaderData::unloadData() { UnloadShader(shader); }
 
 void shaderData::setShaderTexture(const string& uf, const RenderTexture& rtex) {
+  setShaderTexture(uf, rtex.texture);
+}
+
+void shaderData::setShaderTexture(const string& uf, const Texture2D& tex) {
   auto it = typeMap.find(uf);
   if (it == typeMap.end()) {
     logW(LL_WARN, name, "- attempt to modify non-existent uniform:", uf);
     return;
   }
-  SetShaderValueTexture(shader, GetShaderLocation(shader, uf.c_str()), rtex.texture);
+  SetShaderValueTexture(shader, GetShaderLocation(shader, uf.c_str()), tex);
 }

@@ -24,6 +24,7 @@ class shaderData {
   Shader& getShader() { return shader; }
 
   void setShaderTexture(const string& uf, const RenderTexture& rtex);
+  void setShaderTexture(const string& uf, const Texture2D& tex);
 
   template <class T>
   void setShaderValue(const string& uf, const T& val, const int num = -1) {

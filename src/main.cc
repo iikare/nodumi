@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <bit>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -297,25 +298,90 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    auto getColorSetIndex = [&](int idx) {
+      if (idx == -1) {
+        return 0;
+      }
+      switch (colorMode) {
+        case COLOR_PART:
+          return notes[idx].track;
+        case COLOR_VELOCITY:
+          if (ctr.option.get(OPTION::SCALE_VELOCITY) && !ctr.getLiveState() &&
+              stream.velocityBounds.first != stream.velocityBounds.second) {
+            int range = stream.velocityBounds.second - stream.velocityBounds.first;
+            return static_cast<int>((notes[idx].velocity - stream.velocityBounds.first) * (127.0 / range));
+          }
+          else {
+            return notes[idx].velocity;
+          }
+        case COLOR_TONIC:
+          return (notes[idx].y - MIN_NOTE_IDX + tonicOffset) % 12;
+      }
+      return 0;
+    };
+
     switch (displayMode) {
-      case DISPLAY_VORONOI:
-        if (ctr.voronoi.vertex.size() != 0) {
-          int voro_y = ctr.barHeight;
-          ctr.voronoi.resample(voro_y);
-          ctr.voronoi.render();
+      case DISPLAY_VORONOI: {
+        // this frame's notes go in before the cells are drawn, so each cell sits right under its note's dot
+        // with the same color, and notes a screen past either edge keep the edge cells from popping
+        constexpr double voronoi_margin = 1.0;
+        const float cH = (ctr.getHeight() - ctr.menuHeight) / 88.0f;
+        const bool can_hover = !hoverType.contains(HOVER_DIALOG);
+        const float mouse_x = ctr.getMouseX();
+        const float mouse_y = ctr.getMouseY();
+        ctr.voronoi.clear_sites();
+        for (int i = 0; i < ctr.getNoteCount(); i++) {
+          const float cX = convertSSX(notes[i].x);
+          if (cX < -voronoi_margin * ctr.getWidth() || cX > (1 + voronoi_margin) * ctr.getWidth()) {
+            continue;
+          }
+          const float cY = convertSSY(notes[i].y) + cH / 2;
+          const float cW = notes[i].duration * zoomLevel < 1 ? 1 : notes[i].duration * zoomLevel;
+          const bool sounding =
+              ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration;
+          bool on = notes[i].isOn || sounding;
+
+          // hovering a note flips its colors and selects it, as updateClickIndex does in the note loop
+          const float radius = 1 + log2(cW + 1);
+          if (can_hover && getDistance(mouse_x, mouse_y, cX, cY) < radius + 2) {
+            clickOnTmp = on;
+            on = !on;
+            clickTmp = i;
+            hoverType.add(HOVER_NOTE);
+          }
+
+          const int colorID = getColorSetIndex(i);
+          const auto& col = (on ? colorSetOn : colorSetOff)[colorID];
+          const int site = ctr.voronoi.add_site(cX, cY, col);
+
+          // particles and dots only come from notes that start near the screen
+          if (cX > -0.2 * ctr.getWidth() && cX < 1.2 * ctr.getWidth()) {
+            if (sounding) {
+              const auto& col_inv = (on ? colorSetOff : colorSetOn)[colorID];
+              ctr.particle.add_emitter(i, {cX, cY - radius / 2.0, 0, radius, col, col_inv});
+            }
+            if (cX + radius + 1 > 0 && cX - radius - 1 < ctr.getWidth()) {
+              ctr.voronoi.add_dot(site, cX, cY, radius, col);
+            }
+          }
         }
-        break;
+        if (!ctr.voronoi.vertex.empty()) {
+          ctr.voronoi.render(ctr.barHeight);
+        }
+      } break;
     }
 
     switch (displayMode) {
       case DISPLAY_VORONOI:
-        ctr.beginBlendMode(CGL_ONE_MINUS_DST_COLOR, CGL_ZERO, CGL_ADD);
+        // inverts what is under each line and number, partly where they are faded or soft edged
+        ctr.beginBlendMode(CGL_ONE_MINUS_DST_COLOR, CGL_ONE_MINUS_SRC_ALPHA, CGL_ADD);
         ctr.beginShaderMode("SH_INVERT");
         break;
     }
 
     int lastMeasureNum = 0;
     double measureSpacing = measureTextEx(to_string(stream.measureMap.size() - 1)).x;
+    int last_line_column = std::numeric_limits<int>::min();
 
     if (measureLine || measureNumber) {
       constexpr int maxMeasureSpacing = 5;
@@ -342,10 +408,19 @@ int main(int argc, char* argv[]) {
             measureLineOpacityRatio = 1;
             hoverType.add(HOVER_MEASURE);
           }
-          if (!nowLine || fabs(nowLineX - measureLineX) > 3) {
+          if (displayMode == DISPLAY_VORONOI) {
+            // inverted lines fade faster, as a half inverted one is gray, and only one goes on each pixel
+            // column, as two there would undo each other
+            measureLineOpacityRatio = line_ratio;
+            if (static_cast<int>(measureLineX) == last_line_column) {
+              measureLineOpacityRatio = 0;
+            }
+          }
+          if ((!nowLine || fabs(nowLineX - measureLineX) > 3) && measureLineOpacityRatio > 0) {
             drawLineEx(static_cast<int>(measureLineX), measureLineY, static_cast<int>(measureLineX),
                        ctr.getHeight(), measureLineWidth, ctr.bgMeasure,
                        255 * measureLineOpacityRatio * line_ratio);
+            last_line_column = static_cast<int>(measureLineX);
           }
         }
 
@@ -441,28 +516,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    auto getColorSetIndex = [&](int idx) {
-      if (idx == -1) {
-        return 0;
-      }
-      switch (colorMode) {
-        case COLOR_PART:
-          return notes[idx].track;
-        case COLOR_VELOCITY:
-          if (ctr.option.get(OPTION::SCALE_VELOCITY) && !ctr.getLiveState() &&
-              stream.velocityBounds.first != stream.velocityBounds.second) {
-            int range = stream.velocityBounds.second - stream.velocityBounds.first;
-            return static_cast<int>((notes[idx].velocity - stream.velocityBounds.first) * (127.0 / range));
-          }
-          else {
-            return notes[idx].velocity;
-          }
-        case COLOR_TONIC:
-          return (notes[idx].y - MIN_NOTE_IDX + tonicOffset) % 12;
-      }
-      return 0;
-    };
-
     pair<double, double> currentBoundaries = inverseSSX();
 
     // note rendering
@@ -472,6 +525,7 @@ int main(int argc, char* argv[]) {
           case DISPLAY_LINE:
           case DISPLAY_PULSE:
           case DISPLAY_LOOP:
+          case DISPLAY_VORONOI:
             return i != 0;
           default:
             return false;
@@ -536,34 +590,9 @@ int main(int argc, char* argv[]) {
           drawRectangle(floor(cX), cY, ceil(cW), cH, col);
         } break;
         case DISPLAY_VORONOI:
-          if (cX > -0.2 * ctr.getWidth() && cX + cW < 1.2 * ctr.getWidth()) {
-            int colorID = getColorSetIndex(i);
-            if (notes[i].isOn ||
-                (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration)) {
-              noteOn = true;
-            }
-
-            // float radius = -1 + 2 * (32 - countl_zero(int(cW)));
-            float radius = 1 + log2(cW + 1);
-            if (getDistance(ctr.getMouseX(), ctr.getMouseY(), cX, cY + cH / 2) < radius + 2) {
-              updateClickIndex();
-            }
-
-            const auto& cSet = noteOn ? colorSetOn : colorSetOff;
-            const auto& cSetInv = !noteOn ? colorSetOn : colorSetOff;
-            const auto& col = cSet[colorID];
-            const auto& col_inv = cSetInv[colorID];
-
-            ctr.voronoi.vertex.push_back({cX / ctr.getWidth(), 1 - (cY + cH / 2) / ctr.getHeight()});
-            ctr.voronoi.color.push_back(col);
-
-            if (ctr.timeOffset >= notes[i].x && ctr.timeOffset < notes[i].x + notes[i].duration) {
-              ctr.particle.add_emitter(i, {cX, (cY + cH / 2) - radius / 2.0, 0, radius, col, col_inv});
-            }
-
-            drawRing({cX, (cY + cH / 2)}, radius - 1, radius + 2, ctr.bgDark);
-            drawRing({cX, (cY + cH / 2)}, 0, radius, col);
-          }
+          // the dots, hovering and particles were all worked out with the cells, the dots just go over the
+          // measure lines here
+          ctr.voronoi.draw_dots();
           break;
         case DISPLAY_BALL: {
           int colorID = getColorSetIndex(i);

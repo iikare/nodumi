@@ -77,6 +77,9 @@ class controller {
   void setShaderTexture(const string& shader, const string& uf, const RenderTexture& rtex) {
     getShaderData(shader).setShaderTexture(uf, rtex);
   }
+  void setShaderTexture(const string& shader, const string& uf, const Texture2D& tex) {
+    getShaderData(shader).setShaderTexture(uf, tex);
+  }
 
   const RenderTexture& getFrameBuffer() { return framebuffer; }
   void updateFrameBuffer();
