@@ -503,8 +503,15 @@ void controller::updateFPSCap(bool state) {
 
 void controller::updateFPS(bool bypass) {
   if (!uncapped_fps) {
-    if (curMon != GetCurrentMonitor() || bypass) {
-      curMon = GetCurrentMonitor();
+    // finding the monitor takes a dozen x server round trips, too slow to repeat every frame
+    if (!bypass && curMon != -1 && GetTime() - monitor_check_time < 1) {
+      return;
+    }
+    monitor_check_time = GetTime();
+
+    int mon = GetCurrentMonitor();
+    if (curMon != mon || bypass) {
+      curMon = mon;
       SetTargetFPS(GetMonitorRefreshRate(curMon));
     }
   }

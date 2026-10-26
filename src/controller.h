@@ -262,7 +262,8 @@ class controller {
   string fPath;
 
   unsigned int frameCounter = 0;
-  int curMon;
+  int curMon = -1;
+  double monitor_check_time = 0;
   bool uncapped_fps = false;
   double runTime;
   double pauseTime;
