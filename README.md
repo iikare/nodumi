@@ -18,19 +18,24 @@ This project requires several dependencies, many of which are submodules to this
 * `midifile`  (supplied as a submodule)
 * `osdialog`  (supplied as a submodule)
 * `rtmidi`    (supplied as a submodule)
-* `libtorch`* (see below)
-* `raylib`**  (see below)
-* `make`
-* `xxd`
+* `raylib` 5.0 or newer (supplied as a submodule, see below)
+* `libtorch`  (optional, see below)
+* `clang`/`clang++` with C++23 support
+* `mold` (linker)
+* `make`, `zsh`, `git`, `xxd` and `pkg-config` (used by the build scripts)
+* GTK 3 development files (file dialogs on Linux)
+* ALSA and JACK development files (MIDI I/O on Linux)
 
+Compiling for a Linux platform does not require the bundled `raylib` submodule. In that case, the build process links against the system `raylib`
+library, and assumes it is installed in the usual directories (`/lib/libraylib.so` and `/usr/include/raylib.h`). Cross-compilation will require
+you to recompile `raylib` for the target platform, and for this purpose the included submodule must be used.
 
-Cross-compilation will require you to recompile `raylib` for the target platform. For this purpose, the included submodule must be used. Compiling for
-a linux platform does not require the use of the bundled `raylib` submodule. For these cases, the build process will link against the system `raylib`
-library.
+The makefile calls `clang`/`clang++` and links with `mold` directly. The code itself should be compiler-agnostic, so another compiler or linker
+only needs the `CXX`, `C` and `LD` variables at the top of the makefile changed.
 
 Live track-splitting via real-time inference using a small LSTM model is supported via `libtorch` on Linux only. To enable this support, use `make torch=y` while building, and ensure LibTorch is available on your system (expected at `/opt/libtorch-cpu/`, although you may have to change it manually depending on your system configuration).
 
-The current build script assumes you are building on a Linux environment with raylib installed in the appropriate directories (`/lib/libraylib.so` and `/usr/include/raylib.h`). This project should be compiler-agnostic, but for best results, use `clang`/`clang++`. For cross-compilation to Windows, the following tools are required:
+For cross-compilation to Windows, the following tools are required:
 
 * `x86_64-w64-mingw32-g++`
 * `x86_64-w64-mingw32-gcc`
@@ -45,20 +50,21 @@ Currently, only Linux and to a lesser extent, Windows, are supported, however, t
 purposely OS-agnostic, and with some tweaking can run on MacOS as
 well. Contributions to improve cross-platform interoperability are welcomed.
 
-Simply run `make` in the project's root directory. The resulting executable
+Simply run `make` in the project's root directory for a debug build, or `make rel=y` for an optimized release build. The resulting executable
 will be formed at `./bin/nodumi`
 
 Cross-compilation to Windows is done through `make arch=win`, and the following executable is formed at `./bin/nodumi.exe`
 
-To compile the documentation, run `make doc` (a $\LaTeX$ compiler and related software is required).
+To compile the documentation, run `make doc`. This needs `xelatex` (run with `--shell-escape`), the `minted` package with `pygments`, and the `svg`
+package with `inkscape`.
 
 # usage
 If executing `nodumi` from the command-line, up to two optional arguments (in any order) are accepted:
 ```sh
-./bin/nodumi path/to/file.(mid|midi) path/to/image.(png|jpg)
+./bin/nodumi path/to/file.(mid|midi|mki) path/to/image.(png|jpg|jpeg)
 ```
 
-Otherwise, use the built-in graphical commands.
+Files can also be dropped onto the window. Otherwise, use the built-in graphical commands.
 
 # license
 `nodumi` is licensed under GPLv3.

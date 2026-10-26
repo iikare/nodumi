@@ -204,5 +204,5 @@ cleanbuild:
 cleanexec:
 	rm -f $(NAME) $(NAME).exe
 
-.PHONY: all clean
+.PHONY: all clean doc
 

@@ -1195,7 +1195,7 @@ int main(int argc, char* argv[]) {
           ctr.save_file.dialog();
           if (ctr.save_file.pending()) {
             string save_path = ctr.save_file.getPath();
-            if (getExtension(save_path, true) != ".mki") {
+            if (getExtension(save_path) != "mki") {
               save_path += ".mki";
             }
 

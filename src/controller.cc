@@ -548,12 +548,12 @@ void controller::updateDimension(double& nowLineX) {
 void controller::updateFiles(char** paths, int numFile) {
   for (auto item = 0; item < numFile; ++item) {
     string ext = getExtension(paths[item]);
-    if (any_of(ext, "mid", "mki")) {
+    if (isValidExtension(ext, PATH_DATA)) {
       if (!ctr.open_file.pending()) {
         ctr.open_file.setPending(paths[item]);
       }
     }
-    else if (any_of(ext, "png", "jpg")) {
+    else if (isValidExtension(ext, PATH_IMAGE)) {
       if (!ctr.open_image.pending()) {
         ctr.open_image.setPending(paths[item]);
       }
@@ -934,12 +934,12 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
 
     showKey = byteBuf & (1 << 0);
 
-    // 0x02:[7:7] - now line
+    // 0x02:[7:7] - tempo display
     // 0x02:[6:0] - reserved
     readByte();
     showTempo = byteBuf & (1 << 7);
 
-    // 0x03-0x09
+    // 0x03-0x09 - reserved
     readUntil(0x09);
 
     // 0x0A
@@ -993,26 +993,26 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     ctr.option.set(OPTION::SET_QUANTIZE_LIVE, (byteBuf >> 3) & 0x1);
     ctr.option.set(OPTION::SET_QUANTIZE_MIDI, (byteBuf >> 2) & 0x1);
 
-    // 0x13:[7:2] - hand range (6 bits)
-    // 0x13:[1:0] - CIE function (2 bits)
+    // 0x12:[7:2] - hand range (6 bits)
+    // 0x12:[1:0] - CIE function (2 bits)
     readByte();
     ctr.option.set(OPTION::HAND_RANGE, (byteBuf >> 2) & 0b00111111);
     ctr.option.set(OPTION::CIE_FUNCTION, (byteBuf >> 0) & 0b00000011);
 
-    // 0x14:[7:0] - bw channel
+    // 0x13:[7:0] - bw channel
     readByte();
     ctr.option.set(OPTION::DARKEN_IMAGE, static_cast<uint8_t>(byteBuf));
-    // 0x15:[7:0] - r channel
+    // 0x14:[7:0] - r channel
     readByte();
     ctr.option.set(OPTION::LEVEL_CONTROL_R, static_cast<uint8_t>(byteBuf));
-    // 0x16:[7:0] - g channel
+    // 0x15:[7:0] - g channel
     readByte();
     ctr.option.set(OPTION::LEVEL_CONTROL_G, static_cast<uint8_t>(byteBuf));
-    // 0x17:[7:0] - b channel
+    // 0x16:[7:0] - b channel
     readByte();
     ctr.option.set(OPTION::LEVEL_CONTROL_B, static_cast<uint8_t>(byteBuf));
 
-    // 0x18-0x19 - shadow angle
+    // 0x17-0x18 - shadow angle
     char shadowAngleBuf[2] = {0};
     for (int i = 0; i < 2; ++i) {
       readByte();
@@ -1021,24 +1021,24 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     }
     ctr.option.set(OPTION::SHADOW_ANGLE, *(reinterpret_cast<uint16_t*>(shadowAngleBuf)));
 
-    // 0x1A:[7:2] - shadow distance (6 bits)
-    // 0x1A:[1:0] - quantization (live), as a power of two in 64ths (2 bits)
+    // 0x19:[7:2] - shadow distance (6 bits)
+    // 0x19:[1:0] - quantization (live), as a power of two in 64ths (2 bits)
     readByte();
     ctr.option.set(OPTION::SHADOW_DISTANCE, (byteBuf >> 2) & 0b00111111);
     ctr.option.set(OPTION::QUANTIZE_LIVE, 1 << (byteBuf & 0b00000011));
 
-    // 0x1B:[7:2] - reserved
-    // 0x1B:[1:0] - quantization (midi), as a power of two in 64ths (2 bits)
+    // 0x1A:[7:2] - reserved
+    // 0x1A:[1:0] - quantization (midi), as a power of two in 64ths (2 bits)
     readByte();
     ctr.option.set(OPTION::QUANTIZE_MIDI, 1 << (byteBuf & 0b00000011));
 
-    // 0x1C-0x2F - reserved
+    // 0x1B-0x2F - reserved
     readUntil(0x2F);
 
     // 0x30-0x3F - reserved
     readUntil(0x3F);
 
-    // 0x40-0x44 - zoom level, in pixels per 1 / ZOOM_TPS seconds
+    // 0x40-0x43 - zoom level (4 byte float), in pixels per 1 / ZOOM_TPS seconds
     char zoomBuf[4] = {0};
     for (int i = 0; i < 4; ++i) {
       readByte();
@@ -1052,12 +1052,12 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     // logQ(zoomLevel);
 
     // position need not exceed 16 bits
-    // 0x45-0x46 - image position (x)
-    // 0x47-0x48 - image position (y)
-    // 0x49-0x4C - scale
-    // 0x4D-0x50 - default scale
-    // 0x51-0x54 - mean value
-    // 0x55-0x58 - color count
+    // 0x44-0x45 - image position (x)
+    // 0x46-0x47 - image position (y)
+    // 0x48-0x4B - scale
+    // 0x4C-0x4F - default scale
+    // 0x50-0x53 - mean value
+    // 0x54-0x57 - color count
 
     // if no image exists, all values are left zero
 
@@ -1069,7 +1069,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     int i_num_col = 0;
 
     if (imageExists) {
-      // 0x45-0x46 - image position (x)
+      // 0x44-0x45 - image position (x)
       char imageBuf[2] = {0};
       for (int i = 0; i < 2; ++i) {
         readByte();
@@ -1078,7 +1078,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
       i_posx = *(reinterpret_cast<uint16_t*>(imageBuf));
 
-      // 0x47-0x48 - image position (y)
+      // 0x46-0x47 - image position (y)
       // char imageBuf[4] = {0};
       for (int i = 0; i < 2; ++i) {
         readByte();
@@ -1087,7 +1087,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
       i_posy = *(reinterpret_cast<uint16_t*>(imageBuf));
 
-      // 0x49-0x4C - scale
+      // 0x48-0x4B - scale
       char imageBuf2[4] = {0};
       for (int i = 0; i < 4; ++i) {
         readByte();
@@ -1096,7 +1096,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
       i_scale = *(reinterpret_cast<float*>(imageBuf2));
 
-      // 0x4D-0x50 - default scale
+      // 0x4C-0x4F - default scale
       // char imageBuf2[4] = {0};
       for (int i = 0; i < 4; ++i) {
         readByte();
@@ -1105,7 +1105,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
       i_def_scale = *(reinterpret_cast<float*>(imageBuf2));
 
-      // 0x51-0x54 - mean value
+      // 0x50-0x53 - mean value
       // char imageBuf2[4] = {0};
       for (int i = 0; i < 4; ++i) {
         readByte();
@@ -1114,7 +1114,7 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       }
       i_mean_v = *(reinterpret_cast<float*>(imageBuf2));
 
-      // 0x55-0x58 - color count
+      // 0x54-0x57 - color count
       // char imageBuf2[4] = {0};
       for (int i = 0; i < 4; ++i) {
         readByte();
@@ -1143,8 +1143,8 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       return col;
     };
 
-    // 0x59-0x7C - tonic (on) colors
-    // 0x7D-0xA0 - tonic (off) colors
+    // 0x58-0x7B - tonic (on) colors
+    // 0x7C-0x9F - tonic (off) colors
     for (auto& col : setTonicOn) {
       col = readRGB();
     }
@@ -1152,8 +1152,8 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       col = readRGB();
     }
 
-    // 0xA1-0x221  velocity (on) colors
-    // 0x222-0x3A1 velocity (off) colors
+    // 0xA0-0x21F  velocity (on) colors
+    // 0x220-0x39F velocity (off) colors
     for (auto& col : setVelocityOn) {
       col = readRGB();
     }
@@ -1161,11 +1161,11 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
       col = readRGB();
     }
 
-    // 0x3A2-0x3A5 - background color
+    // 0x3A0-0x3A2 - background color
     bgColor = readRGB();
     // logQ("READ COLOR", bgColor);
 
-    // 0x3A6-0x3A9 - track size marker (n)
+    // 0x3A3-0x3A6 - track size marker (n)
     char trackSizeBuf[4] = {0};
     for (int i = 0; i < 4; ++i) {
       readByte();
@@ -1184,8 +1184,8 @@ void controller::load(string path, bool& nowLine, bool& showFPS, bool& showImage
     setTrackOn.resize(trackSetSize);
     setTrackOff.resize(trackSetSize);
 
-    // 0x3AA-0x3AA+(n*3)       track (on) colors
-    // 0x3AA+(n*3)-0x3AA+(n*6) track (off) colors
+    // 0x3A7-0x3A7+(n*3)       track (on) colors
+    // 0x3A7+(n*3)-0x3A7+(n*6) track (off) colors
     for (auto i = 0; i < trackSetSize; ++i) {
       setTrackOn[i] = readRGB();
     }
@@ -1332,7 +1332,7 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   // 0x00:[3:0] - MKI_VER_MINOR
 
   uint8_t byte0 = 0;
-  byte0 |= ((static_cast<uint8_t>(MKI_VER_MAJOR) & 000001111) << 4);
+  byte0 |= ((static_cast<uint8_t>(MKI_VER_MAJOR) & 0b00001111) << 4);
   byte0 |= (static_cast<uint8_t>(MKI_VER_MINOR) & 0b00001111);
 
   writeByte(byte0);
@@ -1358,13 +1358,13 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
   // logQ(byte0);
   writeByte(byte1);
 
-  // 0x02:[7:7] - now line
+  // 0x02:[7:7] - tempo display
   // 0x02:[6:0] - reserved
   uint8_t byte2 = 0;
   byte2 |= (showTempo << 7);
   writeByte(byte2);
 
-  // 0x02-0x09 - reserved
+  // 0x03-0x09 - reserved
   writeUntil(0x09);
 
   // 0x0A:[7:4] - scheme color type
@@ -1427,57 +1427,57 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
 
   writeByte(pref2);
 
-  // 0x13:[7:2] - hand range (6 bits)
-  // 0x13:[1:0] - CIE function (2 bits)
+  // 0x12:[7:2] - hand range (6 bits)
+  // 0x12:[1:0] - CIE function (2 bits)
   uint8_t pref3 = 0;
   pref3 |= (static_cast<uint8_t>(ctr.option.get(OPTION::HAND_RANGE)) << 2);
   pref3 |= (static_cast<uint8_t>(ctr.option.get(OPTION::CIE_FUNCTION)) << 0);
 
   writeByte(pref3);
 
-  // 0x14:[7:0] - bw channel
-  // 0x15:[7:0] - r channel
-  // 0x16:[7:0] - g channel
-  // 0x17:[7:0] - b channel
+  // 0x13:[7:0] - bw channel
+  // 0x14:[7:0] - r channel
+  // 0x15:[7:0] - g channel
+  // 0x16:[7:0] - b channel
   writeByte(static_cast<uint8_t>(ctr.option.get(OPTION::DARKEN_IMAGE)));
   writeByte(static_cast<uint8_t>(ctr.option.get(OPTION::LEVEL_CONTROL_R)));
   writeByte(static_cast<uint8_t>(ctr.option.get(OPTION::LEVEL_CONTROL_G)));
   writeByte(static_cast<uint8_t>(ctr.option.get(OPTION::LEVEL_CONTROL_B)));
 
-  // 0x18-0x19 - shadow angle
+  // 0x17-0x18 - shadow angle
   writeByte(static_cast<uint16_t>(ctr.option.get(OPTION::SHADOW_ANGLE)));
 
-  // 0x1A:[7:2] - shadow distance (6 bits)
-  // 0x1A:[1:0] - quantization (live), as a power of two in 64ths (2 bits)
+  // 0x19:[7:2] - shadow distance (6 bits)
+  // 0x19:[1:0] - quantization (live), as a power of two in 64ths (2 bits)
   uint8_t pref4 = 0;
   pref4 |= (static_cast<uint8_t>(ctr.option.get(OPTION::SHADOW_DISTANCE)) << 2);
   pref4 |= static_cast<uint8_t>(std::countr_zero(static_cast<unsigned>(ctr.option.get(OPTION::QUANTIZE_LIVE))) & 0b11);
 
   writeByte(pref4);
 
-  // 0x1B:[7:2] - reserved
-  // 0x1B:[1:0] - quantization (midi), as a power of two in 64ths (2 bits)
+  // 0x1A:[7:2] - reserved
+  // 0x1A:[1:0] - quantization (midi), as a power of two in 64ths (2 bits)
   writeByte(
       static_cast<uint8_t>(std::countr_zero(static_cast<unsigned>(ctr.option.get(OPTION::QUANTIZE_MIDI))) & 0b11));
 
-  // 0x1C-0x2F - reserved
+  // 0x1B-0x2F - reserved
   writeUntil(0x2F);
 
   // 0x30-0x3F - reserved
   writeUntil(0x3F);
 
-  // 0x40-0x44 - zoom level (4bit float (cast from double)), in pixels per 1 / ZOOM_TPS seconds
+  // 0x40-0x43 - zoom level (4 byte float), in pixels per 1 / ZOOM_TPS seconds
   float zlf = static_cast<float>(zoomLevel * (UNIT_TPS / static_cast<double>(ZOOM_TPS)));
   // logQ(static_cast<float>(zoomLevel));
   writeByte(zlf);
 
   // position need not exceed 16 bits
-  // 0x45-0x46 - image position (x)
-  // 0x47-0x48 - image position (y)
-  // 0x49-0x4C - scale
-  // 0x4D-0x50 - default scale
-  // 0x51-0x54 - mean value
-  // 0x55-0x58 - color count
+  // 0x44-0x45 - image position (x)
+  // 0x46-0x47 - image position (y)
+  // 0x48-0x4B - scale
+  // 0x4C-0x4F - default scale
+  // 0x50-0x53 - mean value
+  // 0x54-0x57 - color count
 
   // if no image exists, all values are left zero
 
@@ -1520,8 +1520,8 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
     writeByte(b);
   };
 
-  // 0x59-0x7C - tonic (on) colors
-  // 0x7D-0xA0 - tonic (off) colors
+  // 0x58-0x7B - tonic (on) colors
+  // 0x7C-0x9F - tonic (off) colors
   for (auto col : setTonicOn) {
     writeRGB(col);
   }
@@ -1529,8 +1529,8 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
     writeRGB(col);
   }
 
-  // 0xA1-0x221  velocity (on) colors
-  // 0x222-0x3A1 velocity (off) colors
+  // 0xA0-0x21F  velocity (on) colors
+  // 0x220-0x39F velocity (off) colors
   for (auto col : setVelocityOn) {
     writeRGB(col);
   }
@@ -1538,13 +1538,13 @@ void controller::save(string path, bool nowLine, bool showFPS, bool showImage, b
     writeRGB(col);
   }
 
-  // 0x3A2-0x3A5 - background color
+  // 0x3A0-0x3A2 - background color
   writeRGB(bgColor);
   // logQ("WRITE COLOR", bgColor);
 
-  // 0x3A6-0x3A9 - track size marker (n)
-  // 0x3AA-0x3AA+(n*3)       track (on) colors
-  // 0x3AA+(n*3)-0x3AA+(n*6) track (off) colors
+  // 0x3A3-0x3A6 - track size marker (n)
+  // 0x3A7-0x3A7+(n*3)       track (on) colors
+  // 0x3A7+(n*3)-0x3A7+(n*6) track (off) colors
   uint32_t trackSetSize = setTrackOn.size();
   // logQ("OUTN", trackSetSize);
   writeByte(trackSetSize);

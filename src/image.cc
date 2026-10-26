@@ -27,7 +27,7 @@ void imageController::load(const string& path) {
 
   string ext = getExtension(path);
 
-  if (ext == "jpg") {
+  if (any_of(ext, "jpg", "jpeg")) {
     format = IMAGE_JPG;
   }
   else if (ext == "png") {

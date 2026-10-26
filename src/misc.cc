@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 #include <iomanip>
 
 #include "data.h"
@@ -194,11 +195,14 @@ vector<string>& formatPortName(vector<string>& ports) {
   return ports;
 }
 
-string getExtension(const string& path, bool len4) {
-  unsigned long len = len4 ? 4 : 3;
-  string p = path;
-  transform(p.begin(), p.end(), p.begin(), ::tolower);
-  return p.length() > len ? p.substr(p.size() - len) : p;
+string getExtension(const string& path) {
+  // the file name's text after its last dot, so four letter extensions like midi and jpeg work too
+  string ext = std::filesystem::path(path).extension().string();
+  if (!ext.empty()) {
+    ext.erase(0, 1);
+  }
+  transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+  return ext;
 }
 
 string getDirectory(const string& path) {

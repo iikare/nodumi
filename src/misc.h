@@ -59,7 +59,7 @@ vector<string>& formatPortName(vector<string>& ports);
 bool isValidPath(const string& path, int pathTypes...);
 bool isValidExtension(const string& ext, int pathType);
 bool isValidExtension(const string& ext, int pathType, int pathTypes...);
-string getExtension(const string& path, bool len4 = false);
+string getExtension(const string& path);
 string getDirectory(const string& path);
 
 string toHex(int dec);

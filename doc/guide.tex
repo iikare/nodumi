@@ -162,8 +162,8 @@ This application was created by \textcolor{lcol}{\href{https://iika.re}{iika-re}
 
 For Linux systems, you will need to install \mi{raylib}, either through your distribution's package manager or by directly
 building and installing the required shared libraries.
-You will also need the libraries output by the command
-\mi{pkg-config --libs gtk+-3.0}. As of 13 October 2023, these are (identified via corresponding linker flag): 
+You will also need the ALSA and JACK libraries (\mi{-lasound -ljack}), and the libraries output by the command
+\mi{pkg-config --libs gtk+-3.0}. As of 26 October 2026, these are (identified via corresponding linker flag): 
 
 \vspace{1em}
 
@@ -179,7 +179,7 @@ only been done on Windows 10, but theoretically earlier Windows versions should 
 
 A GPU supporting OpenGL 3.3 or higher is required. A relatively modern CPU is desirable, but not necessary.
 The performance demands of this application are low unless you wish to visualize very large MIDI files.
-One exception is the Voronoi rendering mode, which requires a reasonably performant GPU to maintain an acceptable framerate.
+The Voronoi rendering mode is the most demanding, but even integrated GPUs keep a high framerate in it.
 
 \section{Obtaining Binaries}
 \label{sec:obtain}
@@ -189,11 +189,11 @@ or by building directly from source.
 
 \subsection{Prebuilt Binaries}
 
-At the moment, there is no set release schedule. Prebuilt binaries are often (but not always) available at 
-\textcolor{lcol}{(\raisebox{-0.1\height}{\faGithub} \href{https://github.com/iikare/nodumi}{iikare/nodumi})}
-in the \mi{bin} directory. Use \mi{nodumi} for Linux-based systems, and \mi{nodumi.exe} for Windows-based systems.
+At the moment, there is no set release schedule, and prebuilt binaries are no longer kept in the repository.
+When available, they are provided on the \textcolor{lcol}{\href{https://iika.re/nodumi/}{project page}}.
+Use \mi{nodumi} for Linux-based systems, and \mi{nodumi.exe} for Windows-based systems.
 Note that there is \textit{no} installer for either operating system. As there are no persistent configuration files,
-the application is portable by default.
+the application is portable by default. Preferences can be kept by saving them into an MKI file.
 
 \subsection{Compilation from Source}
 
@@ -205,11 +205,16 @@ tools that are not Windows-compatible. This means that both Linux and Windows ex
 First, obtain the source code by cloning 
 \textcolor{lcol}{(\raisebox{-0.1\height}{\faGithub} \href{https://github.com/iikare/nodumi}{iikare/nodumi})}.
 Then, run \mi{make rel=y} for a Linux release build, or \mi{make arch=win rel=y} for a Windows release build.
-Compile-time dependencies are listed as submodules in the directory, so make sure to obtain them as well. Cross-compilation
+Adding \mi{torch=y} to a Linux build enables the LSTM track classifier (see Section 
+\textcolor{lcol}{\hyperref[subsec:lstm]{\ref{subsec:lstm}}}), and \mi{make f} builds both release executables at once.
+Compile-time dependencies are listed as submodules in the directory, so make sure to obtain them as well.
+The build also expects \mi{clang}/\mi{clang++} (C++23), the \mi{mold} linker, \mi{zsh}, \mi{git}, \mi{xxd},
+\mi{pkg-config}, and the GTK 3, ALSA and JACK development files. Cross-compilation
 from Linux to Windows requires 
 \mi{x86_64-w64-mingw32-g++},
 \mi{x86_64-w64-mingw32-gcc}, and
 \mi{x86_64-w64-mingw32-ld}. The final executable can be then found in the \mi{bin} directory.
+This manual is built with \mi{make doc}, which needs \mi{xelatex}, \mi{minted} (with \mi{pygments}) and \mi{inkscape}.
 
 \section{Usage}
 
@@ -219,7 +224,8 @@ A very brief usage overview is provided below. Further usage information is give
 
 While there is no true text-based interface, both a MIDI/MKI file and an image can be loaded automatically through
 the proper command line arguments. Any order of arguments is accepted, with the first MIDI/MKI file or image file in the list
-being taken. Any MIDI/MKI or image files past the first of each type and any invalid paths are ignored. An example is given below.
+being taken. Any MIDI/MKI or image files past the first of each type and any invalid paths are ignored. MIDI files may end in
+\mi{.mid} or \mi{.midi}, and images in \mi{.png}, \mi{.jpg} or \mi{.jpeg}. An example is given below.
 
 \begin{minted}{shell}
   ./bin/nodumi [path to MIDI/MKI] [path to image]
@@ -230,6 +236,7 @@ There are no other command line parameters. After executing the above command, t
 \subsection{Graphical Interface}
 
 If not starting the application from the command line, the graphical interface will open automatically without any files loaded.
+Files can be opened through the \mi{File} menu, or dropped onto the window (up to one MIDI/MKI file and one image at a time).
 
 \subsection{Warnings and Errors}
 
@@ -273,12 +280,14 @@ A set of shortcuts (mostly) conforming to conventional norms are defined via the
   \mi{F7}       					     														& Exit \\
   \mi{Ctrl-Space}   					 														& Toggle Live Play Mode \\
   \mi{Space}   					 														      & Toggle Playback \\
-  \mi{Ctrl-}$n, n \in [1,9]$   														& Enable $n^\text{th}$ Display Mode\\
-  \mi{Ctrl-Home}   					 														  & Jump to Start \\
-  \mi{Ctrl-End}   					 														  & Jump to End \\
+  \mi{Tab}   					 														          & Open Preferences \\
+  \mi{Ctrl-}$n, n \in [1,7]$   														& Enable $n^\text{th}$ Display Mode\\
+  \mi{Home}   					 														      & Jump to Start \\
+  \mi{End}   					 														        & Jump to End \\
   \mi{Scr.Wheel}       			 										  				& Zoom \\
   \mi{Alt-Scr.Wheel}       			 										  		& Zoom (precise) \\
   $\uparrow \cdot \downarrow$       			                & Zoom \\
+  \mi{Alt-}$\uparrow \cdot \downarrow$       			        & Zoom (precise) \\
   $\leftarrow \cdot \rightarrow$       			              & Move Back/Forward \\
   \mi{Ctrl-}$\leftarrow \cdot \rightarrow$       			    & Move Back/Forward (faster) \\
   \mi{Shift-}$\leftarrow \cdot \rightarrow$       			  & Move Back/Forward (by measure) \\
@@ -288,13 +297,19 @@ A set of shortcuts (mostly) conforming to conventional norms are defined via the
 \end{tabular}
 \rcend
 
+\vspace{1em}
+
+Image zoom only applies while a background image is loaded and shown.
+The display modes are numbered in the order of the \mi{View} $\rightarrow$ \mi{Display Mode:} menu
+(Bar, Line, Pulse, Ball, FFT, Voronoi, Loop).
+
 \newpage
 
 \subsection{\mi{vim}-like}
 
 Similar to the list in Section \textcolor{lcol}{\hyperref[subsec:kbshortcut]{\ref{subsec:kbshortcut}}}, these shortcuts are bound to common actions. These use the command 
 buffer, which is visible at the bottom right corner of the window. Pressing \mi{esc} or enter will clear the buffer. Once a 
-valid command is input to the buffer, it will either be (a) executed immediately if not beginning with \mi{:}, or 
+valid command is input to the buffer, it will either be (a) executed immediately if not beginning with \mi{:} or \#, or 
 (b) executed after \mi{<Enter>} is pressed by the user. The list of these bindings is presented below. 
 
 \vspace{1em}
@@ -315,11 +330,11 @@ valid command is input to the buffer, it will either be (a) executed immediately
   \mi{:n}       					 														    & Open Program Info \\
   \mi{:l}   					 														        & Toggle Live Play Mode \\
   \mi{:s}   					 														        & Toggle Sheet Music Display \\
-  \mi{:d}$n, n \in [1,99]$   														  & Enable $n^\text{th}$ Display Mode\\
+  \mi{:d}$n, n \in [1,9]$   														  & Enable $n^\text{th}$ Display Mode\\
   \mi{:r[w/h]}$n$               													& Set Width/Height to $n$ \\
   \mi{:if[w/h]}               													  & Fit Image Width/Height \\
-  \mi{gg}   					 														        & Jump to Start \\
-  \mi{G}   					 														          & Jump to End \\
+  \mi{gg} or \mi{0}   					 												& Jump to Start \\
+  \mi{G} or \$   					 												& Jump to End \\
   $n$\mi{G}       			                                  & Jump to $n^\text{th}$ Measure \\
   \mi{b}       			                                      & Move Back One Measure \\
   $n$\mi{b}       			                                  & Move Back $n$ Measures \\
@@ -332,15 +347,18 @@ valid command is input to the buffer, it will either be (a) executed immediately
 
 \vspace{1em}
 
-Note that the color change command expects a 6-digit hex color string as input.
+Note that the color change command expects a 6-digit hex color string as input, and applies to the color selector that is open.
+For \mi{:d}, values past the last display mode select the last one (Loop). Window sizes set with \mi{:rw} and \mi{:rh} cannot go below
+the default window size.
 
+\newpage
 \section{Features}
 
 An explanation of the major features of this program follows.
 
 \subsection{Display Modes}
 
-Currently, there are six fully implemented display modes, all of which are usable for both live input and
+Currently, there are seven fully implemented display modes, all of which are usable for both live input and
 while using prerecorded files. For all display modes, the $x$ direction represents time, and the $y$ direction
 represents the 88 keys playable on a standard piano (i.e. pitch). While the MIDI specification provides for note 
 input in the key range
@@ -357,7 +375,7 @@ input in the key range
 Each mode is marked with its corresponding type. Line-based modes link temporally adjacent notes on the same track.
 
 All display modes are accessible via 
-\mi{View} $\rightarrow$ \mi{Display Mode:} $\rightarrow$ \mi{[mode]}.
+\mi{View} $\rightarrow$ \mi{Display Mode:} $\rightarrow$ \mi{[mode]}, and are described below in that menu's order.
 
 \newpage
 
@@ -369,22 +387,13 @@ The simplest display mode \textendash{} this simply draws a bar at the $x$ posit
 determined by its duration.
 This is a \textsc{Bar-based} display mode.
 
-\subsubsection{FFT}
+\subsubsection{Line}
 
-\rcgnc{0.86}{image/fft.png}
+\rcgnc{0.86}{image/line.png}
 
-Identical to the \textsc{Bar} mode, with the addition of note frequencies via 
-an FFT approximation algorithm. The amplitude of a given frequency bin is
-displayed along the bottom of the screen, and all bins combined encompass the
-frequency range $[20, 44100]$Hz.
-Since MIDI data does not contain actual samples, an envelope function
-must be chosen to approximate bin lengths. Currently, this function
-is only modelled for a piano even when another MIDI instrument is present on track. Amplitudes are calculated
-for each track, and then a summation over all tracks is done to obtain the final frequency bin distribution.
-This can be seen in the overlapping colors in the spectrum about halfway across the above image. In practice, 
-when accounting for overtones, harmonics, and other signal behavior, not all of the spectrum is used equally
-(note that C8 on a piano only emits ~4.2KHz). The display is logarthimic in frequency. 
-This is a \textsc{Bar-based} display mode.
+This mode draws a continuous bezier curve between notes. For line segments shorter than a given threshold,
+a single straight line segment is drawn to optimize performance.
+This is a \textsc{Line-based} display mode.
 
 \newpage
 \subsubsection{Pulse}
@@ -396,7 +405,6 @@ line segment is dependent on the relative position and duration of the note in r
 Additionally, a pulse appears at a note-on event and fades out over time.
 This is a \textsc{Line-based} display mode.
 
-
 \subsubsection{Ball}
 
 \rcgnc{0.86}{image/ball.png}
@@ -407,25 +415,45 @@ of the note has passed, only a small circle remains at that note's ending positi
 This is a \textsc{Bar-based} display mode.
 
 \newpage
+\subsubsection{FFT}
 
-\subsubsection{Line}
+\rcgnc{0.86}{image/fft.png}
 
-\rcgnc{0.86}{image/line.png}
+Identical to the \textsc{Bar} mode, with the addition of a simulated frequency spectrum along the bottom of the screen.
+Since MIDI data does not contain actual samples, the spectrum is modelled on a piano, even when another MIDI instrument
+is present on a track. Each sounding note adds its fundamental and overtones (with the slight inharmonicity of real piano
+strings), which decay faster in the treble than in the bass. A released key is silenced by its damper within about half a
+second, except for the highest keys (F\#6 and up), which have no dampers, and the sustain pedal (CC64) keeps strings ringing
+as it would on a real instrument.
 
-This mode draws a continous bezier curve between notes. For line segments shorter than a given threshold,
-a single straight line segment is drawn to optimize performance.
-This is a \textsc{Line-based} display mode.
+The spectrum is drawn as a bar every 10 pixels, spaced logarithmically in frequency over the audible range of $[20, 20000]$Hz,
+and showing a range of 66dB. Bars rise immediately and fall gradually, and a small marker briefly holds each bar's recent peak.
+Every bar is split into the colors of the tracks that make it up, so it is possible to see which part produces each frequency.
+In practice, not all of the spectrum is used equally (note that C8, the highest key on a piano, has a fundamental of only
+\textasciitilde4.2kHz), so most of the upper range is filled by overtones.
+This is a \textsc{Bar-based} display mode.
 
-
+\newpage
 \subsubsection{Voronoi}
 
 \rcgnc{0.86}{image/voronoi.png}
 
-Spatial distance is encoded in a Voronoi-based diagram, calculated in real-time via GPU. Additionally, a circle
-is placed at the start possition of each note to mark the origin of each Voronoi cell. The algorithm used to 
-create this visualization is $O(k^2)$ in the number of points, so performance may suffer on older, slower, or 
-integrated GPUs. Image backgrounds cannot be seen when using this visualization.
+Spatial distance is encoded in a Voronoi-based diagram, calculated in real-time via GPU. Each note's start position is the
+origin of a Voronoi cell, colored after its note, and marked with a smooth dot sized by the note's duration. Every note
+within a screen's width of the visible area takes part, so cells at the edges do not change as notes scroll into view.
+Notes are sorted into a grid before drawing, so the cost of each pixel stays about the same no matter how many notes are
+shown, and zooming far out remains smooth. Measure lines and numbers are drawn inverted over the cells, so they stay
+visible on any cell color. Image backgrounds cannot be seen when using this visualization.
 This is an \textsc{Other} display mode.
+
+\subsubsection{Loop}
+
+\rcgnc{0.86}{image/loop.png}
+
+Notes on the same track are joined by straight lines, which are drawn in as the music reaches them. Each note is marked
+by a dot sized by its duration. As the \textit{now}-line moves from one note to the next, the line between them grows and a
+ring closes around the next note's dot, and the ring stays once that note has been reached.
+This is a \textsc{Line-based} display mode.
 
 \newpage
 
@@ -433,19 +461,27 @@ This is an \textsc{Other} display mode.
 
 \rcgnc{1.0}{image/sheet.png}
 
-The ability to generate sheet music from MIDI/MKI files or from live input is supported.
-Keep in mind this feature is still in development, and the current progress on this feature
-is not representative of its final state.
+The ability to generate sheet music from MIDI/MKI files or from live input is supported. A grand staff is laid out a
+page at a time above the visualization, and the measure under the \textit{now}-line is marked with an arrow.
+Notes are split into notatable values per measure, tied across beats and barlines, and given flags or beams grouped by
+the time signature. Rests fill the gaps, and each stave holds up to two voices with their own stem directions.
+Dotted values, accidentals, ledger lines, \textit{8va}/\textit{8vb} lines for passages far from the stave, rolled chords
+and grace notes are also notated.
 
-Take note of the ill-placed note markings and lack of flags or beaming. Future iterations of the
-sheet music creation algorithm are planned to fix these shortcomings. It is best to think of the
-sheet music generator as a technical preview rather than a full-fledged feature.
+Since MIDI files record performances rather than notation, note timings are first snapped to a grid. The grid is set
+separately for files and for live input by the \textit{Quantization Threshold} preferences
+(see Section \textcolor{lcol}{\hyperref[subsec:quantize]{\ref{subsec:quantize}}}). Files with a single note track are split
+into two hands as described under \textcolor{lcol}{\hyperref[subsec:adaptivetrackdivision]{Adaptive Track Division}}.
+During live input, pages fill from left to right and turn once full, and measures are laid out in 4/4 at a fixed tempo.
+
+This feature is still in development, so dense or unusual passages may still be notated awkwardly.
 
 This feature is accessible via \mi{Edit} $\rightarrow$ \mi{Enable Sheet Music}.
 
 \subsection{Song Time}
 
-This option places a marker of the current piece's position in the upper right corner of the display.
+This option places a marker of the current piece's position in the upper left corner of the visualization, below the menu
+bar (or below the sheet music, when it is shown). The key signature and tempo are shown next to it.
 Two options are provided for the format: \textit{Relative Song Time}, and \textit{Absolute Song Time}.
 For live input, this value is proportional to the amount of time spent in the Live Play mode.
 
@@ -455,7 +491,7 @@ The \textit{Relative Song Time} option displays a percentage that corresponds to
 complete relative to the \textit{Now}-Line. For live input, this value is not rendered at all instead.
 
 This feature is accessible via 
-\mi{View} $\rightarrow$ \mi{{Display, Hide} Song Time} $\rightarrow$ \mi{Relative}.
+\mi{View} $\rightarrow$ \mi{Show Song Time:} $\rightarrow$ \mi{Relative}, and hidden via \mi{View} $\rightarrow$ \mi{Hide Song Time}.
 
 \subsubsection{Absolute}
 
@@ -465,7 +501,7 @@ For live input, this value consists of only one number \textendash{}
 the amount of time since the Live Play mode was initiated.
 
 This feature is accessible via 
-\mi{View} $\rightarrow$ \mi{{Display, Hide} Song Time} $\rightarrow$ \mi{Absolute}.
+\mi{View} $\rightarrow$ \mi{Show Song Time:} $\rightarrow$ \mi{Absolute}, and hidden via \mi{View} $\rightarrow$ \mi{Hide Song Time}.
 
 \subsection{Key Signature Detection}
 
@@ -473,7 +509,7 @@ For MIDI/MKI files, an option to extract and render the current key signature fr
 key signature data is generated directly from the MIDI/MKI file.
 If an input MIDI file does not have any key signatures, the key signature with the smallest number of off-key notes
 is used instead. Currently, this assumes the entire piece uses the same key signature. 
-For live input, a heuristic-based key detection algorithm is planned.
+For live input, the key signature that fits the most notes played so far is shown.
 
 This feature is accessible via 
 \mi{View} $\rightarrow$ \mi{{Show, Hide} Key Signature}.
@@ -494,16 +530,17 @@ intended position. When this is done, the notes will move along with the line as
 the line, hold \mi{Shift} while left-clicking.
 
 This feature is accessible via 
-\mi{View} $\rightarrow$ \mi{{Display, Hide} Now Line}.
+\mi{View} $\rightarrow$ \mi{{Show, Hide} Now Line}.
 
 \subsection{Measure Lines}
 
 Like the \textit{Now}-Line, vertical lines are placed at the start of each measure. These lines cannot be moved, as 
 they are fixed to the timestamp at which they appear in the MIDI/MKI file.
-There are no measure lines displayed when the Live Input mode is active.
+When the Live Play mode is active, measures are counted in 4/4 at a fixed tempo from the moment it is enabled.
+When zooming out, measure lines fade as they get closer together.
 
 This feature is accessible via 
-\mi{View} $\rightarrow$ \mi{{Display, Hide} Measure Line}.
+\mi{View} $\rightarrow$ \mi{{Show, Hide} Measure Line}.
 
 \subsection{Measure Numbers}
 
@@ -512,11 +549,13 @@ slightly to the right of the measure line to prevent overlap. When zooming out, 
 order to preserve readability.
 
 This feature is accessible via 
-\mi{View} $\rightarrow$ \mi{{Display, Hide} Measure Number}.
+\mi{View} $\rightarrow$ \mi{{Show, Hide} Measure Number}.
 
 \subsection{Hide Background}
 
 If an image is loaded, this option prevents it from being rendered. Otherwise, this option has no effect.
+A loaded image can be moved by dragging it with the left mouse button, and zoomed with \mi{Ctrl-Scr.Wheel}.
+Right-clicking the image offers to remove it, or to fit it to the width or height of the window.
 
 This feature is accessible via 
 \mi{View} $\rightarrow$ \mi{{Show, Hide} Background}.
@@ -526,13 +565,15 @@ This feature is accessible via
 Communication to external MIDI devices is possible. This includes sending MIDI events to a synthesizer,
 and processing incoming MIDI data from a device. This option also allows the user to play a MIDI instrument and
 view a live visualization at the same time. When MIDI ports are displayed, a short version of the device-provided
-port name is provided, and each input or output port is uniquely numbered.
+port name is provided, and each input or output port is uniquely numbered. The program's own ports are named
+\mi{nodumi input} and \mi{nodumi output}.
 
 \subsection{Input}
 
 If an input MIDI port is selected, the program will listen on that port for incoming MIDI messages. Valid messages will
 be displayed on screen as if they came from a prerecorded file. Note that an input port can be opened even when the
-Live Play mode is not activated.
+Live Play mode is not activated. The program's own output port is left out of the input list, so that it cannot feed its
+own output back into itself.
 
 This feature is accessible via 
 \mi{Midi} $\rightarrow$ \mi{Input} $\rightarrow$ \mi{[port]}.
@@ -541,7 +582,7 @@ This feature is accessible via
 \label{subsec:output}
 
 If an output MIDI port is selected, the program will output MIDI messages to that port. If a file is loaded, sent messages
-correspond with the currently playing notes. If the Live Input mode is selected (and a valid input port is open), the program
+correspond with the currently playing notes. Pausing or jumping to another position silences any notes that are still sounding. If the Live Input mode is selected (and a valid input port is open), the program
 will instead act in a MIDI Through regime. Therefore, input notes will still 
 be rendered while allowing for audio to be provided by an external synthesizer.
 
@@ -564,7 +605,7 @@ This feature is accessible via
 \subsection{LSTM-Based Track Separation}
 \label{subsec:lstm}
 
-Using a small LSTM (dependent on \mi{libtorch}, available only on Linux, and requiring compile-time support), left/right hand detection from a single MIDI input can be done. This is primarily intended for use with instruments such as piano, organ, etc. If the program is compiled without \mi{libtorch} support, this feature will fall back to a heuristic-based algorithm for track separation, if enabled via the corresponding
+Using a small LSTM (dependent on \mi{libtorch}, available only on Linux, and requiring compile-time support), left/right hand detection from a single live MIDI input can be done. It is enabled by the \textit{Use LSTM Classifier} preference. This is primarily intended for use with instruments such as piano, organ, etc. If the program is compiled without \mi{libtorch} support, this feature will fall back to a heuristic-based algorithm for track separation, if enabled via the corresponding
 \textcolor{lcol}{\hyperref[subsec:adaptivetrackdivision]{option}}.
 
 \section{Color Selection}
@@ -578,6 +619,11 @@ This function allows for the coloring of notes via different methods. Each note 
 \textendash{} one for when it currently playing or selected by the user, and another for all other cases. These options allow
 setting both of these colors for all notes at the same time using a predefined algorithm. Even when using these options,
 the user can still manually override any algorithmically generated color.
+
+Colors are changed by right-clicking an object and choosing \mi{Change Color} (or \mi{Change Part Color} for a note,
+\mi{Change Line Color} for the \textit{now}-line and measure lines), which opens a color selector. While it is open,
+a hex color can also be entered with the \#\mi{XXXXXX} command. The right-click menu of a note also shows its pitch and
+number at the top, and offers \mi{Set Tonic}.
 
 \vspace{1em}
 
@@ -704,7 +750,7 @@ options.
 \subsection{Specification}
 
 The MKI file format is open and non-proprietary \textendash{} anyone is free to use the specification described below. However,
-due to the frequency changing nature of this program, this specification is subject to change at any time. This software
+due to the frequently changing nature of this program, this specification is subject to change at any time. This software
 provides no guarantees that a MKI file created today will be compatible with future versions of the program. Moreover,
 many of the options are very specific to this program.
 
@@ -715,9 +761,10 @@ The MKI format is defined as follows:
 \rcbegin
 \begin{tabular}{|l|l|}
   \hline
-  \textbf{Offset[start:end]}    & \textbf{Value} \\
+  \textbf{Offset[bits]}         & \textbf{Value} \\
   \hline
-  \mi{0x00}                       & MKI Format Specifier\\
+  \mi{0x00[7:4]}                  & MKI Version (Major) \\
+  \mi{0x00[3:0]}                  & MKI Version (Minor, \mi{1} = \mi{a}) \\
   \mi{0x01[7:7]}                  & \textit{Now}-Line \\
   \mi{0x01[6:6]}                  & Display FPS \\
   \mi{0x01[5:5]}                  & Display Background \\
@@ -725,7 +772,7 @@ The MKI format is defined as follows:
   \mi{0x01[3:3]}                  & Display Measure Line \\
   \mi{0x01[2:2]}                  & Display Measure Number \\
   \mi{0x01[1:1]}                  & Image Exists? \\
-  \mi{0x01[1:1]}                  & Display Key Signature \\
+  \mi{0x01[0:0]}                  & Display Key Signature \\
   \mi{0x02[7:7]}                  & Display Tempo \\
   \mi{0x02[6:0]-0x09}             & \mi{[reserved]} \\
   \mi{0x0A[7:4]}                  & Color Scheme \\
@@ -733,33 +780,74 @@ The MKI format is defined as follows:
   \mi{0x0B[7:4]}                  & Song Time Mode \\
   \mi{0x0B[3:0]}                  & Tonic Offset \\
   \mi{0x0C-0x0F}			            & \mi{[reserved]} \\
-  \mi{0x10-0x2F}			            & User Preferences \\
+  \mi{0x10-0x2F}			            & User Preferences (see below) \\
   \mi{0x30-0x3F}			            & \mi{[reserved]} \\
-  \mi{0x40-0x44}                  & Zoom \\
-  \mi{0x45-0x58}                  & Image Metadata (if exists) \\
-  \mi{0x59-0xA0}                  & Tonic Color Data \\
-  \mi{0xA1-0x3A1}                 & Velocity Color Data \\
-  \mi{0x3A2-0x3A5}                & Background Color \\
-  \mi{0x3A6-0x3A9}                & Track Size Marker \\
-  \mi{0x3AA-0x3AA+N}              & Track Color Data \\
-  \mi{0x3AA+N-0x3AA+N+M}          & Raw MIDI Data \\
-  \mi{0x3AA+N+M-0x3AA+N+M+P}      & Raw Image Data (if exists) \\
-
+  \mi{0x40-0x43}                  & Zoom (float) \\
+  \mi{0x44-0x57}                  & Image Metadata (zero if no image) \\
+  \mi{0x58-0x9F}                  & Tonic Color Data \\
+  \mi{0xA0-0x39F}                 & Velocity Color Data \\
+  \mi{0x3A0-0x3A2}                & Background Color \\
+  \mi{0x3A3-0x3A6}                & Track Count ($T$) \\
+  \mi{0x3A7-0x3A6+N}              & Track Color Data \\
+  next 4 bytes                    & MIDI Size ($M$) \\
+  next $M$ bytes                  & Raw MIDI Data \\
+  next 4 bytes                    & Image Format (if image exists) \\
+  next 4 bytes                    & Image Size ($P$) (if image exists) \\
+  next $P$ bytes                  & Raw Image Data (if image exists) \\
   \hline
 \end{tabular}
 \rcend
 
 \vspace{1em}
 
-$N$ refers to $\text{\# Tracks}*6$, $M$ is the size of the MIDI bitstream, $P$ is the size of the image bitstream.
+$N = 6T$, as each color is stored as three bytes (red, green, blue). Color data lists every note-on color first, then
+every note-off color. Multi-byte values are little-endian. The image metadata consists of the image position
+(\mi{0x44-0x47}, two 16-bit integers), its scale, default scale and mean value (\mi{0x48-0x53}, three floats),
+and its color count (\mi{0x54-0x57}). Only tracks containing notes are counted, so MKI files saved by older versions of
+this program from MIDI data with empty tracks may load with shifted track colors.
+
+\vspace{1em}
+
+\rcbegin
+\begin{tabular}{|l|l|}
+  \hline
+  \textbf{Offset[bits]}         & \textbf{User Preference} \\
+  \hline
+  \mi{0x10[7:7]}                  & Adaptive Track Division (live) \\
+  \mi{0x10[6:6]}                  & Adaptive Track Division (file) \\
+  \mi{0x10[5:5]}                  & Custom Hand Range \\
+  \mi{0x10[4:4]}                  & Darken Background Image \\
+  \mi{0x10[3:3]}                  & Set CIE Distance Function \\
+  \mi{0x10[2:2]}                  & Dynamic Label Color \\
+  \mi{0x10[1:1]}                  & Particle Effects \\
+  \mi{0x10[0:0]}                  & Scaled Velocities \\
+  \mi{0x11[7:7]}                  & Drop Shadow \\
+  \mi{0x11[6:6]}                  & Overlay Blend Mode \\
+  \mi{0x11[5:5]}                  & Level Control \\
+  \mi{0x11[4:4]}                  & Limit FPS \\
+  \mi{0x11[3:3]}                  & Quantization (live) \\
+  \mi{0x11[2:2]}                  & Quantization (file) \\
+  \mi{0x12[7:2]}                  & Hand Range (semitones) \\
+  \mi{0x12[1:0]}                  & CIE Distance Function \\
+  \mi{0x13}                       & Darken Level \\
+  \mi{0x14-0x16}                  & Level Control (red, green, blue) \\
+  \mi{0x17-0x18}                  & Shadow Angle \\
+  \mi{0x19[7:2]}                  & Shadow Distance \\
+  \mi{0x19[1:0]}                  & Quantization Grid (live, $\log_2$ of 64\textsuperscript{ths}) \\
+  \mi{0x1A[1:0]}                  & Quantization Grid (file, $\log_2$ of 64\textsuperscript{ths}) \\
+  \mi{0x1B-0x2F}                  & \mi{[reserved]} \\
+  \hline
+\end{tabular}
+\rcend
 
 \newpage
 
 \section{User Preferences}
 
 This section pertains to the file-agnostic preferences a user can set.
-All of these options are available via the keyboard shortcut \mi{Ctrl-,},
-which corresponds to the \mi{Edit} $\rightarrow$ \mi{Preferences} action.
+All of these options are available via the keyboard shortcuts \mi{Ctrl-,} or \mi{Tab},
+which correspond to the \mi{Edit} $\rightarrow$ \mi{Preferences} action. The preferences are split into three pages
+(\textit{Display}, \textit{Effects} and \textit{Image}), and are saved along with MKI files.
 
 \subsection{Particle Emission}
 
@@ -781,20 +869,38 @@ This color will then be set as the default label color.
 
 Many MIDI devices such as digital pianos only support single-channel MIDI output. Then, it can become difficult to discern the
 hand that plays a specific section of a piece. This option enables an algorithm that processes live MIDI input to split
-single-channel input into two tracks automatically. Options such as the time differential between successive notes, 
-player hand size, and other factors are taken into account. Note that the algorithm output is tuned for use with MIDI-enabled
+single-channel input into two tracks automatically. Each chord is assigned by weighing the position and span of both hands
+against the player's hand size, the number of fingers needed, and how often the hands would cross. For files, the algorithm
+also looks a few chords ahead before deciding. Note that the algorithm output is tuned for use with MIDI-enabled
 pianos, so using other two-handed (or greater) instruments as input may lead to confusing results.
 
 Note that it is possible to automatically divide one-channel tracks as well. An option for this is present in the user
 preferences screen. There are separate options for track division \textendash{} one for live input, and one for MIDI/MKI files.
 If the corresponding option for MIDI/MKI files is enabled after a single-track MIDI/MKI file is loaded, the user must reload
-that file for this option to take effect. This option has no effect on multi-track MIDI/MKI files.
+that file for this option to take effect. This option has no effect on multi-track MIDI/MKI files. Only tracks that contain
+notes are counted, so a file with a tempo track and a single note track is treated as single-track. Both options are enabled
+by default.
 
 \subsection{Hand Range Selection}
 
 This option is available only when the Adaptive Track Division option is enabled. The user is able to select the 
 maximum hand range ($8^\text{th}$, $9^\text{th}$, $10^\text{th}$, or $11^\text{th}$) that suits them best. The 
 track division algorithm will then take the user's choice into effect. The default hand range is a $10^\text{th}$.
+This option is unavailable while the LSTM classifier is in use.
+
+\subsection{LSTM Classifier}
+
+When the program is built with \mi{libtorch} support, live track division can use the LSTM model described in Section
+\textcolor{lcol}{\hyperref[subsec:lstm]{\ref{subsec:lstm}}} instead of the heuristic algorithm. This option is unavailable
+otherwise, or when live track division is disabled.
+
+\subsection{Quantization Threshold}
+\label{subsec:quantize}
+
+Sheet music snaps note timings and durations to a grid of $64^\text{th}$, $32^\text{nd}$, $16^\text{th}$ or $8^\text{th}$
+notes, so that small inaccuracies in a performance do not turn into unreadable rhythms. Nothing shorter than the grid is
+notated. There are separate options for MIDI/MKI files (default: $32^\text{nd}$ notes) and for live input
+(default: $16^\text{th}$ notes), and both can be disabled. Changing the option for files lays out the sheet music again.
 
 \subsection{Image Adjustment}
 
@@ -826,10 +932,27 @@ default color distance algorithm is CIEDE2000. A table summarizing the benefits 
 
 \subsection{Display FPS}
 
-It simply displays the current FPS at the top right corner.
+It simply displays the current FPS at the top right corner, next to the file name and zoom level.
+Unlike the other options in this section, it is not part of the preferences window.
 
 This feature is accessible via 
 \mi{View} $\rightarrow$ \mi{{Show, Hide} FPS}.
+
+\subsection{Limit FPS}
+
+By default, the framerate is limited to the refresh rate of the monitor the window is on. Disabling this option removes the
+limit, which is mainly useful for measuring performance.
+
+\subsection{Frame-by-Frame Data}
+
+When this option is enabled, every frame drawn while a file is playing is saved as an image to a \mi{frame} directory
+in the working directory, named after the file and numbered in order
+(\mi{frame/[name]_[n].png}). In this mode, playback advances by exactly $\sfrac{1}{60}$ of a second per frame regardless
+of how long each frame takes to draw, so the images can be joined into a smooth 60 FPS video, for example with:
+
+\begin{minted}{shell}
+  ffmpeg -framerate 60 -i "frame/[name]_%d.png" -pix_fmt yuv420p video.mp4
+\end{minted}
 
 \subsection{Velocity Scaling}
 
@@ -845,7 +968,7 @@ The \textit{now}-line can be rendered using the Overlay blending mode (similar t
 
 \subsection{Shadow Effects}
 
-A drop shadow effect is available to the user. Bothe the shadow
+A drop shadow effect is available to the user. Both the shadow
 distance and angle are adjustable by the user via the built-in sliders.
 
 \section{Frequently Asked Questions}
