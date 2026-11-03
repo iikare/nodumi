@@ -383,8 +383,11 @@ void midi::load(stringstream& buf) {
       t.reset();
     }
 
+    // the classifier sees the whole file at once, findTrack is the fallback without it
+    const vector<int> hands =
+        ctr.option.get(OPTION::USE_LSTM) ? ctr.input.classify_file(notes) : vector<int>();
     for (int idx = 0; auto& n : notes) {
-      n.track = findTrack(n, *this);
+      n.track = hands.empty() ? findTrack(n, *this) : hands[idx];
       // logQ(n.track);
       // logQ(tracks.at(n.track).getNoteCount());
       tracks.at(n.track).insert(idx);

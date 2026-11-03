@@ -43,7 +43,6 @@ void optionController::invert(OPTION opt) {
       if (ctr.getLiveState() && !get(opt)) {
         getColorScheme(2, ctr.setTrackOn, ctr.setTrackOff);
       }
-      ctr.input.reset_lstm_count();
       break;
     case OPTION::TRACK_DIVISION_MIDI:
       break;
@@ -108,7 +107,9 @@ bool optionController::invalid(OPTION opt) {
     case OPTION::HAND_RANGE:
       return !get(OPTION::TRACK_DIVISION_LIVE) && !get(OPTION::TRACK_DIVISION_MIDI);
     case OPTION::USE_LSTM:
-      return !get(OPTION::TRACK_DIVISION_LIVE) || !ctr.input.lstm_enabled();
+      // the classifier splits both live input and single-track files
+      return (!get(OPTION::TRACK_DIVISION_LIVE) && !get(OPTION::TRACK_DIVISION_MIDI)) ||
+             !ctr.input.lstm_enabled();
     case OPTION::SET_DARKEN_IMAGE:
       [[fallthrough]];
     case OPTION::DARKEN_IMAGE:

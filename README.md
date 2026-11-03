@@ -33,7 +33,7 @@ you to recompile `raylib` for the target platform, and for this purpose the incl
 The makefile calls `clang`/`clang++` and links with `mold` directly. The code itself should be compiler-agnostic, so another compiler or linker
 only needs the `CXX`, `C` and `LD` variables at the top of the makefile changed.
 
-Live track-splitting via real-time inference using a small LSTM model is supported via `libtorch` on Linux only. To enable this support, use `make torch=y` while building, and ensure LibTorch is available on your system (expected at `/opt/libtorch-cpu/`, although you may have to change it manually depending on your system configuration).
+Hand splitting of live input and single-track files via a small neural network is supported via `libtorch` on Linux only. To enable this support, use `make torch=y` while building, and ensure LibTorch is available on your system (expected at `/opt/libtorch-cpu/`, although you may have to change it manually depending on your system configuration).
 
 For cross-compilation to Windows, the following tools are required:
 

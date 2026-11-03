@@ -28,8 +28,9 @@ class midiInput {
   void pauseInput();
   void resumeInput();
   void terminate();
-  void reset_lstm_count();
   bool lstm_enabled() { return classifier->enabled(); }
+  // hands of every note of a prerecorded file, empty when the classifier can't be used
+  vector<int> classify_file(const vector<note>& notes);
 
   int findKeySig();
   string findKeySigLabel();
@@ -47,7 +48,10 @@ class midiInput {
   bool updateQueue();
   bool isUntimedQueue();
   int findNoteIndex(int key);
-  int findPartition(const note& n);
+  bool use_classifier();
+  void assign_hands();
+  void add_to_track(int idx, int hand);
+  void move_to_track(int idx, int hand);
 
   void resetStream();
 
@@ -66,8 +70,10 @@ class midiInput {
   vector<pair<int, keySig>> match;
   int ks_type;
 
-  int notes_since_lstm_enable = 0;
+  vector<int> unassigned;  // notes of this frame that still need a hand
+  vector<int> undecided;   // notes with a first guess, decided again once the classifier can look ahead
 
   unique_ptr<inputClassifier> classifier;
   bool classifier_warmup = false;
+  bool midi_model_tried = false;
 };

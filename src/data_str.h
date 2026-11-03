@@ -85,7 +85,7 @@
                         {"PREF_TRACK_DIVIDE_LIVE",              "Adaptive Track Division (live)"}, \
                         {"PREF_TRACK_DIVIDE_MIDI",              "Adaptive Track Division (file)"}, \
                         {"PREF_HAND_RANGE",                     "Custom Hand Range"}, \
-                        {"PREF_USE_LSTM",                       "Use LSTM Classifier"}, \
+                        {"PREF_USE_LSTM",                       "Use Neural Classifier"}, \
                         {"PREF_QUANTIZE_LIVE",                  "Quantization Threshold (live)"}, \
                         {"PREF_QUANTIZE_MIDI",                  "Quantization Threshold (file)"}, \
                         {"PREF_IMAGE_DARKEN",                   "Darken Background Image"}, \

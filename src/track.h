@@ -22,6 +22,7 @@ class trackController {
 
   void setNoteVector(vector<note>* vec) { n_vec = vec; };
   void insert(unsigned int n);
+  void remove(unsigned int n);
   void reset();
   int getNoteCount() const { return noteCount; }
   double getAverageY() const { return static_cast<double>(noteSum) / noteCount; }

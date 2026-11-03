@@ -1,5 +1,6 @@
 #include "track.h"
 
+#include <algorithm>
 #include <string>
 
 #include "define.h"
@@ -15,7 +16,25 @@ void trackController::reset() {
 void trackController::insert(unsigned int n) {
   noteCount++;
   noteSum += n_vec->at(n).y;
-  note_idx.push_back(n);
+  // a live note that changes hands can be older than the newest note of its new track
+  if (note_idx.empty() || note_idx.back() < n) {
+    note_idx.push_back(n);
+  }
+  else {
+    note_idx.insert(std::upper_bound(note_idx.begin(), note_idx.end(), n), n);
+  }
+}
+
+void trackController::remove(unsigned int n) {
+  // live notes only change hands shortly after they arrive, so they sit near the end
+  for (auto it = note_idx.rbegin(); it != note_idx.rend(); ++it) {
+    if (*it == n) {
+      note_idx.erase(std::next(it).base());
+      noteCount--;
+      noteSum -= n_vec->at(n).y;
+      return;
+    }
+  }
 }
 
 void trackController::buildChordMap() {

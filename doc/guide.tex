@@ -205,7 +205,7 @@ tools that are not Windows-compatible. This means that both Linux and Windows ex
 First, obtain the source code by cloning 
 \textcolor{lcol}{(\raisebox{-0.1\height}{\faGithub} \href{https://github.com/iikare/nodumi}{iikare/nodumi})}.
 Then, run \mi{make rel=y} for a Linux release build, or \mi{make arch=win rel=y} for a Windows release build.
-Adding \mi{torch=y} to a Linux build enables the LSTM track classifier (see Section 
+Adding \mi{torch=y} to a Linux build enables the neural track classifier (see Section 
 \textcolor{lcol}{\hyperref[subsec:lstm]{\ref{subsec:lstm}}}), and \mi{make f} builds both release executables at once.
 Compile-time dependencies are listed as submodules in the directory, so make sure to obtain them as well.
 The build also expects \mi{clang}/\mi{clang++} (C++23), the \mi{mold} linker, \mi{zsh}, \mi{git}, \mi{xxd},
@@ -602,10 +602,10 @@ this mode, and then select the corresponding MIDI input port via
 This feature is accessible via 
 \mi{Midi} $\rightarrow$ \mi{{Enable, Disable} Live Play}.
 
-\subsection{LSTM-Based Track Separation}
+\subsection{Neural Track Separation}
 \label{subsec:lstm}
 
-Using a small LSTM (dependent on \mi{libtorch}, available only on Linux, and requiring compile-time support), left/right hand detection from a single live MIDI input can be done. It is enabled by the \textit{Use LSTM Classifier} preference. This is primarily intended for use with instruments such as piano, organ, etc. If the program is compiled without \mi{libtorch} support, this feature will fall back to a heuristic-based algorithm for track separation, if enabled via the corresponding
+Using a small transformer network (dependent on \mi{libtorch}, available only on Linux, and requiring compile-time support), left/right hand detection can be done for live MIDI input and for single-track MIDI files. It is enabled by the \textit{Use Neural Classifier} preference. A live note gets a hand as soon as it arrives, which is settled about 40 ms later, once the rest of a chord has been heard. A file is classified when it is loaded, with every note in view. This is primarily intended for use with instruments such as piano, organ, etc. If the program is compiled without \mi{libtorch} support, this feature will fall back to a heuristic-based algorithm for track separation, if enabled via the corresponding
 \textcolor{lcol}{\hyperref[subsec:adaptivetrackdivision]{option}}.
 
 \section{Color Selection}
@@ -886,13 +886,14 @@ by default.
 This option is available only when the Adaptive Track Division option is enabled. The user is able to select the 
 maximum hand range ($8^\text{th}$, $9^\text{th}$, $10^\text{th}$, or $11^\text{th}$) that suits them best. The 
 track division algorithm will then take the user's choice into effect. The default hand range is a $10^\text{th}$.
-This option is unavailable while the LSTM classifier is in use.
+This option is unavailable while the neural classifier is in use.
 
-\subsection{LSTM Classifier}
+\subsection{Neural Classifier}
 
-When the program is built with \mi{libtorch} support, live track division can use the LSTM model described in Section
+When the program is built with \mi{libtorch} support, live and single-track file division can use the model described in Section
 \textcolor{lcol}{\hyperref[subsec:lstm]{\ref{subsec:lstm}}} instead of the heuristic algorithm. This option is unavailable
-otherwise, or when live track division is disabled.
+otherwise, or when both live and file track division are disabled. A file is divided when it is loaded, so reload
+that file for this option to take effect.
 
 \subsection{Quantization Threshold}
 \label{subsec:quantize}

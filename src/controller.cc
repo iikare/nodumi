@@ -186,7 +186,9 @@ pair<unsigned char*, unsigned int>& controller::getModel(const string& modelIden
   auto it = modelMap.find(modelIdentifier);
   if (it == modelMap.end()) {
     logW(LL_CRIT, "attempt to load unloaded model w/ identifier: " + modelIdentifier);
-    // exit(1);
+    // a missing model reads as empty, which the classifier checks for
+    static pair<unsigned char*, unsigned int> missing = {nullptr, 0};
+    return missing;
   }
   return it->second;
 }
