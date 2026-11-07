@@ -38,9 +38,10 @@ void midi::buildLineMap() {
   auto track_comp = [](const auto& a, const auto& b) { return a.x_l >= b.x_l; };
 
   if (ctr.getLiveState()) {
-    lines.insert(lines.begin(), tracks[0].lines.begin(), tracks[0].lines.end());
-    lines.insert(lines.begin(), tracks[1].lines.begin(), tracks[1].lines.end());
-    sort(lines.begin(), lines.end(), track_comp);
+    // each hand's lines are already in onset order
+    lines.reserve(tracks[0].lines.size() + tracks[1].lines.size());
+    merge(tracks[0].lines.begin(), tracks[0].lines.end(), tracks[1].lines.begin(), tracks[1].lines.end(),
+          back_inserter(lines), [](const auto& a, const auto& b) { return a.x_l < b.x_l; });
   }
   else if (tracks.size() > 1) {
     unsigned int n_line = 0;

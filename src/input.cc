@@ -115,8 +115,11 @@ void midiInput::resetInput(bool keepPort) {
   unassigned.clear();
   undecided.clear();
 
-  for (unsigned int i = 0; i < noteStream.getTracks().size(); i++) {
-    noteStream.getTracks()[i].reset();
+  // clearing the stream drops its tracks, but live notes are always split between two hands
+  noteStream.getTracks().resize(2);
+  for (auto& t : noteStream.getTracks()) {
+    t.reset();
+    t.setNoteVector(&noteStream.notes);
   }
 
   resetStream();
